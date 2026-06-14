@@ -1,0 +1,1 @@
+[变分自编码器VAE：原来是这么一回事 | 附开源代码](https://www.zhihu.com/collection/761989374)

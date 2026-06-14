@@ -1,0 +1,1 @@
+[大模型归一化：Pre-Norm vs PostNorm](https://zhuanlan.zhihu.com/p/29389937092)
