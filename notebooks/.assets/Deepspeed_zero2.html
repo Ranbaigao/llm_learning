@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSpeed ZeRO-2 核心流程演示 (动态流转版)</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #334155;
+            --gpu-bg: #ffffff;
+            --border-color: #cbd5e1;
+            /* 4个Partition(切片)的专属颜色 */
+            --c0: #bfdbfe; --c0-text: #1e3a8a; --c0-border: #60a5fa; /* GPU0 - P0 */
+            --c1: #bbf7d0; --c1-text: #14532d; --c1-border: #4ade80; /* GPU1 - P1 */
+            --c2: #fef08a; --c2-text: #713f12; --c2-border: #facc15; /* GPU2 - P2 */
+            --c3: #e9d5ff; --c3-text: #581c87; --c3-border: #c084fc; /* GPU3 - P3 */
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        h1 { margin-top: 0; color: #0f172a; text-align: center; }
+        
+        .container { width: 100%; max-width: 1300px; }
+        
+        /* 控制面板 */
+        .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; background-color: #3b82f6; color: white; transition: background 0.3s; }
+        button:hover:not(:disabled) { background-color: #2563eb; }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        /* 状态说明板 */
+        .info-panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 30px; text-align: center; border-left: 5px solid #3b82f6; transition: all 0.3s ease; }
+        .info-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; color: #1e40af; }
+        .info-desc { font-size: 15px; line-height: 1.6; }
+
+        /* GPU 容器 */
+        .gpu-cluster { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 40px; }
+        .gpu { background: var(--gpu-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 15px; }
+        .gpu-title { text-align: center; font-weight: bold; font-size: 18px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 5px; }
+
+        /* 数据块区域 */
+        .section-title { font-size: 13px; font-weight: bold; color: #64748b; margin-bottom: 5px; }
+        .data-grid { display: flex; flex-direction: column; gap: 6px; }
+        
+        /* 通信桶 (Bucket) 容器 */
+        .bucket-row { display: flex; width: 100%; height: 32px; border-radius: 6px; overflow: hidden; background: #e2e8f0; border: 1px solid #94a3b8;}
+        
+        /* 切片 (Partition) 块 */
+        .chunk { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; transition: all 0.4s ease; border-right: 1px solid rgba(255,255,255,0.3); }
+        .chunk:last-child { border-right: none; }
+        
+        .c0 { background-color: var(--c0); color: var(--c0-text); }
+        .c1 { background-color: var(--c1); color: var(--c1-text); }
+        .c2 { background-color: var(--c2); color: var(--c2-text); }
+        .c3 { background-color: var(--c3); color: var(--c3-text); }
+        
+        /* 动画与状态类 */
+        .fade-out { opacity: 0; visibility: hidden; } /* 彻底隐藏代表显存释放 */
+        .dimmed { opacity: 0.3; } /* 变暗代表非激活 */
+        .empty-placeholder { flex: 1; background: transparent; }
+        .highlight-pulse { animation: pulse 0.8s infinite; z-index: 10; position: relative; box-shadow: inset 0 0 15px rgba(0,0,0,0.4); }
+        @keyframes pulse { 0% { filter: brightness(1); } 50% { filter: brightness(1.3); transform: scale(1.05); } 100% { filter: brightness(1); } }
+        
+        /* 详细图解区域 */
+        .deep-dive { background: #1e293b; color: white; padding: 25px; border-radius: 12px; display: none; }
+        .deep-dive.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .diagram-title { color: #38bdf8; font-size: 18px; margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        
+        .comm-diagram { display: flex; justify-content: center; align-items: center; gap: 30px; padding: 15px 0; }
+        .diagram-box { background: #334155; padding: 10px; border-radius: 8px; text-align: center; }
+        .diagram-row { display: flex; height: 30px; width: 200px; margin-top: 10px; border-radius: 4px; overflow: hidden;}
+        
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>DeepSpeed ZeRO-2 (真正 Reduce-Scatter 逻辑版)</h1>
+    <p style="text-align: center; color: #64748b; margin-top: -10px; margin-bottom: 20px;">
+        在底层实现中，参数和梯度被展平为一维数组，并均匀分为 4 个 <b>切片 (Partition 0~3)</b>。<br>
+        每次通信以 <b>桶 (Bucket)</b> 为单位，反向传播算完一个 Bucket，就立刻触发 Reduce-Scatter 将其打散均分！
+    </p>
+
+    <!-- 状态说明板 -->
+    <div class="info-panel">
+        <div class="info-title" id="step-title">阶段 0: 初始状态</div>
+        <div class="info-desc" id="step-desc">初始化...</div>
+    </div>
+
+    <!-- 控制按钮 -->
+    <div class="controls">
+        <button id="btn-prev" onclick="changeStep(-1)" disabled>◀ 上一步</button>
+        <button id="btn-next" onclick="changeStep(1)">下一步 ▶</button>
+    </div>
+
+    <!-- GPU 集群可视化 -->
+    <div class="gpu-cluster" id="gpu-cluster">
+        <!-- JS 动态生成 -->
+    </div>
+
+    <!-- 详细图解：Reduce-Scatter -->
+    <div class="deep-dive" id="deep-dive-rs">
+        <h3 class="diagram-title">🔍 阶段总结剖析：真正的 Ring Reduce-Scatter (打散与均分)</h3>
+        <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">
+            <b>错误认知：</b>所有人把整个 Bucket 全发给某一张卡（导致单点带宽拥堵，违背 Scatter 原理）。<br>
+            <b>真正逻辑：</b>如刚才动画演示，每个 Bucket 刚满血产生，立刻在通信结束瞬间被<b>切成 4 份</b>。GPU 0 拿走 P0，GPU 1 拿走 P1... 其余 3/4 的显存立刻被释放！这样所有卡的上下行带宽都被跑满，效率最高。
+        </p>
+        <div class="comm-diagram">
+            <div class="diagram-box">
+                <div>Reduce 前的某一个 Bucket</div>
+                <div class="diagram-row">
+                    <div class="chunk c0">P0</div><div class="chunk c1">P1</div><div class="chunk c2">P2</div><div class="chunk c3">P3</div>
+                </div>
+            </div>
+            <div style="font-size: 30px; color: #38bdf8;">➔</div>
+            <div class="diagram-box">
+                <div>Reduce-Scatter 后 (各卡只留 1/4)</div>
+                <div style="display:flex; flex-direction:column; gap:5px; margin-top:10px; text-align: left; font-size: 12px;">
+                    <div>GPU 0 显存: <span class="c0" style="padding:2px 10px">P0</span> (释放 P1,P2,P3)</div>
+                    <div>GPU 1 显存: <span class="c1" style="padding:2px 10px">P1</span> (释放 P0,P2,P3)</div>
+                    <div>GPU 2 显存: <span class="c2" style="padding:2px 10px">P2</span> (释放 P0,P1,P3)</div>
+                    <div>GPU 3 显存: <span class="c3" style="padding:2px 10px">P3</span> (释放 P0,P1,P2)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详细图解：All-Gather -->
+    <div class="deep-dive" id="deep-dive-ag">
+        <h3 class="diagram-title">🔍 深度图解：All-Gather 过程 (参数同步)</h3>
+        <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">
+            更新完成后，每张卡上的参数只有自己负责的那 1/4 是最新的。<br>
+            通过 <b>All-Gather</b> 操作，GPU 0 广播新的 P0，GPU 1 广播新的 P1... 所有卡收集齐 4 个最新切片，重构出完整的模型参数，准备下一轮前向传播。
+        </p>
+    </div>
+
+</div>
+
+<script>
+    // 定义 4 个通信桶 (对应模型的不同层)
+    const buckets = [1, 2, 3, 4];
+    // 4 个 Partition 切片 (对应 4 张 GPU)
+    const partitions = [0, 1, 2, 3];
+
+    let currentStep = 0;
+    let animVersion = 0; // 用于控制动画的取消
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    const steps = [
+        {
+            title: "阶段 0: 初始状态 (Initialization)",
+            desc: "一维展平的模型参数被切分为 4 个 <b>Partition (P0~P3)</b>。<br>目前，<b>模型参数 (Parameters)</b> 在所有 GPU 上完整存在（P0~P3俱全）。<br>而 <b>优化器状态 (OS)</b> 已经完成了分区，每张 GPU <b>只维护自己负责的那个 1/4 切片</b>（比如 GPU 0 只存 P0）。"
+        },
+        {
+            title: "阶段 1: 反向传播与动态 Reduce-Scatter (核心精髓)",
+            desc: "<b>▶ 动态演示中：</b>反向传播按层逆向计算。当算出底部的 <b>Bucket 4</b> 时，不等前方的层算完，<b>立刻触发 Reduce-Scatter</b> 将其打散均分！<br>每张卡只保留属于自己的 1/4，剩余显存<b>瞬间释放</b>。接着继续向上计算 Bucket 3... 这是计算与通信完美的动态重叠！"
+        },
+        {
+            title: "阶段 2: Reduce-Scatter 静态结果剖析",
+            desc: "此时整个反向传播与通信已完成。你不再看到完整的 Bucket，因为它们已经被<b>边算边打散（Scatter）</b>了。<br>单卡梯度显存峰值仅为原来的 1/4，同时完美打满了 4 张 GPU 的上下行带宽。"
+        },
+        {
+            title: "阶段 3: 优化器更新 (Optimizer Step)",
+            desc: "所有的 Bucket 都完成了 Reduce-Scatter。<br>现在，每张 GPU 手里正好握有<b>所有 Bucket 的 1/4 梯度</b>，拼起来恰好是它负责的完整 Partition 梯度！<br>结合本地持有的优化器状态，GPU 开始更新属于自己的 <b>1/4 参数切片</b>（图中闪烁的切片）。"
+        },
+        {
+            title: "阶段 4: 参数同步 (All-Gather)",
+            desc: "参数更新后，GPU 0 只有 P0 是最新的，GPU 1 只有 P1 是最新的。<br>触发 <b>All-Gather</b>！所有 GPU 将自己更新后的 1/4 切片广播给其他人。<br>最终，所有卡再次填满 P0~P3，获得最新全量参数，准备进入下一轮迭代。"
+        }
+    ];
+
+    function initDOM() {
+        const cluster = document.getElementById('gpu-cluster');
+        let html = '';
+
+        for (let gpuIdx = 0; gpuIdx < 4; gpuIdx++) {
+            html += `<div class="gpu" id="gpu-${gpuIdx}">
+                        <div class="gpu-title">GPU ${gpuIdx} <span style="font-size:12px; color:#64748b">(属主: P${gpuIdx})</span></div>`;
+            
+            // 1. 参数 (Parameters)
+            html += `<div><div class="section-title">模型参数 (Parameters)</div><div class="data-grid" id="params-gpu-${gpuIdx}">`;
+            buckets.forEach(b => {
+                html += `<div class="bucket-row">`;
+                partitions.forEach(p => {
+                    html += `<div class="chunk c${p} param-chunk" data-p="${p}">P${p}</div>`;
+                });
+                html += `</div>`;
+            });
+            html += `</div></div>`;
+
+            // 2. 梯度 (Gradients)
+            html += `<div><div class="section-title">梯度 (Gradients Bucket 1~4)</div><div class="data-grid" id="grads-gpu-${gpuIdx}">`;
+            buckets.forEach(b => {
+                html += `<div class="bucket-row">`;
+                partitions.forEach(p => {
+                    // 初始默认不可见
+                    html += `<div class="chunk c${p} grad-chunk fade-out" data-p="${p}">P${p}</div>`;
+                });
+                html += `</div>`;
+            });
+            html += `</div></div>`;
+
+            // 3. 优化器状态 (Optimizer States) - 仅有属主Partition
+            html += `<div><div class="section-title">优化器状态 (OS)</div><div class="data-grid" id="os-gpu-${gpuIdx}">`;
+            buckets.forEach(b => {
+                html += `<div class="bucket-row">`;
+                partitions.forEach(p => {
+                    if (p === gpuIdx) {
+                        html += `<div class="chunk c${p} os-chunk" data-p="${p}">P${p}</div>`;
+                    } else {
+                        html += `<div class="chunk empty-placeholder"></div>`;
+                    }
+                });
+                html += `</div>`;
+            });
+            html += `</div></div>`;
+
+            html += `</div>`;
+        }
+        cluster.innerHTML = html;
+    }
+
+    function changeStep(delta) {
+        currentStep += delta;
+        if (currentStep < 0) currentStep = 0;
+        if (currentStep > steps.length - 1) currentStep = steps.length - 1;
+        
+        document.getElementById('btn-prev').disabled = currentStep === 0;
+        document.getElementById('btn-next').disabled = currentStep === steps.length - 1;
+
+        document.getElementById('step-title').innerHTML = steps[currentStep].title;
+        document.getElementById('step-desc').innerHTML = steps[currentStep].desc;
+
+        updateVisuals();
+    }
+
+    // 核心：动态展示反向传播与 Reduce-Scatter 重叠的流水线动画
+    async function playDynamicBackward() {
+        animVersion++; // 取消可能正在运行的旧动画
+        let myVersion = animVersion;
+        
+        // 初始化：全部置为空
+        document.querySelectorAll('.grad-chunk').forEach(c => {
+            c.classList.add('fade-out');
+            c.classList.remove('highlight-pulse');
+        });
+
+        await sleep(400); // 留出视觉缓冲
+        if (myVersion !== animVersion || currentStep !== 1) return;
+
+        // 反向传播的精髓：从最后面的层（Bucket 4，数组末端，index=3）开始往前算
+        for (let b = 3; b >= 0; b--) {
+            if (myVersion !== animVersion || currentStep !== 1) return;
+            
+            // 动作 A：计算出当前 Bucket 的全量梯度 (填满该行)
+            for (let gpu = 0; gpu < 4; gpu++) {
+                let row = document.getElementById(`grads-gpu-${gpu}`).children[b];
+                row.querySelectorAll('.grad-chunk').forEach(c => {
+                    c.classList.remove('fade-out');
+                    c.classList.add('highlight-pulse'); // 闪烁表示正在占用大量显存计算
+                });
+            }
+            
+            // 停顿：展示完整 Bucket 的存在瞬间
+            await sleep(1100); 
+            if (myVersion !== animVersion || currentStep !== 1) return;
+            
+            // 动作 B：立刻触发 Reduce-Scatter！(打散均分，非属主显存瞬间清空)
+            for (let gpu = 0; gpu < 4; gpu++) {
+                let row = document.getElementById(`grads-gpu-${gpu}`).children[b];
+                row.querySelectorAll('.grad-chunk').forEach(c => {
+                    c.classList.remove('highlight-pulse');
+                    let p = parseInt(c.getAttribute('data-p'));
+                    if (p !== gpu) {
+                        c.classList.add('fade-out'); // 核心：显存释放！
+                    } else {
+                        // 属主保留自己的 1/4，稍微闪烁一下代表接收完成
+                        c.classList.add('highlight-pulse');
+                        setTimeout(() => {
+                            if (c && currentStep === 1) c.classList.remove('highlight-pulse');
+                        }, 500);
+                    }
+                });
+            }
+            
+            // 停顿：展示释放完毕，准备计算上方的一层
+            await sleep(900);
+        }
+    }
+
+    function updateVisuals() {
+        document.getElementById('deep-dive-rs').classList.remove('active');
+        document.getElementById('deep-dive-ag').classList.remove('active');
+
+        // 如果切出了阶段1，强制中断正在进行的动画流水线
+        if (currentStep !== 1) {
+            animVersion++; 
+        }
+
+        for (let gpuIdx = 0; gpuIdx < 4; gpuIdx++) {
+            const gradChunks = document.querySelectorAll(`#grads-gpu-${gpuIdx} .grad-chunk`);
+            const paramChunks = document.querySelectorAll(`#params-gpu-${gpuIdx} .param-chunk`);
+            const osChunks = document.querySelectorAll(`#os-gpu-${gpuIdx} .os-chunk`);
+
+            // --- 处理梯度 (Gradients) 静态逻辑 ---
+            if (currentStep !== 1) {
+                gradChunks.forEach(chunk => {
+                    const pIdx = parseInt(chunk.getAttribute('data-p'));
+                    chunk.classList.remove('highlight-pulse');
+                    
+                    if (currentStep === 0) {
+                        chunk.classList.add('fade-out'); // Step 0: 空
+                    } else if (currentStep === 2 || currentStep === 3) {
+                        // Step 2&3: Reduce-Scatter 最终静态固定状态
+                        if (pIdx !== gpuIdx) {
+                            chunk.classList.add('fade-out');
+                        } else {
+                            chunk.classList.remove('fade-out');
+                            if (currentStep === 2) chunk.classList.add('highlight-pulse'); // 剖析页面加亮展示
+                        }
+                    } else if (currentStep === 4) {
+                        chunk.classList.add('fade-out'); // All-Gather 后清理梯度
+                    }
+                });
+            }
+
+            // --- 处理模型参数 (Parameters) 逻辑 ---
+            paramChunks.forEach(chunk => {
+                const pIdx = parseInt(chunk.getAttribute('data-p'));
+                chunk.classList.remove('highlight-pulse', 'dimmed');
+                
+                if (currentStep === 3) {
+                    // Step 3: 更新本地参数，非属主的变暗，属主的闪烁
+                    if (pIdx === gpuIdx) {
+                        chunk.classList.add('highlight-pulse');
+                    } else {
+                        chunk.classList.add('dimmed');
+                    }
+                } else if (currentStep === 4) {
+                    // Step 4: All-Gather，所有块高亮一下表示接收到了最新数据
+                    chunk.classList.add('highlight-pulse');
+                    setTimeout(() => chunk.classList.remove('highlight-pulse'), 1200);
+                }
+            });
+
+            // --- 处理优化器 (OS) 逻辑 ---
+            osChunks.forEach(chunk => {
+                chunk.classList.remove('highlight-pulse');
+                if (currentStep === 3) {
+                    chunk.classList.add('highlight-pulse'); // 更新时参与计算
+                }
+            });
+        }
+
+        // --- 触发特殊事件 ---
+        if (currentStep === 1) {
+            // 在阶段 1 触发动态流水线动画
+            playDynamicBackward();
+        } else if (currentStep === 2) {
+            // 在阶段 2 展现 Reduce-Scatter 剖析解说
+            document.getElementById('deep-dive-rs').classList.add('active');
+        } else if (currentStep === 4) {
+            // 在阶段 4 展现 All-Gather 剖析解说
+            document.getElementById('deep-dive-ag').classList.add('active');
+        }
+    }
+
+    // 初始化
+    window.onload = () => {
+        initDOM();
+        updateVisuals();
+    };
+</script>
+</body>
+</html>

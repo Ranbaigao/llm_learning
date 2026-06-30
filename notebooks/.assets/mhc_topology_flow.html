@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mHC 宏观拓扑流程图</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #cbd5e1;
+    --soft: #f1f5f9;
+    --blue: #2563eb;
+    --blue-soft: #dbeafe;
+    --green: #16a34a;
+    --green-soft: #dcfce7;
+    --orange: #d97706;
+    --orange-soft: #ffedd5;
+    --purple: #7c3aed;
+    --purple-soft: #ede9fe;
+    --rose: #e11d48;
+    --rose-soft: #ffe4e6;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+  }
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.55rem;
+    letter-spacing: 0;
+    color: var(--ink);
+  }
+
+  .subtitle {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .pill {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: #334155;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0;
+    align-items: center;
+  }
+
+  .toolbar-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  button {
+    border: 1px solid transparent;
+    background: var(--panel);
+    color: #334155;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.86rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.18s;
+  }
+
+  button:hover {
+    border-color: var(--blue);
+    color: #1e40af;
+    background: var(--blue-soft);
+  }
+
+  button.active {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #ffffff;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .diagram-shell,
+  .side-panel,
+  .comparison,
+  .shape-strip {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  }
+
+  .diagram-shell {
+    padding: 18px;
+    min-height: 600px;
+  }
+
+  .section-label {
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .mhc-board {
+    display: grid;
+    grid-template-columns: minmax(145px, 0.8fr) 52px minmax(300px, 1.25fr) 52px minmax(145px, 0.8fr);
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .lane-bank {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    background: #ffffff;
+    min-height: 410px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bank-title {
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+
+  .lanes {
+    display: grid;
+    gap: 10px;
+    flex: 1;
+    align-content: center;
+  }
+
+  .lane {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lane-index {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.82rem;
+    box-shadow: inset 0 -8px 14px rgba(15, 23, 42, 0.18);
+  }
+
+  .lane-track {
+    height: 38px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #f8fafc;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .lane-fill {
+    height: 100%;
+    width: var(--w, 75%);
+    background: var(--c, var(--blue));
+    opacity: 0.84;
+  }
+
+  .lane-track span {
+    position: absolute;
+    inset: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: #0f172a;
+    font-size: 0.78rem;
+    font-weight: 750;
+    white-space: nowrap;
+  }
+
+  .arrow-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 2rem;
+    font-weight: 300;
+  }
+
+  .router {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    gap: 12px;
+  }
+
+  .route-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr) 32px minmax(0, 1fr);
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .node {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 116px;
+    background: #ffffff;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .node-title {
+    font-size: 0.88rem;
+    font-weight: 850;
+    color: #1e293b;
+    margin-bottom: 6px;
+  }
+
+  .node-sub {
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .node-formula {
+    margin-top: 8px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    background: var(--soft);
+    color: #334155;
+    font-family: "Cascadia Mono", "Consolas", monospace;
+    font-size: 0.74rem;
+    white-space: nowrap;
+    overflow-x: auto;
+  }
+
+  .route-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 1.65rem;
+    font-weight: 300;
+  }
+
+  .mix-area {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .matrix-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .matrix-title {
+    color: #1e293b;
+    font-weight: 850;
+    font-size: 0.9rem;
+  }
+
+  .matrix-badge {
+    color: #166534;
+    background: var(--green-soft);
+    border: 1px solid #bbf7d0;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  .matrix-grid {
+    display: grid;
+    gap: 5px;
+    max-width: 315px;
+    margin: 0 auto;
+  }
+
+  .mcell {
+    min-height: 34px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    font-family: "Cascadia Mono", "Consolas", monospace;
+    font-size: 0.76rem;
+    font-weight: 750;
+  }
+
+  .mix-caption {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  .final-formula {
+    margin-top: 14px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--purple);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    color: #4c1d95;
+    background: #faf5ff;
+    font-family: "Cascadia Mono", "Consolas", monospace;
+    font-size: 0.86rem;
+    overflow-x: auto;
+  }
+
+  [data-node].active {
+    border-color: var(--blue) !important;
+    background: #eff6ff !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13);
+    transform: translateY(-1px);
+  }
+
+  .node.read.active {
+    border-color: var(--blue) !important;
+    background: var(--blue-soft) !important;
+  }
+
+  .node.compute.active {
+    border-color: var(--orange) !important;
+    background: var(--orange-soft) !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.14);
+  }
+
+  .mix-area.active {
+    border-color: var(--green) !important;
+    background: var(--green-soft) !important;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14);
+  }
+
+  .node.write.active {
+    border-color: var(--purple) !important;
+    background: var(--purple-soft) !important;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.14);
+  }
+
+  .side-panel {
+    padding: 18px;
+    position: sticky;
+    top: 14px;
+  }
+
+  .step-kicker {
+    color: var(--blue);
+    font-size: 0.78rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .step-title {
+    margin: 6px 0 8px;
+    color: var(--ink);
+    font-size: 1.12rem;
+    font-weight: 850;
+  }
+
+  .step-desc {
+    color: #475569;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+
+  .step-list {
+    margin: 0;
+    padding-left: 18px;
+    color: #475569;
+    font-size: 0.86rem;
+  }
+
+  .step-list li { margin-bottom: 6px; }
+
+  .code-shape {
+    margin-top: 14px;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 13px 14px;
+    font-family: "Cascadia Mono", "Consolas", monospace;
+    font-size: 0.78rem;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+
+  .comparison {
+    margin-top: 18px;
+    padding: 16px;
+  }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .compare-item {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    background: #ffffff;
+  }
+
+  .compare-title {
+    font-weight: 850;
+    margin-bottom: 8px;
+    color: #1e293b;
+  }
+
+  .single-road,
+  .multi-road {
+    display: grid;
+    gap: 7px;
+    margin: 10px 0;
+  }
+
+  .road {
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #eef2ff;
+    display: flex;
+    align-items: center;
+    padding: 0 9px;
+    font-size: 0.78rem;
+    font-weight: 750;
+    color: #3730a3;
+  }
+
+  .multi-road .road:nth-child(1) { background: #dbeafe; color: #1e3a8a; }
+  .multi-road .road:nth-child(2) { background: #ffedd5; color: #7c2d12; }
+  .multi-road .road:nth-child(3) { background: #dcfce7; color: #14532d; }
+  .multi-road .road:nth-child(4) { background: #ede9fe; color: #4c1d95; }
+  .multi-road .road:nth-child(5) { background: #ffe4e6; color: #881337; }
+  .multi-road .road:nth-child(6) { background: #fef9c3; color: #713f12; }
+
+  .compare-text {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .shape-strip {
+    margin-top: 18px;
+    padding: 16px;
+  }
+
+  .shape-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .shape {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px;
+    background: #ffffff;
+  }
+
+  .shape b {
+    display: block;
+    font-size: 0.82rem;
+    color: #1e293b;
+    margin-bottom: 4px;
+  }
+
+  .shape span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-family: "Cascadia Mono", "Consolas", monospace;
+  }
+
+  @media (max-width: 980px) {
+    body { padding: 16px; }
+    header { align-items: flex-start; flex-direction: column; }
+    .pill-row { justify-content: flex-start; }
+    .main-grid { grid-template-columns: 1fr; }
+    .side-panel { position: static; }
+    .mhc-board {
+      grid-template-columns: 1fr;
+    }
+    .arrow-column {
+      transform: rotate(90deg);
+      min-height: 40px;
+    }
+    .route-row {
+      grid-template-columns: 1fr;
+    }
+    .route-arrow {
+      transform: rotate(90deg);
+      min-height: 24px;
+    }
+    .shape-grid,
+    .compare-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div>
+      <h1>mHC 宏观拓扑流程图</h1>
+      <p class="subtitle">mHC 不改 Attention/FFN 的计算本体，而是改造残差流之间的读、混合、写。</p>
+    </div>
+    <div class="pill-row">
+      <span class="pill">残差流从 1 条扩到 n 条</span>
+      <span class="pill">主干计算仍是 C 维</span>
+      <span class="pill">H<sub>res</sub> 受 Birkhoff 约束</span>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="toolbar-group" id="step-buttons">
+      <button data-step="0" class="active">总览</button>
+      <button data-step="1">① Read</button>
+      <button data-step="2">② Compute</button>
+      <button data-step="3">③ Mix</button>
+      <button data-step="4">④ Write</button>
+    </div>
+    <div class="toolbar-group" id="stream-buttons">
+      <button data-n="2">n=2</button>
+      <button data-n="4" class="active">n=4</button>
+      <button data-n="6">n=6</button>
+    </div>
+    <div class="toolbar-group" id="matrix-buttons">
+      <button data-preset="identity" class="active">单位矩阵</button>
+      <button data-preset="uniform">均匀混合</button>
+      <button data-preset="shift">循环移位</button>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <section class="diagram-shell">
+      <div class="section-label">One Transformer Sublayer Wrapped By mHC</div>
+      <div class="mhc-board">
+        <div class="lane-bank" data-node="streams">
+          <div class="bank-title">输入残差流 x<sub>l</sub></div>
+          <div class="lanes" id="input-lanes"></div>
+        </div>
+
+        <div class="arrow-column">→</div>
+
+        <div class="router">
+          <div class="route-row">
+            <div class="node read" data-node="read">
+              <div class="node-title">H<sub>pre</sub> · Read</div>
+              <div class="node-sub">从 n 条残差流里加权读取，聚合成主干层能吃下的 1 条 C 维输入。</div>
+              <div class="node-formula">x<sub>main</sub> = H<sub>pre</sub> · x<sub>l</sub></div>
+            </div>
+            <div class="route-arrow">→</div>
+            <div class="node compute" data-node="compute">
+              <div class="node-title">F · Attention / FFN</div>
+              <div class="node-sub">主干网络照常工作，不需要知道外面有几条残差流。</div>
+              <div class="node-formula">y = F(x<sub>main</sub>)</div>
+            </div>
+            <div class="route-arrow">→</div>
+            <div class="node write" data-node="write">
+              <div class="node-title">H<sub>post</sub> · Write</div>
+              <div class="node-sub">把主干层的新结果按比例广播回 n 条残差流。</div>
+              <div class="node-formula">H<sub>post</sub> ⊙ y</div>
+            </div>
+          </div>
+
+          <div class="mix-area" data-node="mix">
+            <div class="matrix-head">
+              <div class="matrix-title">H<sub>res</sub> · 残差内循环混合</div>
+              <div class="matrix-badge">行和=1 · 列和=1</div>
+            </div>
+            <div id="matrix-grid" class="matrix-grid"></div>
+            <div class="mix-caption">
+              Sinkhorn 把原始路由矩阵拉回 Birkhoff polytope，约束车道间交换不整体放大信号。
+            </div>
+          </div>
+
+          <div class="final-formula">
+            x<sub>l+1</sub> =
+            H<sub>res</sub> · x<sub>l</sub>
+            + H<sub>post</sub> ⊙ F(H<sub>pre</sub> · x<sub>l</sub>)
+          </div>
+        </div>
+
+        <div class="arrow-column">→</div>
+
+        <div class="lane-bank" data-node="output">
+          <div class="bank-title">输出残差流 x<sub>l+1</sub></div>
+          <div class="lanes" id="output-lanes"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side-panel">
+      <div class="step-kicker" id="step-kicker">Overview</div>
+      <div class="step-title" id="step-title">从“一个加号”变成“读、算、混、写”</div>
+      <div class="step-desc" id="step-desc">
+        标准残差连接只有 x + F(x)。mHC 把残差状态扩成 n 条并行流，再用三套路由权重控制信息流向。
+      </div>
+      <ul class="step-list" id="step-list">
+        <li>H<sub>pre</sub> 负责从多条流中读取。</li>
+        <li>F 仍然是普通 Attention 或 FFN。</li>
+        <li>H<sub>res</sub> 负责流与流之间的稳定混合。</li>
+        <li>H<sub>post</sub> 负责把新结果写回多条流。</li>
+      </ul>
+      <pre class="code-shape" id="code-shape">x:        [B, T, n, C]
+H_pre:   [B, T, n, 1]
+H_res:   [B, T, n, n]
+H_post:  [B, T, n, 1]
+x_next:  [B, T, n, C]</pre>
+    </aside>
+  </div>
+
+  <section class="comparison">
+    <div class="section-label">Residual Topology</div>
+    <div class="compare-grid">
+      <div class="compare-item">
+        <div class="compare-title">标准 Transformer</div>
+        <div class="single-road">
+          <div class="road">一条 C 维残差流：x<sub>l</sub> → x<sub>l</sub> + F(x<sub>l</sub>)</div>
+        </div>
+        <div class="compare-text">所有信息挤在同一条残差通道里，模型能力主要靠加深或加宽主干网络扩展。</div>
+      </div>
+      <div class="compare-item">
+        <div class="compare-title">mHC Transformer</div>
+        <div class="multi-road" id="mini-roads"></div>
+        <div class="compare-text">残差状态变宽，主干计算宽度保持 C；额外成本集中在很小的路由矩阵和门控上。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="shape-strip">
+    <div class="section-label">Tensor Shape Cheat Sheet</div>
+    <div class="shape-grid">
+      <div class="shape">
+        <b>输入状态</b>
+        <span>x: [B,T,n,C]</span>
+      </div>
+      <div class="shape">
+        <b>Read 门控</b>
+        <span>H_pre: [B,T,n,1]</span>
+      </div>
+      <div class="shape">
+        <b>主干输入</b>
+        <span>sum_n(H_pre*x): [B,T,C]</span>
+      </div>
+      <div class="shape">
+        <b>Mix 矩阵</b>
+        <span>H_res: [B,T,n,n]</span>
+      </div>
+      <div class="shape">
+        <b>输出状态</b>
+        <span>x_next: [B,T,n,C]</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const colors = ['#2563eb', '#d97706', '#16a34a', '#7c3aed', '#e11d48', '#ca8a04'];
+const widths = [82, 64, 73, 56, 69, 61];
+
+const state = {
+  n: 4,
+  step: 0,
+  preset: 'identity'
+};
+
+const stepCopy = [
+  {
+    kicker: 'Overview',
+    title: '从“一个加号”变成“读、算、混、写”',
+    desc: '标准残差连接只有 x + F(x)。mHC 把残差状态扩成 n 条并行流，再用三套路由权重控制信息流向。',
+    bullets: [
+      'H_pre 负责从多条流中读取。',
+      'F 仍然是普通 Attention 或 FFN。',
+      'H_res 负责流与流之间的稳定混合。',
+      'H_post 负责把新结果写回多条流。'
+    ],
+    active: ['streams', 'read', 'compute', 'mix', 'write', 'output'],
+    code: `x:        [B, T, n, C]
+H_pre:   [B, T, n, 1]
+H_res:   [B, T, n, n]
+H_post:  [B, T, n, 1]
+x_next:  [B, T, n, C]`
+  },
+  {
+    kicker: 'Step 1 / Read',
+    title: 'H_pre 把 n 条残差流聚合成 1 条主干输入',
+    desc: 'Attention 或 FFN 的输入宽度仍然是 C。H_pre 像一个读取门控，决定每条残差流贡献多少。',
+    bullets: [
+      '输入是 [B,T,n,C]。',
+      'H_pre 是 [B,T,n,1] 的门控权重。',
+      '沿 n 维求和后得到 [B,T,C]。'
+    ],
+    active: ['streams', 'read'],
+    code: `H_pre = sigmoid(alpha_pre * proj_pre(x))
+x_main = (x * H_pre).sum(dim=2)
+# x_main: [B, T, C]`
+  },
+  {
+    kicker: 'Step 2 / Compute',
+    title: 'F 仍然是原来的 Attention 或 FFN',
+    desc: 'mHC 不重写注意力机制，也不重写 MLP。它只改变 F 外面的残差通信拓扑。',
+    bullets: [
+      '主干层输入是 [B,T,C]。',
+      '计算复杂度主要仍由原来的 F 决定。',
+      '这就是“拓宽残差状态，而不是直接拓宽主干计算”。'
+    ],
+    active: ['read', 'compute'],
+    code: `y = layer_func(x_main)
+# layer_func 可以是 Attention 或 FFN
+# y: [B, T, C]`
+  },
+  {
+    kicker: 'Step 3 / Mix',
+    title: 'H_res 让 n 条残差流互相交换信息',
+    desc: 'H_res 是 mHC 稳定性的核心。它被 Sinkhorn 约束成双随机矩阵，位于 Birkhoff polytope 内。',
+    bullets: [
+      '每一行和每一列都接近 1。',
+      '这让残差混合具有非扩张性质。',
+      '深层堆叠时更不容易发生数值爆炸。'
+    ],
+    active: ['streams', 'mix'],
+    code: `H_raw = proj_res(x).view(B, T, n, n)
+H_res = sinkhorn_knopp(alpha_res * H_raw)
+x_res = torch.matmul(H_res, x)`
+  },
+  {
+    kicker: 'Step 4 / Write',
+    title: 'H_post 把 F 的输出广播回 n 条残差流',
+    desc: '主干层只产出 1 条 C 维结果，H_post 决定这份新信息写入每条残差流的比例。',
+    bullets: [
+      'H_post 的形状是 [B,T,n,1]。',
+      'y.unsqueeze(2) 被广播到 n 条流。',
+      '最终输出仍是 [B,T,n,C]。'
+    ],
+    active: ['mix', 'compute', 'write', 'output'],
+    code: `H_post = 2 * sigmoid(alpha_post * proj_post(x))
+x_next = x_res + H_post * y.unsqueeze(2)
+# x_next: [B, T, n, C]`
+  }
+];
+
+function laneMarkup(i, output = false) {
+  const c = colors[i % colors.length];
+  const w = output ? Math.min(92, widths[(i + 2) % widths.length] + 8) : widths[i % widths.length];
+  const label = output ? `流 ${i + 1}′` : `流 ${i + 1}`;
+  return `
+    <div class="lane">
+      <div class="lane-index" style="background:${c}">${i + 1}</div>
+      <div class="lane-track">
+        <div class="lane-fill" style="--c:${c}; --w:${w}%"></div>
+        <span>${label} · C 维状态</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderLanes() {
+  const input = document.getElementById('input-lanes');
+  const output = document.getElementById('output-lanes');
+  const mini = document.getElementById('mini-roads');
+  input.innerHTML = '';
+  output.innerHTML = '';
+  mini.innerHTML = '';
+  for (let i = 0; i < state.n; i++) {
+    input.insertAdjacentHTML('beforeend', laneMarkup(i, false));
+    output.insertAdjacentHTML('beforeend', laneMarkup(i, true));
+    mini.insertAdjacentHTML('beforeend', `<div class="road">残差流 ${i + 1}: C 维</div>`);
+  }
+}
+
+function matrixValue(i, j) {
+  if (state.preset === 'identity') return i === j ? 1 : 0;
+  if (state.preset === 'uniform') return 1 / state.n;
+  if (state.preset === 'shift') return j === (i + 1) % state.n ? 1 : 0;
+  return 0;
+}
+
+function renderMatrix() {
+  const grid = document.getElementById('matrix-grid');
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${state.n}, minmax(0, 1fr))`;
+  for (let i = 0; i < state.n; i++) {
+    for (let j = 0; j < state.n; j++) {
+      const v = matrixValue(i, j);
+      const alpha = Math.max(0.08, Math.min(1, v));
+      const bg = state.preset === 'uniform'
+        ? `rgba(22,163,74,${0.22 + alpha * 0.55})`
+        : `rgba(37,99,235,${0.10 + alpha * 0.68})`;
+      const text = v === 0 ? '0' : v === 1 ? '1' : v.toFixed(2);
+      grid.insertAdjacentHTML(
+        'beforeend',
+        `<div class="mcell" style="background:${bg}">${text}</div>`
+      );
+    }
+  }
+}
+
+function setStep(step) {
+  state.step = step;
+  document.querySelectorAll('#step-buttons button').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.step) === step);
+  });
+
+  document.querySelectorAll('[data-node]').forEach(el => el.classList.remove('active'));
+  const copy = stepCopy[step];
+  copy.active.forEach(name => {
+    document.querySelectorAll(`[data-node="${name}"]`).forEach(el => el.classList.add('active'));
+  });
+
+  document.getElementById('step-kicker').textContent = copy.kicker;
+  document.getElementById('step-title').textContent = copy.title;
+  document.getElementById('step-desc').textContent = copy.desc;
+  document.getElementById('step-list').innerHTML = copy.bullets.map(item => `<li>${item}</li>`).join('');
+  document.getElementById('code-shape').textContent = copy.code;
+}
+
+function setN(n) {
+  state.n = n;
+  document.querySelectorAll('#stream-buttons button').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.n) === n);
+  });
+  renderLanes();
+  renderMatrix();
+  setStep(state.step);
+}
+
+function setPreset(preset) {
+  state.preset = preset;
+  document.querySelectorAll('#matrix-buttons button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === preset);
+  });
+  renderMatrix();
+}
+
+document.getElementById('step-buttons').addEventListener('click', event => {
+  const button = event.target.closest('button[data-step]');
+  if (!button) return;
+  setStep(Number(button.dataset.step));
+});
+
+document.getElementById('stream-buttons').addEventListener('click', event => {
+  const button = event.target.closest('button[data-n]');
+  if (!button) return;
+  setN(Number(button.dataset.n));
+});
+
+document.getElementById('matrix-buttons').addEventListener('click', event => {
+  const button = event.target.closest('button[data-preset]');
+  if (!button) return;
+  setPreset(button.dataset.preset);
+});
+
+renderLanes();
+renderMatrix();
+setStep(0);
+</script>
+</body>
+</html>

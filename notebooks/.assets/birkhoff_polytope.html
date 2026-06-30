@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Birkhoff Polytope 几何可视化</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f8fafc !important;
+    color: #334155 !important;
+    line-height: 1.7;
+  }
+  h1 {
+    text-align: center;
+    padding: 40px 20px 10px;
+    font-size: 1.8rem;
+    color: #0f172a !important;
+    letter-spacing: 0.04em;
+  }
+  .subtitle {
+    text-align: center;
+    color: #64748b !important;
+    font-size: 0.95rem;
+    margin-bottom: 50px;
+  }
+  .section {
+    max-width: 920px;
+    margin: 0 auto 70px;
+    padding: 0 24px;
+  }
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e40af !important;
+    border-left: 4px solid #3b82f6;
+    padding-left: 14px;
+    margin-bottom: 18px;
+  }
+  .note {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    color: #64748b !important;
+    margin-bottom: 22px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  .note em { color: #2563eb !important; font-style: normal; font-weight: 600; }
+  
+  /* 强制设定所有 canvas 在浅色主题下的背景与边框，防止暗黑模式等强制变黑 */
+  #s1-canvas, #s2-canvas, #s3-canvas, #s3b-canvas, #s4-canvas, #s5-canvas, #s7-streams-in, #s7-streams-out {
+    width: 100%;
+    border-radius: 12px;
+    background-color: #f1f5f9 !important;
+    border: 1px solid #cbd5e1;
+    display: block;
+  }
+  #dim-1d, #dim-3d, #s3a-canvas, #s6-matrix {
+    border-radius: 12px;
+    background-color: #f1f5f9 !important;
+    border: 1px solid #cbd5e1;
+    display: block;
+  }
+
+  /* ── Section 1: Matrix Demo ── */
+  #s1-wrap {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .matrix-panel {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 24px;
+    flex: 1;
+    min-width: 340px; /* 增加最小宽度以防止画布和小格子被挤压变形 */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  }
+  .matrix-panel h3 { font-size: 1rem; margin-bottom: 16px; color: #475569 !important; }
+  .mat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 60px);
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .mat-cell {
+    width: 60px; height: 52px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.05rem; font-weight: 600;
+    transition: background 0.3s, color 0.3s;
+    position: relative;
+    cursor: default;
+  }
+  .mat-cell input {
+    width: 100%; height: 100%;
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a !important; /* 强制使用深色数字 */
+    outline: none;
+    cursor: text;
+  }
+  .sum-label {
+    font-size: 0.78rem;
+    text-align: center;
+    margin-top: 6px;
+    height: 20px;
+  }
+  .row-sums { display: flex; flex-direction: column; gap: 6px; margin-top: 0; }
+  .row-sum-item { height: 52px; display: flex; align-items: center; font-size: 0.85rem; }
+  .check-ok  { color: #16a34a !important; font-weight: bold; }
+  .check-bad { color: #dc2626 !important; font-weight: bold; }
+  .col-sums { display: flex; gap: 6px; margin-top: 6px; }
+  .col-sum-item { width: 60px; text-align: center; font-size: 0.85rem; }
+  #verdict {
+    margin-top: 16px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-align: center;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── Section 2: 2×2 Slider ── */
+  #s2-container { position: relative; }
+  .slider-wrap {
+    margin-top: 18px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .slider-wrap label { color: #64748b !important; font-size: 0.9rem; white-space: nowrap; }
+  #t-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, #3b82f6, #3b82f6) no-repeat;
+    background-size: 50% 100%;
+    background-color: #e2e8f0;
+    outline: none;
+  }
+  #t-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+  }
+  #t-val { color: #3b82f6 !important; font-weight: 700; min-width: 36px; text-align: right; }
+
+  /* ── Section 3: 3×3 Polytope ── */
+  .perm-legend {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px;
+  }
+  .perm-item {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.82rem;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .perm-item:hover { border-color: #3b82f6; background: #eff6ff !important; }
+  .perm-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Section 3: 概念铺垫 ── */
+  .subsection { margin-top: 36px; }
+  .subsection-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #15803d !important;
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+  .dim-ladder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 22px 18px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  }
+  .dim-step { text-align: center; }
+  .dim-label {
+    color: #1e40af !important;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  .dim-caption {
+    color: #64748b !important;
+    font-size: 0.78rem;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .dim-arrow { color: #94a3b8 !important; font-size: 1.6rem; font-weight: 300; }
+  .dim-step-highlight .dim-label { color: #d97706 !important; }
+  .dim-step-highlight .dim-caption { color: #475569 !important; }
+  #s3a-wrap {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .status-text {
+    color: #64748b !important;
+    font-size: 0.88rem;
+    margin-left: 12px;
+  }
+  .perm-6-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .perm-6-cell {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 6px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.1s;
+  }
+  .perm-6-cell:hover { border-color: #3b82f6; background: #eff6ff !important; transform: translateY(-1px); }
+  .perm-6-cell.active { border-color: #3b82f6; background: #eff6ff !important; box-shadow: 0 0 10px rgba(59,130,246,0.2); }
+  .perm-6-cell canvas { display: block; margin: 0 auto 4px; border-radius: 3px; }
+  .perm-6-name { font-size: 0.74rem; }
+  
+  /* 按钮通用强制显色样式，防止暗黑模式冲突 */
+  .ctrl-btn, .decomp-controls button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #475569 !important;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .ctrl-btn:hover, .decomp-controls button:hover {
+    background-color: #eff6ff !important;
+    border-color: #3b82f6 !important;
+    color: #1e40af !important;
+  }
+  .ctrl-btn.active, .decomp-controls button.active {
+    background-color: #dbeafe !important;
+    border-color: #3b82f6 !important;
+    color: #1e40af !important;
+  }
+  
+  code {
+    font-family: 'Courier New', monospace;
+    background: #f1f5f9 !important;
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: #d97706 !important;
+    font-size: 0.86em;
+  }
+
+  /* ── Section 4: Convex Decomposition ── */
+  .decomp-controls {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px;
+  }
+  #decomp-equation {
+    margin-top: 18px;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    color: #475569 !important;
+    line-height: 2;
+    min-height: 80px;
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid #cbd5e1;
+    margin: 30px 0;
+  }
+  
+  /* 公式背景设为纯白色，确保暗黑模式下文字同样高保真清晰 */
+  .formula {
+    background: #ffffff !important;
+    border-left: 4px solid #3b82f6 !important;
+    padding: 10px 18px;
+    border-radius: 0 8px 8px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #1e40af !important;
+    margin: 16px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+
+  /* ── Section 6: Sinkhorn-Knopp demo ── */
+  #s6-wrap {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  #s6-stats {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 16px 20px;
+    min-width: 240px;
+    flex: 1;
+    max-width: 320px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  }
+  #s6-stats h4 {
+    color: #1e40af !important;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .s6-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid #cbd5e1;
+    color: #475569 !important;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+  }
+  .s6-stat-row:last-of-type { border-bottom: none; }
+  .s6-stat-row > span:first-child { color: #64748b !important; }
+  .s6-stat-hint {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #cbd5e1;
+    color: #64748b !important;
+    font-size: 0.78rem;
+    line-height: 1.6;
+  }
+  .s6-tau-val {
+    color: #d97706 !important;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+  }
+  .code-block {
+    background: #f1f5f9 !important;
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: #475569 !important;
+    overflow-x: auto;
+    line-height: 1.7;
+    border-left: 4px solid #3b82f6 !important;
+  }
+  .code-block .cm { color: #6a9955 !important; }
+  .code-block .kw { color: #9333ea !important; }
+  .code-block .fn { color: #2563eb !important; }
+
+  /* ── Section 7: mHC 完整公式解读 ── */
+  .role-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 0.9rem;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .role-table th {
+    background: #f1f5f9 !important;
+    color: #1e40af !important;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 2px solid #cbd5e1;
+    font-weight: 600;
+  }
+  .role-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #cbd5e1;
+    color: #475569 !important;
+  }
+  .role-table tr:last-child td { border-bottom: none; }
+  .role-table tr:nth-child(even) td { background: #f8fafc !important; }
+  .role-table code {
+    background: #e2e8f0 !important;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #d97706 !important;
+    font-family: 'Courier New', monospace;
+    font-size: 0.88em;
+  }
+  #s7-h-grid {
+    display: inline-block;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .h-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .h-cell {
+    width: 56px;
+    height: 30px;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    color: #334155 !important;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 0.88rem;
+    border-radius: 4px;
+    padding: 0;
+  }
+  .h-cell:focus { outline: none; border-color: #3b82f6 !important; }
+  .h-row-sum {
+    color: #64748b !important;
+    font-size: 0.78rem;
+    font-family: 'Courier New', monospace;
+    margin-left: 8px;
+    min-width: 60px;
+  }
+  .h-col-sum { margin-top: 8px; padding-top: 8px; border-top: 1px solid #cbd5e1; }
+  .h-cell-sum {
+    background: #f1f5f9 !important;
+    color: #b45309 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #cbd5e1;
+    cursor: default;
+  }
+  .s7-stats {
+    display: inline-block;
+    margin-top: 14px;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px 18px;
+    min-width: 360px;
+    vertical-align: top;
+  }
+  .s7-stats .s6-stat-row { padding: 5px 0; }
+</style>
+</head>
+<body>
+
+<h1>Birkhoff Polytope</h1>
+<p class="subtitle">从双随机矩阵到几何多面体 · 交互式理解</p>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- Section 1: 什么是双随机矩阵 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+<div class="section-title">① 什么是双随机矩阵（Doubly Stochastic Matrix）？</div>
+  <div class="note">
+    普通随机矩阵只要求 <em>每行和 = 1</em>（行概率分布）。<br>
+    双随机矩阵额外要求 <em>每列和也 = 1</em>，且 <em>所有元素 ≥ 0</em>。<br>
+    试着修改下方矩阵的数值，观察行 / 列和的变化。  </div>
+  <div id="s1-wrap">
+    <div class="matrix-panel">
+      <h3>可编辑矩阵（3×3）</h3>
+      <div style="display:flex; gap:8px; align-items:flex-start;">
+        <div>
+          <div class="mat-grid" id="mat-inputs"></div>
+          <div class="col-sums" id="col-sums-row"></div>
+          <div class="sum-label" style="color:#64748b;">列和</div>
+        </div>
+        <div class="row-sums" id="row-sums-col"></div>
+      </div>
+      <div id="verdict"></div>
+    </div>
+    <div class="matrix-panel">
+      <h3>双随机矩阵的约束示意</h3>
+      <canvas id="s1-canvas" height="280"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- Section 2: 2×2 最简单的情形——一条线段 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">② 2×2 情形：Birkhoff polytope 就是一条线段</div>
+  <div class="note">
+    2×2 的双随机矩阵只有 <em>一个自由度</em>：设左上角为 t，其余三个元素由行 / 列和约束唯一确定。  </div>
+  <div class="formula">B(t) = [[t, 1-t], [1-t, t]]，t ∈ [0, 1]</div>
+  <p style="color:#475569; font-size:0.9rem; margin-bottom:16px;">
+    两个端点 t=0 和 t=1 恰好是两个置换矩阵。拖动滑块，观察矩阵如何在两个置换矩阵之间插值。  </p>
+  <div id="s2-container">
+    <canvas id="s2-canvas" height="320"></canvas>
+  </div>
+  <div class="slider-wrap">
+    <label>t =</label>
+    <input type="range" id="t-slider" min="0" max="100" value="50">
+    <span id="t-val">0.50</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- Section 3: 3×3 情形 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">③ 3×3 情形：6 个顶点（置换矩阵）构成的多面体</div>
+  <div class="note">
+    这一节涉及三个"跳级"概念：<em>置换矩阵</em>、<em>多面体的顶点</em>、<em>4D → 2D 投影</em>。我们一步步拆开来看。  </div>
+
+  <!-- 维度阶梯：先建立"维度在增加"、"投影"的直觉 -->
+  <div class="dim-ladder">
+    <div class="dim-step">
+      <div class="dim-label">1D · 2 个顶点</div>
+      <canvas id="dim-1d" width="200" height="100"></canvas>
+      <div class="dim-caption">2×2 双随机矩阵<br>形如 <code>[t, 1-t; 1-t, t]</code></div>
+    </div>
+    <div class="dim-arrow">➔</div>
+    <div class="dim-step dim-step-highlight">
+      <div class="dim-label">4D · 6 个顶点</div>
+      <canvas id="dim-3d" width="220" height="130"></canvas>
+      <div class="dim-caption">3×3 的 4D polytope<br>投影在 2D 屏幕上成六边形</div>
+    </div>
+  </div>
+
+  <!-- ③.1 什么是置换矩阵？ -->
+  <div class="subsection">
+    <div class="subsection-title">③.1 什么是置换矩阵？</div>
+    <div class="note">
+      <strong>定义</strong>：每一行、每一列都<em>恰好有一个 1</em>，其余全为 0 的方阵。<br>
+      <strong>国际象棋比喻</strong>：在 3×3 棋盘上放 3 个车（rook，可以横冲直撞），要求<em>任意两个不在同一行或同一列</em>。每放满 3 个就是一个置换矩阵。    </div>
+    <div id="s3a-wrap">
+      <div>
+        <canvas id="s3a-canvas" width="300" height="300"></canvas>
+        <div style="text-align:center; margin-top:12px;">
+          <button id="s3a-clear" class="ctrl-btn">清空棋盘</button>
+          <span id="s3a-status" class="status-text">点击格子放置"车"</span>
+        </div>
+      </div>
+      <div style="flex:1; min-width:300px;">
+        <div style="color:#64748b; font-size:0.88rem; margin-bottom:10px;">点击下方 6 种摆法，棋盘会自动展示对应的置换矩阵：</div>
+        <div class="perm-6-grid" id="s3a-perms"></div>
+        <div class="note" style="margin-top:18px; font-size:0.85rem;">
+          <strong>置换矩阵的作用</strong>：把向量 <em>[A, B, C]</em> 乘以置换矩阵，结果<em>数值不变</em>，只是<em>顺序被打乱</em>（比如变成 [B, A, C]）。它不改变大小，只改变排列顺序——这一点对后面的非扩张性质至关重要。        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③.2 为什么恰好 6 个？ -->
+  <div class="subsection">
+    <div class="subsection-title">③.2 为什么 3×3 恰好是 6 个？</div>
+    <div class="note">
+      车按行依次放置，每行的<em>可选位置数</em>在逐行减少：<br>
+      第 1 行车：<strong>3</strong> 个位置 &nbsp;|&nbsp; 第 2 行车：<strong>2</strong> 个位置 &nbsp;|&nbsp; 第 3 行车：<strong>1</strong> 个位置<br>
+      排列数 = 3 × 2 × 1 = <em>3! = 6</em>
+    </div>
+    <canvas id="s3b-canvas" height="280"></canvas>
+  </div>
+
+  <!-- ③.3 多面体 + 4D 投影 -->
+  <div class="subsection">
+    <div class="subsection-title">③.3 把 6 个点"包"成多面体，再投影到 2D</div>
+    <div class="note">
+      3×3 矩阵有 <em>9</em> 个元素，对应 9 维空间里的一个点。行/列和 = 1 的约束把自由度从 9 砍到 <em>4</em>，所以这 6 个置换矩阵生活在 <em>4 维空间</em>中。<br>
+      <strong>多面体</strong>：把 6 个顶点用"保鲜膜"紧紧裹起来，形成 Birkhoff polytope（一个有 6 个尖角的立体形状）。<br>
+      <strong>4D 到 2D 投影</strong>：4 维画不出来，于是把它"拍扁"在 2D 屏幕上，6 个顶点就成了你看到的六边形。<br>
+      <em>关键洞察</em>：任何带小数的双随机矩阵（比如 <code>0.5, 0.2, 0.3</code> 那种）都"躺"在这个多面体<em>内部</em>，是 6 个顶点的"混血"——下面的 ④ 会具体演示这种"混血"状态。    </div>
+    <canvas id="s3-canvas" height="460"></canvas>
+    <div class="perm-legend" id="perm-legend"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- Section 4: 凸组合分解 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">④ 任意双随机矩阵 = 置换矩阵的凸组合</div>
+  <div class="note">
+    Birkhoff–von Neumann 定理：任何双随机矩阵都可以写成置换矩阵的加权平均（凸组合），权重非负且和为 1。<br>
+    点击下方按钮选择一个示例双随机矩阵，图中会显示它在 Birkhoff polytope 里的位置和分解权重。  </div>
+  <canvas id="s4-canvas" height="420"></canvas>
+  <div class="decomp-controls" id="decomp-btns"></div>
+  <div id="decomp-equation"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- Section 5: 谱范数 = 1 信号不放大 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">⑤ 为什么约束到 Birkhoff polytope 训练更稳定？</div>
+  <div class="note">
+    置换矩阵“重排”向量元素，不改变长度：谱范数 = 1。<br>
+    双随机矩阵是置换矩阵的凸组合，谱范数 ≤ 1，即 <em>non-expansive（非扩张）</em>。<br>
+    mHC 把残差映射矩阵约束到此集合，保证每层变换不放大信号，从而在极深模型里维持稳定的前向/反向传播。  </div>
+  <canvas id="s5-canvas" height="360"></canvas>
+  <div class="note" style="margin-top:18px;">
+    上图：用单位圆上的点经过矩阵变换后的像来对比。<br>
+    <em>置换矩阵</em>：像仍在单位圆上（保长） | <em>双随机矩阵</em>：像在单位圆内或圆上（收缩或保长） | <em>普通随机矩阵</em>：像可能超出单位圆（放大）。  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- Section 6: Sinkhorn-Knopp 投影 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">⑥ Sinkhorn-Knopp：mHC 是怎么"投影"到 Birkhoff polytope 的？</div>
+  <div class="note">
+    上面 ⑤ 提到 "mHC 把残差映射矩阵约束到 Birkhoff polytope"，那一步到底是怎么做的？<br>
+    核心工具<em>Sinkhorn-Knopp 算法</em> —— 反复进行<strong>行归一化</strong>与<strong>列归一化</strong>，迭代若干次后，任意正矩阵都会收敛到双随机矩阵。  </div>
+
+  <!-- ⑥.1 核心思想 -->
+  <div class="subsection">
+    <div class="subsection-title">⑥.1 核心思想：行/列归一化交替进行</div>
+    <div class="note">
+      <strong>行归一化</strong>：把每一行的所有元素除以这一行的总和，让每行和 = 1。<br>
+      <strong>列归一化</strong>：把每一列的所有元素除以这一列的总和，让每列和 = 1。<br>
+      <em>为什么行/列都要归一化？</em>行归一化让"行对"，但破坏"列对"；列归一化让"列对"，但破坏"行对"。两者<em>交替进行</em>，就能<em>同时逼近</em>"行对且列对"（即双随机）。    </div>
+  </div>
+
+  <!-- ⑥.2 实时迭代 demo -->
+  <div class="subsection">
+    <div class="subsection-title">⑥.2 实时迭代 demo（4×4 矩阵）</div>
+    <div class="note">
+      左边是 4×4 矩阵的实时迭代。矩阵元素：<em>蓝 = 大，红 = 小</em>。行/列和显示在矩阵边缘，<em>绿 = 合格，红 = 偏离</em>。<br>
+      点击下方按钮逐步观察。    </div>
+    <div id="s6-wrap">
+      <div>
+        <canvas id="s6-matrix" width="320" height="320"></canvas>
+        <div id="s6-step-info" style="text-align:center; margin-top:10px; color:#64748b; font-size:0.88rem; font-family:'Courier New',monospace;">迭代 0 次 · 尚未双随机</div>
+      </div>
+      <div id="s6-stats">
+        <h4>矩阵性质（实时）</h4>
+        <div class="s6-stat-row"><span>行最大偏差</span> <span id="s6-row-dev">0</span></div>
+        <div class="s6-stat-row"><span>列最大偏差</span> <span id="s6-col-dev">0</span></div>
+        <div class="s6-stat-row"><span>最大元素</span> <span id="s6-max">0</span></div>
+        <div class="s6-stat-row"><span>最小元素</span> <span id="s6-min">0</span></div>
+        <div class="s6-stat-row"><span>是否双随机</span> <span id="s6-is-ds">0</span></div>
+        <div class="s6-stat-row"><span>总偏差</span> <span id="s6-distance">0</span></div>
+        <div class="s6-stat-hint">
+          <strong style="color:#3b82f6;">怎么玩：</strong><br>
+          ① 先点 <em>行归一化</em>：行和变绿，列和变红<br>
+          ② 再点 <em>列归一化</em>：列和变绿，行和又有点偏<br>
+          ③ 反复点 <em>迭代 1 次</em>：两者都越来越接近 1<br>
+          ④ 最后点 <em>跑完 20 次</em>：完全收敛到双随机        </div>
+      </div>
+    </div>
+    <div class="slider-wrap" style="margin-top:18px;">
+      <label style="color:#d97706;">τ (温度) =</label>
+      <input type="range" id="s6-tau" min="2" max="40" value="10">
+      <span id="s6-tau-val" class="s6-tau-val">1.0</span>
+      <span style="color:#64748b; font-size:0.8rem; margin-left:10px;">τ 小 ➔ 接近置换矩阵（顶点），τ 大 ➔ 接近均匀（质心）</span>
+    </div>
+    <div class="decomp-controls">
+      <button id="s6-row-norm">行归一化</button>
+      <button id="s6-col-norm">列归一化</button>
+      <button id="s6-step">迭代 1 次</button>
+      <button id="s6-run">跑完 20 次</button>
+      <button id="s6-reset">换一组随机</button>
+    </div>
+  </div>
+
+  <!-- ⑥.3 几何直观 + mHC 里的代码 -->
+  <div class="subsection">
+    <div class="subsection-title">⑥.3 几何直观 + mHC 里的代码</div>
+    <div class="note">
+      <strong>几何直观</strong>：回到 ③.3 的 4D polytope。原始参数 <code>M_raw</code> 在 9 维空间里乱跑。<br>
+      Sinkhorn 就像一根“无形的弹力绳”，每次迭代把矩阵“拉回”到 polytope 表面/内部一点。<br>
+      <strong>温度 τ 的作用</strong>：控制初始矩阵的“尖锐度” —— τ 小则矩阵元素差异大（趋近置换矩阵 = 顶点），τ 大则矩阵元素均匀（趋近质心）。<br>
+      <strong>mHC 里的代码</strong>（PyTorch）：
+    </div>
+    <pre class="code-block"><span class="cm"># 先学到一个任意实数矩阵（由 hyper_net 产生）</span>
+<span class="kw">def</span> <span class="fn">sinkhorn_knopp</span>(M, n_iters=<span style="color:#b5cea8;">20</span>, tau=<span style="color:#b5cea8;">1.0</span>):
+    H = torch.exp(M / tau)                                  <span class="cm"># 任意实数 ➔ 全正</span>
+    <span class="kw">for</span> _ <span class="kw">in</span> range(n_iters):
+        H = H / (H.<span class="fn">sum</span>(dim=-<span style="color:#b5cea8;">1</span>, keepdim=<span class="kw">True</span>) + <span style="color:#b5cea8;">1e-8</span>)  <span class="cm"># 行归一化</span>
+        H = H / (H.<span class="fn">sum</span>(dim=-<span style="color:#b5cea8;">2</span>, keepdim=<span class="kw">True</span>) + <span style="color:#b5cea8;">1e-8</span>)  <span class="cm"># 列归一化</span>
+    <span class="kw">return</span> H  <span class="cm"># 变成双随机矩阵（在 Birkhoff polytope 上）</span>
+
+<span class="cm"># mHC 前向</span>
+H_raw = hyper_net(x)              <span class="cm"># 任意实数矩阵</span>
+H     = <span class="fn">sinkhorn_knopp</span>(H_raw)        <span class="cm"># Sinkhorn 投影到 Birkhoff polytope</span>
+x_next = H @ x + F(x)             <span class="cm"># 用约束后的矩阵做残差连接</span></pre>
+    <div class="note" style="margin-top:14px; font-size:0.85rem;">
+      <strong>为什么 Sinkhorn 这么好？</strong><br>
+      ① <em>可微</em>：所有操作（exp、除法）都可微，反向传播能正常算梯度<br>
+      ② <em>计算便宜</em>：mHC 的 n_iters 为 20，每次只是几次矩阵除法<br>
+      ③ <em>理论保证</em>：可证明正矩阵在 Sinkhorn 迭代下必然收敛到双随机矩阵。    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- Section 7: mHC 完整公式解读 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">⑦ mHC 完整公式解读：拿到双随机矩阵之后怎么改造残差？</div>
+  <div class="note">
+    Sinkhorn 把 <code>H_res</code> 约束到 Birkhoff polytope 只是 mHC 的一半工作。<br>
+    mHC 真正的新意是：把传统 ResNet 的 <em>"1 个残差流"</em> 升级为 <em>"n 个互相通信的流"</em>，用 3 套权重协同控制。<br>
+    下面拆解这 3 套权重、完整前向公式，并用交互 demo 展示 <code>H_res</code> 如何混合 4 个流。  </div>
+
+  <!-- ⑦.1 三大矩阵的角色 -->
+  <div class="subsection">
+    <div class="subsection-title">⑦.1 三大矩阵的角色</div>
+    <table class="role-table">
+      <tr><th>矩阵</th><th>形状</th><th>约束</th><th>作用</th></tr>
+      <tr>
+        <td><code>H_res</code></td>
+        <td>n × n</td>
+        <td><strong style="color:#16a34a">双随机</strong> (Sinkhorn 约束)</td>
+        <td>让 n 个残差流互相"软重排"，<em>保证不放大信号</em></td>
+      </tr>
+      <tr>
+        <td><code>H_pre</code></td>
+        <td>n 维向量</td>
+        <td>sigmoid 映射到 [0, 1]</td>
+        <td>决定 F 聚合多少每个流（<em>聚合门控</em>）</td>
+      </tr>
+      <tr>
+        <td><code>H_post</code></td>
+        <td>n 维向量</td>
+        <td>2·sigmoid 映射到 [0, 2]</td>
+        <td>决定 F 输出分给各流多少（<em>广播门控</em>）</td>
+      </tr>
+    </table>
+    <div class="note" style="font-size:0.85rem; margin-top:6px;">
+      <em>注意</em>：只有 <code>H_res</code> 是双随机的。<code>H_pre</code>、<code>H_post</code> 是门控（gate），不需要满足行列和约束。    </div>
+  </div>
+
+  <!-- ⑦.2 完整前向公式 -->
+  <div class="subsection">
+    <div class="subsection-title">⑦.2 完整前向公式（一行版本）</div>
+    <div class="formula">
+      x<sub>l+1</sub> = H<sub>res</sub> · x<sub>l</sub>  +  H<sub>post</sub> ⊙ F( H<sub>pre</sub> · x<sub>l</sub> )
+    </div>
+    <div class="note" style="font-size:0.88rem;">
+      <strong>四步拆解</strong>（对应代码里的 A/B/C/D）：
+      <ul style="margin:8px 0 0 20px; color:#475569; line-height:1.9;">
+        <li><strong>A. H_pre 聚合</strong>：n 个流加权求和成 1 个流，喂给 F：<code>H_pre · x_l</code></li>
+        <li><strong>B. F 主体</strong>：F = Attention 或 MLP（一层实际的神经网络）</li>
+        <li><strong>C. H_res 混合残差</strong>：n 个流互相"通气"：<code>H_res · x_l</code>，双随机 ➔ 不放大。</li>
+        <li><strong>D. H_post 广播</strong>：F 的输出按比例分回 n 个流：<code>H_post ⊙ F(...)</code></li>
+      </ul>
+    </div>
+    <pre class="code-block"><span class="cm"># 简化版伪代码（对应 PyTorch 实现）</span>
+H_pre  = sigmoid(α·φ_pre(x))                 <span class="cm"># 聚合权重</span>
+H_post = 2·sigmoid(α·φ_post(x))              <span class="cm"># 广播权重</span>
+H_res  = <span class="fn">sinkhorn_knopp</span>(α·φ_res(x))        <span class="cm"># 双随机残差混合</span>
+
+x_next = bmm(H_res, x) + H_post * <span class="fn">F</span>(bmm(H_pre.unsqueeze(1), x).squeeze(1)).unsqueeze(1)</pre>
+  </div>
+
+  <!-- ⑦.3 互动 demo -->
+  <div class="subsection">
+    <div class="subsection-title">⑦.3 互动 demo：H_res 怎么混合 4 个残差流</div>
+    <div class="note">
+      下面是简化的 mHC 残差演化（聚焦 H_res 这一步）：<br>
+      ① 上方 4 条彩色横条 = 当前 4 个残差流 <code>x_l</code><br>
+      ② 中间 4×4 矩阵 = H_res（每格可编辑，或点下方预设按钮）<br>
+      ③ 下方 4 条横条 = <code>H_res · x_l</code>，即下一层的残差流<br>
+      <em>关键观察</em>：当 H_res 是<strong>双随机</strong>时，<strong>4 条流的总能量（数值之和）保持不变</strong>（谱范数 ≤ 1 的体现）。
+    </div>
+
+    <h4 style="color:#1e40af; font-size:0.95rem; margin:14px 0 8px;">① 输入流 x<sub>l</sub></h4>
+    <canvas id="s7-streams-in" height="160"></canvas>
+
+    <h4 style="color:#d97706; font-size:0.95rem; margin:22px 0 8px;">② H_res 矩阵（4×4，可编辑）</h4>
+    <div id="s7-h-grid"></div>
+    <div class="s7-stats" id="s7-stats">
+      <div class="s6-stat-row"><span>行和最大偏差</span> <span id="s7-row-dev">0</span></div>
+      <div class="s6-stat-row"><span>列和最大偏差</span> <span id="s7-col-dev">0</span></div>
+      <div class="s6-stat-row"><span>输入总能量</span> <span id="s7-energy-in">0</span></div>
+      <div class="s6-stat-row"><span>输出总能量</span> <span id="s7-energy-out">0</span></div>
+      <div class="s6-stat-row"><span>能量守恒?</span> <span id="s7-energy-same">0</span></div>
+      <div class="s6-stat-row"><span>是否双随机?</span> <span id="s7-is-ds">0</span></div>
+    </div>
+
+    <h4 style="color:#16a34a; font-size:0.95rem; margin:22px 0 8px;">③ 输出流 H<sub>res</sub> &middot; x<sub>l</sub></h4>
+    <canvas id="s7-streams-out" height="160"></canvas>
+
+    <div class="decomp-controls" style="margin-top:18px;">
+      <button id="s7-preset-identity">预设：单位矩阵</button>
+      <button id="s7-preset-uniform">预设：均匀混合</button>
+      <button id="s7-preset-shift">预设：循环移位</button>
+      <button id="s7-normalize">Sinkhorn 归一化</button>
+      <button id="s7-evolve">▶ 应用 H_res 到流</button>
+      <button id="s7-reset-streams">重置流</button>
+    </div>
+  </div>
+
+  <!-- ⑦.4 α 初始化 -->
+  <div class="subsection">
+    <div class="subsection-title">⑦.4 α 初始化的妙处 + 与传统 ResNet 对比</div>
+    <div class="note">
+      <strong>α 初始化的妙处</strong>：<code>α_pre, α_post, α_res</code> 全部初始化为 <code>0.01</code>。<br>
+      初始时 <code>H_res ≈ Sinkhorn(0.01·φ(x) + b) ≈ I</code>（单位矩阵的随机扰动），<br>
+      等价于：<em>初始 mHC ≈ 标准 ResNet</em>。训练过程中 α 慢慢增长，模型逐步学会使用 n 流路由——一种<em>软启动</em>，避免训练初期崩掉。    </div>
+
+    <table class="role-table" style="margin-top:14px;">
+      <tr><th></th><th>传统 ResNet</th><th>mHC</th></tr>
+      <tr>
+        <td>残差流数</td>
+        <td>1</td>
+        <td><strong>n（通常为 4）</strong></td>
+      </tr>
+      <tr>
+        <td>残差演化</td>
+        <td><code>x + F(x)</code></td>
+        <td><code>H_res·x + H_post·F(H_pre·x)</code></td>
+      </tr>
+      <tr>
+        <td>信息流</td>
+        <td>一条直线</td>
+        <td><strong>n 条互相通信的流</strong></td>
+      </tr>
+      <tr>
+        <td>稳定性来源</td>
+        <td>F 自身必须是非扩张的</td>
+        <td><strong>H_res 双随机</strong> 强制不放大</td>
+      </tr>
+      <tr>
+        <td>额外参数</td>
+        <td>无</td>
+        <td><strong>+ 3 个 φ 线性投影（占比 &lt; 0.1%）</strong></td>
+      </tr>
+      <tr>
+        <td>计算开销</td>
+        <td>1×</td>
+        <td>1×（n×n 矩阵很小，可忽略）</td>
+      </tr>
+    </table>
+
+    <div class="note" style="margin-top:14px; font-size:0.88rem;">
+      <strong>核心收益</strong>：mHC 在几乎不增加参数和计算量的前提下，让残差<em>互相通信</em>、<em>稳定训练</em>——这在 100+ 层甚至 1000+ 层模型里尤其重要。      <br><br>
+      <strong>完整故事链：</strong><br>
+      <span style="color:#888;">① 双随机矩阵定义 ➔ ② Birkhoff polytope 几何 ➔ ③ 4D 到 2D 投影</span>
+      <span style="color:#3b82f6;"> ➔ ④ 凸组合分解</span>
+      <span style="color:#22c55e;"> ➔ ⑤ 谱范数 ≤ 1 非扩张</span>
+      <span style="color:#d97706;"> ➔ ⑥ Sinkhorn 把任意矩阵投射到 polytope</span>
+      <span style="color:#16a34a;"> ➔ ⑦ mHC 用双随机矩阵改造残差</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// 工具函数
+// ══════════════════════════════════════════════════════════
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const fmt = v => v.toFixed(3);
+const fmt2 = v => v.toFixed(2);
+
+// 增强 robust 性质的 canvas 大小调整器
+function setCanvasSize(canvas, preferredHeight) {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  let w = rect.width;
+  if (!w || w < 50) {
+    w = canvas.parentElement.clientWidth || 800;
+  }
+  canvas.width = w;
+  if (preferredHeight) {
+    canvas.height = preferredHeight;
+  }
+  return { w, h: canvas.height };
+}
+
+// 统一使用的清除并填涂浅灰色背景函数，彻底规避暗黑背景 bug
+function clearWithBg(ctx, w, h, color = '#f1f5f9') {
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, w, h);
+}
+
+// ══════════════════════════════════════════════════════════
+// Section 1: 交互矩阵
+// ══════════════════════════════════════════════════════════
+(function() {
+  const defaultVals = [
+    [0.5, 0.2, 0.3],
+    [0.3, 0.4, 0.3],
+    [0.2, 0.4, 0.4]
+  ];
+  const inputs = [];
+  const grid = document.getElementById('mat-inputs');
+
+  for (let r = 0; r < 3; r++) {
+    inputs[r] = [];
+    for (let c = 0; c < 3; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'mat-cell';
+      cell.style.background = '#f1f5f9';
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.step = '0.01';
+      inp.min = '0'; inp.max = '1';
+      inp.value = defaultVals[r][c].toFixed(2);
+      cell.appendChild(inp);
+      grid.appendChild(cell);
+      inputs[r][c] = inp;
+      inp.addEventListener('input', update);
+    }
+  }
+
+  const rowSumsCol = document.getElementById('row-sums-col');
+  const colSumsRow = document.getElementById('col-sums-row');
+  for (let r = 0; r < 3; r++) {
+    const d = document.createElement('div');
+    d.className = 'row-sum-item';
+    rowSumsCol.appendChild(d);
+  }
+  for (let c = 0; c < 3; c++) {
+    const d = document.createElement('div');
+    d.className = 'col-sum-item';
+    colSumsRow.appendChild(d);
+  }
+
+  function getVals() {
+    return inputs.map(row => row.map(inp => parseFloat(inp.value) || 0));
+  }
+
+  function update() {
+    const M = getVals();
+    const rowSums = M.map(row => row.reduce((a, b) => a + b, 0));
+    const colSums = [0,1,2].map(c => M.reduce((a, row) => a + row[c], 0));
+    const allNonNeg = M.every(row => row.every(v => v >= -0.001));
+    const rowOk = rowSums.map(s => Math.abs(s - 1) < 0.011);
+    const colOk = colSums.map(s => Math.abs(s - 1) < 0.011);
+
+    // 更新格子背景
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const v = M[r][c];
+        const ok = v >= -0.001;
+        inputs[r][c].parentElement.style.background = ok
+          ? `rgba(109,220,139,${clamp(v, 0, 1) * 0.35 + 0.08})`
+          : 'rgba(255,107,107,0.25)';
+      }
+    }
+
+    const rItems = rowSumsCol.children;
+    for (let r = 0; r < 3; r++) {
+      const ok = rowOk[r];
+      rItems[r].innerHTML = `行 ${r+1}: <span class="${ok ? 'check-ok' : 'check-bad'}">${rowSums[r].toFixed(3)} ${ok ? '✓' : '✗'}</span>`;
+    }
+    const cItems = colSumsRow.children;
+    for (let c = 0; c < 3; c++) {
+      const ok = colOk[c];
+      cItems[c].innerHTML = `<span class="${ok ? 'check-ok' : 'check-bad'}">${colSums[c].toFixed(2)}<br>${ok ? '✓' : '✗'}</span>`;
+    }
+
+    const isDS = allNonNeg && rowOk.every(Boolean) && colOk.every(Boolean);
+    const verdict = document.getElementById('verdict');
+    if (isDS) {
+      verdict.style.background = 'rgba(109,220,139,0.15)';
+      verdict.style.color = '#16a34a';
+      verdict.style.border = '1px solid #16a34a40';
+      verdict.textContent = '✓ 这是一个双随机矩阵，在 Birkhoff polytope 内';
+    } else {
+      verdict.style.background = 'rgba(255,107,107,0.12)';
+      verdict.style.color = '#dc2626';
+      verdict.style.border = '1px solid #dc262640';
+      verdict.textContent = '✗ 不满足条件，不在 Birkhoff polytope 内';
+    }
+
+    drawS1();
+  }
+
+  const canvas = document.getElementById('s1-canvas');
+  const ctx = canvas.getContext('2d');
+
+  function drawS1() {
+    const M = getVals();
+    const { w, h } = setCanvasSize(canvas, 280);
+    const W = w, H = h;
+    clearWithBg(ctx, W, H);
+
+    const cw = 48, ch = 38, gap = 6;
+    const offX = (W - (3 * cw + 2 * gap)) / 2;
+    const offY = 22;
+
+    const rowSums = M.map(row => row.reduce((a, b) => a + b, 0));
+    const colSums = [0,1,2].map(c => M.reduce((a, row) => a + row[c], 0));
+
+    // 绘制矩阵格子
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const x = offX + c * (cw + gap);
+        const y = offY + r * (ch + gap);
+        const v = M[r][c];
+        const alpha = clamp(v, 0, 1);
+        ctx.fillStyle = v < -0.001 ? '#dc262640' : `rgba(59,130,246,${alpha * 0.5 + 0.05})`;
+        ctx.beginPath();
+        ctx.roundRect(x, y, cw, ch, 5);
+        ctx.fill();
+        ctx.fillStyle = '#0f172a'; // 强制高清晰深色数字
+        ctx.font = 'bold 13px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(v.toFixed(2), x + cw/2, y + ch/2);
+      }
+    }
+
+    // 绘制行和
+    for (let r = 0; r < 3; r++) {
+      const y = offY + r * (ch + gap) + ch/2;
+      const x = offX + 3 * (cw + gap) + 8;
+      const ok = Math.abs(rowSums[r] - 1) < 0.011;
+      ctx.fillStyle = ok ? '#16a34a' : '#dc2626';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`Σ ${rowSums[r].toFixed(2)}`, x, y);
+    }
+
+    // 绘制列和
+    for (let c = 0; c < 3; c++) {
+      const x = offX + c * (cw + gap) + cw/2;
+      const y = offY + 3 * (ch + gap) + 12;
+      const ok = Math.abs(colSums[c] - 1) < 0.011;
+      ctx.fillStyle = ok ? '#16a34a' : '#dc2626';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(`↓ ${colSums[c].toFixed(2)}`, x, y);
+    }
+
+    // 元素非负性校验
+    const allNonNeg = M.every(row => row.every(v => v >= -0.001));
+    ctx.fillStyle = allNonNeg ? '#16a34a' : '#dc2626';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(allNonNeg ? '✓ 所有元素 ≥ 0' : '✗ 存在负数元素', W/2, H - 15);
+  }
+
+  window.addEventListener('resize', drawS1);
+  update();
+})();
+
+// ══════════════════════════════════════════════════════════
+// Section 2: 2×2 滑块
+// ══════════════════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('s2-canvas');
+  const ctx = canvas.getContext('2d');
+  const slider = document.getElementById('t-slider');
+  const tVal = document.getElementById('t-val');
+
+  function draw(t) {
+    const { w, h } = setCanvasSize(canvas);
+    clearWithBg(ctx, w, h);
+
+    const pad = 40;
+    const lineY = h / 2 + 20;
+    const lineX0 = pad + 80;
+    const lineX1 = w - pad - 80;
+    const lineLen = lineX1 - lineX0;
+
+    // 导轨背景线
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(lineX0, lineY);
+    ctx.lineTo(lineX1, lineY);
+    ctx.stroke();
+
+    // 渐变激活线段
+    const grad = ctx.createLinearGradient(lineX0, 0, lineX1, 0);
+    grad.addColorStop(0, '#3b82f6');
+    grad.addColorStop(1, '#d97706');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(lineX0, lineY);
+    ctx.lineTo(lineX0 + lineLen * t, lineY);
+    ctx.stroke();
+
+    // 绘制两端点
+    function drawEndpoint(x, label, mat, col) {
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.arc(x, lineY, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#1e293b'; // 强制改为高对比度深色文本
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, lineY - 22);
+      
+      // 绘制缩微矩阵
+      const mw = 22, mh = 18, mg = 3;
+      const mx = x - (2*mw+mg)/2;
+      const my = lineY + 22;
+      for (let r = 0; r < 2; r++) {
+        for (let c = 0; c < 2; c++) {
+          const v = mat[r][c];
+          ctx.fillStyle = v > 0.5 ? `rgba(59,130,246,0.6)` : '#ffffff';
+          ctx.fillRect(mx + c*(mw+mg), my + r*(mh+mg), mw, mh);
+          ctx.fillStyle = '#475569';
+          ctx.font = '10px monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(v.toFixed(0), mx + c*(mw+mg) + mw/2, my + r*(mh+mg) + mh/2);
+        }
+      }
+    }
+    drawEndpoint(lineX0, 't = 0 (置换矩阵 P₁)', [[0,1],[1,0]], '#3b82f6');
+    drawEndpoint(lineX1, 't = 1 (置换矩阵 P₂)', [[1,0],[0,1]], '#d97706');
+
+    // 当前滑块指示圆点
+    const cx = lineX0 + lineLen * t;
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, lineY, 11, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // 在插值点上方展示当前插值矩阵
+    const B = [[t, 1-t], [1-t, t]];
+    const mw = 52, mh = 40, mg = 5;
+    const mx = cx - (2*mw+mg)/2;
+    const my = lineY - 130;
+
+    ctx.fillStyle = '#cbd5e180';
+    ctx.beginPath();
+    ctx.roundRect(mx - 14, my - 10, 2*mw+mg+28, 2*mh+mg+30, 8);
+    ctx.fill();
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('B(t) =', mx + (2*mw+mg)/2, my - 6);
+
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 2; c++) {
+        const v = B[r][c];
+        const intensity = v;
+        ctx.fillStyle = `rgba(59,130,246,${intensity * 0.6 + 0.18})`;
+        ctx.beginPath();
+        ctx.roundRect(mx + c*(mw+mg), my + r*(mh+mg) + 14, mw, mh, 4);
+        ctx.fill();
+        ctx.fillStyle = intensity > 0.5 ? '#ffffff' : '#1e40af';
+        ctx.font = 'bold 13px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(v.toFixed(2), mx + c*(mw+mg) + mw/2, my + r*(mh+mg) + 14 + mh/2);
+      }
+    }
+
+    // 自由度说明文本
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('仅有 1 维自由度，对应 1D 直线线段', (lineX0+lineX1)/2, lineY + 110);
+  }
+
+  slider.addEventListener('input', () => {
+    const t = slider.value / 100;
+    tVal.textContent = t.toFixed(2);
+    const pct = slider.value + '%';
+    slider.style.backgroundSize = pct + ' 100%';
+    draw(t);
+  });
+
+  window.addEventListener('resize', () => draw(slider.value / 100));
+  draw(0.5);
+})();
+
+// ══════════════════════════════════════════════════════════
+// Section 3: 3×3 Birkhoff polytope 投影
+// ══════════════════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('s3-canvas');
+  const ctx = canvas.getContext('2d');
+
+  const perms = [
+    { name: 'P₁ [1,2,3]', mat: [[1,0,0],[0,1,0],[0,0,1]], col: '#3b82f6' },
+    { name: 'P₂ [2,1,3]', mat: [[0,1,0],[1,0,0],[0,0,1]], col: '#d97706' },
+    { name: 'P₃ [3,2,1]', mat: [[0,0,1],[0,1,0],[1,0,0]], col: '#f07060' },
+    { name: 'P₄ [1,3,2]', mat: [[1,0,0],[0,0,1],[0,1,0]], col: '#a0e080' },
+    { name: 'P₅ [2,3,1]', mat: [[0,1,0],[0,0,1],[1,0,0]], col: '#c090f0' },
+    { name: 'P₆ [3,1,2]', mat: [[0,0,1],[1,0,0],[0,1,0]], col: '#f09050' },
+  ];
+
+  let selectedPerm = -1;
+  let hoveredPerm = -1;
+
+  function diffByOneTransp(i, j) {
+    const pi = [0,1,2].map(r => perms[i].mat[r].indexOf(1));
+    const pj = [0,1,2].map(r => perms[j].mat[r].indexOf(1));
+    let diffs = 0;
+    for (let k = 0; k < 3; k++) if (pi[k] !== pj[k]) diffs++;
+    return diffs === 2;
+  }
+  const edgeList = [];
+  for (let i = 0; i < 6; i++) for (let j = i+1; j < 6; j++) {
+    if (diffByOneTransp(i, j)) edgeList.push([i, j]);
+  }
+
+  function getPositions(cx, cy, R) {
+    const angles = [90, 30, -30, -90, -150, 150].map(d => d * Math.PI / 180);
+    return perms.map((_, i) => ({
+      x: cx + R * Math.cos(angles[i]),
+      y: cy - R * Math.sin(angles[i])
+    }));
+  }
+
+  function draw() {
+    const { w, h } = setCanvasSize(canvas);
+    clearWithBg(ctx, w, h);
+
+    const cx = w / 2, cy = h / 2 - 10;
+    const R = Math.min(w, h) * 0.32;
+    const pos = getPositions(cx, cy, R);
+
+    // 绘制多面体的骨架线
+    edgeList.forEach(([i, j]) => {
+      const isHighlight = (selectedPerm === i || selectedPerm === j) && selectedPerm !== -1;
+      ctx.beginPath();
+      ctx.moveTo(pos[i].x, pos[i].y);
+      ctx.lineTo(pos[j].x, pos[j].y);
+      ctx.strokeStyle = isHighlight ? 'rgba(255,255,255,0.7)' : '#cbd5e1';
+      ctx.lineWidth = isHighlight ? 2 : 1.5;
+      ctx.stroke();
+    });
+
+    if (selectedPerm !== -1) {
+      const connected = edgeList
+        .filter(([i, j]) => i === selectedPerm || j === selectedPerm)
+        .map(([i, j]) => i === selectedPerm ? j : i);
+
+      connected.forEach(k => {
+        ctx.beginPath();
+        ctx.moveTo(pos[selectedPerm].x, pos[selectedPerm].y);
+        ctx.lineTo(pos[k].x, pos[k].y);
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      });
+    }
+
+    // 绘制多边体顶点
+    perms.forEach((p, i) => {
+      const { x, y } = pos[i];
+      const isSelected = selectedPerm === i;
+      const isHovered = hoveredPerm === i;
+      const r = isSelected ? 20 : isHovered ? 17 : 14;
+
+      if (isSelected) {
+        ctx.shadowColor = p.col;
+        ctx.shadowBlur = 20;
+      }
+
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = isSelected ? p.col : isHovered ? p.col + 'aa' : p.col + '55';
+      ctx.fill();
+      ctx.strokeStyle = p.col;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${isSelected ? 12 : 11}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(p.name.split(' ')[0], x, y);
+
+      const labelR = R + 30;
+      const angle = Math.atan2(y - cy, x - cx);
+      ctx.fillStyle = isSelected ? p.col : '#64748b';
+      ctx.font = isSelected ? 'bold 12px sans-serif' : '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(p.name, cx + labelR * Math.cos(angle), cy + labelR * Math.sin(angle));
+    });
+
+    ctx.fillStyle = '#475569';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Birkhoff polytope', cx, cy);
+    ctx.font = '11px sans-serif';
+    ctx.fillText('(4D 投影到 2D)', cx, cy + 18);
+
+    // 侧边缩微展示栏
+    if (selectedPerm !== -1) {
+      const p = perms[selectedPerm];
+      const px = 24, py = 24;
+      const cw = 46, ch = 36, gap = 4;
+      const panelW = 3*cw+2*gap + 28;
+      const panelH = 3*ch+2*gap + 60;
+
+      ctx.fillStyle = '#ffffffdd';
+      ctx.beginPath();
+      ctx.roundRect(px, py, panelW, panelH, 8);
+      ctx.fill();
+      ctx.strokeStyle = p.col + '80';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = p.col;
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(p.name, px + 10, py + 10);
+
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const v = p.mat[r][c];
+          const mx = px + 10 + c*(cw+gap);
+          const my = py + 30 + r*(ch+gap);
+          ctx.fillStyle = v === 1 ? p.col + '60' : '#f1f5f9';
+          ctx.beginPath();
+          ctx.roundRect(mx, my, cw, ch, 4);
+          ctx.fill();
+          ctx.fillStyle = v === 1 ? '#ffffff' : '#475569'; // 修正非高亮状态对比度
+          ctx.font = 'bold 14px monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(v, mx + cw/2, my + ch/2);
+        }
+      }
+    }
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('点击顶点查看置换矩阵 | 相邻顶点之间差一次行交换（transposition）', cx, h - 14);
+  }
+
+  // 生成传奇控制栏
+  const legend = document.getElementById('perm-legend');
+  perms.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'perm-item';
+    item.innerHTML = `<div class="perm-dot" style="background:${p.col}"></div><span>${p.name}</span>`;
+    item.addEventListener('click', () => {
+      selectedPerm = selectedPerm === i ? -1 : i;
+      draw();
+    });
+    legend.appendChild(item);
+  });
+
+  // 悬浮判定
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    const cx = canvas.width / 2, cy = canvas.height / 2 - 10;
+    const R = Math.min(canvas.width, canvas.height) * 0.32;
+    const pos = getPositions(cx, cy, R);
+    let hit = -1;
+    pos.forEach(({ x, y }, i) => {
+      if (Math.hypot(mx - x, my - y) < 20) hit = i;
+    });
+    if (hit !== hoveredPerm) { hoveredPerm = hit; draw(); }
+    canvas.style.cursor = hit !== -1 ? 'pointer' : 'default';
+  });
+
+  canvas.addEventListener('click', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    const cx = canvas.width / 2, cy = canvas.height / 2 - 10;
+    const R = Math.min(canvas.width, canvas.height) * 0.32;
+    const pos = getPositions(cx, cy, R);
+    pos.forEach(({ x, y }, i) => {
+      if (Math.hypot(mx - x, my - y) < 20) {
+        selectedPerm = selectedPerm === i ? -1 : i;
+        draw();
+      }
+    });
+  });
+
+  window.addEventListener('resize', draw);
+  draw();
+})();
+
+// ══════════════════════════════════════════════════════════
+// Section 3 配套：维度阶梯 + 车摆法 + 决策树
+// ══════════════════════════════════════════════════════════
+
+// ─── 维度阶梯 ───
+(function() {
+  const c1 = document.getElementById('dim-1d');
+  if (c1) {
+    const ctx = c1.getContext('2d');
+    const W = c1.width, H = c1.height;
+    clearWithBg(ctx, W, H);
+    const y = H / 2 + 4;
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(30, y);
+    ctx.lineTo(W - 30, y);
+    ctx.stroke();
+    
+    [30, W - 30].forEach((x, i) => {
+      ctx.fillStyle = '#3b82f6';
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('P' + (i + 1), x, y);
+    });
+    ctx.fillStyle = '#64748b';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('t = 0', 30, y + 12);
+    ctx.fillText('t = 1', W - 30, y + 12);
+  }
+
+  const c3 = document.getElementById('dim-3d');
+  if (c3) {
+    const ctx = c3.getContext('2d');
+    const W = c3.width, H = c3.height;
+    clearWithBg(ctx, W, H);
+    const cx = W / 2, cy = H / 2 + 8, R = Math.min(W, H) * 0.34;
+    const angles = [90, 30, -30, -90, -150, 150].map(d => d * Math.PI / 180);
+    const cols = ['#3b82f6','#d97706','#f07060','#a0e080','#c090f0','#f09050'];
+    
+    ctx.beginPath();
+    angles.forEach((a, i) => {
+      const x = cx + R * Math.cos(a);
+      const y = cy - R * Math.sin(a);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    const grad = ctx.createRadialGradient(cx, cy, 4, cx, cy, R);
+    grad.addColorStop(0, 'rgba(240,192,96,0.20)');
+    grad.addColorStop(1, 'rgba(240,192,96,0.04)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    angles.forEach((a, i) => {
+      const x = cx + R * Math.cos(a);
+      const y = cy - R * Math.sin(a);
+      ctx.fillStyle = cols[i];
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+})();
+
+// ─── ③.1 车摆置换矩阵 ───
+(function() {
+  const canvas = document.getElementById('s3a-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const status = document.getElementById('s3a-status');
+  const clearBtn = document.getElementById('s3a-clear');
+  const permsContainer = document.getElementById('s3a-perms');
+
+  const perms = [
+    { name: 'P₁ [1,2,3]', mat: [[1,0,0],[0,1,0],[0,0,1]], col: '#3b82f6' },
+    { name: 'P₂ [2,1,3]', mat: [[0,1,0],[1,0,0],[0,0,1]], col: '#d97706' },
+    { name: 'P₃ [3,2,1]', mat: [[0,0,1],[0,1,0],[1,0,0]], col: '#f07060' },
+    { name: 'P₄ [1,3,2]', mat: [[1,0,0],[0,0,1],[0,1,0]], col: '#a0e080' },
+    { name: 'P₅ [2,3,1]', mat: [[0,1,0],[0,0,1],[1,0,0]], col: '#c090f0' },
+    { name: 'P₆ [3,1,2]', mat: [[0,0,1],[1,0,0],[0,1,0]], col: '#f09050' },
+  ];
+
+  let grid = [[0,0,0],[0,0,0],[0,0,0]];
+
+  const countOnes = () => grid.flat().reduce((a, b) => a + b, 0);
+  const isValid = () => {
+    if (countOnes() !== 3) return false;
+    for (let i = 0; i < 3; i++) {
+      if (grid[i].reduce((a, b) => a + b, 0) !== 1) return false;
+      if (grid.reduce((a, row) => a + row[i], 0) !== 1) return false;
+    }
+    return true;
+  };
+
+  function draw() {
+    const W = canvas.width, H = canvas.height;
+    clearWithBg(ctx, W, H);
+
+    const cw = 76, ch = 76, gap = 10;
+    const offX = (W - (3 * cw + 2 * gap)) / 2;
+    const offY = (H - (3 * ch + 2 * gap)) / 2;
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const x = offX + c * (cw + gap);
+        const y = offY + r * (ch + gap);
+        const v = grid[r][c];
+        ctx.fillStyle = v ? 'rgba(59,130,246,0.5)' : '#ffffff';
+        ctx.strokeStyle = v ? '#3b82f6' : '#cbd5e1';
+        ctx.lineWidth = v ? 2 : 1;
+        ctx.beginPath();
+        ctx.roundRect(x, y, cw, ch, 8);
+        ctx.fill();
+        ctx.stroke();
+        if (v) {
+          ctx.fillStyle = '#3b82f6';
+          ctx.font = 'bold 42px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('車', x + cw / 2, y + ch / 2 + 2);
+        }
+      }
+    }
+
+    const ones = countOnes();
+    if (ones === 0) {
+      status.textContent = '点击格子放置"車"';
+      status.style.color = '#64748b';
+    } else if (ones < 3) {
+      status.textContent = `已放置 ${ones} 个车，还需要放 ${3 - ones} 个`;
+      status.style.color = '#64748b';
+    } else if (isValid()) {
+      status.textContent = '✓ 这是一个合法的置换矩阵！';
+      status.style.color = '#16a34a';
+    } else {
+      status.textContent = '✗ 同一行或同一列包含多个"車"，不合法';
+      status.style.color = '#dc2626';
+    }
+  }
+
+  canvas.addEventListener('click', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    const cw = 76, ch = 76, gap = 10;
+    const offX = (canvas.width - (3 * cw + 2 * gap)) / 2;
+    const offY = (canvas.height - (3 * ch + 2 * gap)) / 2;
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const x = offX + c * (cw + gap);
+        const y = offY + r * (ch + gap);
+        if (mx >= x && mx <= x + cw && my >= y && my <= y + ch) {
+          grid[r][c] = grid[r][c] ? 0 : 1;
+          while (countOnes() > 3) {
+            let removed = false;
+            outer:
+            for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+              if (grid[i][j] === 1 && (i !== r || j !== c)) {
+                grid[i][j] = 0;
+                removed = true;
+                break outer;
+              }
+            }
+            if (!removed) break;
+          }
+          document.querySelectorAll('.perm-6-cell').forEach(el => el.classList.remove('active'));
+          draw();
+          return;
+        }
+      }
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    grid = [[0,0,0],[0,0,0],[0,0,0]];
+    document.querySelectorAll('.perm-6-cell').forEach(el => el.classList.remove('active'));
+    draw();
+  });
+
+  perms.forEach((p, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'perm-6-cell';
+    cell.innerHTML = `
+      <canvas width="64" height="64"></canvas>
+      <div class="perm-6-name" style="color:${p.col}">${p.name}</div>
+    `;
+    const c2 = cell.querySelector('canvas').getContext('2d');
+    clearWithBg(c2, 64, 64);
+    const cw = 14, ch = 14, gap = 2;
+    const offX = (64 - (3 * cw + 2 * gap)) / 2;
+    const offY = (64 - (3 * ch + 2 * gap)) / 2;
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const v = p.mat[r][c];
+        c2.fillStyle = v ? p.col : '#ffffff';
+        c2.fillRect(offX + c * (cw + gap), offY + r * (ch + gap), cw, ch);
+        c2.strokeStyle = '#cbd5e1';
+        c2.lineWidth = 0.5;
+        c2.strokeRect(offX + c * (cw + gap), offY + r * (ch + gap), cw, ch);
+      }
+    }
+    cell.addEventListener('click', () => {
+      grid = p.mat.map(row => row.slice());
+      document.querySelectorAll('.perm-6-cell').forEach((el, j) =>
+        el.classList.toggle('active', j === i));
+      draw();
+    });
+    permsContainer.appendChild(cell);
+  });
+
+  draw();
+})();
+
+// ─── ③.2 决策树 ───
+(function() {
+  const canvas = document.getElementById('s3b-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  function draw() {
+    const { w, h } = setCanvasSize(canvas);
+    clearWithBg(ctx, w, h);
+
+    const topY = 32;
+    const midY = h * 0.45;
+    const botY = h - 64;
+    const rootX = w / 2;
+
+    ctx.fillStyle = '#3b82f6';
+    ctx.beginPath();
+    ctx.arc(rootX, topY, 22, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('3', rootX, topY);
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('第 1 行有 3 个可选位置', rootX, topY + 36);
+
+    const mids = [w * 0.18, w * 0.5, w * 0.82];
+    mids.forEach(mx => {
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(rootX, topY + 22);
+      ctx.lineTo(mx, midY - 18);
+      ctx.stroke();
+      ctx.fillStyle = '#d97706';
+      ctx.beginPath();
+      ctx.arc(mx, midY, 20, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('2', mx, midY);
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('第 2 行剩 2 个', mx, midY + 30);
+    });
+
+    const leaves = [
+      { x: w * 0.09, parent: 0, col: '#3b82f6', label: 'P₁' },
+      { x: w * 0.27, parent: 0, col: '#a0e080', label: 'P₄' },
+      { x: w * 0.42, parent: 1, col: '#d97706', label: 'P₂' },
+      { x: w * 0.58, parent: 1, col: '#c090f0', label: 'P₅' },
+      { x: w * 0.73, parent: 2, col: '#f07060', label: 'P₃' },
+      { x: w * 0.91, parent: 2, col: '#f09050', label: 'P₆' },
+    ];
+    leaves.forEach(leaf => {
+      const parentX = mids[leaf.parent];
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(parentX, midY + 20);
+      ctx.lineTo(leaf.x, botY - 12);
+      ctx.stroke();
+      ctx.fillStyle = leaf.col;
+      ctx.beginPath();
+      ctx.arc(leaf.x, botY, 11, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(leaf.label, leaf.x, botY);
+    });
+
+    ctx.fillStyle = '#d97706';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('排列数 = 3 × 2 × 1 = 3! = 6', w / 2, h - 24);
+  }
+
+  draw();
+  window.addEventListener('resize', draw);
+})();
+
+// ══════════════════════════════════════════════════════════
+// Section 4: 凸组合分解
+// ══════════════════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('s4-canvas');
+  const ctx = canvas.getContext('2d');
+
+  const perms = [
+    { name: 'P₁', mat: [[1,0,0],[0,1,0],[0,0,1]], col: '#3b82f6' },
+    { name: 'P₂', mat: [[0,1,0],[1,0,0],[0,0,1]], col: '#d97706' },
+    { name: 'P₃', mat: [[0,0,1],[0,1,0],[1,0,0]], col: '#f07060' },
+    { name: 'P₄', mat: [[1,0,0],[0,0,1],[0,1,0]], col: '#a0e080' },
+    { name: 'P₅', mat: [[0,1,0],[0,0,1],[1,0,0]], col: '#c090f0' },
+    { name: 'P₆', mat: [[0,0,1],[1,0,0],[0,1,0]], col: '#f09050' },
+  ];
+
+  const examples = [
+    {
+      label: '示例 A',
+      weights: [1/3, 1/3, 1/3, 0, 0, 0],
+      desc: '1/3·P₁ + 1/3·P₂ + 1/3·P₃',
+    },
+    {
+      label: '示例 B',
+      weights: [0.5, 0, 0, 0.5, 0, 0],
+      desc: '0.5·P₁ + 0.5·P₄',
+    },
+    {
+      label: '示例 C',
+      weights: [0.2, 0.3, 0.1, 0.15, 0.15, 0.1],
+      desc: '0.2·P₁ + 0.3·P₂ + 0.1·P₃ + 0.15·P₄ + 0.15·P₅ + 0.1·P₆',
+    },
+    {
+      label: '示例 D（置换矩阵）',
+      weights: [0, 0, 0, 0, 1, 0],
+      desc: '1.0·P₅ （其本身即为顶点之一）',
+    },
+  ];
+
+  let currentExample = 0;
+
+  function matMul(weights) {
+    const result = [[0,0,0],[0,0,0],[0,0,0]];
+    weights.forEach((w, i) => {
+      for (let r = 0; r < 3; r++)
+        for (let c = 0; c < 3; c++)
+          result[r][c] += w * perms[i].mat[r][c];
+    });
+    return result;
+  }
+
+  function draw() {
+    const { w, h } = setCanvasSize(canvas);
+    clearWithBg(ctx, w, h);
+
+    const ex = examples[currentExample];
+    const B = matMul(ex.weights);
+    const cx = w / 2, cy = h / 2 - 20;
+    const R = Math.min(w, h) * 0.3;
+    const angles = [90, 30, -30, -90, -150, 150].map(d => d * Math.PI / 180);
+    const pos = perms.map((_, i) => ({
+      x: cx + R * Math.cos(angles[i]),
+      y: cy - R * Math.sin(angles[i])
+    }));
+
+    let bx = 0, by = 0;
+    ex.weights.forEach((w, i) => { bx += w * pos[i].x; by += w * pos[i].y; });
+
+    ex.weights.forEach((w, i) => {
+      if (w < 0.001) return;
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.lineTo(pos[i].x, pos[i].y);
+      ctx.strokeStyle = perms[i].col + '80';
+      ctx.lineWidth = Math.max(1, w * 12);
+      ctx.stroke();
+    });
+
+    perms.forEach((p, i) => {
+      const { x, y } = pos[i];
+      const w = ex.weights[i];
+      const r = w > 0.01 ? 14 + w * 10 : 10;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = w > 0.01 ? p.col + 'cc' : p.col + '33';
+      ctx.fill();
+      ctx.strokeStyle = p.col;
+      ctx.lineWidth = w > 0.01 ? 2.5 : 1;
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(p.name, x, y);
+      if (w > 0.01) {
+        const ang = angles[i];
+        ctx.fillStyle = p.col;
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText((w*100).toFixed(0)+'%', x + 24*Math.cos(ang), y - 24*Math.sin(ang));
+      }
+    });
+
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(bx, by, 13, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('B', bx, by);
+
+    const panelX = w - 200, panelY = 20;
+    const cw = 44, ch = 34, gap = 4;
+    ctx.fillStyle = '#ffffffcc';
+    ctx.beginPath();
+    ctx.roundRect(panelX - 10, panelY, cw*3+gap*2+20, ch*3+gap*2+50, 8);
+    ctx.fill();
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = '#475569';
+    ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('B = 加权和结果', panelX + (cw*3+gap*2)/2, panelY + 14);
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const v = B[r][c];
+        const mx = panelX + c*(cw+gap);
+        const my = panelY + 26 + r*(ch+gap);
+        ctx.fillStyle = `rgba(255,255,255,${v * 0.4 + 0.05})`;
+        ctx.beginPath();
+        ctx.roundRect(mx, my, cw, ch, 3);
+        ctx.fill();
+        ctx.fillStyle = '#475569';
+        ctx.font = '11px monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(v.toFixed(2), mx + cw/2, my + ch/2);
+      }
+    }
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('白点 B 是加权质心，线粗细表示各个置换矩阵的分量权重', cx, h - 12);
+  }
+
+  const btns = document.getElementById('decomp-btns');
+  examples.forEach((ex, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = ex.label;
+    btn.addEventListener('click', () => {
+      currentExample = i;
+      document.querySelectorAll('#decomp-btns button').forEach((b, j) =>
+        b.classList.toggle('active', j === i));
+      document.getElementById('decomp-equation').textContent =
+        `B = ${ex.desc}`;
+      draw();
+    });
+    btns.appendChild(btn);
+    if (i === 0) { btn.classList.add('active'); }
+  });
+  document.getElementById('decomp-equation').textContent =
+    `B = ${examples[0].desc}`;
+
+  window.addEventListener('resize', draw);
+  draw();
+})();
+
+// ══════════════════════════════════════════════════════════
+// Section 5: 谱范数可视化
+// ══════════════════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('s5-canvas');
+  const ctx = canvas.getContext('2d');
+
+  const matrices = [
+    {
+      name: '置换矩阵 P',
+      mat: [[0, 1], [1, 0]],
+      col: '#3b82f6',
+      desc: '谱范数 = 1 (保长，仅旋转或反射)'
+    },
+    {
+      name: '双随机矩阵 B',
+      mat: [[0.7, 0.3], [0.3, 0.7]],
+      col: '#16a34a',
+      desc: '谱范数 = 1 (非扩张缩放)'
+    },
+    {
+      name: '普通随机矩阵 M',
+      mat: [[0.9, 0.8], [0.1, 0.2]],
+      col: '#dc2626',
+      desc: '谱范数 > 1 (可能使信号发生局部放大)'
+    },
+  ];
+
+  function spectralNorm(m) {
+    const [[a,b],[c,d]] = m;
+    const s1 = a*a+b*b+c*c+d*d;
+    const s2 = (a*a+b*b-c*c-d*d)**2 + 4*(a*c+b*d)**2;
+    return Math.sqrt((s1 + Math.sqrt(s2)) / 2);
+  }
+
+  function transformPoint(m, angle) {
+    const x = Math.cos(angle), y = Math.sin(angle);
+    return [m[0][0]*x + m[0][1]*y, m[1][0]*x + m[1][1]*y];
+  }
+
+  function draw() {
+    const { w, h } = setCanvasSize(canvas);
+    clearWithBg(ctx, w, h);
+
+    const n = matrices.length;
+    const panelW = w / n;
+    const scale = Math.min(panelW * 0.35, h * 0.35);
+    const cy = h * 0.5;
+
+    matrices.forEach((mat, idx) => {
+      const cx = panelW * (idx + 0.5);
+      const sn = spectralNorm(mat.mat);
+
+      // 单位圆参考
+      ctx.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const a = (i / 100) * Math.PI * 2;
+        const [x, y] = [Math.cos(a), Math.sin(a)];
+        const px = cx + x * scale, py = cy - y * scale;
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 变换后的图形
+      ctx.beginPath();
+      let first = true;
+      for (let i = 0; i <= 120; i++) {
+        const a = (i / 120) * Math.PI * 2;
+        const [tx, ty] = transformPoint(mat.mat, a);
+        const px = cx + tx * scale, py = cy - ty * scale;
+        if (first) { ctx.moveTo(px, py); first = false; }
+        else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = mat.col;
+      ctx.lineWidth = 2;
+      ctx.fillStyle = mat.col + '20';
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, scale, 0, Math.PI * 2);
+      ctx.strokeStyle = '#ffffff20';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // 谱范数指示器
+      ctx.strokeStyle = mat.col + 'aa';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 3]);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + sn * scale, cy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = mat.col;
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`σ₁ = ${sn.toFixed(3)}`, cx + sn * scale / 2, cy - 8);
+
+      ctx.fillStyle = mat.col;
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(mat.name, cx, 22);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px sans-serif';
+      ctx.fillText(mat.desc, cx, h - 16);
+
+      const verdict = sn <= 1.001 ? '✓ 非扩张' : '✗ 会放大';
+      const badgeCol = sn <= 1.001 ? '#16a34a' : '#dc2626';
+      ctx.fillStyle = badgeCol + '20';
+      ctx.beginPath();
+      ctx.roundRect(cx - 44, h - 48, 88, 22, 5);
+      ctx.fill();
+      ctx.fillStyle = badgeCol;
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText(verdict, cx, h - 33);
+
+      if (idx < n - 1) {
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(panelW * (idx + 1), 30);
+        ctx.lineTo(panelW * (idx + 1), h - 10);
+        ctx.stroke();
+      }
+    });
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('虚线圆 = 单位圆（输入输入信号），彩色椭圆 = 映射后的状态像，谱范数 = 最大拉伸比率', w/2, cy + scale + 22);
+  }
+
+  window.addEventListener('resize', draw);
+  draw();
+})();
+
+// ══════════════════════════════════════════════════════════
+// Section 6: Sinkhorn-Knopp 迭代 demo
+// ══════════════════════════════════════════════════════════
+(function() {
+  const N = 4;
+  const canvas = document.getElementById('s6-matrix');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const stepInfo = document.getElementById('s6-step-info');
+
+  let M_raw = [];
+  let H = [];
+  let stepCount = 0;
+  let tau = 1.0;
+
+  function generateRaw() {
+    M_raw = [];
+    for (let i = 0; i < N; i++) {
+      M_raw[i] = [];
+      for (let j = 0; j < N; j++) {
+        M_raw[i][j] = Math.random() * 6 - 3;
+      }
+    }
+    H = M_raw.map(row => row.map(v => Math.exp(v / tau)));
+    stepCount = 0;
+  }
+
+  function rowNorm() {
+    H = H.map(row => {
+      const sum = row.reduce((a, b) => a + b, 0);
+      return row.map(v => v / (sum + 1e-10));
+    });
+  }
+
+  function colNorm() {
+    for (let j = 0; j < N; j++) {
+      let sum = 0;
+      for (let i = 0; i < N; i++) sum += H[i][j];
+      for (let i = 0; i < N; i++) H[i][j] /= (sum + 1e-10);
+    }
+  }
+
+  function rowSums() { return H.map(row => row.reduce((a, b) => a + b, 0)); }
+  function colSums() {
+    return Array.from({ length: N }, (_, j) => H.reduce((s, row) => s + row[j], 0));
+  }
+  function maxRowDev() {
+    return Math.max(...rowSums().map(s => Math.abs(s - 1)));
+  }
+  function maxColDev() {
+    return Math.max(...colSums().map(s => Math.abs(s - 1)));
+  }
+  function maxTotalDev() {
+    return Math.max(maxRowDev(), maxColDev());
+  }
+  function isDS() { return maxTotalDev() < 0.01; }
+
+  function draw() {
+    const W = canvas.width, Hc = canvas.height;
+    clearWithBg(ctx, W, Hc);
+
+    const cw = 50, ch = 50, gap = 6;
+    const offX = 30;
+    const offY = 20;
+
+    let minV = Infinity, maxV = -Infinity;
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      if (H[i][j] < minV) minV = H[i][j];
+      if (H[i][j] > maxV) maxV = H[i][j];
+    }
+    const range = Math.max(maxV - minV, 1e-6);
+
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < N; j++) {
+        const x = offX + j * (cw + gap);
+        const y = offY + i * (ch + gap);
+        const v = H[i][j];
+        const t = (v - minV) / range;
+        
+        // 适当压暗背景亮色，保证白色文本依然有优异的对比度
+        const r = Math.round(80 + 100 * (1 - t));
+        const g = Math.round(30 + 100 * t);
+        const b = Math.round(150 * t + 40);
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.beginPath();
+        ctx.roundRect(x, y, cw, ch, 5);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(v.toFixed(2), x + cw / 2, y + ch / 2);
+      }
+    }
+
+    const rs = rowSums();
+    for (let i = 0; i < N; i++) {
+      const y = offY + i * (ch + gap) + ch / 2;
+      const x = offX + N * (cw + gap) + 6;
+      const ok = Math.abs(rs[i] - 1) < 0.03;
+      ctx.fillStyle = ok ? '#16a34a' : '#dc2626';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(rs[i].toFixed(2), x, y);
+    }
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('行和', offX + N * (cw + gap) + 6, offY - 6);
+
+    const cs = colSums();
+    for (let j = 0; j < N; j++) {
+      const x = offX + j * (cw + gap) + cw / 2;
+      const y = offY + N * (ch + gap) + 10;
+      const ok = Math.abs(cs[j] - 1) < 0.03;
+      ctx.fillStyle = ok ? '#16a34a' : '#dc2626';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(cs[j].toFixed(2), x, y);
+    }
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('↓列和', offX + N * (cw + gap) / 2 - (cw + gap) / 2, offY + N * (ch + gap) + 26);
+
+    stepInfo.textContent = `迭代 ${stepCount} 次 ·  ${
+      isDS() ? '✓ 已接近双随机' : (stepCount === 0 ? '尚未迭代' : '尚未达到双随机')
+    }`;
+    stepInfo.style.color = isDS() ? '#16a34a' : '#64748b';
+
+    document.getElementById('s6-row-dev').textContent = maxRowDev().toFixed(4);
+    document.getElementById('s6-col-dev').textContent = maxColDev().toFixed(4);
+    document.getElementById('s6-max').textContent = maxV.toFixed(3);
+    document.getElementById('s6-min').textContent = minV.toFixed(3);
+    document.getElementById('s6-is-ds').innerHTML = isDS()
+      ? '<span style="color:#16a34a; font-weight:bold;">是</span>'
+      : '<span style="color:#dc2626; font-weight:bold;">否</span>';
+    document.getElementById('s6-distance').textContent = maxTotalDev().toFixed(4);
+  }
+
+  document.getElementById('s6-row-norm').addEventListener('click', () => {
+    rowNorm();
+    stepCount++;
+    draw();
+  });
+  document.getElementById('s6-col-norm').addEventListener('click', () => {
+    colNorm();
+    stepCount++;
+    draw();
+  });
+  document.getElementById('s6-step').addEventListener('click', () => {
+    rowNorm();
+    colNorm();
+    stepCount++;
+    draw();
+  });
+  document.getElementById('s6-run').addEventListener('click', () => {
+    for (let k = 0; k < 20; k++) {
+      rowNorm();
+      colNorm();
+    }
+    stepCount += 20;
+    draw();
+  });
+  document.getElementById('s6-reset').addEventListener('click', () => {
+    generateRaw();
+    draw();
+  });
+
+  const tauSlider = document.getElementById('s6-tau');
+  const tauVal = document.getElementById('s6-tau-val');
+  tauSlider.addEventListener('input', () => {
+    tau = tauSlider.value / 10;
+    tauVal.textContent = tau.toFixed(1);
+  });
+
+  generateRaw();
+  draw();
+})();
+
+// ══════════════════════════════════════════════════════════
+// Section 7: mHC 完整公式 — H_res 混合 4 条残差流
+// ══════════════════════════════════════════════════════════
+(function() {
+  const n = 4;
+  const COLS = ['#3b82f6', '#d97706', '#f07060', '#16a34a'];
+  const STREAM_NAMES = ['流 1 (低层)', '流 2 (中层)', '流 3 (高层)', '流 4 (全局)'];
+
+  let streams = [];
+  let H = [];
+  let streamsIn = document.getElementById('s7-streams-in');
+  let streamsOut = document.getElementById('s7-streams-out');
+  let hGrid = document.getElementById('s7-h-grid');
+  if (!streamsIn || !streamsOut || !hGrid) return;
+
+  function initStreams() {
+    streams = [];
+    for (let i = 0; i < n; i++) {
+      streams.push(0.4 + Math.random() * 1.6);
+    }
+  }
+
+  function setH(preset) {
+    H = [];
+    for (let i = 0; i < n; i++) {
+      H[i] = [];
+      for (let j = 0; j < n; j++) {
+        if (preset === 'identity') H[i][j] = (i === j) ? 1.0 : 0.0;
+        else if (preset === 'uniform') H[i][j] = 0.25;
+        else if (preset === 'shift') H[i][j] = (j === (i + 1) % n) ? 1.0 : 0.0;
+        else if (preset === 'random') H[i][j] = Math.random() * 0.4;
+        else H[i][j] = 0.25;
+      }
+    }
+  }
+
+  function normalizeH() {
+    for (let k = 0; k < 30; k++) {
+      for (let i = 0; i < n; i++) {
+        let sum = 0;
+        for (let j = 0; j < n; j++) sum += H[i][j];
+        for (let j = 0; j < n; j++) H[i][j] /= (sum + 1e-10);
+      }
+      for (let j = 0; j < n; j++) {
+        let sum = 0;
+        for (let i = 0; i < n; i++) sum += H[i][j];
+        for (let i = 0; i < n; i++) H[i][j] /= (sum + 1e-10);
+      }
+    }
+  }
+
+  function applyH() {
+    const next = [];
+    for (let i = 0; i < n; i++) {
+      let v = 0;
+      for (let j = 0; j < n; j++) v += H[i][j] * streams[j];
+      next.push(v);
+    }
+    streams = next;
+  }
+
+  function totalEnergy(arr) { return arr.reduce((a, b) => a + b, 0); }
+
+  function maxRowDev() {
+    let m = 0;
+    for (let i = 0; i < n; i++) {
+      const s = H[i].reduce((a, b) => a + b, 0);
+      m = Math.max(m, Math.abs(s - 1));
+    }
+    return m;
+  }
+
+  function maxColDev() {
+    let m = 0;
+    for (let j = 0; j < n; j++) {
+      let s = 0;
+      for (let i = 0; i < n; i++) s += H[i][j];
+      m = Math.max(m, Math.abs(s - 1));
+    }
+    return m;
+  }
+
+  function isDS() { return maxRowDev() < 0.01 && maxColDev() < 0.01; }
+
+  function drawStreams(canvas, data) {
+    const { w, h } = setCanvasSize(canvas);
+    const W = w, Hc = h;
+    const ctx = canvas.getContext('2d');
+    clearWithBg(ctx, W, Hc);
+
+    const maxV = Math.max(2.5, ...data);
+    const padX = 110, padY = 14;
+    const barH = (Hc - 2 * padY - 3 * 8) / n;
+    const barW = W - padX - 60;
+
+    for (let i = 0; i < n; i++) {
+      const y = padY + i * (barH + 8);
+      const v = data[i];
+      const w = Math.max(0, (v / maxV) * barW);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(STREAM_NAMES[i], padX - 10, y + barH / 2);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(padX, y, barW, barH);
+
+      const grad = ctx.createLinearGradient(padX, 0, padX + barW, 0);
+      grad.addColorStop(0, COLS[i] + '40');
+      grad.addColorStop(1, COLS[i]);
+      ctx.fillStyle = grad;
+      ctx.fillRect(padX, y, w, barH);
+
+      ctx.strokeStyle = COLS[i];
+      ctx.lineWidth = 1;
+      ctx.strokeRect(padX, y, barW, barH);
+
+      // 修正：强制使用深色字渲染数值，杜绝“纯白数值画在纯白容器中”导致的隐形 bug
+      ctx.fillStyle = '#1e293b';
+      ctx.font = 'bold 12px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(v.toFixed(3), padX + w + 8, y + barH / 2);
+    }
+
+    const E = totalEnergy(data);
+    ctx.fillStyle = '#d97706';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`总能量 = ${E.toFixed(3)}`, W - 10, Hc - 4);
+  }
+
+  function renderHGrid() {
+    hGrid.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const row = document.createElement('div');
+      row.className = 'h-row';
+      const label = document.createElement('span');
+      label.className = 'h-row-sum';
+      label.textContent = `流 ${i + 1} ➔`;
+      label.style.color = '#3b82f6';
+      row.appendChild(label);
+      for (let j = 0; j < n; j++) {
+        const cell = document.createElement('input');
+        cell.type = 'number';
+        cell.className = 'h-cell';
+        cell.min = '0'; cell.max = '1'; cell.step = '0.05';
+        cell.value = H[i][j].toFixed(2);
+        cell.addEventListener('input', () => {
+          const v = parseFloat(cell.value);
+          if (!isNaN(v)) {
+            H[i][j] = Math.max(0, Math.min(1, v));
+            updateAll();
+          }
+        });
+        row.appendChild(cell);
+      }
+      const sum = document.createElement('span');
+      sum.className = 'h-row-sum';
+      const rs = H[i].reduce((a, b) => a + b, 0);
+      sum.textContent = `= ${rs.toFixed(2)}`;
+      sum.style.color = Math.abs(rs - 1) < 0.03 ? '#16a34a' : '#dc2626';
+      row.appendChild(sum);
+      hGrid.appendChild(row);
+    }
+    const colRow = document.createElement('div');
+    colRow.className = 'h-row h-col-sum';
+    const colLabel = document.createElement('span');
+    colLabel.className = 'h-row-sum';
+    colLabel.textContent = '列和:';
+    colLabel.style.color = '#d97706';
+    colRow.appendChild(colLabel);
+    for (let j = 0; j < n; j++) {
+      const s = document.createElement('span');
+      s.className = 'h-cell h-cell-sum';
+      let cs = 0;
+      for (let i = 0; i < n; i++) cs += H[i][j];
+      s.textContent = cs.toFixed(2);
+      colRow.appendChild(s);
+    }
+    const spacer = document.createElement('span');
+    spacer.className = 'h-row-sum';
+    spacer.textContent = '';
+    colRow.appendChild(spacer);
+    hGrid.appendChild(colRow);
+  }
+
+  function updateAll() {
+    renderHGrid();
+    drawStreams(streamsIn, streams);
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      let v = 0;
+      for (let j = 0; j < n; j++) v += H[i][j] * streams[j];
+      out.push(v);
+    }
+    drawStreams(streamsOut, out);
+    const E_in = totalEnergy(streams);
+    const E_out = totalEnergy(out);
+    document.getElementById('s7-row-dev').textContent = maxRowDev().toFixed(4);
+    document.getElementById('s7-col-dev').textContent = maxColDev().toFixed(4);
+    document.getElementById('s7-energy-in').textContent = E_in.toFixed(3);
+    document.getElementById('s7-energy-out').textContent = E_out.toFixed(3);
+    const same = Math.abs(E_in - E_out) < 0.01;
+    document.getElementById('s7-energy-same').innerHTML = same
+      ? '<span style="color:#16a34a; font-weight:bold;">能量守恒</span>'
+      : '<span style="color:#dc2626; font-weight:bold;">能量不守恒 (可能发生放大/消减)</span>';
+    document.getElementById('s7-is-ds').innerHTML = isDS()
+      ? '<span style="color:#16a34a; font-weight:bold;">是 (H_res 已在 Birkhoff Polytope 内)</span>'
+      : '<span style="color:#dc2626; font-weight:bold;">否</span>';
+  }
+
+  document.getElementById('s7-preset-identity').addEventListener('click', () => {
+    setH('identity'); updateAll();
+  });
+  document.getElementById('s7-preset-uniform').addEventListener('click', () => {
+    setH('uniform'); updateAll();
+  });
+  document.getElementById('s7-preset-shift').addEventListener('click', () => {
+    setH('shift'); updateAll();
+  });
+  document.getElementById('s7-normalize').addEventListener('click', () => {
+    normalizeH(); updateAll();
+  });
+  document.getElementById('s7-evolve').addEventListener('click', () => {
+    applyH(); updateAll();
+  });
+  document.getElementById('s7-reset-streams').addEventListener('click', () => {
+    initStreams(); updateAll();
+  });
+
+  window.addEventListener('resize', updateAll);
+  initStreams();
+  setH('identity');
+  updateAll();
+})();
+
+// 触发初始重绘
+window.dispatchEvent(new Event('resize'));
+</script>
+</body>
+</html>

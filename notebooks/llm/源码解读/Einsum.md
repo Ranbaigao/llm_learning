@@ -130,7 +130,7 @@ Q = torch.einsum('btm,mk->btk', X, WQ)
 神经网络的计算，就是`seq_len ✖ d_k`个数字，每个数字乘一个参数![image](https://cdn.nlark.com/yuque/__latex/a5cd685134cff4e097eecbda45bf397e.svg)再累加，得到隐藏层的第一个节点数值，继续，每个数字再乘一组参数，得到隐藏层第二个节点的数值。以此计算 ![image](https://cdn.nlark.com/yuque/__latex/cead1760d9d5723460c4b8d4028f113a.svg)个节点的值，所以参数数量是多少？ `(seq_len, d_k, t)`
 
 
-![alt text](../../../images/1780736365344.png)
+![alt text](../../.assets/1780736365344.png)
 
 <h2 id="Djg3T">第二步</h2>
 

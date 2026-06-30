@@ -1,17 +1,18 @@
-```yaml
+---
 name: pdf2markdown
 description: "使用 MinerU 精准解析 API 将单个 PDF 或目录中的 PDF 批量转换为 Markdown。适用于：整理论文、生成知识库素材、将本地 PDF 转成可读可检索的 md 文件；支持单文件、目录扫描、自定义输出目录、Windows 环境变量读取 Token、异步轮询与结果落盘。"
 metadata:
-	language: zh-CN
-	owner: workspace
-	entry: skills/pdf2markdown/scripts/mineru_pdf_to_md.py
-	inputs:
-		- 单个 PDF 文件路径
-		- PDF 目录路径
-	outputs:
-		- Markdown 文件
-		- 可选 zip 结果包
-```
+  language: zh-CN
+  owner: workspace
+  entry: skills/pdf2markdown/scripts/mineru_pdf_to_md.py
+  inputs:
+    - 单个 PDF 文件路径
+    - PDF 目录路径
+  outputs:
+    - Markdown 文件
+    - 可选 zip 结果包
+---
+
 
 # PDF 转 Markdown Skill
 
@@ -33,6 +34,7 @@ metadata:
 | 转换单个 PDF | 直接传入 PDF 路径 |
 | 转换整个目录 | 传目录路径，或不传使用默认目录 |
 | 输出到指定目录 | 加 `--output-dir` |
+| 输入/输出默认路径 | 输入：`research_files/papers`，输出：`research_files/papers_md` |
 | 只想先试跑 | 加 `--max-files 1 --force` |
 | 已存在 md 但要重跑 | 加 `--force` |
 | 需要 OCR | 加 `--ocr` |
@@ -59,10 +61,10 @@ metadata:
 
 ### 输出规则
 
-- 默认输出目录：`files/papers_md`
+- 默认输出目录：`research_files/papers_md`（与输入目录 `research_files/papers` 同级）
 - 如果输入是目录，则保留相对目录结构
 - 如果输入是单个文件，则输出为 `输出目录/文件名.md`
-- 如果 Markdown 引用了本地图片资源，脚本会自动提取同级 `images/` 目录
+- 如果 Markdown 引用了本地图片资源，脚本会自动提取同级 `.assets/` 目录
 - 如启用 `--keep-zips`，同时保留 `输出目录/文件名.zip`
 
 ### Token 读取顺序
@@ -102,7 +104,7 @@ D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_p
 
 ### 1. 使用默认目录批量转换
 
-默认扫描 `files/papers`，输出到 `files/papers_md`：
+默认扫描 `research_files/papers`，输出到 `research_files/papers_md`：
 
 ```powershell
 D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_pdf_to_md.py
@@ -111,7 +113,7 @@ D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_p
 ### 2. 转换单个 PDF
 
 ```powershell
-D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_pdf_to_md.py .\files\papers\demo.pdf
+D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_pdf_to_md.py .\research_files\papers\demo.pdf
 ```
 
 ### 3. 转换单个 PDF 并指定输出目录
@@ -123,7 +125,7 @@ D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_p
 ### 4. 指定输入目录
 
 ```powershell
-D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_pdf_to_md.py --input .\files\papers
+D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_pdf_to_md.py --input .\research_files\papers
 ```
 
 ### 5. 只试跑一个文件
@@ -159,20 +161,20 @@ D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_p
 
 输入：
 
-- `files/papers/a.pdf`
-- `files/papers/sub/b.pdf`
+- `research_files/papers/a.pdf`
+- `research_files/papers/sub/b.pdf`
 
 输出：
 
-- `files/papers_md/a.md`
-- `files/papers_md/sub/b.md`
+- `research_files/papers_md/a.md`
+- `research_files/papers_md/sub/b.md`
 
 ### 单文件输入
 
 命令：
 
 ```powershell
-D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_pdf_to_md.py .\files\papers\a.pdf --output-dir .\out
+D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_pdf_to_md.py .\research_files\papers\a.pdf --output-dir .\out
 ```
 
 输出：
@@ -204,7 +206,7 @@ D:/env/miniconda/envs/notebook/python.exe .\skills\pdf2markdown\scripts\mineru_p
 - `input_path`：位置参数，单个 PDF 或目录路径
 - `--input`：输入文件或目录
 - `--input-dir`：兼容旧参数，等同于 `--input`
-- `--output-dir`：输出目录，默认 `files/papers_md`
+- `--output-dir`：输出目录，默认 `research_files/papers_md`
 
 ### 解析参数
 

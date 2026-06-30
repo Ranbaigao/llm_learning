@@ -23,8 +23,8 @@ if sys.platform == "win32":
 
 BASE_URL = "https://mineru.net/api/v4"
 UPLOAD_BATCH_LIMIT = 50
-DEFAULT_INPUT_DIR = Path("files/papers")
-DEFAULT_OUTPUT_DIR = Path("files/papers_md")
+DEFAULT_INPUT_DIR = Path("research_files/papers")
+DEFAULT_OUTPUT_DIR = Path("research_files/papers_md")
 TERMINAL_STATES = {"done", "failed"}
 
 

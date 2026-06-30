@@ -1,0 +1,21 @@
+site_name: 我的LLM笔记
+theme:
+  name: material
+
+docs_dir: notebooks/ # 将项目根目录设为文档根目录
+
+
+# 显式声明不要排除 .assets 目录（注意感叹号）
+exclude_docs: |
+  !.assets
+
+# 启用数学公式解析扩展
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.magiclink
+
+# 引入本地配置与在线数学引擎
+extra_javascript:
+  - .assets/javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js

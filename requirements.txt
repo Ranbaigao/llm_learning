@@ -1,0 +1,4 @@
+# MkDocs 站点（来自 mkdocs.yml）
+mkdocs>=1.6
+mkdocs-material>=9.5
+pymdown-extensions>=10.7
