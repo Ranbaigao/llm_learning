@@ -1,9 +1,18 @@
 site_name: 我的LLM笔记
 theme:
   name: material
+  logo: .assets/Gemini_Generated_Image_fbcrzifbcrzifbcr.png
+  favicon: .assets/Gemini_Generated_Image_fbcrzifbcrzifbcr.png
 
 docs_dir: notebooks/ # 将项目根目录设为文档根目录
 
+# 自定义钩子: 在构建前自动扫描 notebooks/ 生成知识图谱数据
+hooks:
+  - hooks/generate_graph_data.py
+
+plugins:
+  - search
+  - mkdocs-jupyter
 
 # 显式声明不要排除 .assets 目录（注意感叹号）
 exclude_docs: |

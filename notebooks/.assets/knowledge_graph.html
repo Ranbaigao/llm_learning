@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Knowledge Graph · 我的 LLM 笔记</title>
+<style>
+  :root {
+    --bg-color: #f8fafc;
+    --text-color: #334155;
+    --title-color: #0f172a;
+    --panel-bg: rgba(255, 255, 255, 0.92);
+    --border-color: #cbd5e1;
+    --panel-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    --accent-primary: #3b82f6;
+    --accent-text: #1e40af;
+    --accent-light: #eff6ff;
+    --success: #16a34a;
+    --warning: #d97706;
+    --muted: #64748b;
+    --root-color: #0f172a;
+    --category-color: #3b82f6;
+    --subcategory-color: #16a34a;
+    --note-color: #d97706;
+    --notebook-color: #7c3aed;
+    --reference-color: #7c3aed;
+  }
+
+  * { box-sizing: border-box; }
+
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background:
+      radial-gradient(circle at 26% 18%, rgba(219, 234, 254, 0.95) 0, transparent 32%),
+      radial-gradient(circle at 80% 18%, rgba(239, 246, 255, 0.92) 0, transparent 34%),
+      radial-gradient(circle at 54% 84%, rgba(241, 245, 249, 0.96) 0, transparent 40%),
+      linear-gradient(135deg, #ffffff 0%, #f8fafc 46%, #eff6ff 100%);
+  }
+
+  .app::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(100, 116, 139, 0.055) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg, rgba(100, 116, 139, 0.05) 0 1px, transparent 1px 40px);
+    mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
+  }
+
+  #scene {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  #scene.is-dragging { cursor: grabbing; }
+
+  .panel {
+    position: absolute;
+    z-index: 4;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(10px) saturate(130%);
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
+  }
+
+  .header-panel {
+    top: 18px;
+    left: 18px;
+    width: min(430px, calc(100vw - 36px));
+    padding: 14px 16px;
+  }
+
+  .eyebrow {
+    margin: 0 0 4px;
+    color: var(--accent-text);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .header-panel h1 {
+    margin: 0;
+    color: var(--title-color);
+    font-size: 19px;
+    line-height: 1.2;
+    font-weight: 750;
+  }
+
+  .metric-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 12px;
+  }
+
+  .metric {
+    min-width: 0;
+    padding: 7px 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+  }
+
+  .metric strong {
+    display: block;
+    color: var(--title-color);
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .metric span {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .legend-panel {
+    top: 18px;
+    right: 18px;
+    min-width: 166px;
+    padding: 11px 12px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .legend-title {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  .legend-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 999px;
+    box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 14%, transparent);
+    flex: 0 0 auto;
+  }
+
+  .toolbar {
+    left: 18px;
+    bottom: 18px;
+    padding: 7px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .icon-button {
+    width: 36px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+
+  .icon-button:hover {
+    transform: translateY(-1px);
+    background: var(--accent-light);
+    color: var(--accent-text);
+    border-color: rgba(59, 130, 246, 0.42);
+  }
+
+  .icon-button:active { transform: translateY(0) scale(0.97); }
+
+  .icon-button svg {
+    width: 17px;
+    height: 17px;
+    stroke-width: 2.1;
+  }
+
+  .search-panel {
+    right: 18px;
+    bottom: 18px;
+    width: min(310px, calc(100vw - 112px));
+    height: 48px;
+    padding: 0 13px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .search-panel svg {
+    width: 17px;
+    height: 17px;
+    color: var(--muted);
+    flex: 0 0 auto;
+  }
+
+  .search-panel input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--title-color);
+    font: inherit;
+    font-size: 13px;
+  }
+
+  .search-panel input::placeholder { color: #94a3b8; }
+
+  #tooltip {
+    position: fixed;
+    z-index: 8;
+    min-width: 190px;
+    max-width: min(330px, calc(100vw - 28px));
+    padding: 10px 12px 11px;
+    border: 1px solid rgba(203, 213, 225, 0.96);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.14);
+    color: var(--text-color);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 140ms ease;
+  }
+
+  #tooltip.visible { opacity: 1; }
+
+  .tip-type {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .tip-title {
+    margin-top: 7px;
+    color: var(--title-color);
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .tip-path {
+    margin-top: 5px;
+    color: var(--muted);
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 10.5px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .tip-hint {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 10.5px;
+  }
+
+  #loading,
+  #error {
+    position: absolute;
+    z-index: 6;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(203, 213, 225, 0.92);
+    border-radius: 8px;
+    padding: 12px 15px;
+    box-shadow: var(--panel-shadow);
+  }
+
+  .spinner {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #dbeafe;
+    border-top-color: var(--accent-primary);
+    border-radius: 999px;
+    animation: spin 760ms linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #error {
+    width: min(460px, calc(100vw - 32px));
+    padding: 16px 18px;
+    border: 1px solid rgba(220, 38, 38, 0.28);
+    border-radius: 8px;
+    background: #fff7f7;
+    color: #991b1b;
+    box-shadow: var(--panel-shadow);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  #error[hidden],
+  #loading[hidden] { display: none; }
+
+  @media (max-width: 760px) {
+    .header-panel {
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      width: auto;
+    }
+
+    .legend-panel { display: none; }
+
+    .toolbar {
+      left: 10px;
+      bottom: 10px;
+    }
+
+    .search-panel {
+      right: 10px;
+      bottom: 10px;
+      width: min(240px, calc(100vw - 66px));
+    }
+
+    .metric-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <canvas id="scene" aria-label="notebooks 3D 知识星图"></canvas>
+
+  <section class="panel header-panel" aria-label="图谱统计">
+    <p class="eyebrow">Knowledge Graph</p>
+    <h1>我的 LLM 笔记星图</h1>
+    <div class="metric-row">
+      <div class="metric"><strong id="stat-nodes">0</strong><span>节点</span></div>
+      <div class="metric"><strong id="stat-notes">0</strong><span>笔记</span></div>
+      <div class="metric"><strong id="stat-contains">0</strong><span>结构</span></div>
+      <div class="metric"><strong id="stat-refs">0</strong><span>引用</span></div>
+    </div>
+  </section>
+
+  <aside class="panel legend-panel" aria-label="图例">
+    <div class="legend-title">Constellation</div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--root-color); color: var(--root-color);"></span><span>根星</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--category-color); color: var(--category-color);"></span><span>星座</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--subcategory-color); color: var(--subcategory-color);"></span><span>星群</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--note-color); color: var(--note-color);"></span><span>笔记星</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--notebook-color); color: var(--notebook-color);"></span><span>Jupyter</span></div>
+  </aside>
+
+  <div class="panel toolbar" aria-label="图谱工具">
+    <button class="icon-button" id="fit-button" type="button" title="重置视角" aria-label="重置视角">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+    </button>
+    <button class="icon-button" id="relayout-button" type="button" title="重新排布星图" aria-label="重新排布星图">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+    </button>
+    <button class="icon-button" id="pause-button" type="button" title="暂停动画" aria-label="暂停动画">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 4H6v16h4z"/><path d="M18 4h-4v16h4z"/></svg>
+    </button>
+    <button class="icon-button" id="refresh-button" type="button" title="重新读取数据" aria-label="重新读取数据">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 11a8.1 8.1 0 0 0-15.5-2"/><path d="M4 4v5h5"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2"/><path d="M20 20v-5h-5"/></svg>
+    </button>
+  </div>
+
+  <label class="panel search-panel" for="search-input" aria-label="搜索节点">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+    <input id="search-input" type="search" placeholder="搜索笔记或目录" autocomplete="off" />
+  </label>
+
+  <div id="tooltip" role="status" aria-live="polite"></div>
+  <div id="loading"><span class="spinner"></span><span>加载知识星图</span></div>
+  <div id="error" hidden></div>
+</div>
+
+<script>
+'use strict';
+
+const DATA_URL = 'data/knowledge_graph.json';
+const TYPE_LABEL = {
+  root: 'ROOT',
+  category: 'CATEGORY',
+  subcategory: 'SUBCATEGORY',
+  note: 'NOTE',
+};
+const TYPE_COLOR = {
+  root: cssVar('--root-color'),
+  category: cssVar('--category-color'),
+  subcategory: cssVar('--subcategory-color'),
+  note: cssVar('--note-color'),
+  notebook: cssVar('--notebook-color'),
+};
+const INDEX_CHAPTER_ANCHORS = {
+  '__root__': 'kg-home',
+  'llm': 'kg-llm',
+  'llm/llm技术报告': 'kg-llm-reports',
+  'llm/模型架构': 'kg-llm-architecture',
+  'llm/模型架构/优化器': 'kg-llm-architecture',
+  'llm/模型架构/位置编码': 'kg-llm-architecture',
+  'llm/模型架构/归一化': 'kg-llm-architecture',
+  'llm/模型架构/注意力机制': 'kg-llm-architecture',
+  'llm/模型训练': 'kg-llm-training',
+  'llm/模型训练/SFT': 'kg-llm-training',
+  'llm/模型训练/强化学习': 'kg-llm-training',
+  'llm/源码解读': 'kg-llm-source',
+  'llm应用开发': 'kg-llm-app',
+  'computer_vision': 'kg-cv',
+  'computer_vision/基础': 'kg-cv-basic',
+  'computer_vision/模型架构': 'kg-cv-architecture',
+  '性能优化': 'kg-performance',
+};
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d', { alpha: true });
+const tooltip = document.getElementById('tooltip');
+const loading = document.getElementById('loading');
+const errorBox = document.getElementById('error');
+const searchInput = document.getElementById('search-input');
+
+let width = 0;
+let height = 0;
+let dpr = 1;
+let nodes = [];
+let links = [];
+let stars = [];
+let nodeById = new Map();
+let adjacency = new Map();
+let childrenById = new Map();
+let parentById = new Map();
+let focusNode = null;
+let focusIds = new Set();
+let searchMatches = new Set();
+let searchQuery = '';
+let hoveredNode = null;
+let isHoveringNode = false;
+let pressedNode = null;
+let paused = false;
+let dragState = null;
+let frameHandle = 0;
+let lastTime = 0;
+let time = 0;
+let constellationRotation = 0;
+let camera = {
+  rotX: 1.18,
+  rotY: -0.28,
+  zoom: 1,
+  panX: 0,
+  panY: 14,
+  distance: 980,
+};
+
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[char]));
+}
+
+function hexToRgb(hex) {
+  const normalized = hex.trim().replace('#', '');
+  const value = Number.parseInt(normalized.length === 3
+    ? normalized.split('').map(ch => ch + ch).join('')
+    : normalized, 16);
+  return {
+    r: (value >> 16) & 255,
+    g: (value >> 8) & 255,
+    b: value & 255,
+  };
+}
+
+function rgba(color, alpha) {
+  const rgb = hexToRgb(color);
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+}
+
+function radiusFor(node) {
+  if (node.type === 'root') return 15;
+  if (node.type === 'category') return Math.max(11, Math.min(16, node.size * 0.62 || 12));
+  if (node.type === 'subcategory') return Math.max(8, Math.min(12, node.size * 0.58 || 9));
+  return Math.max(4.5, Math.min(6.2, node.size * 0.72 || 5));
+}
+
+function measure() {
+  const rect = canvas.getBoundingClientRect();
+  width = Math.max(320, rect.width);
+  height = Math.max(420, rect.height);
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function orderedChildren(parentId) {
+  return [...(childrenById.get(parentId) || [])].sort((a, b) => {
+    const rank = { category: 0, subcategory: 1, note: 2 };
+    const dr = (rank[a.type] ?? 9) - (rank[b.type] ?? 9);
+    if (dr !== 0) return dr;
+    return a.name.localeCompare(b.name, 'zh-Hans-CN');
+  });
+}
+
+async function loadGraph() {
+  loading.hidden = false;
+  errorBox.hidden = true;
+  try {
+    const response = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    buildGraph(data);
+    loading.hidden = true;
+  } catch (error) {
+    loading.hidden = true;
+    errorBox.hidden = false;
+    errorBox.textContent = `知识星图数据加载失败：${error.message}。请先运行 mkdocs serve、mkdocs build，或直接执行 python hooks/generate_graph_data.py。`;
+  }
+}
+
+function buildGraph(data) {
+  cancelAnimationFrame(frameHandle);
+  measure();
+
+  nodeById = new Map();
+  nodes = (Array.isArray(data.nodes) ? data.nodes : []).map((node, index) => {
+    const next = {
+      ...node,
+      index,
+      radius: radiusFor(node),
+      color: node.format === 'jupyter' ? TYPE_COLOR.notebook : (TYPE_COLOR[node.type] || TYPE_COLOR.note),
+      x: 0,
+      y: 0,
+      z: 0,
+      tx: 0,
+      ty: 0,
+      tz: 0,
+      screen: null,
+      pulse: Math.random() * Math.PI * 2,
+      scale: 1,
+    };
+    nodeById.set(next.id, next);
+    return next;
+  });
+
+  links = (Array.isArray(data.links) ? data.links : [])
+    .map((link, index) => ({
+      ...link,
+      index,
+      source: nodeById.get(link.source),
+      target: nodeById.get(link.target),
+    }))
+    .filter(link => link.source && link.target);
+
+  adjacency = new Map(nodes.map(node => [node.id, new Set()]));
+  childrenById = new Map(nodes.map(node => [node.id, []]));
+  parentById = new Map();
+  for (const link of links) {
+    adjacency.get(link.source.id)?.add(link.target.id);
+    adjacency.get(link.target.id)?.add(link.source.id);
+    if (link.type === 'contains') {
+      childrenById.get(link.source.id)?.push(link.target);
+      parentById.set(link.target.id, link.source);
+    }
+  }
+
+  seedConstellation();
+  createBackgroundStars();
+  updateStats(data.stats || {});
+  resetView();
+  clearFocus();
+  lastTime = performance.now();
+  frameHandle = requestAnimationFrame(animate);
+}
+
+function updateStats(stats) {
+  document.getElementById('stat-nodes').textContent = stats.nodes ?? nodes.length;
+  document.getElementById('stat-notes').textContent = stats.notes ?? nodes.filter(node => node.type === 'note').length;
+  document.getElementById('stat-contains').textContent = stats.contains ?? links.filter(link => link.type === 'contains').length;
+  document.getElementById('stat-refs').textContent = stats.references ?? links.filter(link => link.type === 'reference').length;
+}
+
+function seedConstellation() {
+  const root = nodeById.get('__root__');
+  const categories = orderedChildren('__root__');
+  const baseRadius = 300;
+  const depthStep = 128;
+
+  if (root) {
+    root.tx = 0;
+    root.ty = 0;
+    root.tz = 0;
+    root.branchAngle = 0;
+  }
+
+  function placeNode(node, angle, radius, vertical, span) {
+    const wave = Math.sin(angle * 1.7 + node.depth) * 42;
+    node.branchAngle = angle;
+    node.tx = Math.cos(angle) * radius;
+    node.tz = Math.sin(angle) * radius * 0.78;
+    node.ty = vertical + wave;
+
+    const children = orderedChildren(node.id);
+    if (!children.length) return;
+
+    const childSpan = clamp(span, 0.42, 1.55);
+    children.forEach((child, index) => {
+      const ratio = children.length === 1 ? 0 : (index / (children.length - 1) - 0.5);
+      const offset = ratio * childSpan;
+      const childAngle = angle + offset;
+      const childRadius = radius + (child.type === 'note' ? depthStep * 0.72 : depthStep);
+      const childVertical = vertical + ratio * 95 + (child.type === 'note' ? 18 : -8);
+      const nextSpan = child.type === 'note'
+        ? 0.26
+        : clamp(0.38 + orderedChildren(child.id).length * 0.07, 0.44, childSpan * 0.74);
+      placeNode(child, childAngle, childRadius, childVertical, nextSpan);
+    });
+  }
+
+  categories.forEach((node, index) => {
+    const angle = -Math.PI / 2 + (index / Math.max(1, categories.length)) * Math.PI * 2;
+    const vertical = (index - (categories.length - 1) / 2) * 54;
+    const span = clamp(0.86 + orderedChildren(node.id).length * 0.13, 0.92, 1.7);
+    placeNode(node, angle, baseRadius, vertical, span);
+  });
+
+  nodes.forEach((node, index) => {
+    const jitter = node.type === 'root' ? 0 : 16 + (index % 7) * 2;
+    const phase = (index % 5) / 5 * Math.PI * 2;
+    node.x = node.tx + Math.cos(phase) * jitter;
+    node.y = node.ty + Math.sin(phase) * jitter * 0.8;
+    node.z = node.tz + Math.sin(phase * 0.7) * jitter;
+  });
+}
+
+function createBackgroundStars() {
+  stars = [];
+  const count = Math.round(clamp((width * height) / 9000, 70, 150));
+  for (let i = 0; i < count; i += 1) {
+    stars.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: 0.45 + Math.random() * 1.25,
+      a: 0.16 + Math.random() * 0.28,
+      p: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function projectPoint(x, y, z) {
+  const cosConstellation = Math.cos(constellationRotation);
+  const sinConstellation = Math.sin(constellationRotation);
+  const rx = x * cosConstellation - z * sinConstellation;
+  const rz = x * sinConstellation + z * cosConstellation;
+  const cosY = Math.cos(camera.rotY);
+  const sinY = Math.sin(camera.rotY);
+  const cosX = Math.cos(camera.rotX);
+  const sinX = Math.sin(camera.rotX);
+
+  const x1 = rx * cosY - rz * sinY;
+  const z1 = rx * sinY + rz * cosY;
+  const y1 = y * cosX - z1 * sinX;
+  const z2 = y * sinX + z1 * cosX;
+  const perspective = camera.distance / Math.max(180, camera.distance + z2);
+
+  return {
+    x: width / 2 + camera.panX + x1 * perspective * camera.zoom,
+    y: height / 2 + camera.panY + y1 * perspective * camera.zoom,
+    z: z2,
+    scale: perspective * camera.zoom,
+  };
+}
+
+function updateProjection() {
+  for (const node of nodes) {
+    node.screen = projectPoint(node.x, node.y, node.z);
+  }
+}
+
+function targetScale(node) {
+  if (focusNode) {
+    if (node.id === focusNode.id) return 1.62;
+    if (focusIds.has(node.id)) return 1.17;
+    return 0.86;
+  }
+  return searchMatches.has(node.id) ? 1.32 : 1;
+}
+
+function animate(now) {
+  const dt = Math.min(48, now - lastTime || 16);
+  lastTime = now;
+  if (!paused) {
+    time += dt * 0.001;
+    if (!dragState && !isHoveringNode) constellationRotation += dt * 0.000038;
+    easeNodes(dt);
+  }
+  updateProjection();
+  drawScene();
+  if (focusNode) placeTooltipSmart(focusNode);
+  frameHandle = requestAnimationFrame(animate);
+}
+
+function easeNodes(dt) {
+  const ease = 1 - Math.pow(0.001, dt / 1000);
+  for (const node of nodes) {
+    const drift = node.type === 'root' ? 2 : node.type === 'note' ? 6 : 4;
+    const phase = time * (0.35 + (node.index % 5) * 0.04) + node.pulse;
+    const tx = node.tx + Math.cos(phase) * drift;
+    const ty = node.ty + Math.sin(phase * 0.9) * drift;
+    const tz = node.tz + Math.sin(phase * 0.7) * drift;
+    node.x += (tx - node.x) * ease * 0.82;
+    node.y += (ty - node.y) * ease * 0.82;
+    node.z += (tz - node.z) * ease * 0.82;
+    node.scale += (targetScale(node) - node.scale) * 0.18;
+  }
+}
+
+function drawScene() {
+  ctx.clearRect(0, 0, width, height);
+  drawBackgroundStars();
+  drawLinks();
+  drawNodes();
+  drawLabels();
+}
+
+function drawBackgroundStars() {
+  ctx.save();
+  for (const star of stars) {
+    const pulse = 0.72 + Math.sin(time * 0.8 + star.p) * 0.28;
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(59, 130, 246, ${star.a * pulse})`;
+    ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawLinks() {
+  const sorted = [...links].sort((a, b) => ((b.source.screen?.z || 0) + (b.target.screen?.z || 0)) - ((a.source.screen?.z || 0) + (a.target.screen?.z || 0)));
+  for (const link of sorted) {
+    const source = link.source.screen;
+    const target = link.target.screen;
+    if (!source || !target) continue;
+
+    const active = focusNode && (link.source.id === focusNode.id || link.target.id === focusNode.id);
+    const related = focusNode && (focusIds.has(link.source.id) || focusIds.has(link.target.id));
+    const muted = focusNode && !related;
+    const reference = link.type === 'reference';
+    const color = reference ? TYPE_COLOR.note : TYPE_COLOR.category;
+    const alpha = muted ? 0.055 : active ? 0.78 : reference ? 0.28 : 0.24;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(source.x, source.y);
+    ctx.lineTo(target.x, target.y);
+    ctx.lineWidth = active ? 2.2 : 1.05;
+    ctx.strokeStyle = reference ? `rgba(124, 58, 237, ${alpha})` : rgba(color, alpha);
+    ctx.shadowColor = rgba(color, active ? 0.28 : 0.08);
+    ctx.shadowBlur = active ? 12 : 4;
+    if (reference) ctx.setLineDash([5, 7]);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawNodes() {
+  const sorted = [...nodes].sort((a, b) => (b.screen?.z || 0) - (a.screen?.z || 0));
+  for (const node of sorted) {
+    const p = node.screen;
+    if (!p) continue;
+    const active = focusNode && focusIds.has(node.id);
+    const muted = focusNode && !active;
+    const matched = searchMatches.has(node.id);
+    const baseRadius = node.radius * p.scale * node.scale;
+    const r = clamp(baseRadius, node.type === 'note' ? 3.2 : 5.4, node.type === 'root' ? 30 : 22);
+    node.hitRadius = Math.max(9, r + (node.type === 'note' ? 7 : 5));
+
+    const pulse = 0.86 + Math.sin(time * 1.35 + node.pulse) * 0.14;
+    const alpha = muted ? 0.20 : 1;
+    const color = node.color;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    const halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * (active ? 3.8 : 2.9));
+    halo.addColorStop(0, rgba(color, active ? 0.30 : 0.20));
+    halo.addColorStop(1, rgba(color, 0));
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r * (active ? 3.8 : 2.9), 0, Math.PI * 2);
+    ctx.fill();
+
+    if (node.type !== 'note' || active || matched) {
+      ctx.strokeStyle = rgba(color, active ? 0.42 : 0.22);
+      ctx.lineWidth = active ? 1.6 : 1;
+      ctx.beginPath();
+      ctx.moveTo(p.x - r * 2.1, p.y);
+      ctx.lineTo(p.x + r * 2.1, p.y);
+      ctx.moveTo(p.x, p.y - r * 2.1);
+      ctx.lineTo(p.x, p.y + r * 2.1);
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.shadowColor = rgba(color, active ? 0.50 : 0.24);
+    ctx.shadowBlur = active ? 18 : 9;
+    ctx.arc(p.x, p.y, r * pulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.lineWidth = active ? 2.7 : 1.7;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    if (matched && !focusNode) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 7, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(217, 119, 6, 0.48)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+}
+
+function shouldLabel(node) {
+  if (node.type === 'root' || node.type === 'category') return true;
+  if (node.type === 'subcategory') return !focusNode || focusIds.has(node.id) || searchMatches.has(node.id);
+  return Boolean(focusNode && focusIds.has(node.id)) || searchMatches.has(node.id);
+}
+
+function drawLabels() {
+  const sorted = [...nodes].sort((a, b) => (b.screen?.z || 0) - (a.screen?.z || 0));
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  for (const node of sorted) {
+    if (!shouldLabel(node)) continue;
+    const p = node.screen;
+    if (!p) continue;
+    const active = focusNode && focusIds.has(node.id);
+    const muted = focusNode && !active;
+    if (muted) continue;
+
+    const fontSize =
+      node.type === 'root' ? 14 :
+      node.type === 'category' ? 13 :
+      node.type === 'subcategory' ? 12 :
+      11;
+    const weight = node.type === 'note' ? 500 : 700;
+    const r = Math.max(6, node.radius * p.scale * node.scale);
+    const y = p.y + r + 8;
+    const text = node.name;
+
+    ctx.font = `${weight} ${fontSize}px "Segoe UI", Tahoma, system-ui, sans-serif`;
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.fillStyle = node.type === 'note' ? '#475569' : '#0f172a';
+    ctx.strokeText(text, p.x, y);
+    ctx.fillText(text, p.x, y);
+  }
+  ctx.restore();
+}
+
+function hitTest(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const sorted = [...nodes].sort((a, b) => (a.screen?.z || 0) - (b.screen?.z || 0));
+  for (const node of sorted) {
+    const p = node.screen;
+    if (!p) continue;
+    const dist = Math.hypot(x - p.x, y - p.y);
+    if (dist <= (node.hitRadius || 10)) return node;
+  }
+  return null;
+}
+
+function setFocus(node, fromPointer = false) {
+  focusNode = node;
+  if (fromPointer) {
+    hoveredNode = node;
+    isHoveringNode = true;
+  }
+  const ids = new Set([node.id, ...(adjacency.get(node.id) || [])]);
+  const children = childrenById.get(node.id) || [];
+  for (const child of children) ids.add(child.id);
+  const parent = parentById.get(node.id);
+  if (parent) ids.add(parent.id);
+  focusIds = ids;
+  showTooltip(node);
+}
+
+function clearFocus() {
+  focusNode = null;
+  hoveredNode = null;
+  isHoveringNode = false;
+  focusIds = new Set();
+  searchMatches = searchQuery
+    ? new Set(nodes.filter(node => searchable(node).includes(searchQuery)).map(node => node.id))
+    : new Set();
+  hideTooltip();
+}
+
+function searchable(node) {
+  return `${node.name} ${node.id}`.toLowerCase();
+}
+
+function showTooltip(node) {
+  const color = node.color || TYPE_COLOR.note;
+  const typeLabel = node.format === 'jupyter' ? 'JUPYTER' : (TYPE_LABEL[node.type] || node.type);
+  tooltip.innerHTML = `
+    <div class="tip-type" style="background:${color}18;color:${color}">${typeLabel}</div>
+    <div class="tip-title">${escapeHtml(node.name)}</div>
+    <div class="tip-path">/${escapeHtml(node.id)}</div>
+    <div class="tip-hint">点击跳转到对应${node.type === 'note' ? '笔记' : '章节'}</div>
+  `;
+  tooltip.classList.add('visible');
+  placeTooltipSmart(node);
+}
+
+function hideTooltip() {
+  tooltip.classList.remove('visible');
+}
+
+function protectedRectsFor(node) {
+  const protectedNodes = [
+    node,
+    ...(childrenById.get(node.id) || []),
+    ...(adjacency.get(node.id) ? [...adjacency.get(node.id)].map(id => nodeById.get(id)).filter(Boolean) : []),
+  ];
+  const rects = [];
+  for (const item of protectedNodes) {
+    const p = item.screen;
+    if (!p) continue;
+    const labelWidth = Math.min(220, Math.max(58, item.name.length * 8));
+    const r = item.hitRadius || 10;
+    rects.push({
+      left: p.x - Math.max(r + 8, labelWidth / 2),
+      top: p.y - r - 10,
+      right: p.x + Math.max(r + 8, labelWidth / 2),
+      bottom: p.y + r + 34,
+      weight: item === node ? 5 : parentById.get(item.id) === node ? 4 : 2,
+    });
+  }
+  return rects;
+}
+
+function intersectArea(a, b) {
+  const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+  const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+  return x * y;
+}
+
+function clampRect(rect, margin) {
+  const w = rect.right - rect.left;
+  const h = rect.bottom - rect.top;
+  const left = clamp(rect.left, margin, width - w - margin);
+  const top = clamp(rect.top, margin, height - h - margin);
+  return { left, top, right: left + w, bottom: top + h };
+}
+
+function placeTooltipSmart(node) {
+  if (!tooltip.classList.contains('visible') || !node.screen) return;
+
+  const tipWidth = tooltip.offsetWidth || 220;
+  const tipHeight = tooltip.offsetHeight || 84;
+  const p = node.screen;
+  const gap = Math.max(20, (node.hitRadius || 12) + 14);
+  const margin = 12;
+  const children = childrenById.get(node.id) || [];
+  const neighborScreens = children.map(child => child.screen).filter(Boolean);
+  const avoidVector = neighborScreens.length
+    ? neighborScreens.reduce((acc, point) => ({ x: acc.x + point.x - p.x, y: acc.y + point.y - p.y }), { x: 0, y: 0 })
+    : { x: 0, y: -1 };
+  const avoidLength = Math.hypot(avoidVector.x, avoidVector.y) || 1;
+  const avoid = { x: avoidVector.x / avoidLength, y: avoidVector.y / avoidLength };
+
+  const directions = [
+    { x: 0, y: -1, anchor: 'bottom' },
+    { x: 1, y: -0.35, anchor: 'left' },
+    { x: -1, y: -0.35, anchor: 'right' },
+    { x: 0, y: 1, anchor: 'top' },
+    { x: 1, y: 0.85, anchor: 'left' },
+    { x: -1, y: 0.85, anchor: 'right' },
+    { x: 1, y: -1, anchor: 'left' },
+    { x: -1, y: -1, anchor: 'right' },
+  ];
+  const protectedRects = protectedRectsFor(node);
+  let best = null;
+
+  for (const dir of directions) {
+    const length = Math.hypot(dir.x, dir.y) || 1;
+    const nx = dir.x / length;
+    const ny = dir.y / length;
+    const cx = p.x + nx * gap;
+    const cy = p.y + ny * gap;
+    let rect;
+    if (dir.anchor === 'left') {
+      rect = { left: cx, top: cy - tipHeight / 2, right: cx + tipWidth, bottom: cy + tipHeight / 2 };
+    } else if (dir.anchor === 'right') {
+      rect = { left: cx - tipWidth, top: cy - tipHeight / 2, right: cx, bottom: cy + tipHeight / 2 };
+    } else if (dir.anchor === 'top') {
+      rect = { left: cx - tipWidth / 2, top: cy, right: cx + tipWidth / 2, bottom: cy + tipHeight };
+    } else {
+      rect = { left: cx - tipWidth / 2, top: cy - tipHeight, right: cx + tipWidth / 2, bottom: cy };
+    }
+    rect = clampRect(rect, margin);
+
+    let score = 0;
+    for (const protectedRect of protectedRects) {
+      score += intersectArea(rect, protectedRect) * protectedRect.weight;
+    }
+    const sameDirectionPenalty = Math.max(0, nx * avoid.x + ny * avoid.y) * 1800;
+    const edgePenalty =
+      Math.max(0, margin - rect.left) +
+      Math.max(0, margin - rect.top) +
+      Math.max(0, rect.right - width + margin) +
+      Math.max(0, rect.bottom - height + margin);
+    score += sameDirectionPenalty + edgePenalty * 120;
+
+    if (!best || score < best.score) best = { rect, score };
+  }
+
+  const rect = best?.rect || { left: p.x + gap, top: p.y - tipHeight / 2 };
+  tooltip.style.left = `${Math.round(rect.left)}px`;
+  tooltip.style.top = `${Math.round(rect.top)}px`;
+}
+
+function chapterAnchorFor(node) {
+  if (!node) return 'llm';
+  let id = node.id;
+  while (id) {
+    if (INDEX_CHAPTER_ANCHORS[id]) return INDEX_CHAPTER_ANCHORS[id];
+    const slash = id.lastIndexOf('/');
+    if (slash < 0) break;
+    id = id.slice(0, slash);
+  }
+  return 'kg-nav';
+}
+
+function targetUrlForNode(node) {
+  if (!node) return null;
+  if (node.type === 'note' && node.url) {
+    return new URL(`../${node.url}`, window.location.href);
+  }
+  const anchor = chapterAnchorFor(node);
+  return new URL(`../#${anchor}`, window.location.href);
+}
+
+function openNode(node) {
+  const targetUrl = targetUrlForNode(node);
+  if (!targetUrl) return;
+  try {
+    window.top.location.href = targetUrl.href;
+  } catch (_) {
+    window.location.href = targetUrl.href;
+  }
+}
+
+function resetView() {
+  camera.rotX = 1.18;
+  camera.rotY = -0.28;
+  constellationRotation = 0;
+  camera.panX = 0;
+  camera.panY = 14;
+  const maxR = Math.max(520, ...nodes.map(node => Math.hypot(node.tx, node.ty, node.tz)));
+  camera.zoom = clamp(Math.min(width, height) / (maxR * 1.95), 0.56, 1.08);
+}
+
+function relayout() {
+  seedConstellation();
+  createBackgroundStars();
+  resetView();
+}
+
+function setPaused(nextPaused) {
+  paused = nextPaused;
+  const button = document.getElementById('pause-button');
+  button.title = paused ? '继续动画' : '暂停动画';
+  button.setAttribute('aria-label', button.title);
+  button.innerHTML = paused
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 5v14l11-7z"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 4H6v16h4z"/><path d="M18 4h-4v16h4z"/></svg>';
+}
+
+canvas.addEventListener('pointerdown', event => {
+  const node = hitTest(event.clientX, event.clientY);
+  pressedNode = node;
+  dragState = {
+    x: event.clientX,
+    y: event.clientY,
+    rotX: camera.rotX,
+    rotY: camera.rotY,
+    panX: camera.panX,
+    panY: camera.panY,
+    moved: false,
+  };
+  canvas.classList.add('is-dragging');
+  canvas.setPointerCapture?.(event.pointerId);
+});
+
+canvas.addEventListener('pointermove', event => {
+  if (dragState) {
+    const dx = event.clientX - dragState.x;
+    const dy = event.clientY - dragState.y;
+    if (Math.hypot(dx, dy) > 3) dragState.moved = true;
+    if (event.shiftKey) {
+      camera.panX = dragState.panX + dx;
+      camera.panY = dragState.panY + dy;
+    } else {
+      camera.rotY = dragState.rotY + dx * 0.0052;
+      camera.rotX = clamp(dragState.rotX + dy * 0.0042, -0.45, 1.42);
+    }
+    if (focusNode) placeTooltipSmart(focusNode);
+    return;
+  }
+
+  const node = hitTest(event.clientX, event.clientY);
+  canvas.style.cursor = node ? 'pointer' : 'grab';
+  if (node !== hoveredNode) {
+    if (node) {
+      setFocus(node, true);
+    } else {
+      hoveredNode = null;
+      isHoveringNode = false;
+      if (!searchQuery) clearFocus();
+    }
+  }
+});
+
+function endPointer(event) {
+  canvas.releasePointerCapture?.(event.pointerId);
+  canvas.classList.remove('is-dragging');
+  if (dragState && !dragState.moved && pressedNode) openNode(pressedNode);
+  dragState = null;
+  pressedNode = null;
+}
+
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('mouseleave', () => {
+  hoveredNode = null;
+  isHoveringNode = false;
+  if (!dragState && !searchQuery) clearFocus();
+});
+
+canvas.addEventListener('wheel', event => {
+  event.preventDefault();
+  const delta = Math.exp(-event.deltaY * 0.0011);
+  camera.zoom = clamp(camera.zoom * delta, 0.34, 2.1);
+  if (focusNode) placeTooltipSmart(focusNode);
+}, { passive: false });
+
+searchInput.addEventListener('input', event => {
+  searchQuery = event.target.value.trim().toLowerCase();
+  searchMatches = searchQuery
+    ? new Set(nodes.filter(node => searchable(node).includes(searchQuery)).map(node => node.id))
+    : new Set();
+
+  if (!searchQuery) {
+    clearFocus();
+    return;
+  }
+
+  const first = nodes.find(node => searchMatches.has(node.id));
+  if (first) setFocus(first, false);
+  else {
+    focusNode = null;
+    hoveredNode = null;
+    focusIds = new Set();
+    hideTooltip();
+  }
+});
+
+document.getElementById('fit-button').addEventListener('click', resetView);
+document.getElementById('relayout-button').addEventListener('click', relayout);
+document.getElementById('pause-button').addEventListener('click', () => setPaused(!paused));
+document.getElementById('refresh-button').addEventListener('click', loadGraph);
+
+window.addEventListener('resize', () => {
+  measure();
+  createBackgroundStars();
+  resetView();
+});
+
+measure();
+loadGraph();
+</script>
+</body>
+</html>
