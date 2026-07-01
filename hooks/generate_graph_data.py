@@ -53,6 +53,56 @@ TOP_LEVEL_LABELS = {
     "llm": "LLM",
     "computer_vision": "Computer Vision",
     "llm应用开发": "LLM 应用开发",
+    "code_practice": "代码实践",
+}
+INDEX_PATH = NOTEBOOKS_DIR / "index.md"
+NAV_START_MARKER = "<!-- AUTO-GENERATED-NOTE-NAV:START -->"
+NAV_END_MARKER = "<!-- AUTO-GENERATED-NOTE-NAV:END -->"
+NAV_EXCLUDE_FILES = {"index.md"}
+NAV_TITLE_LABELS = {
+    "llm": "🚀 LLM 大语言模型",
+    "llm/llm技术报告": "📘 LLM 技术报告",
+    "llm/模型架构": "🏗️ 模型架构",
+    "llm/模型训练": "🎯 模型训练",
+    "llm/源码解读": "💻 源码解读",
+    "llm应用开发": "🛠️ LLM 应用开发",
+    "computer_vision": "👁️ 计算机视觉（CV / VLM）",
+    "computer_vision/基础": "📐 基础",
+    "computer_vision/模型架构": "🏗️ 模型架构",
+    "性能优化": "⚡ 性能优化",
+    "code_practice": "💻 代码实践",
+}
+NAV_NOTE_LABELS = {
+    "knowledge_graph.md": "知识图谱",
+    "code_practice/mhc.ipynb": "mHC",
+    "llm/llm技术报告/qwen3.5.md": "Qwen3.5 技术报告",
+}
+NAV_TOP_ORDER = {
+    "llm": 0,
+    "llm应用开发": 1,
+    "computer_vision": 2,
+    "性能优化": 3,
+    "code_practice": 4,
+}
+NAV_ANCHORS = {
+    "llm": "kg-llm",
+    "llm/llm技术报告": "kg-llm-reports",
+    "llm/模型架构": "kg-llm-architecture",
+    "llm/模型架构/优化器": "kg-llm-architecture-optimizer",
+    "llm/模型架构/位置编码": "kg-llm-architecture-position",
+    "llm/模型架构/归一化": "kg-llm-architecture-normalization",
+    "llm/模型架构/注意力机制": "kg-llm-architecture-attention",
+    "llm/模型训练": "kg-llm-training",
+    "llm/模型训练/SFT": "kg-llm-training-sft",
+    "llm/模型训练/强化学习": "kg-llm-training-rl",
+    "llm/源码解读": "kg-llm-source",
+    "llm应用开发": "kg-llm-app",
+    "computer_vision": "kg-cv",
+    "computer_vision/基础": "kg-cv-basic",
+    "computer_vision/模型架构": "kg-cv-architecture",
+    "性能优化": "kg-performance",
+    "code_practice": "kg-code-practice",
+    "__other__": "kg-other",
 }
 
 
@@ -75,6 +125,34 @@ def _humanize(name: str) -> str:
     """
     stem = Path(name).stem
     return TOP_LEVEL_LABELS.get(stem, stem.replace("_", " "))
+
+
+def _nav_title(rel_path: str, name: str) -> str:
+    """Return the display title used in the generated index navigation."""
+    return NAV_TITLE_LABELS.get(rel_path, _humanize(name))
+
+
+def _anchor_id(rel_path: str) -> str:
+    """Return a stable HTML anchor id for an index navigation item."""
+    if rel_path in NAV_ANCHORS:
+        return NAV_ANCHORS[rel_path]
+    slug = re.sub(r"[^\w\u4e00-\u9fff]+", "-", rel_path.lower()).strip("-")
+    return f"kg-{slug}" if slug else "kg-nav"
+
+
+def _escape_markdown_label(value: str) -> str:
+    """Escape Markdown link label delimiters while keeping Chinese readable."""
+    return value.replace("[", "\\[").replace("]", "\\]")
+
+
+def _markdown_href(rel_path: str) -> str:
+    """Escape characters that break Markdown links."""
+    return (
+        rel_path.replace("%", "%25")
+        .replace(" ", "%20")
+        .replace("(", "%28")
+        .replace(")", "%29")
+    )
 
 
 def _to_url(rel_path: str, is_file: bool) -> str:
@@ -110,6 +188,50 @@ def _is_visible_note(path: Path) -> bool:
         and path.suffix.lower() in NOTEBOOK_SUFFIXES
         and not any(_is_excluded(part) for part in rel_parts)
     )
+
+
+def _is_visible_nav_note(path: Path) -> bool:
+    """Return whether a file should be represented in the index navigation."""
+    try:
+        rel_parts = path.relative_to(NOTEBOOKS_DIR).parts
+    except ValueError:
+        return False
+    if not path.is_file() or path.suffix.lower() not in NOTEBOOK_SUFFIXES:
+        return False
+    for index, part in enumerate(rel_parts):
+        if EXCLUDE_HIDDEN and part.startswith("."):
+            return False
+        if index < len(rel_parts) - 1 and part in EXCLUDE_DIRS:
+            return False
+    return path.name not in NAV_EXCLUDE_FILES
+
+
+def _visible_nav_entries(directory: Path) -> list[Path]:
+    """Return visible child directories and notes for the generated navigation."""
+    try:
+        entries = sorted(directory.iterdir(), key=lambda p: (not p.is_dir(), p.name.lower()))
+    except (PermissionError, OSError):
+        return []
+
+    visible: list[Path] = []
+    for entry in entries:
+        if entry.is_dir():
+            if _is_excluded(entry.name):
+                continue
+            visible.append(entry)
+        elif _is_visible_nav_note(entry):
+            visible.append(entry)
+    return visible
+
+
+def _nav_note_count(directory: Path) -> int:
+    """Count visible Markdown/Jupyter notes below a directory for navigation."""
+    count = 0
+    for suffix in NOTEBOOK_SUFFIXES:
+        for path in directory.rglob(f"*{suffix}"):
+            if _is_visible_nav_note(path):
+                count += 1
+    return count
 
 
 def _note_count(directory: Path) -> int:
@@ -235,6 +357,115 @@ def _reference_links(note_files: list[Path]) -> list[dict[str, str]]:
             )
 
     return links
+
+
+def _render_nav_note(note: Path) -> str:
+    """Render one note link for the generated index navigation."""
+    rel_path = note.relative_to(NOTEBOOKS_DIR).as_posix()
+    title = _escape_markdown_label(NAV_NOTE_LABELS.get(rel_path, _humanize(note.name)))
+    return f"- [{title}]({_markdown_href(rel_path)})"
+
+
+def _render_nav_directory(directory: Path, depth: int) -> list[str]:
+    """Render a directory and its visible notes/subdirectories as Markdown."""
+    rel_path = directory.relative_to(NOTEBOOKS_DIR).as_posix()
+    heading_level = min(3 + depth, 6)
+    entries = _visible_nav_entries(directory)
+    notes = [entry for entry in entries if entry.is_file()]
+    subdirs = [entry for entry in entries if entry.is_dir()]
+
+    lines = [
+        f'<span id="{_anchor_id(rel_path)}"></span>',
+        "",
+        f"{'#' * heading_level} {_nav_title(rel_path, directory.name)}",
+        "",
+    ]
+
+    if notes:
+        lines.extend(_render_nav_note(note) for note in notes)
+        lines.append("")
+
+    if not notes and _nav_note_count(directory) == 0:
+        lines.extend(["_（整理中）_", ""])
+
+    for subdir in subdirs:
+        lines.extend(_render_nav_directory(subdir, depth + 1))
+        lines.append("")
+
+    while lines and lines[-1] == "":
+        lines.pop()
+    return lines
+
+
+def _build_index_navigation() -> str:
+    """Build the generated notebook navigation block for notebooks/index.md."""
+    entries = _visible_nav_entries(NOTEBOOKS_DIR)
+    top_dirs = sorted(
+        [entry for entry in entries if entry.is_dir()],
+        key=lambda entry: (
+            NAV_TOP_ORDER.get(entry.relative_to(NOTEBOOKS_DIR).as_posix(), 999),
+            entry.name.lower(),
+        ),
+    )
+    root_notes = [entry for entry in entries if entry.is_file()]
+
+    lines = [
+        '<span id="kg-nav"></span>',
+        "",
+        "## 笔记导航",
+        "",
+        NAV_START_MARKER,
+        "",
+    ]
+
+    for directory in top_dirs:
+        lines.extend(_render_nav_directory(directory, depth=0))
+        lines.append("")
+
+    if root_notes:
+        lines.extend(
+            [
+                f'<span id="{NAV_ANCHORS["__other__"]}"></span>',
+                "",
+                "### 📚 其他",
+                "",
+            ]
+        )
+        lines.extend(_render_nav_note(note) for note in root_notes)
+        lines.append("")
+
+    lines.append(NAV_END_MARKER)
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _replace_index_navigation(content: str, navigation: str) -> str:
+    """Replace the generated navigation block, or the old manual block."""
+    if NAV_START_MARKER in content and NAV_END_MARKER in content:
+        start = content.index(NAV_START_MARKER)
+        end = content.index(NAV_END_MARKER, start) + len(NAV_END_MARKER)
+        block_start = content.rfind('<span id="kg-nav"></span>', 0, start)
+        if block_start == -1:
+            block_start = start
+        return content[:block_start].rstrip() + "\n\n" + navigation + content[end:].lstrip("\n")
+
+    match = re.search(r'(?ms)^<span id="kg-nav"></span>\s*## 笔记导航\b.*\Z', content)
+    if match:
+        return content[: match.start()].rstrip() + "\n\n" + navigation
+
+    return content.rstrip() + "\n\n" + navigation
+
+
+def write_index_navigation() -> bool:
+    """Update notebooks/index.md navigation from the current directory tree."""
+    if not INDEX_PATH.exists():
+        return False
+
+    current = INDEX_PATH.read_text(encoding="utf-8")
+    next_content = _replace_index_navigation(current, _build_index_navigation())
+    if current != next_content:
+        INDEX_PATH.write_text(next_content, encoding="utf-8")
+        return True
+    return False
 
 
 def scan_notebooks() -> dict[str, Any]:
@@ -365,16 +596,21 @@ def on_pre_build(config, **kwargs):
     """
     MkDocs hook: generate knowledge graph data before building.
     """
+    nav_updated = write_index_navigation()
     data = write_graph_data()
 
     # 打印一行日志,方便用户确认数据已更新
+    nav_status = ", 首页导航已更新" if nav_updated else ""
     print(
         f"[knowledge-graph] 已生成 {data['stats']['nodes']} 个节点, "
         f"{data['stats']['links']} 条关系 -> {OUTPUT_PATH.relative_to(PROJECT_ROOT)}"
+        f"{nav_status}"
     )
 
 
 # 支持直接运行测试: python hooks/generate_graph_data.py
 if __name__ == "__main__":
+    nav_updated = write_index_navigation()
     data = write_graph_data()
     print(json.dumps(data["stats"], ensure_ascii=False, indent=2))
+    print(f"index_navigation_updated={nav_updated}")

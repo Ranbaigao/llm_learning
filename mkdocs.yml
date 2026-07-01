@@ -1,8 +1,8 @@
 site_name: 我的LLM笔记
 theme:
   name: material
-  logo: .assets/Gemini_Generated_Image_fbcrzifbcrzifbcr.png
-  favicon: .assets/Gemini_Generated_Image_fbcrzifbcrzifbcr.png
+  logo: .assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png
+  favicon: .assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png
 
 docs_dir: notebooks/ # 将项目根目录设为文档根目录
 

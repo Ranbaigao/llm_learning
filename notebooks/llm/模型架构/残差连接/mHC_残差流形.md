@@ -160,3 +160,7 @@ $$
 ### 3D Birkhoff 投影演示
 
 <iframe src="../../../.assets/3d_birkhoff.html" width="100%" height="680px" style="border:1px solid #cbd5e1; border-radius: 8px;"></iframe>
+
+
+## 完整代码练习
+[text](../../../code_practice/mhc.ipynb)

@@ -68,15 +68,11 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 
 <span id="kg-start"></span>
 
-## 项目启动
-
-```shell
-mkdocs serve -a 127.0.0.1:6033
-```
-
 <span id="kg-nav"></span>
 
 ## 笔记导航
+
+<!-- AUTO-GENERATED-NOTE-NAV:START -->
 
 <span id="kg-llm"></span>
 
@@ -86,53 +82,65 @@ mkdocs serve -a 127.0.0.1:6033
 
 #### 📘 LLM 技术报告
 
-- [AR-Diffusion 与潜空间推理路线综述](llm/llm技术报告/AR-Diffusion与潜空间推理路线综述.md)
-- [Claude Mythos 5 技术报告](llm/llm技术报告/Claude%20Mythos%205技术报告.md)
-- [DeepSeek-V4 技术报告](llm/llm技术报告/DeepSeek-V4技术报告.md)
-- [Nemotron-Labs-Diffusion 技术报告](llm/llm技术报告/Nemotron-Labs-Diffusion技术报告.md)
+- [AR-Diffusion与潜空间推理路线综述](llm/llm技术报告/AR-Diffusion与潜空间推理路线综述.md)
+- [Claude Mythos 5技术报告](llm/llm技术报告/Claude%20Mythos%205技术报告.md)
+- [DeepSeek-V4技术报告](llm/llm技术报告/DeepSeek-V4技术报告.md)
+- [Nemotron-Labs-Diffusion技术报告](llm/llm技术报告/Nemotron-Labs-Diffusion技术报告.md)
 - [Qwen3.5 技术报告](llm/llm技术报告/qwen3.5.md)
 
 <span id="kg-llm-architecture"></span>
 
 #### 🏗️ 模型架构
 
-- [mHC 残差流形](llm/模型架构/mHC_残差流形.md)
-- [流形](llm/模型架构/流形.md)
+<span id="kg-llm-architecture-optimizer"></span>
 
-**优化器**
+##### 优化器
 
-- [Muon 优化器](llm/模型架构/优化器/Muon优化器.md)
+- [Muon优化器](llm/模型架构/优化器/Muon优化器.md)
 
-**位置编码**
+<span id="kg-llm-architecture-position"></span>
+
+##### 位置编码
 
 - [RoPe](llm/模型架构/位置编码/RoPe.md)
 
-**归一化**
+<span id="kg-llm-模型架构-残差连接"></span>
 
-- [Pre-Norm vs Post-Norm](llm/模型架构/归一化/Pre-Norm%20vs%20Post-Norm.md)
+##### 残差连接
 
-**注意力机制**
+- [attention residuals](llm/模型架构/残差连接/attention_residuals.md)
+- [mHC 残差流形](llm/模型架构/残差连接/mHC_残差流形.md)
+- [Pre-Norm vs Post-Norm](llm/模型架构/残差连接/Pre-Norm%20vs%20Post-Norm.md)
+- [流形比较](llm/模型架构/残差连接/流形比较.md)
+
+<span id="kg-llm-architecture-attention"></span>
+
+##### 注意力机制
 
 - [DSA](llm/模型架构/注意力机制/DSA.md)
-- [Gated Attention](llm/模型架构/注意力机制/GatedAttention.md)
-- [Linear Attention](llm/模型架构/注意力机制/LinearAttention.md)
+- [GatedAttention](llm/模型架构/注意力机制/GatedAttention.md)
+- [LinearAttention](llm/模型架构/注意力机制/LinearAttention.md)
 - [MLA](llm/模型架构/注意力机制/MLA.md)
 
 <span id="kg-llm-training"></span>
 
 #### 🎯 模型训练
 
-**SFT**
+<span id="kg-llm-training-sft"></span>
+
+##### SFT
 
 - [LoRA](llm/模型训练/SFT/LoRA.md)
 
-**强化学习**
+<span id="kg-llm-training-rl"></span>
+
+##### 强化学习
 
 - [DPO](llm/模型训练/强化学习/DPO.md)
 - [GSPO](llm/模型训练/强化学习/GSPO.md)
 - [PPO](llm/模型训练/强化学习/PPO.md)
 - [总结](llm/模型训练/强化学习/总结.md)
-- [李宏毅 DRL 笔记](llm/模型训练/强化学习/李宏毅DRL笔记.md)
+- [李宏毅DRL笔记](llm/模型训练/强化学习/李宏毅DRL笔记.md)
 
 <span id="kg-llm-source"></span>
 
@@ -145,7 +153,7 @@ mkdocs serve -a 127.0.0.1:6033
 
 <span id="kg-llm-app"></span>
 
-#### 🛠️ LLM 应用开发
+### 🛠️ LLM 应用开发
 
 _（整理中）_
 
@@ -158,7 +166,7 @@ _（整理中）_
 #### 📐 基础
 
 - [Reparameterization Trick](computer_vision/基础/Reparameterization%20Trick.md)
-- [SD 公式推导](computer_vision/基础/SD公式推导.md)
+- [SD公式推导](computer_vision/基础/SD公式推导.md)
 
 <span id="kg-cv-architecture"></span>
 
@@ -173,16 +181,27 @@ _（整理中）_
 
 ### ⚡ 性能优化
 
-- [分布式](性能优化/分布式.md)
-- [推理加速方法总结](性能优化/推理加速方法总结.md)
 - [Deepspeed](性能优化/Deepspeed.md)
 - [Flash-Attention](性能优化/Flash-Attention.md)
-- [MOE 负载均衡](性能优化/MOE负载均衡.md)
+- [MOE负载均衡](性能优化/MOE负载均衡.md)
 - [SGLang](性能优化/SGLang.md)
 - [vLLM](性能优化/vLLM.md)
+- [分布式](性能优化/分布式.md)
+- [推理加速方法总结](性能优化/推理加速方法总结.md)
+
+<span id="kg-code-practice"></span>
+
+### 💻 代码实践
+
+- [gpt](code_practice/gpt.ipynb)
+- [gqa](code_practice/gqa.ipynb)
+- [mHC](code_practice/mhc.ipynb)
+- [moe](code_practice/moe.ipynb)
 
 <span id="kg-other"></span>
 
 ### 📚 其他
 
 - [知识图谱](knowledge_graph.md)
+
+<!-- AUTO-GENERATED-NOTE-NAV:END -->

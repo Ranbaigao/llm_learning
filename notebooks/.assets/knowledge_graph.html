@@ -19,10 +19,11 @@
     --warning: #d97706;
     --muted: #64748b;
     --root-color: #0f172a;
-    --category-color: #3b82f6;
-    --subcategory-color: #16a34a;
-    --note-color: #d97706;
-    --notebook-color: #7c3aed;
+    --llm-color: #2563eb;
+    --cv-color: #0d9488;
+    --performance-color: #d97706;
+    --app-color: #7c3aed;
+    --practice-color: #0891b2;
     --reference-color: #7c3aed;
   }
 
@@ -75,6 +76,38 @@
   }
 
   #scene.is-dragging { cursor: grabbing; }
+
+  #labels {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    overflow: hidden;
+    pointer-events: none;
+    contain: layout style paint;
+  }
+
+  .graph-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: 220px;
+    color: var(--label-color, #475569);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    line-height: 1.16;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.94),
+      0 -1px 0 rgba(255, 255, 255, 0.86),
+      1px 0 0 rgba(255, 255, 255, 0.86),
+      -1px 0 0 rgba(255, 255, 255, 0.86),
+      0 8px 18px rgba(15, 23, 42, 0.10);
+    transform: translate3d(-999px, -999px, 0) translateX(-50%);
+    transform-origin: 50% 0;
+    will-change: transform, opacity;
+  }
+
+  .graph-label--note { font-weight: 500; }
 
   .panel {
     position: absolute;
@@ -373,6 +406,7 @@
 <body>
 <div class="app">
   <canvas id="scene" aria-label="notebooks 3D 知识星图"></canvas>
+  <div id="labels" aria-hidden="true"></div>
 
   <section class="panel header-panel" aria-label="图谱统计">
     <p class="eyebrow">Knowledge Graph</p>
@@ -388,10 +422,10 @@
   <aside class="panel legend-panel" aria-label="图例">
     <div class="legend-title">Constellation</div>
     <div class="legend-item"><span class="legend-dot" style="background: var(--root-color); color: var(--root-color);"></span><span>根星</span></div>
-    <div class="legend-item"><span class="legend-dot" style="background: var(--category-color); color: var(--category-color);"></span><span>星座</span></div>
-    <div class="legend-item"><span class="legend-dot" style="background: var(--subcategory-color); color: var(--subcategory-color);"></span><span>星群</span></div>
-    <div class="legend-item"><span class="legend-dot" style="background: var(--note-color); color: var(--note-color);"></span><span>笔记星</span></div>
-    <div class="legend-item"><span class="legend-dot" style="background: var(--notebook-color); color: var(--notebook-color);"></span><span>Jupyter</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--llm-color); color: var(--llm-color);"></span><span>LLM 星座</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--cv-color); color: var(--cv-color);"></span><span>CV 星座</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--performance-color); color: var(--performance-color);"></span><span>性能优化</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--practice-color); color: var(--practice-color);"></span><span>代码实践</span></div>
   </aside>
 
   <div class="panel toolbar" aria-label="图谱工具">
@@ -431,11 +465,30 @@ const TYPE_LABEL = {
 };
 const TYPE_COLOR = {
   root: cssVar('--root-color'),
-  category: cssVar('--category-color'),
-  subcategory: cssVar('--subcategory-color'),
-  note: cssVar('--note-color'),
-  notebook: cssVar('--notebook-color'),
 };
+const CONSTELLATION_COLORS = {
+  llm: cssVar('--llm-color'),
+  computer_vision: cssVar('--cv-color'),
+  性能优化: cssVar('--performance-color'),
+  llm应用开发: cssVar('--app-color'),
+  code_practice: cssVar('--practice-color'),
+};
+const SECONDARY_CONSTELLATION_COLORS = {
+  'llm/llm技术报告': '#3b82f6',
+  'llm/模型架构': '#0ea5e9',
+  'llm/模型训练': '#1d4ed8',
+  'llm/源码解读': '#1e3a8a',
+  'computer_vision/基础': '#14b8a6',
+  'computer_vision/模型架构': '#0f766e',
+};
+const FALLBACK_CONSTELLATION_COLORS = [
+  '#3b82f6',
+  '#16a34a',
+  '#d97706',
+  '#7c3aed',
+  '#0891b2',
+  '#db2777',
+];
 const INDEX_CHAPTER_ANCHORS = {
   '__root__': 'kg-home',
   'llm': 'kg-llm',
@@ -458,6 +511,7 @@ const INDEX_CHAPTER_ANCHORS = {
 
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d', { alpha: true });
+const labelLayer = document.getElementById('labels');
 const tooltip = document.getElementById('tooltip');
 const loading = document.getElementById('loading');
 const errorBox = document.getElementById('error');
@@ -525,9 +579,79 @@ function hexToRgb(hex) {
   };
 }
 
+function rgbToHex({ r, g, b }) {
+  return '#' + [r, g, b]
+    .map(value => Math.round(clamp(value, 0, 255)).toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function mixHex(from, to, amount) {
+  const a = hexToRgb(from);
+  const b = hexToRgb(to);
+  const t = clamp(amount, 0, 1);
+  return rgbToHex({
+    r: a.r + (b.r - a.r) * t,
+    g: a.g + (b.g - a.g) * t,
+    b: a.b + (b.b - a.b) * t,
+  });
+}
+
 function rgba(color, alpha) {
   const rgb = hexToRgb(color);
   return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+}
+
+function branchIdFor(node) {
+  if (!node || node.id === '__root__') return '__root__';
+  return String(node.id).split('/')[0] || String(node.id);
+}
+
+function secondaryBranchIdFor(node) {
+  if (!node || node.id === '__root__') return '__root__';
+  const parts = String(node.id).split('/');
+  return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : parts[0];
+}
+
+function fallbackConstellationColor(branchId) {
+  let hash = 0;
+  for (const char of String(branchId)) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }
+  return FALLBACK_CONSTELLATION_COLORS[hash % FALLBACK_CONSTELLATION_COLORS.length];
+}
+
+function baseColorForBranch(branchId) {
+  return CONSTELLATION_COLORS[branchId] || fallbackConstellationColor(branchId);
+}
+
+function baseColorForSecondaryBranch(node) {
+  const branchId = branchIdFor(node);
+  const secondaryId = secondaryBranchIdFor(node);
+  if (!secondaryId || secondaryId === branchId) return baseColorForBranch(branchId);
+  if (SECONDARY_CONSTELLATION_COLORS[secondaryId]) return SECONDARY_CONSTELLATION_COLORS[secondaryId];
+
+  const base = baseColorForBranch(branchId);
+  const driftPalette = ['#38bdf8', '#2563eb', '#0f766e', '#4338ca', '#0369a1', '#1e40af'];
+  const drift = driftPalette[Math.floor(hashUnit(secondaryId, 91) * driftPalette.length) % driftPalette.length];
+  return mixHex(base, drift, 0.36);
+}
+
+function colorForNode(node) {
+  if (!node || node.type === 'root') return TYPE_COLOR.root;
+  const base = node.type === 'category'
+    ? baseColorForBranch(branchIdFor(node))
+    : baseColorForSecondaryBranch(node);
+  if (node.type === 'category') return base;
+  if (node.type === 'subcategory') {
+    const darkAmount = node.depth <= 1
+      ? 0.04
+      : clamp(0.08 + Math.max(0, node.depth - 1) * 0.04, 0.10, 0.24);
+    return mixHex(base, '#0f172a', darkAmount);
+  }
+  const lightAmount = node.format === 'jupyter'
+    ? clamp(0.08 + Math.max(0, node.depth) * 0.025, 0.10, 0.22)
+    : clamp(0.20 + Math.max(0, node.depth) * 0.035, 0.22, 0.38);
+  return mixHex(base, '#ffffff', lightAmount);
 }
 
 function radiusFor(node) {
@@ -558,6 +682,19 @@ function orderedChildren(parentId) {
   });
 }
 
+function hashUnit(value, salt = 0) {
+  let hash = 2166136261 ^ salt;
+  for (const char of String(value)) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0) / 4294967295;
+}
+
+function signedHash(value, salt = 0) {
+  return hashUnit(value, salt) * 2 - 1;
+}
+
 async function loadGraph() {
   loading.hidden = false;
   errorBox.hidden = true;
@@ -584,7 +721,8 @@ function buildGraph(data) {
       ...node,
       index,
       radius: radiusFor(node),
-      color: node.format === 'jupyter' ? TYPE_COLOR.notebook : (TYPE_COLOR[node.type] || TYPE_COLOR.note),
+      branchId: branchIdFor(node),
+      color: colorForNode(node),
       x: 0,
       y: 0,
       z: 0,
@@ -594,6 +732,9 @@ function buildGraph(data) {
       screen: null,
       pulse: Math.random() * Math.PI * 2,
       scale: 1,
+      labelX: null,
+      labelY: null,
+      labelEl: null,
     };
     nodeById.set(next.id, next);
     return next;
@@ -620,6 +761,7 @@ function buildGraph(data) {
     }
   }
 
+  createGraphLabels();
   seedConstellation();
   createBackgroundStars();
   updateStats(data.stats || {});
@@ -636,11 +778,24 @@ function updateStats(stats) {
   document.getElementById('stat-refs').textContent = stats.references ?? links.filter(link => link.type === 'reference').length;
 }
 
+function createGraphLabels() {
+  labelLayer.replaceChildren();
+  for (const node of nodes) {
+    const label = document.createElement('div');
+    label.className = `graph-label graph-label--${node.type}`;
+    label.textContent = node.name;
+    label.style.setProperty('--label-color', labelColorFor(node));
+    label.style.opacity = '0';
+    labelLayer.appendChild(label);
+    node.labelEl = label;
+  }
+}
+
 function seedConstellation() {
   const root = nodeById.get('__root__');
   const categories = orderedChildren('__root__');
-  const baseRadius = 300;
-  const depthStep = 128;
+  const baseRadius = 270;
+  const orbitScaleZ = 0.72;
 
   if (root) {
     root.tx = 0;
@@ -649,39 +804,89 @@ function seedConstellation() {
     root.branchAngle = 0;
   }
 
-  function placeNode(node, angle, radius, vertical, span) {
-    const wave = Math.sin(angle * 1.7 + node.depth) * 42;
-    node.branchAngle = angle;
-    node.tx = Math.cos(angle) * radius;
-    node.tz = Math.sin(angle) * radius * 0.78;
-    node.ty = vertical + wave;
-
-    const children = orderedChildren(node.id);
+  function placeChildren(parent, angle, level) {
+    const children = orderedChildren(parent.id);
     if (!children.length) return;
 
-    const childSpan = clamp(span, 0.42, 1.55);
+    const count = children.length;
+    const parentIsCategory = parent.type === 'category';
+    const tangentSpan = clamp(
+      (parentIsCategory ? 92 : 58) + count * (parentIsCategory ? 30 : 16),
+      parentIsCategory ? 170 : 82,
+      parentIsCategory ? 360 : 190
+    );
+    const verticalSpan = clamp(
+      (parentIsCategory ? 44 : 30) + count * (parentIsCategory ? 16 : 9),
+      parentIsCategory ? 92 : 48,
+      parentIsCategory ? 210 : 112
+    );
+    const verticalAmplitude = clamp(
+      (parentIsCategory ? 86 : 58) + count * (parentIsCategory ? 14 : 8),
+      parentIsCategory ? 118 : 72,
+      parentIsCategory ? 230 : 138
+    );
+    const depthAmplitude = clamp(
+      (parentIsCategory ? 54 : 36) + count * (parentIsCategory ? 9 : 5),
+      parentIsCategory ? 72 : 46,
+      parentIsCategory ? 150 : 86
+    );
+    const radialGap = clamp(parentIsCategory ? 118 : 84 - level * 4, 58, 120);
+    const noteRadialGap = clamp(radialGap * 0.82, 48, 76);
+    const normal = {
+      x: Math.cos(angle),
+      z: Math.sin(angle) * orbitScaleZ,
+    };
+    const tangent = {
+      x: -Math.sin(angle),
+      z: Math.cos(angle) * orbitScaleZ,
+    };
+
     children.forEach((child, index) => {
-      const ratio = children.length === 1 ? 0 : (index / (children.length - 1) - 0.5);
-      const offset = ratio * childSpan;
-      const childAngle = angle + offset;
-      const childRadius = radius + (child.type === 'note' ? depthStep * 0.72 : depthStep);
-      const childVertical = vertical + ratio * 95 + (child.type === 'note' ? 18 : -8);
-      const nextSpan = child.type === 'note'
-        ? 0.26
-        : clamp(0.38 + orderedChildren(child.id).length * 0.07, 0.44, childSpan * 0.74);
-      placeNode(child, childAngle, childRadius, childVertical, nextSpan);
+      const ratio = count === 1 ? 0 : index / (count - 1) - 0.5;
+      const ringOffset = ((index % 3) - 1) * (child.type === 'note' ? 8 : 12);
+      const orbitOffset = ratio * tangentSpan + ringOffset;
+      const depthBias = Math.max(0, level) * 7;
+      const childRadial = child.type === 'note' ? noteRadialGap : radialGap;
+      const microWave = Math.sin((index + 1) * 1.618 + level) * (child.type === 'note' ? 7 : 10);
+      const childAngle = angle + ratio * (parentIsCategory ? 0.36 : 0.24);
+      const shellAngle = (index + 1) * 2.399963 + level * 0.83 + hashUnit(parent.id, 17) * Math.PI;
+      const verticalLift =
+        Math.sin(shellAngle) * verticalAmplitude +
+        ratio * verticalSpan * 0.42 +
+        signedHash(child.id, 31) * (parentIsCategory ? 18 : 12);
+      const depthLift =
+        Math.cos(shellAngle * 1.13) * depthAmplitude +
+        signedHash(child.id, 47) * (parentIsCategory ? 28 : 18);
+
+      child.branchAngle = childAngle;
+      child.tx = parent.tx + normal.x * (childRadial + depthLift * 0.22) + tangent.x * (orbitOffset + microWave);
+      child.tz = parent.tz + normal.z * (childRadial + depthLift * 0.34) + tangent.z * (orbitOffset + microWave) + depthLift * 0.58;
+      child.ty = parent.ty + verticalLift + depthBias + (child.type === 'note' ? 5 : -4);
+
+      if (orderedChildren(child.id).length) {
+        placeChildren(child, childAngle, level + 1);
+      }
     });
   }
 
   categories.forEach((node, index) => {
     const angle = -Math.PI / 2 + (index / Math.max(1, categories.length)) * Math.PI * 2;
-    const vertical = (index - (categories.length - 1) / 2) * 54;
-    const span = clamp(0.86 + orderedChildren(node.id).length * 0.13, 0.92, 1.7);
-    placeNode(node, angle, baseRadius, vertical, span);
+    const children = orderedChildren(node.id);
+    const branchRadius = baseRadius + Math.min(24, children.length * 2.4);
+    const wave = Math.sin(angle * 1.7 + node.depth) * 20;
+    node.branchAngle = angle;
+    node.tx = Math.cos(angle) * branchRadius;
+    node.tz = Math.sin(angle) * branchRadius * orbitScaleZ;
+    node.ty = (index - (categories.length - 1) / 2) * 40 + wave;
+    placeChildren(node, angle, 0);
   });
 
   nodes.forEach((node, index) => {
-    const jitter = node.type === 'root' ? 0 : 16 + (index % 7) * 2;
+    const jitter =
+      node.type === 'root' ? 0 :
+      node.type === 'category' ? 5 :
+      node.type === 'subcategory' ? 4 :
+      3.2;
     const phase = (index % 5) / 5 * Math.PI * 2;
     node.x = node.tx + Math.cos(phase) * jitter;
     node.y = node.ty + Math.sin(phase) * jitter * 0.8;
@@ -759,14 +964,9 @@ function animate(now) {
 function easeNodes(dt) {
   const ease = 1 - Math.pow(0.001, dt / 1000);
   for (const node of nodes) {
-    const drift = node.type === 'root' ? 2 : node.type === 'note' ? 6 : 4;
-    const phase = time * (0.35 + (node.index % 5) * 0.04) + node.pulse;
-    const tx = node.tx + Math.cos(phase) * drift;
-    const ty = node.ty + Math.sin(phase * 0.9) * drift;
-    const tz = node.tz + Math.sin(phase * 0.7) * drift;
-    node.x += (tx - node.x) * ease * 0.82;
-    node.y += (ty - node.y) * ease * 0.82;
-    node.z += (tz - node.z) * ease * 0.82;
+    node.x += (node.tx - node.x) * ease * 0.82;
+    node.y += (node.ty - node.y) * ease * 0.82;
+    node.z += (node.tz - node.z) * ease * 0.82;
     node.scale += (targetScale(node) - node.scale) * 0.18;
   }
 }
@@ -776,7 +976,7 @@ function drawScene() {
   drawBackgroundStars();
   drawLinks();
   drawNodes();
-  drawLabels();
+  updateLabels();
 }
 
 function drawBackgroundStars() {
@@ -802,7 +1002,9 @@ function drawLinks() {
     const related = focusNode && (focusIds.has(link.source.id) || focusIds.has(link.target.id));
     const muted = focusNode && !related;
     const reference = link.type === 'reference';
-    const color = reference ? TYPE_COLOR.note : TYPE_COLOR.category;
+    const color = reference
+      ? mixHex(link.source.color || colorForNode(link.source), link.target.color || colorForNode(link.target), 0.5)
+      : (link.source.color || colorForNode(link.source));
     const alpha = muted ? 0.055 : active ? 0.78 : reference ? 0.28 : 0.24;
 
     ctx.save();
@@ -810,7 +1012,7 @@ function drawLinks() {
     ctx.moveTo(source.x, source.y);
     ctx.lineTo(target.x, target.y);
     ctx.lineWidth = active ? 2.2 : 1.05;
-    ctx.strokeStyle = reference ? `rgba(124, 58, 237, ${alpha})` : rgba(color, alpha);
+    ctx.strokeStyle = reference ? rgba(color, alpha) : rgba(color, alpha);
     ctx.shadowColor = rgba(color, active ? 0.28 : 0.08);
     ctx.shadowBlur = active ? 12 : 4;
     if (reference) ctx.setLineDash([5, 7]);
@@ -831,7 +1033,7 @@ function drawNodes() {
     const r = clamp(baseRadius, node.type === 'note' ? 3.2 : 5.4, node.type === 'root' ? 30 : 22);
     node.hitRadius = Math.max(9, r + (node.type === 'note' ? 7 : 5));
 
-    const pulse = 0.86 + Math.sin(time * 1.35 + node.pulse) * 0.14;
+    const glowPulse = 0.92 + Math.sin(time * 0.9 + node.pulse) * 0.08;
     const alpha = muted ? 0.20 : 1;
     const color = node.color;
 
@@ -839,7 +1041,7 @@ function drawNodes() {
     ctx.globalAlpha = alpha;
 
     const halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * (active ? 3.8 : 2.9));
-    halo.addColorStop(0, rgba(color, active ? 0.30 : 0.20));
+    halo.addColorStop(0, rgba(color, (active ? 0.30 : 0.20) * glowPulse));
     halo.addColorStop(1, rgba(color, 0));
     ctx.fillStyle = halo;
     ctx.beginPath();
@@ -861,12 +1063,22 @@ function drawNodes() {
     ctx.fillStyle = color;
     ctx.shadowColor = rgba(color, active ? 0.50 : 0.24);
     ctx.shadowBlur = active ? 18 : 9;
-    ctx.arc(p.x, p.y, r * pulse, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.lineWidth = active ? 2.7 : 1.7;
     ctx.strokeStyle = '#ffffff';
     ctx.stroke();
+
+    if (node.format === 'jupyter') {
+      ctx.beginPath();
+      ctx.setLineDash([3, 3]);
+      ctx.arc(p.x, p.y, r + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = rgba(color, active ? 0.78 : 0.48);
+      ctx.lineWidth = active ? 2.1 : 1.4;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
 
     if (matched && !focusNode) {
       ctx.beginPath();
@@ -880,43 +1092,97 @@ function drawNodes() {
   }
 }
 
-function shouldLabel(node) {
-  if (node.type === 'root' || node.type === 'category') return true;
-  if (node.type === 'subcategory') return !focusNode || focusIds.has(node.id) || searchMatches.has(node.id);
-  return Boolean(focusNode && focusIds.has(node.id)) || searchMatches.has(node.id);
+function labelPriority(node) {
+  if (focusNode && node.id === focusNode.id) return 6;
+  if (searchMatches.has(node.id)) return 5;
+  if (node.type === 'root') return 4;
+  if (node.type === 'category') return 3;
+  if (node.type === 'subcategory') return 2;
+  return 1;
 }
 
-function drawLabels() {
-  const sorted = [...nodes].sort((a, b) => (b.screen?.z || 0) - (a.screen?.z || 0));
-  ctx.save();
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  for (const node of sorted) {
-    if (!shouldLabel(node)) continue;
+function labelBaseSize(node) {
+  if (node.type === 'root') return 14.5;
+  if (node.type === 'category') return 13;
+  if (node.type === 'subcategory') return 10.2;
+  return 8.8;
+}
+
+function labelColorFor(node) {
+  if (node.type === 'root' || node.type === 'category') return '#0f172a';
+  if (node.type === 'subcategory') return '#475569';
+  return '#64748b';
+}
+
+function labelZoomClarity() {
+  return clamp((camera.zoom - 0.48) / 1.08, 0, 1);
+}
+
+function labelZoomBoost() {
+  return clamp(0.72 + camera.zoom * 0.42, 0.82, 1.55);
+}
+
+function labelAlphaFor(node) {
+  const zoomClarity = labelZoomClarity();
+  let alpha =
+    node.type === 'root' ? 1 :
+    node.type === 'category' ? 0.94 :
+    node.type === 'subcategory' ? 0.46 + zoomClarity * 0.28 :
+    0.30 + zoomClarity * 0.36;
+
+  if (node.format === 'jupyter') alpha += 0.08;
+  if (focusNode) alpha = focusIds.has(node.id) ? Math.max(alpha, 0.82) : alpha * 0.42;
+  if (searchMatches.has(node.id)) alpha = 1;
+
+  return clamp(alpha, node.type === 'note' ? 0.24 : 0.34, 1);
+}
+
+function labelFontSizeFor(node) {
+  const depthPenalty = Math.max(0, node.depth - 1) * 0.34;
+  const focusBoost = focusNode && focusIds.has(node.id) ? 1.12 : 1;
+  const size = (labelBaseSize(node) - depthPenalty) * labelZoomBoost() * focusBoost;
+  if (node.type === 'root') return clamp(size, 12, 20);
+  if (node.type === 'category') return clamp(size, 10.5, 18);
+  if (node.type === 'subcategory') return clamp(size, 7.8, 15);
+  return clamp(size, 6.8, 13.5);
+}
+
+function labelOffsetFor(node) {
+  const focusBoost = focusNode && focusIds.has(node.id) ? 1.12 : 1;
+  const offset = node.radius * labelZoomBoost() * focusBoost + 8;
+  return clamp(offset, node.type === 'note' ? 9 : 13, node.type === 'root' ? 34 : 26);
+}
+
+function updateLabels() {
+  for (const node of nodes) {
+    const label = node.labelEl;
+    if (!label) continue;
     const p = node.screen;
-    if (!p) continue;
-    const active = focusNode && focusIds.has(node.id);
-    const muted = focusNode && !active;
-    if (muted) continue;
+    if (!p) {
+      label.style.opacity = '0';
+      continue;
+    }
 
-    const fontSize =
-      node.type === 'root' ? 14 :
-      node.type === 'category' ? 13 :
-      node.type === 'subcategory' ? 12 :
-      11;
-    const weight = node.type === 'note' ? 500 : 700;
-    const r = Math.max(6, node.radius * p.scale * node.scale);
-    const y = p.y + r + 8;
-    const text = node.name;
+    const fontSize = labelFontSizeFor(node);
+    const targetX = p.x;
+    const targetY = p.y + labelOffsetFor(node);
+    const hasLabelPosition = Number.isFinite(node.labelX) && Number.isFinite(node.labelY);
+    const distance = hasLabelPosition ? Math.hypot(targetX - node.labelX, targetY - node.labelY) : Infinity;
+    const follow = dragState ? 0.62 : 0.24;
+    if (!hasLabelPosition || distance > 120) {
+      node.labelX = targetX;
+      node.labelY = targetY;
+    } else {
+      node.labelX += (targetX - node.labelX) * follow;
+      node.labelY += (targetY - node.labelY) * follow;
+    }
 
-    ctx.font = `${weight} ${fontSize}px "Segoe UI", Tahoma, system-ui, sans-serif`;
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fillStyle = node.type === 'note' ? '#475569' : '#0f172a';
-    ctx.strokeText(text, p.x, y);
-    ctx.fillText(text, p.x, y);
+    label.style.fontSize = `${fontSize.toFixed(2)}px`;
+    label.style.fontWeight = node.type === 'note' ? '500' : '700';
+    label.style.opacity = labelAlphaFor(node).toFixed(3);
+    label.style.zIndex = String(10 + labelPriority(node));
+    label.style.transform = `translate3d(${node.labelX.toFixed(2)}px, ${node.labelY.toFixed(2)}px, 0) translateX(-50%)`;
   }
-  ctx.restore();
 }
 
 function hitTest(clientX, clientY) {
@@ -964,7 +1230,7 @@ function searchable(node) {
 }
 
 function showTooltip(node) {
-  const color = node.color || TYPE_COLOR.note;
+  const color = node.color || colorForNode(node);
   const typeLabel = node.format === 'jupyter' ? 'JUPYTER' : (TYPE_LABEL[node.type] || node.type);
   tooltip.innerHTML = `
     <div class="tip-type" style="background:${color}18;color:${color}">${typeLabel}</div>
@@ -1087,6 +1353,11 @@ function placeTooltipSmart(node) {
 function chapterAnchorFor(node) {
   if (!node) return 'llm';
   let id = node.id;
+  if (INDEX_CHAPTER_ANCHORS[id]) return INDEX_CHAPTER_ANCHORS[id];
+  if (node.type !== 'note' && id && id !== '__root__') {
+    const slug = String(id).toLowerCase().replace(/[^\w\u4e00-\u9fff]+/g, '-').replace(/^-+|-+$/g, '');
+    if (slug) return `kg-${slug}`;
+  }
   while (id) {
     if (INDEX_CHAPTER_ANCHORS[id]) return INDEX_CHAPTER_ANCHORS[id];
     const slash = id.lastIndexOf('/');
@@ -1142,9 +1413,12 @@ function setPaused(nextPaused) {
 }
 
 canvas.addEventListener('pointerdown', event => {
-  const node = hitTest(event.clientX, event.clientY);
+  if (event.button === 2) event.preventDefault();
+  const panDrag = event.button === 2;
+  const node = panDrag ? null : hitTest(event.clientX, event.clientY);
   pressedNode = node;
   dragState = {
+    mode: panDrag ? 'pan' : 'rotate',
     x: event.clientX,
     y: event.clientY,
     rotX: camera.rotX,
@@ -1162,7 +1436,7 @@ canvas.addEventListener('pointermove', event => {
     const dx = event.clientX - dragState.x;
     const dy = event.clientY - dragState.y;
     if (Math.hypot(dx, dy) > 3) dragState.moved = true;
-    if (event.shiftKey) {
+    if (dragState.mode === 'pan' || event.shiftKey) {
       camera.panX = dragState.panX + dx;
       camera.panY = dragState.panY + dy;
     } else {
@@ -1189,13 +1463,14 @@ canvas.addEventListener('pointermove', event => {
 function endPointer(event) {
   canvas.releasePointerCapture?.(event.pointerId);
   canvas.classList.remove('is-dragging');
-  if (dragState && !dragState.moved && pressedNode) openNode(pressedNode);
+  if (dragState && dragState.mode === 'rotate' && !dragState.moved && pressedNode) openNode(pressedNode);
   dragState = null;
   pressedNode = null;
 }
 
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('contextmenu', event => event.preventDefault());
 canvas.addEventListener('mouseleave', () => {
   hoveredNode = null;
   isHoveringNode = false;
