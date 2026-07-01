@@ -1,7 +1,0 @@
-interface:
-  display_name: "Zotero PDF Fetcher"
-  short_description: "Fetch matching PDFs from local Zotero storage"
-  default_prompt: "Use $zotero-pdf-fetcher to find a matching PDF in the local Zotero storage and copy it into the project papers folder."
-
-policy:
-  allow_implicit_invocation: true

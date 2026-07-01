@@ -1,7 +1,0 @@
-interface:
-  display_name: "PDF to Markdown"
-  short_description: "Batch convert paper PDFs into searchable Markdown"
-  default_prompt: "Use $pdf2markdown to convert a PDF or a PDF folder into Markdown with the project's MinerU workflow."
-
-policy:
-  allow_implicit_invocation: true
