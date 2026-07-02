@@ -3,374 +3,651 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepSpeed ZeRO-2 核心流程演示 (动态流转版)</title>
+    <title>DeepSpeed ZeRO-2 核心流程演示 (实时 Ring 解说版)</title>
     <style>
-        :root {
-            --bg-color: #f8fafc;
-            --text-color: #334155;
-            --gpu-bg: #ffffff;
-            --border-color: #cbd5e1;
-            /* 4个Partition(切片)的专属颜色 */
-            --c0: #bfdbfe; --c0-text: #1e3a8a; --c0-border: #60a5fa; /* GPU0 - P0 */
-            --c1: #bbf7d0; --c1-text: #14532d; --c1-border: #4ade80; /* GPU1 - P1 */
-            --c2: #fef08a; --c2-text: #713f12; --c2-border: #facc15; /* GPU2 - P2 */
-            --c3: #e9d5ff; --c3-text: #581c87; --c3-border: #c084fc; /* GPU3 - P3 */
+        /* CSS 命名空间隔离，全部以 ds- 开头，防止污染 MkDocs 全局样式 */
+        .ds-container {
+            --ds-bg-color: transparent;
+            --ds-panel-bg: #ffffff;
+            --ds-text-primary: #334155;
+            --ds-text-secondary: #64748b;
+            --ds-border-color: #e2e8f0;
+            --ds-highlight: #3b82f6;
+            --ds-success: #10b981;
+            
+            /* 4个Partition 专属现代清新色系 */
+            --ds-c0: #e0f2fe; --ds-c0-text: #0369a1; --ds-c0-border: #7dd3fc;
+            --ds-c1: #dcfce7; --ds-c1-text: #15803d; --ds-c1-border: #86efac;
+            --ds-c2: #fef9c3; --ds-c2-text: #a16207; --ds-c2-border: #fde047;
+            --ds-c3: #f3e8ff; --ds-c3-text: #6b21a8; --ds-c3-border: #d8b4fe;
+
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: var(--ds-text-primary);
+            width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+            line-height: 1.5;
         }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        h1 { margin-top: 0; color: #0f172a; text-align: center; }
+        .ds-container * { box-sizing: border-box; }
         
-        .container { width: 100%; max-width: 1300px; }
-        
-        /* 控制面板 */
-        .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        button { padding: 10px 20px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; background-color: #3b82f6; color: white; transition: background 0.3s; }
-        button:hover:not(:disabled) { background-color: #2563eb; }
-        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .ds-header-title { text-align: center; font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 5px; }
+        .ds-header-desc { text-align: center; color: var(--ds-text-secondary); font-size: 13px; margin-bottom: 20px; }
 
-        /* 状态说明板 */
-        .info-panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 30px; text-align: center; border-left: 5px solid #3b82f6; transition: all 0.3s ease; }
-        .info-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; color: #1e40af; }
-        .info-desc { font-size: 15px; line-height: 1.6; }
+        /* 信息面板 */
+        .ds-info-panel {
+            background: var(--ds-panel-bg);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--ds-border-color);
+            border-left: 5px solid var(--ds-highlight);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            position: relative;
+            min-height: 95px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .ds-info-title { font-size: 16px; font-weight: 700; color: #1e40af; margin-bottom: 6px; padding-right: 90px; }
+        .ds-info-desc { font-size: 13px; color: #475569; margin-bottom: 10px; }
 
-        /* GPU 容器 */
-        .gpu-cluster { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 40px; }
-        .gpu { background: var(--gpu-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 15px; }
-        .gpu-title { text-align: center; font-weight: bold; font-size: 18px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 5px; }
+        /* 实时动画解说条 (Action Log) */
+        .ds-action-log {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px dashed #93c5fd;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ds-action-log.ds-active { opacity: 1; }
+
+        /* 重播按钮 */
+        .ds-replay-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ds-highlight);
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ds-replay-btn:hover { background: #e2e8f0; transform: translateY(-1px); }
+        .ds-replay-btn svg { width: 13px; height: 13px; }
+
+        /* GPU 容器 - 完美自适应不溢出 */
+        .ds-gpu-cluster {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .ds-gpu {
+            background: var(--ds-panel-bg);
+            border: 1px solid var(--ds-border-color);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .ds-gpu-title { text-align: center; font-weight: 700; font-size: 13px; border-bottom: 1px solid var(--ds-border-color); padding-bottom: 8px; color: #334155; }
+        .ds-gpu-title span { display: block; font-size: 11px; margin-top: 2px; font-weight: normal; }
 
         /* 数据块区域 */
-        .section-title { font-size: 13px; font-weight: bold; color: #64748b; margin-bottom: 5px; }
-        .data-grid { display: flex; flex-direction: column; gap: 6px; }
+        .ds-section-title { font-size: 10px; font-weight: 700; color: var(--ds-text-secondary); margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .ds-data-grid { display: flex; flex-direction: column; gap: 4px; }
+        .ds-bucket-row { display: flex; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; background: #f1f5f9; border: 1px solid var(--ds-border-color); }
         
-        /* 通信桶 (Bucket) 容器 */
-        .bucket-row { display: flex; width: 100%; height: 32px; border-radius: 6px; overflow: hidden; background: #e2e8f0; border: 1px solid #94a3b8;}
+        /* 切片 (Chunk) 基础样式 */
+        .ds-chunk {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid rgba(255,255,255,0.6);
+            z-index: 1; 
+            position: relative;
+            padding: 0 2px;
+            white-space: nowrap;
+        }
+        .ds-chunk:last-child { border-right: none; }
         
-        /* 切片 (Partition) 块 */
-        .chunk { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; transition: all 0.4s ease; border-right: 1px solid rgba(255,255,255,0.3); }
-        .chunk:last-child { border-right: none; }
+        /* 颜色类 */
+        .ds-c0 { background-color: var(--ds-c0); color: var(--ds-c0-text); }
+        .ds-c1 { background-color: var(--ds-c1); color: var(--ds-c1-text); }
+        .ds-c2 { background-color: var(--ds-c2); color: var(--ds-c2-text); }
+        .ds-c3 { background-color: var(--ds-c3); color: var(--ds-c3-text); }
         
-        .c0 { background-color: var(--c0); color: var(--c0-text); }
-        .c1 { background-color: var(--c1); color: var(--c1-text); }
-        .c2 { background-color: var(--c2); color: var(--c2-text); }
-        .c3 { background-color: var(--c3); color: var(--c3-text); }
+        /* 状态与动画特效 */
+        .ds-fade-out { opacity: 0 !important; visibility: hidden; transform: scale(0.9); }
+        .ds-dimmed { opacity: 0.2; filter: grayscale(50%); }
+        .ds-empty-placeholder { flex: 1; background: transparent; }
         
-        /* 动画与状态类 */
-        .fade-out { opacity: 0; visibility: hidden; } /* 彻底隐藏代表显存释放 */
-        .dimmed { opacity: 0.3; } /* 变暗代表非激活 */
-        .empty-placeholder { flex: 1; background: transparent; }
-        .highlight-pulse { animation: pulse 0.8s infinite; z-index: 10; position: relative; box-shadow: inset 0 0 15px rgba(0,0,0,0.4); }
-        @keyframes pulse { 0% { filter: brightness(1); } 50% { filter: brightness(1.3); transform: scale(1.05); } 100% { filter: brightness(1); } }
+        .ds-pulse { animation: ds-soft-pulse 1.5s infinite; }
+        @keyframes ds-soft-pulse { 
+            0% { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); } 
+            50% { box-shadow: inset 0 0 10px rgba(59,130,246,0.3); } 
+            100% { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); } 
+        }
+
+        /* Ring 通信过程专属特效：极大地增强了视觉反馈 */
+        .ds-sending { transform: scale(0.85); opacity: 0.5; filter: brightness(0.8); }
+        .ds-receiving { transform: scale(1.1); z-index: 5; box-shadow: 0 0 12px rgba(59, 130, 246, 0.6); border: 2px solid var(--ds-highlight); border-radius: 4px; }
+        .ds-reduced { font-weight: 800; transform: scale(1.05); box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); border: 1px solid var(--ds-success); border-radius: 4px; }
         
-        /* 详细图解区域 */
-        .deep-dive { background: #1e293b; color: white; padding: 25px; border-radius: 12px; display: none; }
-        .deep-dive.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .diagram-title { color: #38bdf8; font-size: 18px; margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        /* 参数更新后的状态 */
+        .ds-updated-param {
+            font-weight: 800;
+            color: #064e3b;
+            border: 2px solid var(--ds-success) !important;
+            background-image: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 4px;
+        }
+
+        /* 剖析面板 */
+        .ds-deep-dive { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid var(--ds-border-color); display: none; margin-top: 10px; }
+        .ds-deep-dive.ds-active { display: block; animation: ds-fadeIn 0.5s; }
+        @keyframes ds-fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .ds-diagram-title { color: #0f172a; font-size: 15px; font-weight: 700; margin-top: 0; margin-bottom: 8px; }
         
-        .comm-diagram { display: flex; justify-content: center; align-items: center; gap: 30px; padding: 15px 0; }
-        .diagram-box { background: #334155; padding: 10px; border-radius: 8px; text-align: center; }
-        .diagram-row { display: flex; height: 30px; width: 200px; margin-top: 10px; border-radius: 4px; overflow: hidden;}
+        /* Dock 风格底部导航 */
+        .ds-dock-container { display: flex; justify-content: center; margin-top: 20px; margin-bottom: 10px; }
+        .ds-dock {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 50px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 8px 20px -5px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+        }
+        .ds-dock-btn {
+            background: transparent;
+            border: none;
+            color: #475569;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .ds-dock-btn:hover:not(:disabled) { background: #f1f5f9; color: #0f172a; }
+        .ds-dock-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .ds-dock-btn svg { width: 18px; height: 18px; }
         
+        .ds-dock-steps { display: flex; gap: 8px; }
+        .ds-dot {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ds-dot:hover { background: #e2e8f0; }
+        .ds-dot.ds-active { background: var(--ds-highlight); color: white; transform: scale(1.1); box-shadow: 0 4px 8px rgba(59,130,246,0.3); }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>DeepSpeed ZeRO-2 (真正 Reduce-Scatter 逻辑版)</h1>
-    <p style="text-align: center; color: #64748b; margin-top: -10px; margin-bottom: 20px;">
-        在底层实现中，参数和梯度被展平为一维数组，并均匀分为 4 个 <b>切片 (Partition 0~3)</b>。<br>
-        每次通信以 <b>桶 (Bucket)</b> 为单位，反向传播算完一个 Bucket，就立刻触发 Reduce-Scatter 将其打散均分！
-    </p>
-
-    <!-- 状态说明板 -->
-    <div class="info-panel">
-        <div class="info-title" id="step-title">阶段 0: 初始状态</div>
-        <div class="info-desc" id="step-desc">初始化...</div>
+<div class="ds-container">
+    <div class="ds-header-title">DeepSpeed ZeRO-2 (实时 Ring 解说版)</div>
+    <div class="ds-header-desc">
+        模型参数展平并分为 4 个切片 (P0~P3)。本动画完美复现了经典的 <b>Ring All-Reduce</b> 环状通信拓扑逻辑。
     </div>
 
-    <!-- 控制按钮 -->
-    <div class="controls">
-        <button id="btn-prev" onclick="changeStep(-1)" disabled>◀ 上一步</button>
-        <button id="btn-next" onclick="changeStep(1)">下一步 ▶</button>
+    <!-- 状态说明板 -->
+    <div class="ds-info-panel">
+        <button class="ds-replay-btn" onclick="dsReplay()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path></svg>
+            重播动画
+        </button>
+        <div class="ds-info-title" id="ds-step-title">阶段 0: 初始状态</div>
+        <div class="ds-info-desc" id="ds-step-desc">初始化...</div>
+        
+        <!-- 实时动画解说条 (Action Log) -->
+        <div class="ds-action-log" id="ds-action-log">
+            <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span id="ds-log-text">等待执行...</span>
+        </div>
     </div>
 
     <!-- GPU 集群可视化 -->
-    <div class="gpu-cluster" id="gpu-cluster">
+    <div class="ds-gpu-cluster" id="ds-gpu-cluster">
         <!-- JS 动态生成 -->
     </div>
 
     <!-- 详细图解：Reduce-Scatter -->
-    <div class="deep-dive" id="deep-dive-rs">
-        <h3 class="diagram-title">🔍 阶段总结剖析：真正的 Ring Reduce-Scatter (打散与均分)</h3>
-        <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">
-            <b>错误认知：</b>所有人把整个 Bucket 全发给某一张卡（导致单点带宽拥堵，违背 Scatter 原理）。<br>
-            <b>真正逻辑：</b>如刚才动画演示，每个 Bucket 刚满血产生，立刻在通信结束瞬间被<b>切成 4 份</b>。GPU 0 拿走 P0，GPU 1 拿走 P1... 其余 3/4 的显存立刻被释放！这样所有卡的上下行带宽都被跑满，效率最高。
+    <div class="ds-deep-dive" id="ds-deep-dive-rs">
+        <h3 class="ds-diagram-title">🔍 静态总结：真正的 Ring Reduce-Scatter (打散与均分)</h3>
+        <p style="font-size: 12px; color: #475569; margin: 0;">
+            <b>正如刚才动画中文字日志解说的那样：</b>当反向传播计算出一个 Bucket (例如 Bucket 4) 后，集群立刻触发了 <b>3 步 Ring 通信</b>：<br>
+            • <b>Step 1</b>: 每个卡向下一张卡发送一块数据 (如 GPU 0 发 P3 给 GPU 1) 并累加 (+)<br>
+            • <b>Step 2</b>: 继续向下一张卡传递刚才收到并累加的数据 (++)<br>
+            • <b>Step 3</b>: 最后一次传递叠加，形成满血版梯度 (Σ)。<br>
+            最终每张卡只保留属于自己的那 1/4 梯度，剩余 3/4 显存瞬间清空！完美跑满卡间带宽。
         </p>
-        <div class="comm-diagram">
-            <div class="diagram-box">
-                <div>Reduce 前的某一个 Bucket</div>
-                <div class="diagram-row">
-                    <div class="chunk c0">P0</div><div class="chunk c1">P1</div><div class="chunk c2">P2</div><div class="chunk c3">P3</div>
-                </div>
-            </div>
-            <div style="font-size: 30px; color: #38bdf8;">➔</div>
-            <div class="diagram-box">
-                <div>Reduce-Scatter 后 (各卡只留 1/4)</div>
-                <div style="display:flex; flex-direction:column; gap:5px; margin-top:10px; text-align: left; font-size: 12px;">
-                    <div>GPU 0 显存: <span class="c0" style="padding:2px 10px">P0</span> (释放 P1,P2,P3)</div>
-                    <div>GPU 1 显存: <span class="c1" style="padding:2px 10px">P1</span> (释放 P0,P2,P3)</div>
-                    <div>GPU 2 显存: <span class="c2" style="padding:2px 10px">P2</span> (释放 P0,P1,P3)</div>
-                    <div>GPU 3 显存: <span class="c3" style="padding:2px 10px">P3</span> (释放 P0,P1,P2)</div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- 详细图解：All-Gather -->
-    <div class="deep-dive" id="deep-dive-ag">
-        <h3 class="diagram-title">🔍 深度图解：All-Gather 过程 (参数同步)</h3>
-        <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 15px;">
-            更新完成后，每张卡上的参数只有自己负责的那 1/4 是最新的。<br>
-            通过 <b>All-Gather</b> 操作，GPU 0 广播新的 P0，GPU 1 广播新的 P1... 所有卡收集齐 4 个最新切片，重构出完整的模型参数，准备下一轮前向传播。
+    <div class="ds-deep-dive" id="ds-deep-dive-ag">
+        <h3 class="ds-diagram-title">🔍 阶段总结：Ring All-Gather (参数同步)</h3>
+        <p style="font-size: 12px; color: #475569; margin: 0;">
+            每张卡更新完本地的参数后 (带 <span style="color:#10b981; font-weight:bold;">*</span> 标识)。同样通过 <b>3 步 Ring 广播</b> (如刚才日志演示)：<br>
+            • <b>Step 1</b>: GPU 0 把最新的 P0* 发给 GPU 1...<br>
+            • <b>Step 2</b>: GPU 1 把刚收到的 P0* 接力发给 GPU 2...<br>
+            经过 3 步接力，全员集齐了最新的 P0*~P3*，整个集群的参数完成了同步！
         </p>
     </div>
 
+    <!-- 底栏 Dock 导航 -->
+    <div class="ds-dock-container">
+        <div class="ds-dock">
+            <button class="ds-dock-btn" id="ds-btn-prev" onclick="dsChangeStep(-1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <div class="ds-dock-steps">
+                <div class="ds-dot ds-active" id="ds-dot-0" onclick="dsGoToStep(0)">0</div>
+                <div class="ds-dot" id="ds-dot-1" onclick="dsGoToStep(1)">1</div>
+                <div class="ds-dot" id="ds-dot-2" onclick="dsGoToStep(2)">2</div>
+                <div class="ds-dot" id="ds-dot-3" onclick="dsGoToStep(3)">3</div>
+                <div class="ds-dot" id="ds-dot-4" onclick="dsGoToStep(4)">4</div>
+            </div>
+            <button class="ds-dock-btn" id="ds-btn-next" onclick="dsChangeStep(1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
-    // 定义 4 个通信桶 (对应模型的不同层)
-    const buckets = [1, 2, 3, 4];
-    // 4 个 Partition 切片 (对应 4 张 GPU)
-    const partitions = [0, 1, 2, 3];
+    const dsBuckets = [1, 2, 3, 4];
+    const dsPartitions = [0, 1, 2, 3];
+    let dsCurrentStep = 0;
+    let dsAnimVersion = 0; 
+    const dsSleep = ms => new Promise(r => setTimeout(r, ms));
 
-    let currentStep = 0;
-    let animVersion = 0; // 用于控制动画的取消
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-    const steps = [
+    const dsSteps = [
         {
             title: "阶段 0: 初始状态 (Initialization)",
-            desc: "一维展平的模型参数被切分为 4 个 <b>Partition (P0~P3)</b>。<br>目前，<b>模型参数 (Parameters)</b> 在所有 GPU 上完整存在（P0~P3俱全）。<br>而 <b>优化器状态 (OS)</b> 已经完成了分区，每张 GPU <b>只维护自己负责的那个 1/4 切片</b>（比如 GPU 0 只存 P0）。"
+            desc: "一维展平的参数切分为 4 个 <b>Partition (P0~P3)</b>。<br>目前，<b>模型参数</b> 在所有 GPU 上完整存在。而 <b>优化器状态 (OS)</b> 已经完成了分区，每张卡只维护自己负责的 1/4 切片。"
         },
         {
-            title: "阶段 1: 反向传播与动态 Reduce-Scatter (核心精髓)",
-            desc: "<b>▶ 动态演示中：</b>反向传播按层逆向计算。当算出底部的 <b>Bucket 4</b> 时，不等前方的层算完，<b>立刻触发 Reduce-Scatter</b> 将其打散均分！<br>每张卡只保留属于自己的 1/4，剩余显存<b>瞬间释放</b>。接着继续向上计算 Bucket 3... 这是计算与通信完美的动态重叠！"
+            title: "阶段 1: 动态反向传播与 Ring Reduce-Scatter",
+            desc: "<b>▶ 正在演示 Ring 环状通信：</b>当底部的 Bucket 算出后，立刻触发 <b>3 步 Ring 通信</b>！数据像接力赛一样在相邻 GPU 间传递叠加 (加号代表累加)。<br>请留意下方<b>动态解说条</b>，看清谁发给了谁！"
         },
         {
             title: "阶段 2: Reduce-Scatter 静态结果剖析",
-            desc: "此时整个反向传播与通信已完成。你不再看到完整的 Bucket，因为它们已经被<b>边算边打散（Scatter）</b>了。<br>单卡梯度显存峰值仅为原来的 1/4，同时完美打满了 4 张 GPU 的上下行带宽。"
+            desc: "此时整个反向传播已完成。单卡梯度显存峰值仅为原来的 1/4。<br>此时 GPU 0 恰好持有所有 Bucket 的 P0 满血版梯度 (ΣP0)，GPU 1 持有 ΣP1..."
         },
         {
             title: "阶段 3: 优化器更新 (Optimizer Step)",
-            desc: "所有的 Bucket 都完成了 Reduce-Scatter。<br>现在，每张 GPU 手里正好握有<b>所有 Bucket 的 1/4 梯度</b>，拼起来恰好是它负责的完整 Partition 梯度！<br>结合本地持有的优化器状态，GPU 开始更新属于自己的 <b>1/4 参数切片</b>（图中闪烁的切片）。"
+            desc: "现在，每张 GPU 手中正好握有自己负责分区的 <b>1/4 完整梯度</b>。<br>结合本地持有的优化器状态，GPU 开始更新属于自己的 1/4 参数切片。<br>▶ 注意观察：更新后的切片变为 <b>带有 * 号和绿色边框</b> 的最新版本！"
         },
         {
-            title: "阶段 4: 参数同步 (All-Gather)",
-            desc: "参数更新后，GPU 0 只有 P0 是最新的，GPU 1 只有 P1 是最新的。<br>触发 <b>All-Gather</b>！所有 GPU 将自己更新后的 1/4 切片广播给其他人。<br>最终，所有卡再次填满 P0~P3，获得最新全量参数，准备进入下一轮迭代。"
+            title: "阶段 4: 参数同步与 Ring All-Gather",
+            desc: "<b>▶ 正在演示 Ring All-Gather 广播：</b>参数更新后，GPU 0 只有 P0* 是最新的。触发 <b>Ring All-Gather</b>！<br>经过 3 步接力传递，所有卡拼出最新完整模型！留意下方<b>动态解说条</b>了解接力细节。"
         }
     ];
 
-    function initDOM() {
-        const cluster = document.getElementById('gpu-cluster');
-        let html = '';
+    function dsSetLog(msg) {
+        const logBox = document.getElementById('ds-action-log');
+        const logText = document.getElementById('ds-log-text');
+        if (msg) {
+            logText.innerHTML = msg;
+            logBox.classList.add('ds-active');
+        } else {
+            logBox.classList.remove('ds-active');
+        }
+    }
 
+    function dsInitDOM() {
+        const cluster = document.getElementById('ds-gpu-cluster');
+        let html = '';
         for (let gpuIdx = 0; gpuIdx < 4; gpuIdx++) {
-            html += `<div class="gpu" id="gpu-${gpuIdx}">
-                        <div class="gpu-title">GPU ${gpuIdx} <span style="font-size:12px; color:#64748b">(属主: P${gpuIdx})</span></div>`;
+            html += `<div class="ds-gpu" id="ds-gpu-${gpuIdx}">
+                        <div class="ds-gpu-title">GPU ${gpuIdx} <span>(主理 P${gpuIdx})</span></div>`;
             
             // 1. 参数 (Parameters)
-            html += `<div><div class="section-title">模型参数 (Parameters)</div><div class="data-grid" id="params-gpu-${gpuIdx}">`;
-            buckets.forEach(b => {
-                html += `<div class="bucket-row">`;
-                partitions.forEach(p => {
-                    html += `<div class="chunk c${p} param-chunk" data-p="${p}">P${p}</div>`;
+            html += `<div><div class="ds-section-title">模型参数 (Parameters)</div><div class="ds-data-grid" id="ds-params-gpu-${gpuIdx}">`;
+            dsBuckets.forEach(b => {
+                html += `<div class="ds-bucket-row">`;
+                dsPartitions.forEach(p => {
+                    html += `<div class="ds-chunk ds-c${p} ds-param-chunk" data-p="${p}">P${p}</div>`;
                 });
                 html += `</div>`;
             });
             html += `</div></div>`;
 
             // 2. 梯度 (Gradients)
-            html += `<div><div class="section-title">梯度 (Gradients Bucket 1~4)</div><div class="data-grid" id="grads-gpu-${gpuIdx}">`;
-            buckets.forEach(b => {
-                html += `<div class="bucket-row">`;
-                partitions.forEach(p => {
-                    // 初始默认不可见
-                    html += `<div class="chunk c${p} grad-chunk fade-out" data-p="${p}">P${p}</div>`;
+            html += `<div><div class="ds-section-title">梯度 (Gradients Bucket 1~4)</div><div class="ds-data-grid" id="ds-grads-gpu-${gpuIdx}">`;
+            dsBuckets.forEach(b => {
+                html += `<div class="ds-bucket-row">`;
+                dsPartitions.forEach(p => {
+                    html += `<div class="ds-chunk ds-c${p} ds-grad-chunk ds-fade-out" data-p="${p}">P${p}</div>`;
                 });
                 html += `</div>`;
             });
             html += `</div></div>`;
 
-            // 3. 优化器状态 (Optimizer States) - 仅有属主Partition
-            html += `<div><div class="section-title">优化器状态 (OS)</div><div class="data-grid" id="os-gpu-${gpuIdx}">`;
-            buckets.forEach(b => {
-                html += `<div class="bucket-row">`;
-                partitions.forEach(p => {
+            // 3. 优化器状态 (Optimizer States)
+            html += `<div><div class="ds-section-title">优化器状态 (OS)</div><div class="ds-data-grid" id="ds-os-gpu-${gpuIdx}">`;
+            dsBuckets.forEach(b => {
+                html += `<div class="ds-bucket-row">`;
+                dsPartitions.forEach(p => {
                     if (p === gpuIdx) {
-                        html += `<div class="chunk c${p} os-chunk" data-p="${p}">P${p}</div>`;
+                        html += `<div class="ds-chunk ds-c${p} ds-os-chunk" data-p="${p}">P${p}</div>`;
                     } else {
-                        html += `<div class="chunk empty-placeholder"></div>`;
+                        html += `<div class="ds-chunk ds-empty-placeholder"></div>`;
                     }
                 });
                 html += `</div>`;
             });
-            html += `</div></div>`;
-
-            html += `</div>`;
+            html += `</div></div></div>`;
         }
         cluster.innerHTML = html;
     }
 
-    function changeStep(delta) {
-        currentStep += delta;
-        if (currentStep < 0) currentStep = 0;
-        if (currentStep > steps.length - 1) currentStep = steps.length - 1;
+    // 核心动画：动态反向传播 + Ring Reduce-Scatter
+    async function dsPlayRingReduceScatter() {
+        dsAnimVersion++;
+        let myVersion = dsAnimVersion;
+        dsSetLog("准备反向传播...");
         
-        document.getElementById('btn-prev').disabled = currentStep === 0;
-        document.getElementById('btn-next').disabled = currentStep === steps.length - 1;
-
-        document.getElementById('step-title').innerHTML = steps[currentStep].title;
-        document.getElementById('step-desc').innerHTML = steps[currentStep].desc;
-
-        updateVisuals();
-    }
-
-    // 核心：动态展示反向传播与 Reduce-Scatter 重叠的流水线动画
-    async function playDynamicBackward() {
-        animVersion++; // 取消可能正在运行的旧动画
-        let myVersion = animVersion;
-        
-        // 初始化：全部置为空
-        document.querySelectorAll('.grad-chunk').forEach(c => {
-            c.classList.add('fade-out');
-            c.classList.remove('highlight-pulse');
+        // 初始清空梯度
+        document.querySelectorAll('.ds-grad-chunk').forEach(c => {
+            c.classList.add('ds-fade-out');
+            c.classList.remove('ds-sending', 'ds-receiving', 'ds-reduced');
+            c.innerHTML = `P${c.dataset.p}`;
         });
 
-        await sleep(400); // 留出视觉缓冲
-        if (myVersion !== animVersion || currentStep !== 1) return;
+        await dsSleep(800);
+        if (myVersion !== dsAnimVersion || dsCurrentStep !== 1) return;
 
-        // 反向传播的精髓：从最后面的层（Bucket 4，数组末端，index=3）开始往前算
-        for (let b = 3; b >= 0; b--) {
-            if (myVersion !== animVersion || currentStep !== 1) return;
+        // 仅演示 Bucket 4 (下标 3)，为了不拖沓，精讲一个 Bucket 的 Ring 通信
+        for (let b = 3; b >= 2; b--) {
+            if (myVersion !== dsAnimVersion || dsCurrentStep !== 1) return;
             
-            // 动作 A：计算出当前 Bucket 的全量梯度 (填满该行)
+            dsSetLog(`▶ 正在计算 <b>Bucket ${b+1}</b> 的反向梯度...`);
+            
             for (let gpu = 0; gpu < 4; gpu++) {
-                let row = document.getElementById(`grads-gpu-${gpu}`).children[b];
-                row.querySelectorAll('.grad-chunk').forEach(c => {
-                    c.classList.remove('fade-out');
-                    c.classList.add('highlight-pulse'); // 闪烁表示正在占用大量显存计算
+                let row = document.getElementById(`ds-grads-gpu-${gpu}`).children[b];
+                row.querySelectorAll('.ds-grad-chunk').forEach(c => {
+                    c.classList.remove('ds-fade-out');
+                    c.innerHTML = `P${c.dataset.p}`;
                 });
             }
-            
-            // 停顿：展示完整 Bucket 的存在瞬间
-            await sleep(1100); 
-            if (myVersion !== animVersion || currentStep !== 1) return;
-            
-            // 动作 B：立刻触发 Reduce-Scatter！(打散均分，非属主显存瞬间清空)
-            for (let gpu = 0; gpu < 4; gpu++) {
-                let row = document.getElementById(`grads-gpu-${gpu}`).children[b];
-                row.querySelectorAll('.grad-chunk').forEach(c => {
-                    c.classList.remove('highlight-pulse');
-                    let p = parseInt(c.getAttribute('data-p'));
-                    if (p !== gpu) {
-                        c.classList.add('fade-out'); // 核心：显存释放！
-                    } else {
-                        // 属主保留自己的 1/4，稍微闪烁一下代表接收完成
-                        c.classList.add('highlight-pulse');
-                        setTimeout(() => {
-                            if (c && currentStep === 1) c.classList.remove('highlight-pulse');
-                        }, 500);
-                    }
-                });
-            }
-            
-            // 停顿：展示释放完毕，准备计算上方的一层
-            await sleep(900);
-        }
-    }
+            await dsSleep(1500); 
+            if (myVersion !== dsAnimVersion || dsCurrentStep !== 1) return;
 
-    function updateVisuals() {
-        document.getElementById('deep-dive-rs').classList.remove('active');
-        document.getElementById('deep-dive-ag').classList.remove('active');
-
-        // 如果切出了阶段1，强制中断正在进行的动画流水线
-        if (currentStep !== 1) {
-            animVersion++; 
-        }
-
-        for (let gpuIdx = 0; gpuIdx < 4; gpuIdx++) {
-            const gradChunks = document.querySelectorAll(`#grads-gpu-${gpuIdx} .grad-chunk`);
-            const paramChunks = document.querySelectorAll(`#params-gpu-${gpuIdx} .param-chunk`);
-            const osChunks = document.querySelectorAll(`#os-gpu-${gpuIdx} .os-chunk`);
-
-            // --- 处理梯度 (Gradients) 静态逻辑 ---
-            if (currentStep !== 1) {
-                gradChunks.forEach(chunk => {
-                    const pIdx = parseInt(chunk.getAttribute('data-p'));
-                    chunk.classList.remove('highlight-pulse');
-                    
-                    if (currentStep === 0) {
-                        chunk.classList.add('fade-out'); // Step 0: 空
-                    } else if (currentStep === 2 || currentStep === 3) {
-                        // Step 2&3: Reduce-Scatter 最终静态固定状态
-                        if (pIdx !== gpuIdx) {
-                            chunk.classList.add('fade-out');
-                        } else {
-                            chunk.classList.remove('fade-out');
-                            if (currentStep === 2) chunk.classList.add('highlight-pulse'); // 剖析页面加亮展示
-                        }
-                    } else if (currentStep === 4) {
-                        chunk.classList.add('fade-out'); // All-Gather 后清理梯度
-                    }
-                });
-            }
-
-            // --- 处理模型参数 (Parameters) 逻辑 ---
-            paramChunks.forEach(chunk => {
-                const pIdx = parseInt(chunk.getAttribute('data-p'));
-                chunk.classList.remove('highlight-pulse', 'dimmed');
+            // Ring Reduce-Scatter (3个阶段)
+            for(let k = 1; k <= 3; k++) {
                 
-                if (currentStep === 3) {
-                    // Step 3: 更新本地参数，非属主的变暗，属主的闪烁
-                    if (pIdx === gpuIdx) {
-                        chunk.classList.add('highlight-pulse');
-                    } else {
-                        chunk.classList.add('dimmed');
-                    }
-                } else if (currentStep === 4) {
-                    // Step 4: All-Gather，所有块高亮一下表示接收到了最新数据
-                    chunk.classList.add('highlight-pulse');
-                    setTimeout(() => chunk.classList.remove('highlight-pulse'), 1200);
-                }
-            });
+                let logMsg = `🔁 <b>Ring Reduce 第 ${k}/3 步</b>: `;
+                if(k === 1) logMsg += `相邻GPU发送切片 (例: GPU 0 将 P3 发给 GPU 1 并累加)`;
+                if(k === 2) logMsg += `继续传递刚累加的切片 (例: GPU 1 将 P3+ 发给 GPU 2)`;
+                if(k === 3) logMsg += `最后一次传递，在属主节点形成满血梯度 Σ！`;
+                dsSetLog(logMsg);
 
-            // --- 处理优化器 (OS) 逻辑 ---
-            osChunks.forEach(chunk => {
-                chunk.classList.remove('highlight-pulse');
-                if (currentStep === 3) {
-                    chunk.classList.add('highlight-pulse'); // 更新时参与计算
+                let highlights = [];
+                for (let g = 0; g < 4; g++) {
+                    let chunkId = (g - k + 4) % 4;
+                    let nextG = (g + 1) % 4;
+
+                    let row_curr = document.getElementById(`ds-grads-gpu-${g}`).children[b];
+                    let chunk_curr = row_curr.querySelector(`[data-p="${chunkId}"]`);
+                    let row_next = document.getElementById(`ds-grads-gpu-${nextG}`).children[b];
+                    let chunk_next = row_next.querySelector(`[data-p="${chunkId}"]`);
+
+                    chunk_curr.classList.add('ds-sending');
+                    chunk_next.classList.add('ds-receiving');
+
+                    // 文本演进：P0 -> P0+ -> P0++ -> ΣP0
+                    let newText = `P${chunkId}`;
+                    if(k === 1) newText = `P${chunkId}+`;
+                    if(k === 2) newText = `P${chunkId}++`;
+                    if(k === 3) newText = `ΣP${chunkId}`;
+                    chunk_next.innerHTML = newText;
+                    
+                    if (k === 3) chunk_next.classList.add('ds-reduced');
+                    
+                    highlights.push({c: chunk_curr, n: chunk_next});
+                }
+                
+                await dsSleep(1800); // 留出充足时间看清发送接收动画和解说
+                if (myVersion !== dsAnimVersion || dsCurrentStep !== 1) return;
+
+                highlights.forEach(h => {
+                    h.c.classList.remove('ds-sending');
+                    h.n.classList.remove('ds-receiving');
+                });
+            }
+
+            // Scatter 释放
+            dsSetLog(`🗑️ Reduce 结束！立刻清空非属主切片，每卡仅留 1/4 显存。`);
+            for (let gpu = 0; gpu < 4; gpu++) {
+                let row = document.getElementById(`ds-grads-gpu-${gpu}`).children[b];
+                row.querySelectorAll('.ds-grad-chunk').forEach(chunk => {
+                    let p = parseInt(chunk.dataset.p);
+                    if (p !== gpu) {
+                        chunk.classList.add('ds-fade-out');
+                    } else {
+                        chunk.classList.remove('ds-reduced'); 
+                    }
+                });
+            }
+            await dsSleep(1500); 
+        }
+        
+        dsSetLog(`✅ 所有 Bucket 处理完毕（省略上方 Bucket 的重复演示）`);
+    }
+
+    // 核心动画：Ring All-Gather 参数同步
+    async function dsPlayRingAllGather() {
+        dsAnimVersion++;
+        let myVersion = dsAnimVersion;
+
+        dsSetLog("准备 Ring All-Gather...");
+        for (let g = 0; g < 4; g++) {
+            document.querySelectorAll(`#ds-params-gpu-${g} .ds-param-chunk`).forEach(c => {
+                let p = parseInt(c.dataset.p);
+                c.classList.remove('ds-sending', 'ds-receiving');
+                if (p === g) {
+                    c.classList.remove('ds-dimmed');
+                    c.innerHTML = `P${p}*`;
+                    c.classList.add('ds-updated-param');
+                } else {
+                    c.classList.add('ds-dimmed');
+                    c.classList.remove('ds-updated-param');
+                    c.innerHTML = `P${p}`; // 旧的
                 }
             });
         }
 
-        // --- 触发特殊事件 ---
-        if (currentStep === 1) {
-            // 在阶段 1 触发动态流水线动画
-            playDynamicBackward();
-        } else if (currentStep === 2) {
-            // 在阶段 2 展现 Reduce-Scatter 剖析解说
-            document.getElementById('deep-dive-rs').classList.add('active');
-        } else if (currentStep === 4) {
-            // 在阶段 4 展现 All-Gather 剖析解说
-            document.getElementById('deep-dive-ag').classList.add('active');
+        await dsSleep(1000);
+        if (myVersion !== dsAnimVersion || dsCurrentStep !== 4) return;
+
+        // Ring 广播 (3个阶段)
+        for (let k = 1; k <= 3; k++) {
+            
+            let logMsg = `🔁 <b>Ring Gather 第 ${k}/3 步</b>: `;
+            if(k === 1) logMsg += `发送自己刚更新的参数 (例: GPU 0 将 P0* 发给 GPU 1)`;
+            if(k === 2) logMsg += `接力传递刚收到的参数 (例: GPU 1 将 P0* 继续发给 GPU 2)`;
+            if(k === 3) logMsg += `最后一次接力，所有 GPU 均集齐完整的最新参数！`;
+            dsSetLog(logMsg);
+
+            let highlights = [];
+            for (let g = 0; g < 4; g++) {
+                let chunkId = (g - k + 1 + 4) % 4; // 计算当前g要发送给下一个的chunk
+                let nextG = (g + 1) % 4;
+
+                dsBuckets.forEach((b, bIdx) => {
+                    let row_curr = document.getElementById(`ds-params-gpu-${g}`).children[bIdx];
+                    let chunk_curr = row_curr.querySelector(`[data-p="${chunkId}"]`);
+                    let row_next = document.getElementById(`ds-params-gpu-${nextG}`).children[bIdx];
+                    let chunk_next = row_next.querySelector(`[data-p="${chunkId}"]`);
+
+                    chunk_curr.classList.add('ds-sending');
+                    chunk_next.classList.remove('ds-dimmed');
+                    chunk_next.classList.add('ds-receiving', 'ds-updated-param');
+                    chunk_next.innerHTML = `P${chunkId}*`; // 接收到最新参数
+
+                    highlights.push({c: chunk_curr, n: chunk_next});
+                });
+            }
+            
+            await dsSleep(1800); // 放慢看细节
+            if (myVersion !== dsAnimVersion || dsCurrentStep !== 4) return;
+            
+            highlights.forEach(h => {
+                h.c.classList.remove('ds-sending');
+                h.n.classList.remove('ds-receiving');
+            });
+        }
+        
+        dsSetLog(`🎉 同步完成！所有 GPU 已准备好进行下一轮前向传播。`);
+    }
+
+    // 核心动画：优化器更新
+    async function dsPlayOptimizerStep() {
+        dsAnimVersion++;
+        let myVersion = dsAnimVersion;
+
+        dsSetLog("⚙️ 使用 1/4 完整梯度 和 本地 1/4 OS，更新本地参数...");
+
+        await dsSleep(600);
+        if (myVersion !== dsAnimVersion || dsCurrentStep !== 3) return;
+
+        document.querySelectorAll('.ds-grad-chunk:not(.ds-fade-out), .ds-os-chunk').forEach(c => c.classList.add('ds-pulse'));
+        
+        await dsSleep(1200);
+        if (myVersion !== dsAnimVersion || dsCurrentStep !== 3) return;
+
+        for (let g = 0; g < 4; g++) {
+            document.querySelectorAll(`#ds-params-gpu-${g} .ds-param-chunk`).forEach(c => {
+                let p = parseInt(c.dataset.p);
+                if (p === g) {
+                    c.innerHTML = `P${p}*`;
+                    c.classList.add('ds-updated-param', 'ds-pulse');
+                    c.classList.remove('ds-dimmed');
+                } else {
+                    c.classList.add('ds-dimmed');
+                }
+            });
+        }
+        
+        dsSetLog(`✅ 更新完毕！每张卡上带星号 (*) 的切片已进化为最新版本。`);
+        await dsSleep(1000);
+        document.querySelectorAll('.ds-pulse').forEach(c => c.classList.remove('ds-pulse'));
+    }
+
+    // 统一视觉渲染调度
+    function dsUpdateVisuals() {
+        document.getElementById('ds-deep-dive-rs').classList.remove('ds-active');
+        document.getElementById('ds-deep-dive-ag').classList.remove('ds-active');
+        dsSetLog(""); // 每次切页清空 log
+
+        dsAnimVersion++;
+        
+        // 1. 重置参数栏
+        document.querySelectorAll('.ds-param-chunk').forEach(c => {
+            c.classList.remove('ds-dimmed', 'ds-updated-param', 'ds-pulse', 'ds-sending', 'ds-receiving');
+            let p = parseInt(c.dataset.p);
+            if (dsCurrentStep <= 2) {
+                c.innerHTML = `P${p}`;
+            } else if (dsCurrentStep === 3) {
+                let g = parseInt(c.closest('.ds-gpu').id.replace('ds-gpu-', ''));
+                if(p === g) { c.innerHTML = `P${p}*`; c.classList.add('ds-updated-param'); }
+                else { c.innerHTML = `P${p}`; c.classList.add('ds-dimmed'); }
+            } else if (dsCurrentStep === 4) {
+                c.innerHTML = `P${p}*`; 
+                c.classList.add('ds-updated-param');
+            }
+        });
+
+        // 2. 重置梯度栏
+        document.querySelectorAll('.ds-grad-chunk').forEach(c => {
+            c.classList.remove('ds-pulse', 'ds-sending', 'ds-receiving', 'ds-reduced');
+            let p = parseInt(c.dataset.p);
+            let g = parseInt(c.closest('.ds-gpu').id.replace('ds-gpu-', ''));
+            c.innerHTML = (dsCurrentStep === 2 || dsCurrentStep === 3) && p === g ? `ΣP${p}` : `P${p}`;
+            
+            if (dsCurrentStep === 0 || dsCurrentStep === 4) c.classList.add('ds-fade-out');
+            else if (dsCurrentStep === 2 || dsCurrentStep === 3) {
+                if (p === g) c.classList.remove('ds-fade-out'); else c.classList.add('ds-fade-out');
+            }
+        });
+
+        // 3. 重置 OS 栏
+        document.querySelectorAll('.ds-os-chunk').forEach(c => c.classList.remove('ds-pulse'));
+
+        // 触发专属动画或面板
+        if (dsCurrentStep === 1) {
+            dsPlayRingReduceScatter();
+        } else if (dsCurrentStep === 2) {
+            document.getElementById('ds-deep-dive-rs').classList.add('ds-active');
+        } else if (dsCurrentStep === 3) {
+            dsPlayOptimizerStep();
+        } else if (dsCurrentStep === 4) {
+            document.getElementById('ds-deep-dive-ag').classList.add('ds-active');
+            dsPlayRingAllGather();
         }
     }
 
-    // 初始化
+    function dsGoToStep(step) {
+        if(step < 0 || step > dsSteps.length - 1) return;
+        dsCurrentStep = step;
+        
+        document.getElementById('ds-btn-prev').disabled = dsCurrentStep === 0;
+        document.getElementById('ds-btn-next').disabled = dsCurrentStep === dsSteps.length - 1;
+
+        document.getElementById('ds-step-title').innerHTML = dsSteps[dsCurrentStep].title;
+        document.getElementById('ds-step-desc').innerHTML = dsSteps[dsCurrentStep].desc;
+
+        document.querySelectorAll('.ds-dot').forEach(d => d.classList.remove('ds-active'));
+        document.getElementById(`ds-dot-${dsCurrentStep}`).classList.add('ds-active');
+
+        dsUpdateVisuals();
+    }
+
+    function dsChangeStep(delta) { dsGoToStep(dsCurrentStep + delta); }
+    function dsReplay() { dsGoToStep(dsCurrentStep); }
+
     window.onload = () => {
-        initDOM();
-        updateVisuals();
+        dsInitDOM();
+        dsGoToStep(0);
     };
 </script>
 </body>
