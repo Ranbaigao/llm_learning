@@ -1,12 +1,18 @@
 window.MathJax = {
+  loader: { 
+    load: ['[tex]/cancel'] 
+  },
   tex: {
-    inlineMath: [["\\(", "\\)"], ["$", "$"]],
-    displayMath: [["\\[", "\\]"], ["$$", "$$"]],
+    packages: { '[+]': ['cancel'] }, 
+    // 让 MathJax 内部只认 \( \) 和 \[ \]，把 $ $ 留给 MkDocs 的 Arithmatex 去处理
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
     processEscapes: true,
     processEnvironments: true
   },
   options: {
-    ignoreHtmlClass: ".*|",
+    // 忽略除 arithmatex 以外的所有 class
+    ignoreHtmlClass: ".*",
     processHtmlClass: "arithmatex"
   }
 };

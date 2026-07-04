@@ -276,6 +276,87 @@
 
   .search-panel input::placeholder { color: #94a3b8; }
 
+  .search-results {
+    position: absolute;
+    z-index: 7;
+    right: 18px;
+    bottom: 72px;
+    width: min(340px, calc(100vw - 34px));
+    max-height: min(380px, calc(100vh - 190px));
+    overflow: auto;
+    padding: 8px;
+    display: grid;
+    gap: 6px;
+  }
+
+  .search-results[hidden] { display: none; }
+
+  .search-result-item {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    color: var(--title-color);
+    padding: 8px 10px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  }
+
+  .search-result-item:hover,
+  .search-result-item.is-active {
+    border-color: rgba(59, 130, 246, 0.52);
+    background: #eff6ff;
+    transform: translateY(-1px);
+  }
+
+  .search-result-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .search-result-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .search-result-badge {
+    flex: 0 0 auto;
+    height: 18px;
+    border-radius: 999px;
+    padding: 0 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #1e40af;
+    background: #dbeafe;
+  }
+
+  .search-result-meta {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 10.5px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .search-result-type {
+    margin-top: 5px;
+    font-size: 10px;
+    color: #0f766e;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
   #tooltip {
     position: fixed;
     z-index: 8;
@@ -399,6 +480,13 @@
       width: min(240px, calc(100vw - 66px));
     }
 
+    .search-results {
+      right: 10px;
+      bottom: 64px;
+      width: min(280px, calc(100vw - 20px));
+      max-height: min(330px, calc(100vh - 170px));
+    }
+
     .metric-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 </style>
@@ -447,6 +535,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
     <input id="search-input" type="search" placeholder="搜索笔记或目录" autocomplete="off" />
   </label>
+  <section id="search-results" class="panel search-results" aria-label="搜索结果" hidden></section>
 
   <div id="tooltip" role="status" aria-live="polite"></div>
   <div id="loading"><span class="spinner"></span><span>加载知识星图</span></div>
@@ -516,6 +605,7 @@ const tooltip = document.getElementById('tooltip');
 const loading = document.getElementById('loading');
 const errorBox = document.getElementById('error');
 const searchInput = document.getElementById('search-input');
+const searchResultsPanel = document.getElementById('search-results');
 
 let width = 0;
 let height = 0;
@@ -529,8 +619,11 @@ let childrenById = new Map();
 let parentById = new Map();
 let focusNode = null;
 let focusIds = new Set();
+let focusLabelIds = new Set();
 let searchMatches = new Set();
 let searchQuery = '';
+let searchResultNodes = [];
+let activeSearchResultIndex = -1;
 let hoveredNode = null;
 let isHoveringNode = false;
 let pressedNode = null;
@@ -947,6 +1040,19 @@ function targetScale(node) {
   return searchMatches.has(node.id) ? 1.32 : 1;
 }
 
+function collectDescendantIds(nodeId) {
+  const descendants = new Set();
+  const stack = [...(childrenById.get(nodeId) || [])];
+  while (stack.length) {
+    const current = stack.pop();
+    if (!current || descendants.has(current.id)) continue;
+    descendants.add(current.id);
+    const children = childrenById.get(current.id) || [];
+    for (const child of children) stack.push(child);
+  }
+  return descendants;
+}
+
 function animate(now) {
   const dt = Math.min(48, now - lastTime || 16);
   lastTime = now;
@@ -1094,6 +1200,7 @@ function drawNodes() {
 
 function labelPriority(node) {
   if (focusNode && node.id === focusNode.id) return 6;
+  if (focusLabelIds.has(node.id)) return 5;
   if (searchMatches.has(node.id)) return 5;
   if (node.type === 'root') return 4;
   if (node.type === 'category') return 3;
@@ -1131,7 +1238,12 @@ function labelAlphaFor(node) {
     0.30 + zoomClarity * 0.36;
 
   if (node.format === 'jupyter') alpha += 0.08;
-  if (focusNode) alpha = focusIds.has(node.id) ? Math.max(alpha, 0.82) : alpha * 0.42;
+  if (focusNode) {
+    if (focusNode.id === node.id) alpha = Math.max(alpha, 1);
+    else if (focusLabelIds.has(node.id)) alpha = Math.max(alpha, 0.95);
+    else if (focusIds.has(node.id)) alpha = Math.max(alpha, 0.72);
+    else alpha *= 0.42;
+  }
   if (searchMatches.has(node.id)) alpha = 1;
 
   return clamp(alpha, node.type === 'note' ? 0.24 : 0.34, 1);
@@ -1139,7 +1251,11 @@ function labelAlphaFor(node) {
 
 function labelFontSizeFor(node) {
   const depthPenalty = Math.max(0, node.depth - 1) * 0.34;
-  const focusBoost = focusNode && focusIds.has(node.id) ? 1.12 : 1;
+  const focusBoost =
+    focusNode && focusNode.id === node.id ? 1.32 :
+    focusNode && focusLabelIds.has(node.id) ? 1.22 :
+    focusNode && focusIds.has(node.id) ? 1.08 :
+    1;
   const size = (labelBaseSize(node) - depthPenalty) * labelZoomBoost() * focusBoost;
   if (node.type === 'root') return clamp(size, 12, 20);
   if (node.type === 'category') return clamp(size, 10.5, 18);
@@ -1148,7 +1264,11 @@ function labelFontSizeFor(node) {
 }
 
 function labelOffsetFor(node) {
-  const focusBoost = focusNode && focusIds.has(node.id) ? 1.12 : 1;
+  const focusBoost =
+    focusNode && focusNode.id === node.id ? 1.28 :
+    focusNode && focusLabelIds.has(node.id) ? 1.18 :
+    focusNode && focusIds.has(node.id) ? 1.08 :
+    1;
   const offset = node.radius * labelZoomBoost() * focusBoost + 8;
   return clamp(offset, node.type === 'note' ? 9 : 13, node.type === 'root' ? 34 : 26);
 }
@@ -1180,6 +1300,13 @@ function updateLabels() {
     label.style.fontSize = `${fontSize.toFixed(2)}px`;
     label.style.fontWeight = node.type === 'note' ? '500' : '700';
     label.style.opacity = labelAlphaFor(node).toFixed(3);
+    const isPrimaryFocus = focusNode && focusNode.id === node.id;
+    const isFocusChild = focusNode && focusLabelIds.has(node.id) && !isPrimaryFocus;
+    label.style.textShadow = isPrimaryFocus
+      ? '0 1px 0 rgba(255, 255, 255, 0.96), 0 -1px 0 rgba(255, 255, 255, 0.92), 1px 0 0 rgba(255, 255, 255, 0.92), -1px 0 0 rgba(255, 255, 255, 0.92), 0 10px 24px rgba(59, 130, 246, 0.30)'
+      : isFocusChild
+        ? '0 1px 0 rgba(255, 255, 255, 0.95), 0 -1px 0 rgba(255, 255, 255, 0.90), 1px 0 0 rgba(255, 255, 255, 0.90), -1px 0 0 rgba(255, 255, 255, 0.90), 0 8px 20px rgba(59, 130, 246, 0.20)'
+        : '';
     label.style.zIndex = String(10 + labelPriority(node));
     label.style.transform = `translate3d(${node.labelX.toFixed(2)}px, ${node.labelY.toFixed(2)}px, 0) translateX(-50%)`;
   }
@@ -1211,6 +1338,8 @@ function setFocus(node, fromPointer = false) {
   const parent = parentById.get(node.id);
   if (parent) ids.add(parent.id);
   focusIds = ids;
+  focusLabelIds = collectDescendantIds(node.id);
+  focusLabelIds.add(node.id);
   showTooltip(node);
 }
 
@@ -1219,6 +1348,7 @@ function clearFocus() {
   hoveredNode = null;
   isHoveringNode = false;
   focusIds = new Set();
+  focusLabelIds = new Set();
   searchMatches = searchQuery
     ? new Set(nodes.filter(node => searchable(node).includes(searchQuery)).map(node => node.id))
     : new Set();
@@ -1227,6 +1357,78 @@ function clearFocus() {
 
 function searchable(node) {
   return `${node.name} ${node.id}`.toLowerCase();
+}
+
+function clearSearchResults() {
+  searchResultNodes = [];
+  activeSearchResultIndex = -1;
+  searchResultsPanel.replaceChildren();
+  searchResultsPanel.hidden = true;
+  searchInput.setAttribute('aria-expanded', 'false');
+}
+
+function setActiveSearchResult(index, syncFocus = true) {
+  if (!searchResultNodes.length) return;
+  const nextIndex = clamp(index, 0, searchResultNodes.length - 1);
+  activeSearchResultIndex = nextIndex;
+  const items = searchResultsPanel.querySelectorAll('.search-result-item');
+  items.forEach((item, itemIndex) => {
+    item.classList.toggle('is-active', itemIndex === nextIndex);
+  });
+  if (syncFocus) setFocus(searchResultNodes[nextIndex], false);
+}
+
+function selectSearchResult(index, openAfterSelect = false) {
+  if (!searchResultNodes.length) return;
+  setActiveSearchResult(index, true);
+  if (openAfterSelect) openNode(searchResultNodes[activeSearchResultIndex]);
+}
+
+function renderSearchResultsPanel(results) {
+  if (results.length <= 1) {
+    clearSearchResults();
+    return;
+  }
+
+  const nameCounts = new Map();
+  for (const node of results) {
+    const key = String(node.name || '').trim().toLowerCase();
+    nameCounts.set(key, (nameCounts.get(key) || 0) + 1);
+  }
+
+  searchResultNodes = results;
+  activeSearchResultIndex = -1;
+  searchResultsPanel.replaceChildren();
+
+  results.slice(0, 18).forEach((node, index) => {
+    const key = String(node.name || '').trim().toLowerCase();
+    const duplicateCount = nameCounts.get(key) || 0;
+    const duplicateLabel = duplicateCount > 1 ? `重名 x${duplicateCount}` : null;
+    const typeLabel = node.format === 'jupyter'
+      ? 'Jupyter'
+      : (TYPE_LABEL[node.type] || node.type || '').toUpperCase();
+
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'search-result-item';
+    item.setAttribute('aria-label', `${node.name}，${node.id}`);
+    item.innerHTML = `
+      <div class="search-result-head">
+        <div class="search-result-name">${escapeHtml(node.name)}</div>
+        ${duplicateLabel ? `<span class="search-result-badge">${duplicateLabel}</span>` : ''}
+      </div>
+      <div class="search-result-meta">/${escapeHtml(node.id)}</div>
+      <div class="search-result-type">${escapeHtml(typeLabel)}</div>
+    `;
+    item.addEventListener('mouseenter', () => setActiveSearchResult(index, true));
+    item.addEventListener('click', () => selectSearchResult(index, false));
+    item.addEventListener('dblclick', () => selectSearchResult(index, true));
+    searchResultsPanel.appendChild(item);
+  });
+
+  searchResultsPanel.hidden = false;
+  searchInput.setAttribute('aria-expanded', 'true');
+  setActiveSearchResult(0, false);
 }
 
 function showTooltip(node) {
@@ -1486,23 +1688,69 @@ canvas.addEventListener('wheel', event => {
 
 searchInput.addEventListener('input', event => {
   searchQuery = event.target.value.trim().toLowerCase();
-  searchMatches = searchQuery
-    ? new Set(nodes.filter(node => searchable(node).includes(searchQuery)).map(node => node.id))
-    : new Set();
+  const matchedNodes = searchQuery
+    ? nodes.filter(node => searchable(node).includes(searchQuery))
+    : [];
+  searchMatches = searchQuery ? new Set(matchedNodes.map(node => node.id)) : new Set();
 
   if (!searchQuery) {
+    clearSearchResults();
     clearFocus();
     return;
   }
 
-  const first = nodes.find(node => searchMatches.has(node.id));
-  if (first) setFocus(first, false);
+  const preferredResults = matchedNodes.filter(node => node.type === 'note');
+  const rankedResults = (preferredResults.length ? preferredResults : matchedNodes)
+    .filter(node => node.id !== '__root__')
+    .sort((a, b) => {
+      const byName = a.name.localeCompare(b.name, 'zh-Hans-CN');
+      if (byName !== 0) return byName;
+      return a.id.localeCompare(b.id, 'zh-Hans-CN');
+    });
+
+  if (rankedResults.length) {
+    setFocus(rankedResults[0], false);
+    renderSearchResultsPanel(rankedResults);
+  }
   else {
+    clearSearchResults();
     focusNode = null;
     hoveredNode = null;
     focusIds = new Set();
+    focusLabelIds = new Set();
     hideTooltip();
   }
+});
+
+searchInput.addEventListener('keydown', event => {
+  if (searchResultsPanel.hidden || !searchResultNodes.length) return;
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    setActiveSearchResult(activeSearchResultIndex + 1, true);
+    return;
+  }
+  if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    setActiveSearchResult(activeSearchResultIndex - 1, true);
+    return;
+  }
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    selectSearchResult(activeSearchResultIndex >= 0 ? activeSearchResultIndex : 0, false);
+    return;
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    clearSearchResults();
+  }
+});
+
+document.addEventListener('pointerdown', event => {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const inSearch = !!target.closest('.search-panel');
+  const inResults = !!target.closest('#search-results');
+  if (!inSearch && !inResults) clearSearchResults();
 });
 
 document.getElementById('fit-button').addEventListener('click', resetView);

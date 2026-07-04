@@ -136,10 +136,11 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 
 ##### 强化学习
 
+- [ClipPPO原理](llm/模型训练/强化学习/ClipPPO原理.md)
 - [DPO](llm/模型训练/强化学习/DPO.md)
 - [GSPO](llm/模型训练/强化学习/GSPO.md)
 - [PPO](llm/模型训练/强化学习/PPO.md)
-- [总结](llm/模型训练/强化学习/总结.md)
+- [RL知识图谱](llm/模型训练/强化学习/RL知识图谱.md)
 - [李宏毅DRL笔记](llm/模型训练/强化学习/李宏毅DRL笔记.md)
 
 <span id="kg-llm-source"></span>
