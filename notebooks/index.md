@@ -47,6 +47,11 @@ hide:
       border-radius: 10px;
     }
   }
+
+  /* 隐藏 MkDocs 右上角自带搜索 */
+  .md-search, .md-header__source {
+      display: none !important;
+  }
 </style>
 
 <iframe
@@ -82,10 +87,10 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 
 #### 📘 LLM 技术报告
 
-- [AR-Diffusion与潜空间推理路线综述](llm/llm技术报告/AR-Diffusion与潜空间推理路线综述.md)
-- [Claude Mythos 5技术报告](llm/llm技术报告/Claude%20Mythos%205技术报告.md)
-- [DeepSeek-V4技术报告](llm/llm技术报告/DeepSeek-V4技术报告.md)
-- [Nemotron-Labs-Diffusion技术报告](llm/llm技术报告/Nemotron-Labs-Diffusion技术报告.md)
+- [AR-Diffusion与潜空间推理](llm/llm技术报告/AR-Diffusion与潜空间推理.md)
+- [Claude Mythos 5推测](llm/llm技术报告/Claude%20Mythos%205推测.md)
+- [DeepSeek-V4](llm/llm技术报告/DeepSeek-V4.md)
+- [Nemotron-Labs-Diffusion](llm/llm技术报告/Nemotron-Labs-Diffusion.md)
 - [Qwen3.5 技术报告](llm/llm技术报告/qwen3.5.md)
 
 <span id="kg-llm-architecture"></span>

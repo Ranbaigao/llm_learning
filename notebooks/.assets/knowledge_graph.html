@@ -120,9 +120,10 @@
     -webkit-backdrop-filter: blur(10px) saturate(130%);
   }
 
+  /* 统计图谱 - 调整到右下方位置互换 */
   .header-panel {
-    top: 18px;
-    left: 18px;
+    bottom: 18px;
+    right: 18px;
     width: min(430px, calc(100vw - 36px));
     padding: 14px 16px;
   }
@@ -245,9 +246,10 @@
     stroke-width: 2.1;
   }
 
+  /* 搜索面板 - 调整到左上方位置互换 */
   .search-panel {
-    right: 18px;
-    bottom: 18px;
+    top: 18px;
+    left: 18px;
     width: min(310px, calc(100vw - 112px));
     height: 48px;
     padding: 0 13px;
@@ -276,11 +278,12 @@
 
   .search-panel input::placeholder { color: #94a3b8; }
 
+  /* 搜索结果弹窗优先级提高(z-index: 10)，位置匹配左上方 */
   .search-results {
     position: absolute;
-    z-index: 7;
-    right: 18px;
-    bottom: 72px;
+    z-index: 10;
+    top: 72px;
+    left: 18px;
     width: min(340px, calc(100vw - 34px));
     max-height: min(380px, calc(100vh - 190px));
     overflow: auto;
@@ -461,8 +464,7 @@
 
   @media (max-width: 760px) {
     .header-panel {
-      top: 10px;
-      left: 10px;
+      bottom: 10px;
       right: 10px;
       width: auto;
     }
@@ -475,14 +477,14 @@
     }
 
     .search-panel {
-      right: 10px;
-      bottom: 10px;
+      top: 10px;
+      left: 10px;
       width: min(240px, calc(100vw - 66px));
     }
 
     .search-results {
-      right: 10px;
-      bottom: 64px;
+      top: 64px;
+      left: 10px;
       width: min(280px, calc(100vw - 20px));
       max-height: min(330px, calc(100vh - 170px));
     }
@@ -887,7 +889,7 @@ function createGraphLabels() {
 function seedConstellation() {
   const root = nodeById.get('__root__');
   const categories = orderedChildren('__root__');
-  const baseRadius = 270;
+  const baseRadius = 320;
   const orbitScaleZ = 0.72;
 
   if (root) {
@@ -904,27 +906,27 @@ function seedConstellation() {
     const count = children.length;
     const parentIsCategory = parent.type === 'category';
     const tangentSpan = clamp(
-      (parentIsCategory ? 92 : 58) + count * (parentIsCategory ? 30 : 16),
-      parentIsCategory ? 170 : 82,
-      parentIsCategory ? 360 : 190
+      (parentIsCategory ? 110 : 72) + count * (parentIsCategory ? 38 : 22),
+      parentIsCategory ? 200 : 100,
+      parentIsCategory ? 400 : 240
     );
     const verticalSpan = clamp(
-      (parentIsCategory ? 44 : 30) + count * (parentIsCategory ? 16 : 9),
-      parentIsCategory ? 92 : 48,
-      parentIsCategory ? 210 : 112
+      (parentIsCategory ? 52 : 36) + count * (parentIsCategory ? 20 : 12),
+      parentIsCategory ? 110 : 60,
+      parentIsCategory ? 260 : 140
     );
     const verticalAmplitude = clamp(
-      (parentIsCategory ? 86 : 58) + count * (parentIsCategory ? 14 : 8),
-      parentIsCategory ? 118 : 72,
-      parentIsCategory ? 230 : 138
+      (parentIsCategory ? 100 : 70) + count * (parentIsCategory ? 18 : 11),
+      parentIsCategory ? 140 : 90,
+      parentIsCategory ? 280 : 170
     );
     const depthAmplitude = clamp(
-      (parentIsCategory ? 54 : 36) + count * (parentIsCategory ? 9 : 5),
-      parentIsCategory ? 72 : 46,
-      parentIsCategory ? 150 : 86
+      (parentIsCategory ? 64 : 44) + count * (parentIsCategory ? 12 : 7),
+      parentIsCategory ? 88 : 58,
+      parentIsCategory ? 180 : 108
     );
-    const radialGap = clamp(parentIsCategory ? 118 : 84 - level * 4, 58, 120);
-    const noteRadialGap = clamp(radialGap * 0.82, 48, 76);
+    const radialGap = clamp(parentIsCategory ? 145 : 102 - level * 4, 72, 148);
+    const noteRadialGap = clamp(radialGap * 0.85, 62, 96);
     const normal = {
       x: Math.cos(angle),
       z: Math.sin(angle) * orbitScaleZ,
@@ -965,14 +967,17 @@ function seedConstellation() {
   categories.forEach((node, index) => {
     const angle = -Math.PI / 2 + (index / Math.max(1, categories.length)) * Math.PI * 2;
     const children = orderedChildren(node.id);
-    const branchRadius = baseRadius + Math.min(24, children.length * 2.4);
-    const wave = Math.sin(angle * 1.7 + node.depth) * 20;
+    const branchRadius = baseRadius + Math.min(32, children.length * 3.2);
+    const wave = Math.sin(angle * 1.7 + node.depth) * 24;
     node.branchAngle = angle;
     node.tx = Math.cos(angle) * branchRadius;
     node.tz = Math.sin(angle) * branchRadius * orbitScaleZ;
     node.ty = (index - (categories.length - 1) / 2) * 40 + wave;
     placeChildren(node, angle, 0);
   });
+
+  // 排斥力后处理：推开初始坐标过近的节点，再加 jitter
+  applyRepulsion();
 
   nodes.forEach((node, index) => {
     const jitter =
@@ -985,6 +990,59 @@ function seedConstellation() {
     node.y = node.ty + Math.sin(phase) * jitter * 0.8;
     node.z = node.tz + Math.sin(phase * 0.7) * jitter;
   });
+}
+
+/**
+ * 排斥力后处理：在初始布局坐标 (tx,ty,tz) 基础上，迭代推开同星座内距离过近的节点。
+ * 只修改 tx/ty/tz，后续 jitter 和 easeNodes 再处理 x/y/z。
+ */
+function applyRepulsion() {
+  const ITERATIONS = 100;
+  // 不同类型节点对的最小 3D 期望距离
+  const MIN_NOTE_NOTE = 75;
+  const MIN_NOTE_SUB  = 90;
+  const MIN_SUB_SUB   = 100;
+
+  for (let iter = 0; iter < ITERATIONS; iter++) {
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        // 跳过根节点、跨星座节点、以及 category 自身间的排斥（由 baseRadius 控制）
+        if (a.type === 'root' || b.type === 'root') continue;
+        if (a.type === 'category' && b.type === 'category') continue;
+        if (a.branchId !== b.branchId) continue;
+
+        const dx = b.tx - a.tx;
+        const dy = b.ty - a.ty;
+        const dz = b.tz - a.tz;
+        const d2 = dx * dx + dy * dy + dz * dz;
+
+        let minDist;
+        if (a.type === 'note' && b.type === 'note') {
+          minDist = MIN_NOTE_NOTE;
+        } else if (a.type === 'note' || b.type === 'note') {
+          minDist = MIN_NOTE_SUB;
+        } else {
+          minDist = MIN_SUB_SUB;
+        }
+
+        if (d2 < minDist * minDist) {
+          const d = Math.sqrt(d2) || 0.001;
+          const overlap = (minDist - d) / d;
+          // subcategory 节点质量更大，移动幅度更小
+          const wa = a.type === 'note' ? 0.56 : 0.24;
+          const wb = b.type === 'note' ? 0.56 : 0.24;
+          a.tx -= dx * overlap * wa;
+          a.ty -= dy * overlap * wa;
+          a.tz -= dz * overlap * wa;
+          b.tx += dx * overlap * wb;
+          b.ty += dy * overlap * wb;
+          b.tz += dz * overlap * wb;
+        }
+      }
+    }
+  }
 }
 
 function createBackgroundStars() {
@@ -1421,7 +1479,9 @@ function renderSearchResultsPanel(results) {
       <div class="search-result-type">${escapeHtml(typeLabel)}</div>
     `;
     item.addEventListener('mouseenter', () => setActiveSearchResult(index, true));
-    item.addEventListener('click', () => selectSearchResult(index, false));
+    
+    // 【修改】直接在点击时也进行跳转
+    item.addEventListener('click', () => selectSearchResult(index, true));
     item.addEventListener('dblclick', () => selectSearchResult(index, true));
     searchResultsPanel.appendChild(item);
   });
@@ -1736,7 +1796,8 @@ searchInput.addEventListener('keydown', event => {
   }
   if (event.key === 'Enter') {
     event.preventDefault();
-    selectSearchResult(activeSearchResultIndex >= 0 ? activeSearchResultIndex : 0, false);
+    // 【修改】按回车直接触发跳转
+    selectSearchResult(activeSearchResultIndex >= 0 ? activeSearchResultIndex : 0, true);
     return;
   }
   if (event.key === 'Escape') {
@@ -1766,6 +1827,141 @@ window.addEventListener('resize', () => {
 
 measure();
 loadGraph();
+
+// ======= 【魔法注入：DOM 穿越充当悬浮 dock】 =======
+document.addEventListener('DOMContentLoaded', () => {
+  // 如果页面存在于 iframe 中并且允许同源跨域操作
+  if (window.parent && window.parent !== window) {
+    try {
+      const parentDoc = window.parent.document;
+      
+      // 在外部父容器注入 dock 栏所需样式
+      const dockStyle = parentDoc.createElement('style');
+      dockStyle.textContent = `
+        .kg-docked-search {
+          position: fixed !important;
+          left: 50% !important;
+          bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+          top: auto !important;
+          right: auto !important;
+          transform: translateX(-50%) !important;
+          z-index: 10000 !important;
+          width: min(420px, calc(100vw - 32px)) !important;
+          background: rgba(255, 255, 255, 0.94) !important;
+          backdrop-filter: blur(12px) !important;
+          -webkit-backdrop-filter: blur(12px) !important;
+          border-radius: 999px !important;
+          border: 1px solid rgba(203, 213, 225, 0.95) !important;
+          box-shadow: 0 12px 28px -10px rgba(15,23,42,0.22), 0 4px 10px -6px rgba(15,23,42,0.16) !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 12px !important;
+          padding: 10px 18px !important;
+          height: 48px !important;
+        }
+        .kg-docked-search svg { width: 18px !important; height: 18px !important; color: #475569 !important; flex: 0 0 auto !important; }
+        .kg-docked-search input {
+          flex: 1 !important;
+          border: none !important;
+          outline: none !important;
+          background: transparent !important;
+          font-size: 14px !important;
+          color: #0f172a !important;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif !important;
+          width: 100% !important;
+        }
+        .kg-docked-search input::placeholder { color: #94a3b8 !important; }
+
+        .kg-docked-results {
+          position: fixed !important;
+          left: 50% !important;
+          bottom: calc(84px + env(safe-area-inset-bottom)) !important; /* 从 dock 栏上方弹起 */
+          top: auto !important;
+          right: auto !important;
+          transform: translateX(-50%) !important;
+          z-index: 10000 !important;
+          width: min(420px, calc(100vw - 32px)) !important;
+          background: rgba(255, 255, 255, 0.96) !important;
+          backdrop-filter: blur(10px) !important;
+          -webkit-backdrop-filter: blur(10px) !important;
+          border-radius: 12px !important;
+          border: 1px solid #cbd5e1 !important;
+          box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1) !important;
+          max-height: 320px !important;
+          overflow-y: auto !important;
+          display: flex !important;
+          flex-direction: column !important;
+          padding: 8px !important;
+          gap: 4px !important;
+        }
+        .kg-docked-results[hidden] { display: none !important; }
+        .kg-docked-results .search-result-item {
+          width: 100% !important;
+          border: 1px solid transparent !important;
+          border-radius: 8px !important;
+          background: transparent !important;
+          padding: 10px 12px !important;
+          text-align: left !important;
+          cursor: pointer !important;
+          transition: background 0.15s ease !important;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif !important;
+          display: block !important;
+        }
+        .kg-docked-results .search-result-item:hover,
+        .kg-docked-results .search-result-item.is-active { background: #eff6ff !important; }
+        .kg-docked-results .search-result-head { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; }
+        .kg-docked-results .search-result-name { font-size: 13px !important; font-weight: 700 !important; color: #0f172a !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+        .kg-docked-results .search-result-meta { margin-top: 4px !important; font-size: 11px !important; color: #64748b !important; }
+        .kg-docked-results .search-result-badge { flex: 0 0 auto !important; height: 18px !important; border-radius: 999px !important; padding: 0 7px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 10px !important; font-weight: 700 !important; color: #1e40af !important; background: #dbeafe !important; }
+        .kg-docked-results .search-result-type { display: none !important; } /* 精简Dock栏模式下的显示 */
+      `;
+      parentDoc.head.appendChild(dockStyle);
+
+      const searchPanel = document.querySelector('.search-panel');
+      const searchResults = document.querySelector('.search-results');
+      let isDocked = false;
+
+      const toggleDock = () => {
+        const iframe = parentDoc.querySelector('.knowledge-graph-frame');
+        if (!iframe) return;
+        const rect = iframe.getBoundingClientRect();
+        // 核心：当页面滚动到 星图 iframe 几乎离开可视区域时（底部只剩 150px）
+        const shouldDock = rect.bottom < 150;
+
+        if (shouldDock && !isDocked) {
+          isDocked = true;
+          searchPanel.classList.add('kg-docked-search');
+          searchResults.classList.add('kg-docked-results');
+          // 将搜索框和结果直接穿越附加到 index.md 的 body 中，作为真正的全局 Dock
+          parentDoc.body.appendChild(searchPanel);
+          parentDoc.body.appendChild(searchResults);
+        } else if (!shouldDock && isDocked) {
+          isDocked = false;
+          searchPanel.classList.remove('kg-docked-search');
+          searchResults.classList.remove('kg-docked-results');
+          // 滚回到视口中时，搜索框回归 iframe 内部
+          document.body.appendChild(searchPanel);
+          document.body.appendChild(searchResults);
+        }
+      };
+
+      // 监听外部滚动以及重置大小
+      parentDoc.defaultView.addEventListener('scroll', toggleDock, { passive: true });
+      window.addEventListener('resize', toggleDock, { passive: true });
+
+      // 在 docked 状态时，点击外侧需要关闭结果列表，绑定在父文档上
+      parentDoc.addEventListener('pointerdown', event => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const inSearch = !!target.closest('.search-panel');
+        const inResults = !!target.closest('.search-results');
+        if (!inSearch && !inResults) clearSearchResults();
+      });
+    } catch(e) {
+      console.warn("DOM穿越受同源策略限制，退化为仅星图内展示:", e);
+    }
+  }
+});
 </script>
 </body>
 </html>
