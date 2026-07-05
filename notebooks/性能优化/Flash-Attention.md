@@ -1,4 +1,5 @@
-<iframe src="../../.assets/flash_attention2_forward.html" width="100%" height="1200px" style="border:none;"></iframe>
+<!-- <iframe src="../../.assets/flash_attention2_forward.html" width="100%" height="1200px" style="border:none;"></iframe> -->
+--8<-- ".assets/flash_attention2_forward.html"
 
 ---
 ## FlashAttention V1

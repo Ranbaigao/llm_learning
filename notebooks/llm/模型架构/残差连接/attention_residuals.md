@@ -18,15 +18,23 @@
 
 **1) 标准残差的局限（深度上的循环网络）：**
 标准残差公式：
+
 $$ \boldsymbol{h}_l = \boldsymbol{h}_{l-1} + f_{l-1}(\boldsymbol{h}_{l-1}) $$
+
 展开后为无权重的累加（等价于全部设为 1）：
+
 $$ \boldsymbol{h}_l = \boldsymbol{h}_1 + \sum_{i=1}^{l-1} f_i(\boldsymbol{h}_i) $$
+
 
 **2) Full Attention Residuals 的推导：**
 将固定的累加权重替换为动态的注意力权重 $\alpha_{i \to l}$：
-$$ \boldsymbol{h}_l = \alpha_{0 \to l} \cdot \boldsymbol{h}_1 + \sum_{i=1}^{l-1} \alpha_{i \to l} \cdot f_i(\boldsymbol{h}_i) $$
+
+<span class="arithmatex">\(\boldsymbol{h}_l = \alpha_{0 \to l} \cdot \boldsymbol{h}_1 + \sum_{i=1}^{l-1} \alpha_{i \to l} \cdot f_i(\boldsymbol{h}_i)\)</span>
+
 其中，注意力权重通过 Softmax 计算：
+
 $$ \alpha_{i \to l} = \frac{\phi(\boldsymbol{q}_l, \boldsymbol{k}_i)}{\sum_{j=0}^{l-1} \phi(\boldsymbol{q}_l, \boldsymbol{k}_j)} $$
+
 核函数定义为：$\phi(\boldsymbol{q}, \boldsymbol{k}) = \exp(\boldsymbol{q}^\top \text{RMSNorm}(\boldsymbol{k}))$
 在具体映射上：
 *   Query: $\boldsymbol{q}_l = \boldsymbol{w}_l$ （每一层初始化的维度为 $d$ 的可学习向量）。

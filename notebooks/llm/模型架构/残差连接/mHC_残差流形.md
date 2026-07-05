@@ -1,4 +1,4 @@
-# mHC: Manifold-Constrained Hyper-Connections 笔记
+# mHC_残差流形
 
 ## 1. 先看宏观：mHC 到底改了 Transformer 的哪里？
 
@@ -27,8 +27,16 @@ $$
 ## 3. mHC 的四步宏观流程
 
 下面这个流程图把 mHC 放回 LLM 的整体网络拓扑里看：它包裹在每一个 Attention/FFN 子层外面，负责读、算、混、写。
-
-<iframe src="../../../.assets/mhc_topology_flow.html" width="100%" height="980px" style="border:1px solid #cbd5e1; border-radius: 8px;"></iframe>
+<!-- 
+<iframe
+  class="auto-height-frame"
+  title="mHC topology flow"
+  src="../../../../.assets/mhc_topology_flow.html"
+  width="100%"
+  scrolling="no"
+  style="border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;"
+></iframe> -->
+--8<-- ".assets/mhc_topology_flow.html"
 
 ### 3.1 Read / Pre-routing：用 $H_{pre}$ 聚合输入
 
@@ -154,12 +162,18 @@ $$
 上面的流程图解决的是“mHC 在整台 Transformer 发动机里装在哪里”。下面两个图则继续深入那个齿轮本身：为什么 $H_{res}$ 要被约束到 Birkhoff Polytope，以及这个几何对象长什么样。
 
 ### Birkhoff Polytope 交互演示
-
-<iframe src="../../../.assets/birkhoff_polytope.html" width="100%" height="720px" style="border:1px solid #cbd5e1; border-radius: 8px;"></iframe>
+--8<-- ".assets/birkhoff_polytope.html"
+<!-- <iframe
+  class="auto-height-frame"
+  title="Birkhoff polytope interactive demo"
+  src="../../../../.assets/birkhoff_polytope.html"
+  width="100%"
+  scrolling="no"
+  style="border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;"
+></iframe> -->
 
 ### 3D Birkhoff 投影演示
-
-<iframe src="../../../.assets/3d_birkhoff.html" width="100%" height="680px" style="border:1px solid #cbd5e1; border-radius: 8px;"></iframe>
+--8<-- ".assets/3d_birkhoff.html"
 
 
 ## 完整代码练习

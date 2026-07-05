@@ -1,376 +1,582 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<title>3D 视角看懂 Birkhoff 多面体</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: #f8fafc;
-    color: #334155;
-    overflow: hidden; /* 防止出现滚动条 */
-    display: flex;
-    height: 100vh;
+  .bk-wrapper {
+    --bk-bg-color: #f8fafc;
+    --bk-panel-bg: #ffffff;
+    --bk-text-color: #334155;
+    --bk-title-color: #0f172a;
+    --bk-muted: #64748b;
+    --bk-border-color: #cbd5e1;
+    --bk-accent-primary: #3b82f6;
+    --bk-accent-text: #1e40af;
+    --bk-accent-light: #eff6ff;
+    --bk-warning: #d97706;
+    --bk-panel-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    width: 100%;
+    margin: 0 auto;
+    padding: 18px;
+    border-radius: 12px;
+    background: var(--bk-bg-color);
+    color: var(--bk-text-color);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    line-height: 1.6;
+    box-sizing: border-box;
   }
-  
-  /* 左侧控制面板 */
-  #panel {
-    width: 380px;
-    background: #ffffff;
-    border-right: 1px solid #cbd5e1;
-    padding: 24px;
+
+  .bk-wrapper * {
+    box-sizing: border-box;
+  }
+
+  .bk-wrapper .bk-header {
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .bk-wrapper .bk-header-title {
+    margin: 0 0 6px;
+    color: var(--bk-title-color);
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .bk-wrapper .bk-header-desc {
+    max-width: 860px;
+    margin: 0 auto;
+    color: var(--bk-muted);
+    font-size: 13px;
+  }
+
+  .bk-wrapper .bk-shell {
+    display: grid;
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    gap: 16px;
+    height: clamp(620px, 76vh, 760px);
+  }
+
+  .bk-wrapper .bk-panel,
+  .bk-wrapper .bk-canvas-panel {
+    min-width: 0;
+    min-height: 0;
+    background: var(--bk-panel-bg);
+    border: 1px solid var(--bk-border-color);
+    border-radius: 12px;
+    box-shadow: var(--bk-panel-shadow);
+  }
+
+  .bk-wrapper .bk-panel {
     display: flex;
     flex-direction: column;
-    z-index: 10;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     overflow-y: auto;
+    padding: 18px 20px;
+    border-left: 5px solid var(--bk-accent-primary);
   }
-  h1 { font-size: 1.4rem; color: #0f172a; margin-bottom: 12px; }
-  p.desc { font-size: 0.9rem; color: #64748b; margin-bottom: 24px; line-height: 1.6; }
-  .highlight { color: #d97706; font-weight: bold; }
 
-  /* 3x3 矩阵展示区 */
-  .matrix-box {
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
+  .bk-wrapper .bk-panel-title {
+    margin: 0 0 8px;
+    color: var(--bk-accent-text);
+    font-size: 16px;
+    font-weight: 800;
   }
-  .matrix-title { text-align: center; color: #1e40af; margin-bottom: 12px; font-weight: bold; }
-  .mat-grid {
+
+  .bk-wrapper .bk-intro {
+    margin: 0 0 18px;
+    color: #475569;
+    font-size: 13px;
+  }
+
+  .bk-wrapper .bk-highlight {
+    display: inline-block;
+    padding: 0 5px;
+    border: 1px solid #bfdbfe;
+    border-radius: 5px;
+    background: var(--bk-accent-light);
+    color: var(--bk-accent-text);
+    font-weight: 700;
+  }
+
+  .bk-wrapper .bk-matrix-box {
+    margin-bottom: 18px;
+    padding: 14px;
+    border: 1px solid var(--bk-border-color);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: var(--bk-panel-shadow);
+  }
+
+  .bk-wrapper .bk-section-title,
+  .bk-wrapper .bk-sliders-title {
+    margin: 0 0 10px;
+    color: var(--bk-accent-text);
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .bk-wrapper .bk-mat-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
   }
-  .mat-cell {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
+
+  .bk-wrapper .bk-mat-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    border: 1px solid var(--bk-border-color);
     border-radius: 6px;
-    height: 48px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; font-weight: bold; color: #334155;
-    transition: background 0.2s;
+    background: #ffffff;
+    color: var(--bk-text-color);
+    font-size: 1rem;
+    font-weight: 800;
+    transition: background 0.2s ease, color 0.2s ease;
   }
 
-  /* 滑块控制区 */
-  .sliders-title { font-size: 1rem; color: #0f172a; margin-bottom: 12px; }
-  .slider-row {
-    display: flex; align-items: center; margin-bottom: 16px;
-  }
-  .slider-label {
-    width: 60px; font-weight: bold; font-size: 0.9rem;
-  }
-  .slider-input {
-    flex: 1; margin: 0 12px; cursor: pointer;
-  }
-  .slider-val {
-    width: 45px; text-align: right; font-size: 0.9rem; color: #64748b;
+  .bk-wrapper .bk-sliders {
+    display: grid;
+    gap: 12px;
   }
 
-  /* 右侧 3D 画布区域 */
-  #canvas-container {
-    flex: 1;
+  .bk-wrapper .bk-slider-row {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr) 42px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .bk-wrapper .bk-slider-label {
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .bk-wrapper .bk-slider-input {
+    width: 100%;
+    min-width: 0;
+    accent-color: var(--bk-accent-primary);
+    cursor: pointer;
+  }
+
+  .bk-wrapper .bk-slider-val {
+    color: var(--bk-muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .bk-wrapper .bk-canvas-panel {
     position: relative;
-    /* 优化 1：微调背景渐变颜色，略微加深以提高白色/浅色元素的对比度 */
-    background: radial-gradient(circle at center, #f8fafc 0%, #e2e8f0 100%);
+    overflow: hidden;
+    background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
   }
 
-  /* 3D 标签（通过 DOM 悬浮在 Canvas 上） */
-  .label-3d {
+  .bk-wrapper .bk-canvas-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    overflow: hidden;
+  }
+
+  .bk-wrapper .bk-canvas-container canvas {
     position: absolute;
-    transform: translate(-50%, -50%);
-    font-size: 0.8rem;
-    font-weight: bold;
-    padding: 4px 8px;
-    border-radius: 4px;
-    background: rgba(255,255,255,0.9);
-    color: #334155;
-    pointer-events: none;
-    border: 1px solid #cbd5e1;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    white-space: nowrap;
-    transition: opacity 0.1s;
-  }
-  .label-center {
-    font-size: 1rem; background: #3b82f6;
-    color: #ffffff; border-radius: 20px; padding: 6px 12px;
-    box-shadow: 0 0 15px rgba(59,130,246,0.4);
-    border: none;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
   }
 
-  .tutorial {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: rgba(255,255,255,0.8); border: 1px solid #cbd5e1; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 10px 20px; border-radius: 20px;
-    color: #475569; font-size: 0.9rem; pointer-events: none;
+  .bk-wrapper .bk-label-3d {
+    position: absolute;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    padding: 4px 8px;
+    border: 1px solid var(--bk-border-color);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: var(--bk-text-color);
+    font-size: 12px;
+    font-weight: 800;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 0.1s ease;
+  }
+
+  .bk-wrapper .bk-label-center {
+    padding: 6px 12px;
+    border-color: transparent;
+    border-radius: 999px;
+    background: var(--bk-accent-primary);
+    box-shadow: 0 8px 18px rgba(59, 130, 246, 0.28);
+    color: #ffffff;
+    font-size: 13px;
+  }
+
+  .bk-wrapper .bk-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    z-index: 3;
+    max-width: calc(100% - 32px);
+    transform: translateX(-50%);
+    padding: 8px 14px;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--bk-panel-shadow);
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .bk-wrapper .bk-error {
+    position: absolute;
+    inset: 16px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    border: 1px dashed #93c5fd;
+    border-radius: 10px;
+    background: var(--bk-accent-light);
+    color: var(--bk-accent-text);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .bk-wrapper {
+      padding: 14px;
+    }
+
+    .bk-wrapper .bk-shell {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+
+    .bk-wrapper .bk-canvas-panel {
+      height: 460px;
+    }
+
+    .bk-wrapper .bk-canvas-container {
+      min-height: 460px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .bk-wrapper .bk-header-title {
+      font-size: 1.45rem;
+    }
+
+    .bk-wrapper .bk-panel {
+      padding: 16px;
+    }
+
+    .bk-wrapper .bk-slider-row {
+      grid-template-columns: 42px minmax(0, 1fr) 38px;
+      gap: 8px;
+    }
+
+    .bk-wrapper .bk-hint {
+      width: calc(100% - 28px);
+      white-space: normal;
+    }
   }
 </style>
-</head>
-<body>
 
-<div id="panel">
-  <h1>🍹 多面体就像个“调酒器”</h1>
-  <p class="desc">
-    不要被数学名词吓到。想象一下我们在调鸡尾酒：<br>
-    • <span class="highlight">置换矩阵（6个顶点）</span>：就是 6 瓶纯度 100% 的“基酒”。<br>
-    • <span class="highlight">双随机矩阵（中间的光球）</span>：就是你按比例混合调出来的“鸡尾酒”。<br>
-    通过调整下方 6 瓶基酒的混合比例，你可以把这杯鸡尾酒变成任何带小数的“双随机矩阵”。
-  </p>
-
-  <div class="matrix-box">
-    <div class="matrix-title">当前调出来的矩阵 (混合结果)</div>
-    <div class="mat-grid" id="mat-grid">
-      <!-- JS 会自动填充 9 个格子 -->
+<div class="bk-wrapper">
+  <div class="bk-header">
+    <h1 class="bk-header-title">3D 视角看懂 Birkhoff 多面体</h1>
+    <div class="bk-header-desc">
+      把 3x3 双随机矩阵看作 6 个置换矩阵的凸组合：顶点是纯置换矩阵，中间蓝点是当前混合结果。
     </div>
   </div>
 
-  <div class="sliders-title">拖动滑块调整 6 种“纯基酒”的比例：</div>
-  <div id="sliders-container"></div>
+  <div class="bk-shell">
+    <aside class="bk-panel">
+      <h2 class="bk-panel-title">多面体就像一个调酒器</h2>
+      <p class="bk-intro">
+        <span class="bk-highlight">置换矩阵</span> 是 6 个顶点，类似 6 种纯基底；
+        <span class="bk-highlight">双随机矩阵</span> 是它们按比例混合后的结果。
+        拖动权重后，右侧蓝点会移动，下面矩阵也会同步更新。
+      </p>
+
+      <div class="bk-matrix-box">
+        <div class="bk-section-title">当前混合矩阵</div>
+        <div class="bk-mat-grid" data-bk-mat-grid></div>
+      </div>
+
+      <div class="bk-sliders-title">6 个置换矩阵的混合权重</div>
+      <div class="bk-sliders" data-bk-sliders></div>
+    </aside>
+
+    <section class="bk-canvas-panel">
+      <div class="bk-canvas-container" data-bk-canvas-container>
+        <div class="bk-hint">拖动滑块调整比例，按住画布旋转 3D 视角</div>
+
+        <div class="bk-label-3d" data-bk-label="p1">P1</div>
+        <div class="bk-label-3d" data-bk-label="p2">P2</div>
+        <div class="bk-label-3d" data-bk-label="p3">P3</div>
+        <div class="bk-label-3d" data-bk-label="p4">P4</div>
+        <div class="bk-label-3d" data-bk-label="p5">P5</div>
+        <div class="bk-label-3d" data-bk-label="p6">P6</div>
+        <div class="bk-label-3d bk-label-center" data-bk-label="center">混合矩阵</div>
+      </div>
+    </section>
+  </div>
 </div>
 
-<div id="canvas-container">
-  <!-- Three.js 会在这里渲染 -->
-  <div class="tutorial">👈 拖动左侧滑块改变比例 | 🖱️ 鼠标左键按住拖动可旋转 3D 视图</div>
-  
-  <!-- 3D 空间里的浮动文字标签 -->
-  <div id="label-p1" class="label-3d">P1 (纯酒1)</div>
-  <div id="label-p2" class="label-3d">P2 (纯酒2)</div>
-  <div id="label-p3" class="label-3d">P3 (纯酒3)</div>
-  <div id="label-p4" class="label-3d">P4 (纯酒4)</div>
-  <div id="label-p5" class="label-3d">P5 (纯酒5)</div>
-  <div id="label-p6" class="label-3d">P6 (纯酒6)</div>
-  <div id="label-center" class="label-3d label-center">你的混合矩阵</div>
-</div>
-
-<!-- 引入 Three.js 和 OrbitControls -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
-// =========================================================
-// 1. 数据定义：6个置换矩阵（纯基酒）及其在 3D 里的顶点坐标
-// =========================================================
-const R = 10; // 八面体的半径大小
-const vertices = [
-  { name: 'P1', col: '#ff5555', pos: new THREE.Vector3(0, R, 0),   mat: [[1,0,0],[0,1,0],[0,0,1]] }, // 顶
-  { name: 'P2', col: '#4ade80', pos: new THREE.Vector3(R, 0, 0),   mat: [[0,1,0],[1,0,0],[0,0,1]] }, // 右
-  { name: 'P3', col: '#60a5fa', pos: new THREE.Vector3(0, 0, R),   mat: [[0,0,1],[0,1,0],[1,0,0]] }, // 前
-  { name: 'P4', col: '#fbbf24', pos: new THREE.Vector3(-R, 0, 0),  mat: [[1,0,0],[0,0,1],[0,1,0]] }, // 左
-  { name: 'P5', col: '#2dd4bf', pos: new THREE.Vector3(0, 0, -R),  mat: [[0,1,0],[0,0,1],[1,0,0]] }, // 后
-  { name: 'P6', col: '#f472b6', pos: new THREE.Vector3(0, -R, 0),  mat: [[0,0,1],[1,0,0],[0,1,0]] }  // 底
-];
+(() => {
+  const roots = document.querySelectorAll('.bk-wrapper:not([data-bk-initialized])');
+  roots.forEach(initBirkhoffDemo);
 
-// 存储用户当前的滑块权重 (0 到 100)
-let rawWeights = [50, 0, 0, 0, 0, 50]; 
-let normalizedWeights = [0.5, 0, 0, 0, 0, 0.5];
+  function initBirkhoffDemo(root) {
+    root.dataset.bkInitialized = 'true';
 
-// =========================================================
-// 2. 初始化 UI：生成滑块和矩阵格子
-// =========================================================
-const matGrid = document.getElementById('mat-grid');
-const cells = [];
-for (let i = 0; i < 9; i++) {
-  const cell = document.createElement('div');
-  cell.className = 'mat-cell';
-  matGrid.appendChild(cell);
-  cells.push(cell);
-}
+    const container = root.querySelector('[data-bk-canvas-container]');
+    if (!window.THREE || !THREE.OrbitControls) {
+      showError(container, '3D 渲染库加载失败，请检查网络或 CDN 访问。');
+      return;
+    }
 
-const slidersContainer = document.getElementById('sliders-container');
-vertices.forEach((v, i) => {
-  const row = document.createElement('div');
-  row.className = 'slider-row';
-  row.innerHTML = `
-    <div class="slider-label" style="color:${v.col}">${v.name}</div>
-    <input type="range" class="slider-input" min="0" max="100" value="${rawWeights[i]}" data-idx="${i}">
-    <div class="slider-val" id="val-${i}">${rawWeights[i]}%</div>
-  `;
-  slidersContainer.appendChild(row);
+    const radius = 9;
+    const vertices = [
+      { name: 'P1', col: '#ef4444', pos: new THREE.Vector3(0, radius, 0), mat: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] },
+      { name: 'P2', col: '#16a34a', pos: new THREE.Vector3(radius, 0, 0), mat: [[0, 1, 0], [1, 0, 0], [0, 0, 1]] },
+      { name: 'P3', col: '#3b82f6', pos: new THREE.Vector3(0, 0, radius), mat: [[0, 0, 1], [0, 1, 0], [1, 0, 0]] },
+      { name: 'P4', col: '#d97706', pos: new THREE.Vector3(-radius, 0, 0), mat: [[1, 0, 0], [0, 0, 1], [0, 1, 0]] },
+      { name: 'P5', col: '#0d9488', pos: new THREE.Vector3(0, 0, -radius), mat: [[0, 1, 0], [0, 0, 1], [1, 0, 0]] },
+      { name: 'P6', col: '#db2777', pos: new THREE.Vector3(0, -radius, 0), mat: [[0, 0, 1], [1, 0, 0], [0, 1, 0]] }
+    ];
 
-  const input = row.querySelector('.slider-input');
-  input.addEventListener('input', (e) => {
-    rawWeights[i] = parseInt(e.target.value);
+    let rawWeights = [50, 0, 0, 0, 0, 50];
+    let normalizedWeights = [0.5, 0, 0, 0, 0, 0.5];
+    let centerSphere = null;
+    const lines = [];
+
+    const matGrid = root.querySelector('[data-bk-mat-grid]');
+    const cells = [];
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'bk-mat-cell';
+      matGrid.appendChild(cell);
+      cells.push(cell);
+    }
+
+    const slidersContainer = root.querySelector('[data-bk-sliders]');
+    vertices.forEach((vertex, index) => {
+      const row = document.createElement('div');
+      row.className = 'bk-slider-row';
+      row.innerHTML = `
+        <div class="bk-slider-label" style="color:${vertex.col}">${vertex.name}</div>
+        <input type="range" class="bk-slider-input" min="0" max="100" value="${rawWeights[index]}">
+        <div class="bk-slider-val">${rawWeights[index]}%</div>
+      `;
+      slidersContainer.appendChild(row);
+
+      const input = row.querySelector('.bk-slider-input');
+      const value = row.querySelector('.bk-slider-val');
+      input.style.accentColor = vertex.col;
+      input.addEventListener('input', () => {
+        rawWeights[index] = parseInt(input.value, 10);
+        updateMath();
+      });
+      vertex.valueEl = value;
+    });
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.set(15, 12, 24);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.65);
+    dirLight.position.set(14, 24, 18);
+    scene.add(dirLight);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0xf8fafc, 1);
+    renderer.domElement.setAttribute('aria-label', 'Birkhoff 多面体三维视图');
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+
+    const geometry = new THREE.OctahedronGeometry(radius, 0);
+    const wireframe = new THREE.LineSegments(
+      new THREE.WireframeGeometry(geometry),
+      new THREE.LineBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.28 })
+    );
+    scene.add(wireframe);
+
+    const glassMesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({
+        color: 0xbfdbfe,
+        transparent: true,
+        opacity: 0.16,
+        side: THREE.DoubleSide
+      })
+    );
+    scene.add(glassMesh);
+
+    vertices.forEach(vertex => {
+      const sphereGeo = new THREE.SphereGeometry(0.6, 20, 20);
+      const sphereMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(vertex.col),
+        roughness: 0.32,
+        metalness: 0.08
+      });
+      const mesh = new THREE.Mesh(sphereGeo, sphereMat);
+      mesh.position.copy(vertex.pos);
+      scene.add(mesh);
+    });
+
+    centerSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.95, 32, 32),
+      new THREE.MeshStandardMaterial({
+        color: 0x3b82f6,
+        roughness: 0.16,
+        metalness: 0.22
+      })
+    );
+    scene.add(centerSphere);
+
+    vertices.forEach(vertex => {
+      const lineGeo = new THREE.BufferGeometry();
+      lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+      const lineMat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(vertex.col),
+        transparent: true,
+        opacity: 0.5
+      });
+      const line = new THREE.Line(lineGeo, lineMat);
+      scene.add(line);
+      lines.push(line);
+    });
+
+    resizeRenderer();
     updateMath();
-  });
-});
+    animate();
 
-// =========================================================
-// 3. 核心计算：混合比例 -> 计算结果矩阵 -> 移动 3D 点
-// =========================================================
-function updateMath() {
-  const sum = rawWeights.reduce((a, b) => a + b, 0);
-  if (sum === 0) {
-    normalizedWeights = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]; 
-  } else {
-    normalizedWeights = rawWeights.map(w => w / sum);
-  }
-
-  normalizedWeights.forEach((nw, i) => {
-    document.getElementById(`val-${i}`).textContent = (nw * 100).toFixed(0) + '%';
-  });
-
-  const finalMat = [[0,0,0],[0,0,0],[0,0,0]];
-  for (let i = 0; i < 6; i++) {
-    const w = normalizedWeights[i];
-    const mat = vertices[i].mat;
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 3; c++) {
-        finalMat[r][c] += w * mat[r][c];
-      }
-    }
-  }
-
-  for (let r = 0; r < 3; r++) {
-    for (let c = 0; c < 3; c++) {
-      const val = finalMat[r][c];
-      const idx = r * 3 + c;
-      cells[idx].textContent = val.toFixed(2);
-      cells[idx].style.background = `rgba(59, 130, 246, ${val * 0.5 + 0.1})`;
-    }
-  }
-
-  let mixX = 0, mixY = 0, mixZ = 0;
-  for (let i = 0; i < 6; i++) {
-    mixX += normalizedWeights[i] * vertices[i].pos.x;
-    mixY += normalizedWeights[i] * vertices[i].pos.y;
-    mixZ += normalizedWeights[i] * vertices[i].pos.z;
-  }
-  centerSphere.position.set(mixX, mixY, mixZ);
-
-  for (let i = 0; i < 6; i++) {
-    const w = normalizedWeights[i];
-    const line = lines[i];
-    
-    const positions = line.geometry.attributes.position.array;
-    positions[0] = mixX; positions[1] = mixY; positions[2] = mixZ;
-    positions[3] = vertices[i].pos.x; positions[4] = vertices[i].pos.y; positions[5] = vertices[i].pos.z;
-    line.geometry.attributes.position.needsUpdate = true;
-
-    line.material.opacity = w > 0.01 ? w * 0.8 + 0.2 : 0;
-  }
-}
-
-// =========================================================
-// 4. Three.js 3D 场景搭建
-// =========================================================
-const container = document.getElementById('canvas-container');
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-camera.position.set(15, 12, 25);
-
-// -- 4.0 增加光源让 3D 更加立体（解决球体没有明暗过渡的问题）
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-scene.add(ambientLight);
-
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-dirLight.position.set(15, 30, 20);
-scene.add(dirLight);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setSize(container.clientWidth, container.clientHeight);
-container.appendChild(renderer.domElement);
-
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-// -- 4.1 画出多面体的骨架（八面体的边）
-const geometry = new THREE.OctahedronGeometry(R, 0);
-const wireframe = new THREE.LineSegments(
-  new THREE.WireframeGeometry(geometry),
-  new THREE.LineBasicMaterial({ color: 0x445577, transparent: true, opacity: 0.2 })
-);
-scene.add(wireframe);
-
-const glassMat = new THREE.MeshBasicMaterial({ 
-  color: 0x223355, transparent: true, opacity: 0.05, side: THREE.DoubleSide 
-});
-const glassMesh = new THREE.Mesh(geometry, glassMat);
-scene.add(glassMesh);
-
-// -- 4.2 画出 6 个顶点（使用 Standard 材质以接受光照）
-vertices.forEach(v => {
-  const sphereGeo = new THREE.SphereGeometry(0.6, 16, 16);
-  const sphereMat = new THREE.MeshStandardMaterial({ 
-    color: new THREE.Color(v.col),
-    roughness: 0.3,
-    metalness: 0.1
-  });
-  const mesh = new THREE.Mesh(sphereGeo, sphereMat);
-  mesh.position.copy(v.pos);
-  scene.add(mesh);
-});
-
-// -- 4.3 画出中心的“混合光球”
-// 优化 2：将球体改为亮蓝色，并使用 MeshStandardMaterial 配合光照渲染出立体高光
-const centerGeo = new THREE.SphereGeometry(1.0, 32, 32);
-const centerMat = new THREE.MeshStandardMaterial({ 
-  color: 0x3b82f6, // 对应 #3b82f6（“你的混合矩阵”的标志性蓝色）
-  roughness: 0.1,
-  metalness: 0.3
-});
-const centerSphere = new THREE.Mesh(centerGeo, centerMat);
-scene.add(centerSphere);
-
-// -- 4.4 画出光球到 6 个顶点的牵引线
-const lines = [];
-for (let i = 0; i < 6; i++) {
-  const geo = new THREE.BufferGeometry();
-  const points = new Float32Array(6); 
-  geo.setAttribute('position', new THREE.BufferAttribute(points, 3));
-  const mat = new THREE.LineBasicMaterial({ 
-    color: new THREE.Color(vertices[i].col), 
-    transparent: true,
-    opacity: 0.5
-  });
-  const line = new THREE.Line(geo, mat);
-  scene.add(line);
-  lines.push(line);
-}
-
-updateMath(); // 初始化计算一次
-
-// =========================================================
-// 5. 动画循环与 2D 标签投影
-// =========================================================
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-
-  const width = container.clientWidth;
-  const height = container.clientHeight;
-
-  vertices.forEach((v, i) => {
-    const pos = v.pos.clone().project(camera);
-    const label = document.getElementById(`label-p${i+1}`);
-    if (pos.z > 1) { 
-      label.style.opacity = 0;
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(resizeRenderer);
+      observer.observe(container);
     } else {
-      label.style.opacity = 1;
-      label.style.left = (pos.x * 0.5 + 0.5) * width + 'px';
-      label.style.top = (-(pos.y * 0.5) + 0.5) * height - 20 + 'px';
+      window.addEventListener('resize', resizeRenderer);
     }
-  });
 
-  const cPos = centerSphere.position.clone().project(camera);
-  const cLabel = document.getElementById('label-center');
-  if (cPos.z > 1) {
-    cLabel.style.opacity = 0;
-  } else {
-    cLabel.style.opacity = 1;
-    cLabel.style.left = (cPos.x * 0.5 + 0.5) * width + 'px';
-    cLabel.style.top = (-(cPos.y * 0.5) + 0.5) * height - 30 + 'px';
+    function updateMath() {
+      const sum = rawWeights.reduce((total, weight) => total + weight, 0);
+      normalizedWeights = sum === 0
+        ? Array(vertices.length).fill(1 / vertices.length)
+        : rawWeights.map(weight => weight / sum);
+
+      normalizedWeights.forEach((weight, index) => {
+        vertices[index].valueEl.textContent = `${(weight * 100).toFixed(0)}%`;
+      });
+
+      const finalMat = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+      vertices.forEach((vertex, index) => {
+        const weight = normalizedWeights[index];
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            finalMat[row][col] += weight * vertex.mat[row][col];
+          }
+        }
+      });
+
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const value = finalMat[row][col];
+          const cell = cells[row * 3 + col];
+          cell.textContent = value.toFixed(2);
+          cell.style.background = `rgba(59, 130, 246, ${value * 0.5 + 0.08})`;
+          cell.style.color = value > 0.7 ? '#0f172a' : '#334155';
+        }
+      }
+
+      const mixPos = new THREE.Vector3();
+      vertices.forEach((vertex, index) => {
+        mixPos.addScaledVector(vertex.pos, normalizedWeights[index]);
+      });
+      centerSphere.position.copy(mixPos);
+
+      lines.forEach((line, index) => {
+        const positions = line.geometry.attributes.position.array;
+        positions[0] = mixPos.x;
+        positions[1] = mixPos.y;
+        positions[2] = mixPos.z;
+        positions[3] = vertices[index].pos.x;
+        positions[4] = vertices[index].pos.y;
+        positions[5] = vertices[index].pos.z;
+        line.geometry.attributes.position.needsUpdate = true;
+        line.material.opacity = normalizedWeights[index] > 0.01
+          ? normalizedWeights[index] * 0.75 + 0.18
+          : 0;
+      });
+    }
+
+    function resizeRenderer() {
+      const width = Math.max(container.clientWidth, 320);
+      const height = Math.max(container.clientHeight, 360);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+      updateLabels();
+    }
+
+    function updateLabels() {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      vertices.forEach((vertex, index) => {
+        const label = root.querySelector(`[data-bk-label="p${index + 1}"]`);
+        const pos = vertex.pos.clone().project(camera);
+        placeLabel(label, pos, width, height, -18);
+      });
+
+      const centerLabel = root.querySelector('[data-bk-label="center"]');
+      const centerPos = centerSphere.position.clone().project(camera);
+      placeLabel(centerLabel, centerPos, width, height, -28);
+    }
+
+    function placeLabel(label, projectedPos, width, height, yOffset) {
+      if (projectedPos.z > 1) {
+        label.style.opacity = 0;
+        return;
+      }
+
+      label.style.opacity = 1;
+      label.style.left = `${(projectedPos.x * 0.5 + 0.5) * width}px`;
+      label.style.top = `${(-(projectedPos.y * 0.5) + 0.5) * height + yOffset}px`;
+    }
+
+    function showError(target, message) {
+      const error = document.createElement('div');
+      error.className = 'bk-error';
+      error.textContent = message;
+      target.appendChild(error);
+    }
   }
-}
-
-window.addEventListener('resize', () => {
-  camera.aspect = container.clientWidth / container.clientHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(container.clientWidth, container.clientHeight);
-});
-
-animate();
+})();
 </script>
-</body>
-</html>

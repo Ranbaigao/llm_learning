@@ -1,19 +1,13 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mHC 宏观拓扑流程图</title>
 <style>
-  :root {
+.mhc-flow-wrapper{
     --bg: #f8fafc;
     --panel: #ffffff;
     --ink: #0f172a;
     --muted: #64748b;
     --line: #cbd5e1;
     --soft: #f1f5f9;
-    --blue: #2563eb;
-    --blue-soft: #dbeafe;
+    --blue: #3b82f6;
+    --blue-soft: #eff6ff;
     --green: #16a34a;
     --green-soft: #dcfce7;
     --orange: #d97706;
@@ -24,23 +18,24 @@
     --rose-soft: #ffe4e6;
   }
 
-  * { box-sizing: border-box; }
+  .mhc-flow-wrapper *{ box-sizing: border-box; }
 
-  body {
+  .mhc-flow-wrapper{
     margin: 0;
-    padding: 24px;
+    padding: 18px;
     background: var(--bg);
     color: var(--ink);
     font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
   }
 
-  .page {
+  .mhc-flow-wrapper .mhc-shell{
     max-width: 1180px;
     margin: 0 auto;
+    container-type: inline-size;
   }
 
-  header {
+  .mhc-flow-wrapper header{
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -50,27 +45,27 @@
     padding-bottom: 16px;
   }
 
-  h1 {
+  .mhc-flow-wrapper h1{
     margin: 0;
     font-size: 1.55rem;
     letter-spacing: 0;
     color: var(--ink);
   }
 
-  .subtitle {
+  .mhc-flow-wrapper .mhc-subtitle{
     margin: 6px 0 0;
     color: var(--muted);
     font-size: 0.92rem;
   }
 
-  .pill-row {
+  .mhc-flow-wrapper .mhc-pill-row{
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     justify-content: flex-end;
   }
 
-  .pill {
+  .mhc-flow-wrapper .mhc-pill{
     border: 1px solid var(--line);
     background: var(--panel);
     color: #334155;
@@ -80,7 +75,7 @@
     white-space: nowrap;
   }
 
-  .toolbar {
+  .mhc-flow-wrapper .mhc-toolbar{
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
@@ -88,7 +83,7 @@
     align-items: center;
   }
 
-  .toolbar-group {
+  .mhc-flow-wrapper .mhc-toolbar-group{
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -98,7 +93,7 @@
     border-radius: 8px;
   }
 
-  button {
+  .mhc-flow-wrapper button{
     border: 1px solid transparent;
     background: var(--panel);
     color: #334155;
@@ -110,88 +105,85 @@
     transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.18s;
   }
 
-  button:hover {
+  .mhc-flow-wrapper button:hover{
     border-color: var(--blue);
     color: #1e40af;
     background: var(--blue-soft);
   }
 
-  button.active {
+  .mhc-flow-wrapper button.mhc-active{
     border-color: var(--blue);
     background: var(--blue);
     color: #ffffff;
   }
 
-  .main-grid {
+  .mhc-flow-wrapper .mhc-main-grid{
     display: grid;
     grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
     gap: 18px;
     align-items: start;
   }
 
-  .diagram-shell,
-  .side-panel,
-  .comparison,
-  .shape-strip {
+  .mhc-flow-wrapper .mhc-diagram-shell, .mhc-flow-wrapper .mhc-side-panel, .mhc-flow-wrapper .mhc-comparison, .mhc-flow-wrapper .mhc-shape-strip{
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
   }
 
-  .diagram-shell {
+  .mhc-flow-wrapper .mhc-diagram-shell{
     padding: 18px;
-    min-height: 600px;
+    min-height: auto;
   }
 
-  .section-label {
+  .mhc-flow-wrapper .mhc-section-label{
     color: #475569;
     font-size: 0.82rem;
     font-weight: 750;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     margin-bottom: 10px;
   }
 
-  .mhc-board {
+  .mhc-flow-wrapper .mhc-board{
     display: grid;
     grid-template-columns: minmax(145px, 0.8fr) 52px minmax(300px, 1.25fr) 52px minmax(145px, 0.8fr);
     gap: 8px;
-    align-items: stretch;
+    align-items: start;
   }
 
-  .lane-bank {
+  .mhc-flow-wrapper .mhc-lane-bank{
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 12px;
     background: #ffffff;
-    min-height: 410px;
+    min-height: 280px;
     display: flex;
     flex-direction: column;
   }
 
-  .bank-title {
+  .mhc-flow-wrapper .mhc-bank-title{
     font-weight: 800;
     color: #1e293b;
     margin-bottom: 10px;
     font-size: 0.9rem;
   }
 
-  .lanes {
+  .mhc-flow-wrapper .mhc-lanes{
     display: grid;
     gap: 10px;
     flex: 1;
     align-content: center;
   }
 
-  .lane {
+  .mhc-flow-wrapper .mhc-lane{
     display: grid;
     grid-template-columns: 44px minmax(0, 1fr);
     align-items: center;
     gap: 8px;
   }
 
-  .lane-index {
+  .mhc-flow-wrapper .mhc-lane-index{
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -204,7 +196,7 @@
     box-shadow: inset 0 -8px 14px rgba(15, 23, 42, 0.18);
   }
 
-  .lane-track {
+  .mhc-flow-wrapper .mhc-lane-track{
     height: 38px;
     border-radius: 6px;
     border: 1px solid var(--line);
@@ -213,14 +205,14 @@
     position: relative;
   }
 
-  .lane-fill {
+  .mhc-flow-wrapper .mhc-lane-fill{
     height: 100%;
     width: var(--w, 75%);
     background: var(--c, var(--blue));
     opacity: 0.84;
   }
 
-  .lane-track span {
+  .mhc-flow-wrapper .mhc-lane-track span{
     position: absolute;
     inset: 0 8px;
     display: flex;
@@ -232,7 +224,7 @@
     white-space: nowrap;
   }
 
-  .arrow-column {
+  .mhc-flow-wrapper .mhc-arrow-column{
     display: flex;
     align-items: center;
     justify-content: center;
@@ -241,20 +233,20 @@
     font-weight: 300;
   }
 
-  .router {
+  .mhc-flow-wrapper .mhc-router{
     display: grid;
     grid-template-rows: auto auto auto;
     gap: 12px;
   }
 
-  .route-row {
+  .mhc-flow-wrapper .mhc-route-row{
     display: grid;
     grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr) 32px minmax(0, 1fr);
     gap: 8px;
     align-items: stretch;
   }
 
-  .node {
+  .mhc-flow-wrapper .mhc-node{
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 12px;
@@ -263,20 +255,20 @@
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
   }
 
-  .node-title {
+  .mhc-flow-wrapper .mhc-node-title{
     font-size: 0.88rem;
     font-weight: 850;
     color: #1e293b;
     margin-bottom: 6px;
   }
 
-  .node-sub {
+  .mhc-flow-wrapper .mhc-node-sub{
     color: var(--muted);
     font-size: 0.78rem;
     line-height: 1.45;
   }
 
-  .node-formula {
+  .mhc-flow-wrapper .mhc-node-formula{
     margin-top: 8px;
     padding: 7px 8px;
     border-radius: 6px;
@@ -288,7 +280,7 @@
     overflow-x: auto;
   }
 
-  .route-arrow {
+  .mhc-flow-wrapper .mhc-route-arrow{
     display: flex;
     align-items: center;
     justify-content: center;
@@ -297,7 +289,7 @@
     font-weight: 300;
   }
 
-  .mix-area {
+  .mhc-flow-wrapper .mhc-mix-area{
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 14px;
@@ -305,7 +297,7 @@
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
   }
 
-  .matrix-head {
+  .mhc-flow-wrapper .mhc-matrix-head{
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -313,13 +305,13 @@
     margin-bottom: 10px;
   }
 
-  .matrix-title {
+  .mhc-flow-wrapper .mhc-matrix-title{
     color: #1e293b;
     font-weight: 850;
     font-size: 0.9rem;
   }
 
-  .matrix-badge {
+  .mhc-flow-wrapper .mhc-matrix-badge{
     color: #166534;
     background: var(--green-soft);
     border: 1px solid #bbf7d0;
@@ -329,14 +321,14 @@
     font-weight: 800;
   }
 
-  .matrix-grid {
+  .mhc-flow-wrapper .mhc-matrix-grid{
     display: grid;
     gap: 5px;
     max-width: 315px;
     margin: 0 auto;
   }
 
-  .mcell {
+  .mhc-flow-wrapper .mhc-mcell{
     min-height: 34px;
     border-radius: 5px;
     display: flex;
@@ -349,14 +341,14 @@
     font-weight: 750;
   }
 
-  .mix-caption {
+  .mhc-flow-wrapper .mhc-mix-caption{
     margin-top: 10px;
     color: var(--muted);
     font-size: 0.78rem;
     text-align: center;
   }
 
-  .final-formula {
+  .mhc-flow-wrapper .mhc-final-formula{
     margin-top: 14px;
     border: 1px solid var(--line);
     border-left: 4px solid var(--purple);
@@ -369,77 +361,82 @@
     overflow-x: auto;
   }
 
-  [data-node].active {
+  .mhc-flow-wrapper [data-node].mhc-active{
     border-color: var(--blue) !important;
     background: #eff6ff !important;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13);
-    transform: translateY(-1px);
+    transform: none;
   }
 
-  .node.read.active {
+  .mhc-flow-wrapper .mhc-node.mhc-read.mhc-active{
     border-color: var(--blue) !important;
     background: var(--blue-soft) !important;
   }
 
-  .node.compute.active {
+  .mhc-flow-wrapper .mhc-node.mhc-compute.mhc-active{
     border-color: var(--orange) !important;
     background: var(--orange-soft) !important;
     box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.14);
   }
 
-  .mix-area.active {
+  .mhc-flow-wrapper .mhc-mix-area.mhc-active{
     border-color: var(--green) !important;
     background: var(--green-soft) !important;
     box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14);
   }
 
-  .node.write.active {
+  .mhc-flow-wrapper .mhc-node.mhc-write.mhc-active{
     border-color: var(--purple) !important;
     background: var(--purple-soft) !important;
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.14);
   }
 
-  .side-panel {
+  .mhc-flow-wrapper .mhc-side-panel{
     padding: 18px;
     position: sticky;
     top: 14px;
+    align-self: start;
+    max-height: calc(100vh - 28px);
+    overflow: auto;
   }
 
-  .step-kicker {
+  .mhc-flow-wrapper .mhc-step-kicker{
     color: var(--blue);
     font-size: 0.78rem;
     font-weight: 850;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
   }
 
-  .step-title {
+  .mhc-flow-wrapper .mhc-step-title{
     margin: 6px 0 8px;
     color: var(--ink);
     font-size: 1.12rem;
     font-weight: 850;
   }
 
-  .step-desc {
+  .mhc-flow-wrapper .mhc-step-desc{
     color: #475569;
     font-size: 0.9rem;
     margin-bottom: 12px;
   }
 
-  .step-list {
+  .mhc-flow-wrapper .mhc-step-list{
     margin: 0;
     padding-left: 18px;
     color: #475569;
     font-size: 0.86rem;
   }
 
-  .step-list li { margin-bottom: 6px; }
+  .mhc-flow-wrapper .mhc-step-list li{ margin-bottom: 6px; }
 
-  .code-shape {
+  .mhc-flow-wrapper .mhc-code-shape{
     margin-top: 14px;
-    background: #0f172a;
-    color: #e2e8f0;
-    border-radius: 8px;
+    background: #f8fafc;
+    color: #334155;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 8px 8px 0;
     padding: 13px 14px;
     font-family: "Cascadia Mono", "Consolas", monospace;
     font-size: 0.78rem;
@@ -447,38 +444,37 @@
     line-height: 1.6;
   }
 
-  .comparison {
+  .mhc-flow-wrapper .mhc-comparison{
     margin-top: 18px;
     padding: 16px;
   }
 
-  .compare-grid {
+  .mhc-flow-wrapper .mhc-compare-grid{
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
 
-  .compare-item {
+  .mhc-flow-wrapper .mhc-compare-item{
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 12px;
     background: #ffffff;
   }
 
-  .compare-title {
+  .mhc-flow-wrapper .mhc-compare-title{
     font-weight: 850;
     margin-bottom: 8px;
     color: #1e293b;
   }
 
-  .single-road,
-  .multi-road {
+  .mhc-flow-wrapper .mhc-single-road, .mhc-flow-wrapper .mhc-multi-road{
     display: grid;
     gap: 7px;
     margin: 10px 0;
   }
 
-  .road {
+  .mhc-flow-wrapper .mhc-road{
     height: 30px;
     border-radius: 6px;
     border: 1px solid var(--line);
@@ -491,44 +487,44 @@
     color: #3730a3;
   }
 
-  .multi-road .road:nth-child(1) { background: #dbeafe; color: #1e3a8a; }
-  .multi-road .road:nth-child(2) { background: #ffedd5; color: #7c2d12; }
-  .multi-road .road:nth-child(3) { background: #dcfce7; color: #14532d; }
-  .multi-road .road:nth-child(4) { background: #ede9fe; color: #4c1d95; }
-  .multi-road .road:nth-child(5) { background: #ffe4e6; color: #881337; }
-  .multi-road .road:nth-child(6) { background: #fef9c3; color: #713f12; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(1){ background: #dbeafe; color: #1e3a8a; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(2){ background: #ffedd5; color: #7c2d12; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(3){ background: #dcfce7; color: #14532d; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(4){ background: #ede9fe; color: #4c1d95; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(5){ background: #ffe4e6; color: #881337; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(6){ background: #fef9c3; color: #713f12; }
 
-  .compare-text {
+  .mhc-flow-wrapper .mhc-compare-text{
     color: var(--muted);
     font-size: 0.82rem;
   }
 
-  .shape-strip {
+  .mhc-flow-wrapper .mhc-shape-strip{
     margin-top: 18px;
     padding: 16px;
   }
 
-  .shape-grid {
+  .mhc-flow-wrapper .mhc-shape-grid{
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 10px;
   }
 
-  .shape {
+  .mhc-flow-wrapper .mhc-shape{
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 10px;
     background: #ffffff;
   }
 
-  .shape b {
+  .mhc-flow-wrapper .mhc-shape b{
     display: block;
     font-size: 0.82rem;
     color: #1e293b;
     margin-bottom: 4px;
   }
 
-  .shape span {
+  .mhc-flow-wrapper .mhc-shape span{
     display: block;
     color: var(--muted);
     font-size: 0.76rem;
@@ -536,192 +532,301 @@
   }
 
   @media (max-width: 980px) {
-    body { padding: 16px; }
-    header { align-items: flex-start; flex-direction: column; }
-    .pill-row { justify-content: flex-start; }
-    .main-grid { grid-template-columns: 1fr; }
-    .side-panel { position: static; }
-    .mhc-board {
+    .mhc-flow-wrapper{ padding: 16px; }
+    .mhc-flow-wrapper header{ align-items: flex-start; flex-direction: column; }
+    .mhc-flow-wrapper .mhc-pill-row{ justify-content: flex-start; }
+    .mhc-flow-wrapper .mhc-main-grid{ grid-template-columns: 1fr; }
+    .mhc-flow-wrapper .mhc-side-panel{ position: static; }
+    .mhc-flow-wrapper .mhc-board{
       grid-template-columns: 1fr;
     }
-    .arrow-column {
+    .mhc-flow-wrapper .mhc-arrow-column{
       transform: rotate(90deg);
       min-height: 40px;
     }
-    .route-row {
+    .mhc-flow-wrapper .mhc-route-row{
       grid-template-columns: 1fr;
     }
-    .route-arrow {
+    .mhc-flow-wrapper .mhc-route-arrow{
       transform: rotate(90deg);
       min-height: 24px;
     }
-    .shape-grid,
-    .compare-grid {
+    .mhc-flow-wrapper .mhc-shape-grid, .mhc-flow-wrapper .mhc-compare-grid{
       grid-template-columns: 1fr;
     }
   }
+
+.mhc-flow-wrapper { width:100%; margin:0 auto; padding:18px; box-sizing:border-box; border-radius:12px; background:var(--bg); position:relative; }
+@media (max-width:980px) { .mhc-flow-wrapper { padding:16px; } }
+
+
+.mhc-flow-wrapper .mhc-pages { position: relative; max-height: min(74vh, 840px); overflow-y: auto; overflow-x: hidden; padding-right: 4px; }
+.mhc-flow-wrapper .mhc-page { display: none; }
+.mhc-flow-wrapper .mhc-page.mhc-active { display: block; animation: mhc-fade-in 0.24s ease; }
+@keyframes mhc-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.mhc-flow-wrapper .mhc-dock-container { position: static; z-index: auto; width: 100%; display: flex; justify-content: center; margin: 18px auto 0; transform: none; pointer-events: auto; }
+.mhc-flow-wrapper .mhc-dock { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 10px 14px; width: max-content; max-width: 100%; background: #ffffff; border-radius: 8px; border: 1px solid rgba(203,213,225,0.95); box-shadow: 0 4px 6px rgba(0,0,0,0.05); pointer-events: auto; }
+.mhc-flow-wrapper .mhc-dock-btn { background: transparent; border: none; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 6px; border-radius: 50%; transition: all 0.2s; }
+.mhc-flow-wrapper .mhc-dock-btn:hover:not(:disabled) { background: #f1f5f9; color: #0f172a; }
+.mhc-flow-wrapper .mhc-dock-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.mhc-flow-wrapper .mhc-dock-btn svg { width: 18px; height: 18px; }
+.mhc-flow-wrapper .mhc-dock-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.mhc-flow-wrapper .mhc-dot { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #64748b; background: transparent; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.mhc-flow-wrapper .mhc-dot:hover { background: #e2e8f0; }
+.mhc-flow-wrapper .mhc-dot.mhc-active { background: var(--blue); color: white; box-shadow: 0 4px 8px rgba(59,130,246,0.3); }
+
+.mhc-flow-wrapper .mhc-dock-container {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.mhc-flow-wrapper .mhc-dock {
+  min-width: max-content;
+}
+
+@container (max-width: 1200px) {
+  .mhc-flow-wrapper .mhc-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mhc-flow-wrapper .mhc-side-panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@container (max-width: 980px) {
+  .mhc-flow-wrapper .mhc-pages {
+    max-height: min(68vh, 760px);
+  }
+
+  .mhc-flow-wrapper header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mhc-flow-wrapper .mhc-pill-row {
+    justify-content: flex-start;
+  }
+
+  .mhc-flow-wrapper .mhc-board {
+    grid-template-columns: 1fr;
+  }
+
+  .mhc-flow-wrapper .mhc-arrow-column {
+    transform: rotate(90deg);
+    min-height: 40px;
+  }
+
+  .mhc-flow-wrapper .mhc-route-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mhc-flow-wrapper .mhc-route-arrow {
+    transform: rotate(90deg);
+    min-height: 24px;
+  }
+
+  .mhc-flow-wrapper .mhc-shape-grid,
+  .mhc-flow-wrapper .mhc-compare-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1200px) {
+  .mhc-flow-wrapper .mhc-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mhc-flow-wrapper .mhc-side-panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
 </style>
-</head>
-<body>
-<div class="page">
+
+<div class="mhc-flow-wrapper">
+<div class="mhc-shell">
   <header>
     <div>
       <h1>mHC 宏观拓扑流程图</h1>
-      <p class="subtitle">mHC 不改 Attention/FFN 的计算本体，而是改造残差流之间的读、混合、写。</p>
+      <p class="mhc-subtitle">mHC 不改 Attention/FFN 的计算本体，而是改造残差流之间的读、混合、写。</p>
     </div>
-    <div class="pill-row">
-      <span class="pill">残差流从 1 条扩到 n 条</span>
-      <span class="pill">主干计算仍是 C 维</span>
-      <span class="pill">H<sub>res</sub> 受 Birkhoff 约束</span>
+    <div class="mhc-pill-row">
+      <span class="mhc-pill">残差流从 1 条扩到 n 条</span>
+      <span class="mhc-pill">主干计算仍是 C 维</span>
+      <span class="mhc-pill">H<sub>res</sub> 受 Birkhoff 约束</span>
     </div>
   </header>
 
-  <div class="toolbar">
-    <div class="toolbar-group" id="step-buttons">
-      <button data-step="0" class="active">总览</button>
+  <div class="mhc-pages">
+  <div class="mhc-page mhc-active" data-mhc-page="0">
+  <div class="mhc-toolbar">
+    <div class="mhc-toolbar-group" id="step-buttons">
+      <button data-step="0" class="mhc-active">总览</button>
       <button data-step="1">① Read</button>
       <button data-step="2">② Compute</button>
       <button data-step="3">③ Mix</button>
       <button data-step="4">④ Write</button>
     </div>
-    <div class="toolbar-group" id="stream-buttons">
+    <div class="mhc-toolbar-group" id="stream-buttons">
       <button data-n="2">n=2</button>
-      <button data-n="4" class="active">n=4</button>
+      <button data-n="4" class="mhc-active">n=4</button>
       <button data-n="6">n=6</button>
     </div>
-    <div class="toolbar-group" id="matrix-buttons">
-      <button data-preset="identity" class="active">单位矩阵</button>
+    <div class="mhc-toolbar-group" id="matrix-buttons">
+      <button data-preset="identity" class="mhc-active">单位矩阵</button>
       <button data-preset="uniform">均匀混合</button>
       <button data-preset="shift">循环移位</button>
     </div>
   </div>
 
-  <div class="main-grid">
-    <section class="diagram-shell">
-      <div class="section-label">One Transformer Sublayer Wrapped By mHC</div>
+  <div class="mhc-main-grid">
+    <section class="mhc-diagram-shell">
+      <div class="mhc-section-label">One Transformer Sublayer Wrapped By mHC</div>
       <div class="mhc-board">
-        <div class="lane-bank" data-node="streams">
-          <div class="bank-title">输入残差流 x<sub>l</sub></div>
-          <div class="lanes" id="input-lanes"></div>
+        <div class="mhc-lane-bank" data-node="streams">
+          <div class="mhc-bank-title">输入残差流 x<sub>l</sub></div>
+          <div class="mhc-lanes" id="input-lanes"></div>
         </div>
 
-        <div class="arrow-column">→</div>
+        <div class="mhc-arrow-column">→</div>
 
-        <div class="router">
-          <div class="route-row">
-            <div class="node read" data-node="read">
-              <div class="node-title">H<sub>pre</sub> · Read</div>
-              <div class="node-sub">从 n 条残差流里加权读取，聚合成主干层能吃下的 1 条 C 维输入。</div>
-              <div class="node-formula">x<sub>main</sub> = H<sub>pre</sub> · x<sub>l</sub></div>
+        <div class="mhc-router">
+          <div class="mhc-route-row">
+            <div class="mhc-node mhc-read" data-node="read">
+              <div class="mhc-node-title">H<sub>pre</sub> · Read</div>
+              <div class="mhc-node-sub">从 n 条残差流里加权读取，聚合成主干层能吃下的 1 条 C 维输入。</div>
+              <div class="mhc-node-formula">x<sub>main</sub> = H<sub>pre</sub> · x<sub>l</sub></div>
             </div>
-            <div class="route-arrow">→</div>
-            <div class="node compute" data-node="compute">
-              <div class="node-title">F · Attention / FFN</div>
-              <div class="node-sub">主干网络照常工作，不需要知道外面有几条残差流。</div>
-              <div class="node-formula">y = F(x<sub>main</sub>)</div>
+            <div class="mhc-route-arrow">→</div>
+            <div class="mhc-node mhc-compute" data-node="compute">
+              <div class="mhc-node-title">F · Attention / FFN</div>
+              <div class="mhc-node-sub">主干网络照常工作，不需要知道外面有几条残差流。</div>
+              <div class="mhc-node-formula">y = F(x<sub>main</sub>)</div>
             </div>
-            <div class="route-arrow">→</div>
-            <div class="node write" data-node="write">
-              <div class="node-title">H<sub>post</sub> · Write</div>
-              <div class="node-sub">把主干层的新结果按比例广播回 n 条残差流。</div>
-              <div class="node-formula">H<sub>post</sub> ⊙ y</div>
+            <div class="mhc-route-arrow">→</div>
+            <div class="mhc-node mhc-write" data-node="write">
+              <div class="mhc-node-title">H<sub>post</sub> · Write</div>
+              <div class="mhc-node-sub">把主干层的新结果按比例广播回 n 条残差流。</div>
+              <div class="mhc-node-formula">H<sub>post</sub> ⊙ y</div>
             </div>
           </div>
 
-          <div class="mix-area" data-node="mix">
-            <div class="matrix-head">
-              <div class="matrix-title">H<sub>res</sub> · 残差内循环混合</div>
-              <div class="matrix-badge">行和=1 · 列和=1</div>
+          <div class="mhc-mix-area" data-node="mix">
+            <div class="mhc-matrix-head">
+              <div class="mhc-matrix-title">H<sub>res</sub> · 残差内循环混合</div>
+              <div class="mhc-matrix-badge">行和=1 · 列和=1</div>
             </div>
-            <div id="matrix-grid" class="matrix-grid"></div>
-            <div class="mix-caption">
+            <div id="matrix-grid" class="mhc-matrix-grid"></div>
+            <div class="mhc-mix-caption">
               Sinkhorn 把原始路由矩阵拉回 Birkhoff polytope，约束车道间交换不整体放大信号。
             </div>
           </div>
 
-          <div class="final-formula">
+          <div class="mhc-final-formula">
             x<sub>l+1</sub> =
             H<sub>res</sub> · x<sub>l</sub>
             + H<sub>post</sub> ⊙ F(H<sub>pre</sub> · x<sub>l</sub>)
           </div>
         </div>
 
-        <div class="arrow-column">→</div>
+        <div class="mhc-arrow-column">→</div>
 
-        <div class="lane-bank" data-node="output">
-          <div class="bank-title">输出残差流 x<sub>l+1</sub></div>
-          <div class="lanes" id="output-lanes"></div>
+        <div class="mhc-lane-bank" data-node="output">
+          <div class="mhc-bank-title">输出残差流 x<sub>l+1</sub></div>
+          <div class="mhc-lanes" id="output-lanes"></div>
         </div>
       </div>
     </section>
 
-    <aside class="side-panel">
-      <div class="step-kicker" id="step-kicker">Overview</div>
-      <div class="step-title" id="step-title">从“一个加号”变成“读、算、混、写”</div>
-      <div class="step-desc" id="step-desc">
+    <aside class="mhc-side-panel">
+      <div class="mhc-step-kicker" id="step-kicker">Overview</div>
+      <div class="mhc-step-title" id="step-title">从“一个加号”变成“读、算、混、写”</div>
+      <div class="mhc-step-desc" id="step-desc">
         标准残差连接只有 x + F(x)。mHC 把残差状态扩成 n 条并行流，再用三套路由权重控制信息流向。
       </div>
-      <ul class="step-list" id="step-list">
+      <ul class="mhc-step-list" id="step-list">
         <li>H<sub>pre</sub> 负责从多条流中读取。</li>
         <li>F 仍然是普通 Attention 或 FFN。</li>
         <li>H<sub>res</sub> 负责流与流之间的稳定混合。</li>
         <li>H<sub>post</sub> 负责把新结果写回多条流。</li>
       </ul>
-      <pre class="code-shape" id="code-shape">x:        [B, T, n, C]
+      <pre class="mhc-code-shape" id="code-shape">x:        [B, T, n, C]
 H_pre:   [B, T, n, 1]
 H_res:   [B, T, n, n]
 H_post:  [B, T, n, 1]
 x_next:  [B, T, n, C]</pre>
     </aside>
   </div>
+  </div>
 
-  <section class="comparison">
-    <div class="section-label">Residual Topology</div>
-    <div class="compare-grid">
-      <div class="compare-item">
-        <div class="compare-title">标准 Transformer</div>
-        <div class="single-road">
-          <div class="road">一条 C 维残差流：x<sub>l</sub> → x<sub>l</sub> + F(x<sub>l</sub>)</div>
+  <div class="mhc-page" data-mhc-page="1">
+  <section class="mhc-comparison">
+    <div class="mhc-section-label">Residual Topology</div>
+    <div class="mhc-compare-grid">
+      <div class="mhc-compare-item">
+        <div class="mhc-compare-title">标准 Transformer</div>
+        <div class="mhc-single-road">
+          <div class="mhc-road">一条 C 维残差流：x<sub>l</sub> → x<sub>l</sub> + F(x<sub>l</sub>)</div>
         </div>
-        <div class="compare-text">所有信息挤在同一条残差通道里，模型能力主要靠加深或加宽主干网络扩展。</div>
+        <div class="mhc-compare-text">所有信息挤在同一条残差通道里，模型能力主要靠加深或加宽主干网络扩展。</div>
       </div>
-      <div class="compare-item">
-        <div class="compare-title">mHC Transformer</div>
-        <div class="multi-road" id="mini-roads"></div>
-        <div class="compare-text">残差状态变宽，主干计算宽度保持 C；额外成本集中在很小的路由矩阵和门控上。</div>
+      <div class="mhc-compare-item">
+        <div class="mhc-compare-title">mHC Transformer</div>
+        <div class="mhc-multi-road" id="mini-roads"></div>
+        <div class="mhc-compare-text">残差状态变宽，主干计算宽度保持 C；额外成本集中在很小的路由矩阵和门控上。</div>
       </div>
     </div>
   </section>
 
-  <section class="shape-strip">
-    <div class="section-label">Tensor Shape Cheat Sheet</div>
-    <div class="shape-grid">
-      <div class="shape">
+  <section class="mhc-shape-strip">
+    <div class="mhc-section-label">Tensor Shape Cheat Sheet</div>
+    <div class="mhc-shape-grid">
+      <div class="mhc-shape">
         <b>输入状态</b>
         <span>x: [B,T,n,C]</span>
       </div>
-      <div class="shape">
+      <div class="mhc-shape">
         <b>Read 门控</b>
         <span>H_pre: [B,T,n,1]</span>
       </div>
-      <div class="shape">
+      <div class="mhc-shape">
         <b>主干输入</b>
         <span>sum_n(H_pre*x): [B,T,C]</span>
       </div>
-      <div class="shape">
+      <div class="mhc-shape">
         <b>Mix 矩阵</b>
         <span>H_res: [B,T,n,n]</span>
       </div>
-      <div class="shape">
+      <div class="mhc-shape">
         <b>输出状态</b>
         <span>x_next: [B,T,n,C]</span>
       </div>
     </div>
   </section>
+  </div>
+  </div>
+
+<div class="mhc-dock-container" aria-label="mHC 流程分页导航">
+    <div class="mhc-dock">
+        <button class="mhc-dock-btn" type="button" data-mhc-prev aria-label="上一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+        <div class="mhc-dock-steps">
+            <button class="mhc-dot mhc-active" type="button" data-mhc-page-target="0" aria-label="流程图">1</button>
+            <button class="mhc-dot" type="button" data-mhc-page-target="1" aria-label="拓扑对比">2</button>
+        </div>
+        <button class="mhc-dock-btn" type="button" data-mhc-next aria-label="下一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+    </div>
+</div>
+</div>
 </div>
 
 <script>
-const colors = ['#2563eb', '#d97706', '#16a34a', '#7c3aed', '#e11d48', '#ca8a04'];
+(function () {
+const colors = ['#3b82f6', '#d97706', '#16a34a', '#7c3aed', '#e11d48', '#ca8a04'];
 const widths = [82, 64, 73, 56, 69, 61];
 
 const state = {
@@ -811,10 +916,10 @@ function laneMarkup(i, output = false) {
   const w = output ? Math.min(92, widths[(i + 2) % widths.length] + 8) : widths[i % widths.length];
   const label = output ? `流 ${i + 1}′` : `流 ${i + 1}`;
   return `
-    <div class="lane">
-      <div class="lane-index" style="background:${c}">${i + 1}</div>
-      <div class="lane-track">
-        <div class="lane-fill" style="--c:${c}; --w:${w}%"></div>
+    <div class="mhc-lane">
+      <div class="mhc-lane-index" style="background:${c}">${i + 1}</div>
+      <div class="mhc-lane-track">
+        <div class="mhc-lane-fill" style="--c:${c}; --w:${w}%"></div>
         <span>${label} · C 维状态</span>
       </div>
     </div>
@@ -831,7 +936,7 @@ function renderLanes() {
   for (let i = 0; i < state.n; i++) {
     input.insertAdjacentHTML('beforeend', laneMarkup(i, false));
     output.insertAdjacentHTML('beforeend', laneMarkup(i, true));
-    mini.insertAdjacentHTML('beforeend', `<div class="road">残差流 ${i + 1}: C 维</div>`);
+    mini.insertAdjacentHTML('beforeend', `<div class="mhc-road">残差流 ${i + 1}: C 维</div>`);
   }
 }
 
@@ -856,7 +961,7 @@ function renderMatrix() {
       const text = v === 0 ? '0' : v === 1 ? '1' : v.toFixed(2);
       grid.insertAdjacentHTML(
         'beforeend',
-        `<div class="mcell" style="background:${bg}">${text}</div>`
+        `<div class="mhc-mcell" style="background:${bg}">${text}</div>`
       );
     }
   }
@@ -865,13 +970,13 @@ function renderMatrix() {
 function setStep(step) {
   state.step = step;
   document.querySelectorAll('#step-buttons button').forEach(btn => {
-    btn.classList.toggle('active', Number(btn.dataset.step) === step);
+    btn.classList.toggle('mhc-active', Number(btn.dataset.step) === step);
   });
 
-  document.querySelectorAll('[data-node]').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('[data-node]').forEach(el => el.classList.remove('mhc-active'));
   const copy = stepCopy[step];
   copy.active.forEach(name => {
-    document.querySelectorAll(`[data-node="${name}"]`).forEach(el => el.classList.add('active'));
+    document.querySelectorAll(`[data-node="${name}"]`).forEach(el => el.classList.add('mhc-active'));
   });
 
   document.getElementById('step-kicker').textContent = copy.kicker;
@@ -884,7 +989,7 @@ function setStep(step) {
 function setN(n) {
   state.n = n;
   document.querySelectorAll('#stream-buttons button').forEach(btn => {
-    btn.classList.toggle('active', Number(btn.dataset.n) === n);
+    btn.classList.toggle('mhc-active', Number(btn.dataset.n) === n);
   });
   renderLanes();
   renderMatrix();
@@ -894,7 +999,7 @@ function setN(n) {
 function setPreset(preset) {
   state.preset = preset;
   document.querySelectorAll('#matrix-buttons button').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.preset === preset);
+    btn.classList.toggle('mhc-active', btn.dataset.preset === preset);
   });
   renderMatrix();
 }
@@ -920,6 +1025,30 @@ document.getElementById('matrix-buttons').addEventListener('click', event => {
 renderLanes();
 renderMatrix();
 setStep(0);
+})();
+
+
+(function () {
+  const root = document.querySelector('.mhc-flow-wrapper');
+  if (!root) return;
+  const pages = Array.from(root.querySelectorAll('.mhc-page'));
+  const dots = Array.from(root.querySelectorAll('[data-mhc-page-target]'));
+  const prev = root.querySelector('[data-mhc-prev]');
+  const next = root.querySelector('[data-mhc-next]');
+  let current = 0;
+  function goToPage(index) {
+    current = Math.max(0, Math.min(index, pages.length - 1));
+    pages.forEach((page, i) => page.classList.toggle('mhc-active', i === current));
+    dots.forEach((dot, i) => dot.classList.toggle('mhc-active', i === current));
+    if (prev) prev.disabled = current === 0;
+    if (next) next.disabled = current === pages.length - 1;
+    root.dataset.mhcPage = String(current + 1);
+    requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+  }
+  dots.forEach(dot => dot.addEventListener('click', () => goToPage(Number(dot.dataset.mhcPageTarget))));
+  if (prev) prev.addEventListener('click', () => goToPage(current - 1));
+  if (next) next.addEventListener('click', () => goToPage(current + 1));
+  window.mhcGoToPage = goToPage;
+  goToPage(0);
+})();
 </script>
-</body>
-</html>
