@@ -7,7 +7,10 @@ AI的行动准则参考AGENT.md
 
 项目启动
 ```shell
+# 仅本机访问
 mkdocs serve -a 127.0.0.1:6033
+# 局域网访问（mirrored 网络模式下，绑定到局域网 IP）
+mkdocs serve -a 0.0.0.0:6033
 ```
 
 ## 项目技能 (Skills) & 工具
@@ -19,3 +22,9 @@ mkdocs serve -a 127.0.0.1:6033
 
 你可以直接对 AI 发送请求，例如：
 > "帮我从 Zotero 中把 DeepSeek V4 相关的论文拷贝到项目中，然后再把它转成 Markdown！"
+
+
+
+hostname -I | awk '{print $1}'
+172.23.53.224
+netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=6033 connectaddress=172.23.53.224 connectport=6033

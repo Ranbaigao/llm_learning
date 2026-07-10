@@ -97,6 +97,12 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 
 #### 🏗️ 模型架构
 
+<span id="kg-llm-模型架构-transformers"></span>
+
+##### Transformers
+
+- [OpenMythos Recurrent](llm/模型架构/Transformers/OpenMythos%20Recurrent.md)
+
 <span id="kg-llm-architecture-optimizer"></span>
 
 ##### 优化器
@@ -114,6 +120,7 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 ##### 残差连接
 
 - [attention residuals](llm/模型架构/残差连接/attention_residuals.md)
+- [LTI Injection](llm/模型架构/残差连接/LTI%20Injection.md)
 - [mHC 残差流形](llm/模型架构/残差连接/mHC_残差流形.md)
 - [Pre-Norm vs Post-Norm](llm/模型架构/残差连接/Pre-Norm%20vs%20Post-Norm.md)
 - [流形比较](llm/模型架构/残差连接/流形比较.md)
@@ -155,13 +162,18 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 - [ChatGPT](llm/源码解读/ChatGPT.md)
 - [Einsum](llm/源码解读/Einsum.md)
 - [MOE](llm/源码解读/MOE.md)
+- [OpenMythos](llm/源码解读/OpenMythos.md)
 - [核心要义](llm/源码解读/核心要义.md)
 
 <span id="kg-llm-app"></span>
 
 ### 🛠️ LLM 应用开发
 
-_（整理中）_
+<span id="kg-llm应用开发-agent"></span>
+
+#### Agent
+
+- [harness+agent引入](llm应用开发/Agent/harness+agent引入.md)
 
 <span id="kg-cv"></span>
 
@@ -203,6 +215,12 @@ _（整理中）_
 - [gqa](code_practice/gqa.ipynb)
 - [mHC](code_practice/mhc.ipynb)
 - [moe](code_practice/moe.ipynb)
+
+<span id="kg-数据结构"></span>
+
+### 数据结构
+
+- [排序](数据结构/排序.md)
 
 <span id="kg-other"></span>
 

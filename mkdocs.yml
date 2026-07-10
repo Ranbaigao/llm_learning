@@ -20,6 +20,7 @@ exclude_docs: |
 
 # 启用数学公式解析扩展
 markdown_extensions:
+  - tables                       # 支持 GFM 风格的 Markdown 表格（| --- |）
   - pymdownx.arithmatex:
       generic: true          # 配合你目前的 JS，输出 <span class="arithmatex">\( ... \)</span>
       smart_dollar: false    # 【关键！】关闭智能美元符，包容 AI 生成的各种不规范空格

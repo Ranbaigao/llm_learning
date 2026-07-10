@@ -121,21 +121,62 @@ E_{x \sim p}[f(x)] &= \int f(x) p(x) dx \\
 
 ### 4.2 转化为 Off-Policy 目标函数
 
-利用重要性采样，我们可以用旧策略 $\theta'$ 采样的数据，来更新新策略 $\theta$：
+从轨迹级别的重要性采样公式出发：
+
+$$\nabla \bar{R}_{\theta} = \mathbb{E}_{\tau \sim p_{\theta'}(\tau)} \left[ \frac{p_{\theta}(\tau)}{p_{\theta'}(\tau)} R(\tau) \nabla \log p_{\theta}(\tau) \right]$$
+
+要将上述整条轨迹（Trajectory）级别的期望，拆解为单步（Step）级别的期望，等号背后实际上经历了以下三个核心的数学与物理变换：
+
+1. **消除环境动力学 (Environment Dynamics Cancellation)**：
+
+   当我们展开轨迹的联合概率 $p_{\theta}(\tau)$ 时，它包含了初始状态概率、策略的动作概率以及环境的状态转移概率 $p(s_{t+1}|s_t, a_t)$。由于新旧策略在同一个环境中运行，分子分母中的环境转移概率和初始状态概率**完美抵消**，重要性权重只剩下了纯粹的策略动作概率之比的连乘。
+
+2. **期望视角的转换 (Shifting the Expectation)**：
+
+   我们不再以“一整条轨迹”为单位来计算期望，而是将其等价转换为在旧策略 $\pi_{\theta'}$ 下，对**每一个时间步所访问到的状态-动作对 $(s_t, a_t)$** 求期望。在这个视角转换中，自然引出了状态访问频率分布（即新旧策略访问某个具体状态 $s_t$ 的概率 $p_{\theta}(s_t)$ 与 $p_{\theta'}(s_t)$）。
+
+3. **引入优势函数 (Replacing Return with Advantage)**：
+
+   基于 Policy Gradient 中的因果律和基线（Baseline）技巧，我们将整条轨迹的总回报 $R(\tau)$，替换为旧策略视角下的单步优势函数 $A^{\theta'}(s_t, a_t)$，以降低采样的方差。
+
+综合以上三步，我们得到了 Step 级别的精确展开式：
+
+$$\begin{align*} \nabla \bar{R}_{\theta} &= \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta'}} \left[ \frac{p_{\theta}(a_t | s_t)}{p_{\theta'}(a_t | s_t)} \frac{p_{\theta}(s_t)}{p_{\theta'}(s_t)} A^{\theta'}(s_t, a_t) \nabla \log p_{\theta}(a_t | s_t) \right] \end{align*} $$
+
+**关键近似与目标构造**
+
+在上式中，状态分布比值 $\frac{p_{\theta}(s_t)}{p_{\theta'}(s_t)}$ 很难计算。但由于我们在算法设计上会限制新策略 $\theta$ 不能偏离旧策略 $\theta'$ 太远，这意味着**新旧策略在环境中游走时，遇到各个状态的概率分布是极其相似的**。
+
+因此，我们引入一个极其重要的近似假设：$\frac{p_{\theta}(s_t)}{p_{\theta'}(s_t)} \approx 1$。
+
+约掉状态分布比值后，公式化简为：
+
+$$\nabla \bar{R}_{\theta} \approx \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta'}} \left[ \frac{p_{\theta}(a_t | s_t)}{p_{\theta'}(a_t | s_t)} A^{\theta'}(s_t, a_t) \nabla \log p_{\theta}(a_t | s_t) \right]$$
+
+至此，我们得到了化简后的**期望更新梯度**。
+
+
+这样一来，式子就只剩动作概率比值和优势函数了。接下来最自然的问题就是：**什么样的标量函数，求导以后会得到这个梯度？**
+
+换句话说，我们现在是在寻找 $\nabla \bar{R}_{\theta}$ 的一个“原函数”。把梯度项放回标准的期望形式里，可以写成
 
 $$\begin{align*}
-\nabla \bar{R}_{\theta} &= \mathbb{E}_{\tau \sim p_{\theta'}(\tau)} \left[ \frac{p_{\theta}(\tau)}{p_{\theta'}(\tau)} R(\tau) \nabla \log p_{\theta}(\tau) \right] \\
+\nabla \bar{R}_{\theta}
+&\approx \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta'}} \left[ \frac{p_{\theta}(a_t | s_t)}{p_{\theta'}(a_t | s_t)} A^{\theta'}(s_t, a_t) \nabla_{\theta} \log p_{\theta}(a_t | s_t) \right] \\
+&= \nabla_{\theta} \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta'}} \left[ \frac{p_{\theta}(a_t | s_t)}{p_{\theta'}(a_t | s_t)} A^{\theta'}(s_t, a_t) \right]
 \end{align*} $$
 
-化简到 step 级别，引入优势函数：
-
-$$\begin{align*}
-&= \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta'}} \left[ \frac{p_{\theta}(a_t | s_t)}{p_{\theta'}(a_t | s_t)} \frac{p_{\theta}(s_t)}{p_{\theta'}(s_t)} A^{\theta'}(s_t, a_t) \nabla \log p_{\theta}(a_t | s_t) \right] 
-\end{align*} $$
-
-这里做了一个极其重要的**近似假设**：我们假设新旧策略在状态分布上的差异不大，即 $\frac{p_{\theta}(s_t)}{p_{\theta'}(s_t)} \approx 1$。去掉梯度符号，我们得到 PPO 的核心替代目标函数 (Surrogate Objective)：
+因此，对应的 PPO 核心替代目标函数 (Surrogate Objective) 就是
 
 $$J^{\theta'}(\theta) = \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta'}} \left[ \frac{p_{\theta}(a_t | s_t)}{p_{\theta'}(a_t | s_t)} A^{\theta'}(s_t, a_t) \right] $$
+
+如果把这个目标函数对 $\theta$ 求导，就会回到上面的梯度形式。因为 $p_{\theta'}(a_t | s_t)$ 和 $A^{\theta'}(s_t, a_t)$ 都是由旧策略采样得到的常量，所以求导只作用在 $p_{\theta}(a_t | s_t)$ 上；再用 Log-Derivative Trick，$\nabla_{\theta} p_{\theta}(a_t | s_t) = p_{\theta}(a_t | s_t) \nabla_{\theta} \log p_{\theta}(a_t | s_t)$，就能重新得到
+
+
+$$\nabla_{\theta} J^{\theta'}(\theta) = \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta'}} \left[ \frac{p_{\theta}(a_t | s_t)}{p_{\theta'}(a_t | s_t)} A^{\theta'}(s_t, a_t) \nabla_{\theta} \log p_{\theta}(a_t | s_t) \right] $$
+
+
+这就说明，PPO 中“去掉 $\nabla$ 符号”本质上是在做**反向构造目标函数**：先把我们想要的更新方向写成梯度形式，再找出一个可以被框架直接最大化的标量目标，让自动求导机制替我们算出同样的梯度。
 
 ### 4.3 PPO1: KL 散度惩罚 (KL Penalty)
 
