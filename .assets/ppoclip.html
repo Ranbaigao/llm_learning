@@ -1,0 +1,256 @@
+<div class="ppo-interactive-widget">
+    <!-- 控制面板 -->
+    <div class="ppo-controls">
+        <div class="ppo-slider-group">
+            <label for="epsSlider">拖动调整超参数 <strong>&epsilon; (epsilon)</strong>: </label>
+            <span id="epsValue" class="eps-value-display">0.20</span>
+            <input type="range" id="epsSlider" min="0.0" max="0.8" step="0.01" value="0.2">
+        </div>
+        <p class="ppo-hint">提示：观察带阴影的“安全更新区间” [1-&epsilon;, 1+&epsilon;] 如何随着 &epsilon; 的变化而扩展或收缩。</p>
+    </div>
+
+    <!-- 图表容器 -->
+    <div class="ppo-charts-container">
+        <!-- 图 1: A > 0 -->
+        <div class="ppo-chart-card">
+            <div class="ppo-chart-title">优势 A > 0 (动作优于平均)</div>
+            <canvas id="ppoCanvasPos" width="360" height="320"></canvas>
+            <div class="ppo-legend">
+                <div class="ppo-legend-item"><span class="ppo-line-dashed"></span> r(θ)A (未截断)</div>
+                <div class="ppo-legend-item"><span class="ppo-line-solid-red"></span> J (截断后)</div>
+            </div>
+        </div>
+
+        <!-- 图 2: A < 0 -->
+        <div class="ppo-chart-card">
+            <div class="ppo-chart-title">优势 A < 0 (动作劣于平均)</div>
+            <canvas id="ppoCanvasNeg" width="360" height="320"></canvas>
+            <div class="ppo-legend">
+                <div class="ppo-legend-item"><span class="ppo-line-dashed"></span> r(θ)A (未截断)</div>
+                <div class="ppo-legend-item"><span class="ppo-line-solid-blue"></span> J (截断后)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 使用 MkDocs Material 原生变量适配明暗主题 */
+    .ppo-interactive-widget {
+        font-family: var(--md-text-font-family, -apple-system, sans-serif);
+        background-color: var(--md-default-bg-color, #ffffff);
+        color: var(--md-default-fg-color, #333333);
+        border: 1px solid var(--md-default-fg-color--lightest, #e0e0e0);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .ppo-controls {
+        text-align: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px dashed var(--md-default-fg-color--lightest, #e0e0e0);
+    }
+
+    .ppo-slider-group {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        font-size: 16px;
+    }
+
+    .ppo-slider-group input[type="range"] {
+        width: 200px;
+        cursor: pointer;
+        accent-color: var(--md-primary-fg-color, #3498db);
+    }
+
+    .eps-value-display {
+        font-weight: bold;
+        color: var(--md-primary-fg-color, #3498db);
+        font-size: 18px;
+        min-width: 45px;
+        display: inline-block;
+    }
+
+    .ppo-hint {
+        font-size: 13px;
+        color: var(--md-default-fg-color--light, #666);
+        margin-top: 10px;
+    }
+
+    .ppo-charts-container {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .ppo-chart-card {
+        background-color: var(--md-default-bg-color, #ffffff);
+        border-radius: 8px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .ppo-chart-title {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .ppo-legend {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+    .ppo-legend-item { display: flex; align-items: center; gap: 6px; }
+    .ppo-line-dashed { width: 24px; height: 2px; background: repeating-linear-gradient(90deg, var(--md-default-fg-color--light, #999) 0, var(--md-default-fg-color--light, #999) 4px, transparent 4px, transparent 8px); }
+    .ppo-line-solid-red { width: 24px; height: 4px; background: #e74c3c; border-radius: 2px;}
+    .ppo-line-solid-blue { width: 24px; height: 4px; background: #3498db; border-radius: 2px;}
+</style>
+
+<script>
+(function() {
+    // 封装在 IIFE 中，防止变量污染
+    const slider = document.getElementById('epsSlider');
+    const epsValueDisplay = document.getElementById('epsValue');
+    let currentEpsilon = parseFloat(slider.value);
+
+    // 获取当前主题的前景色和背景色 (适配 MkDocs 黑暗模式)
+    function getThemeColor(varName, fallback) {
+        const color = getComputedStyle(document.body).getPropertyValue(varName).trim();
+        return color ? color : fallback;
+    }
+
+    function drawChart(canvasId, A, epsilon) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;
+        const H = canvas.height;
+        const margin = 45;
+
+        // 获取主题配色
+        const fgColor = getThemeColor('--md-default-fg-color', '#333333');
+        const axisColor = getThemeColor('--md-default-fg-color--lightest', '#e0e0e0');
+        const safeZoneColor = getThemeColor('--md-default-fg-color--lightest', 'rgba(0,0,0,0.05)');
+        const dashedLineColor = getThemeColor('--md-default-fg-color--light', '#999999');
+
+        // 坐标系范围
+        const minX = 0, maxX = 2.0;
+        const minY = -1.5, maxY = 1.5;
+
+        // 坐标转换闭包
+        const toPx = x => margin + (x - minX) / (maxX - minX) * (W - 2 * margin);
+        const toPy = y => H - margin - (y - minY) / (maxY - minY) * (H - 2 * margin);
+
+        // 清空画布
+        ctx.clearRect(0, 0, W, H);
+
+        // 1. 绘制“安全更新区间” (阴影背景)
+        ctx.fillStyle = safeZoneColor;
+        ctx.globalAlpha = 0.5; // 半透明
+        // 阴影区在 1-ε 到 1+ε 之间
+        ctx.fillRect(toPx(1 - epsilon), toPy(maxY), toPx(1 + epsilon) - toPx(1 - epsilon), toPy(minY) - toPy(maxY));
+        ctx.globalAlpha = 1.0;
+
+        // 2. 绘制网格线和坐标轴
+        ctx.beginPath();
+        ctx.strokeStyle = axisColor;
+        ctx.lineWidth = 1.5;
+        // X轴
+        ctx.moveTo(toPx(minX), toPy(0)); ctx.lineTo(toPx(maxX), toPy(0));
+        // Y轴 (X=1)
+        ctx.moveTo(toPx(1), toPy(minY)); ctx.lineTo(toPx(1), toPy(maxY));
+        ctx.stroke();
+
+        // 绘制截断边界的垂直虚线
+        ctx.beginPath();
+        ctx.strokeStyle = dashedLineColor;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(toPx(1 - epsilon), toPy(minY)); ctx.lineTo(toPx(1 - epsilon), toPy(maxY));
+        ctx.moveTo(toPx(1 + epsilon), toPy(minY)); ctx.lineTo(toPx(1 + epsilon), toPy(maxY));
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 3. 绘制文字标签
+        ctx.font = '12px var(--md-text-font-family, sans-serif)';
+        ctx.fillStyle = fgColor;
+        ctx.textAlign = 'center';
+        
+        // X轴刻度
+        ctx.fillText('1.0', toPx(1), toPy(0) + 16);
+        ctx.fillText((1 - epsilon).toFixed(2), toPx(1 - epsilon), toPy(0) + 16);
+        ctx.fillText((1 + epsilon).toFixed(2), toPx(1 + epsilon), toPy(0) + 16);
+        
+        ctx.textAlign = 'left';
+        ctx.fillText('比值 r(θ)', toPx(maxX) - 40, toPy(0) - 10);
+        ctx.fillText('目标 J', toPx(1) + 8, toPy(maxY) + 10);
+
+        // 4. 绘制原始未截断函数 L = r(θ) * A
+        ctx.beginPath();
+        ctx.strokeStyle = dashedLineColor;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.moveTo(toPx(minX), toPy(minX * A));
+        ctx.lineTo(toPx(maxX), toPy(maxX * A));
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 5. 绘制 PPO 截断后的最终目标函数 J
+        ctx.beginPath();
+        ctx.lineWidth = 4;
+        ctx.lineJoin = 'round';
+        
+        if (A > 0) {
+            ctx.strokeStyle = '#e74c3c'; // 红色
+            ctx.moveTo(toPx(0), toPy(0));
+            ctx.lineTo(toPx(1 + epsilon), toPy((1 + epsilon) * A));
+            ctx.lineTo(toPx(maxX), toPy((1 + epsilon) * A));
+        } else {
+            ctx.strokeStyle = '#3498db'; // 蓝色
+            ctx.moveTo(toPx(0), toPy((1 - epsilon) * A));
+            ctx.lineTo(toPx(1 - epsilon), toPy((1 - epsilon) * A));
+            ctx.lineTo(toPx(maxX), toPy(maxX * A));
+        }
+        ctx.stroke();
+    }
+
+    // 更新两个图表的主函数
+    function updateCharts() {
+        drawChart('ppoCanvasPos', 1, currentEpsilon);
+        drawChart('ppoCanvasNeg', -1, currentEpsilon);
+    }
+
+    // 绑定滑动条事件
+    slider.addEventListener('input', function(e) {
+        currentEpsilon = parseFloat(e.target.value);
+        epsValueDisplay.innerText = currentEpsilon.toFixed(2);
+        updateCharts();
+    });
+
+    // 初始绘制
+    // 延迟一点绘制以确保 MkDocs CSS 变量加载完毕
+    setTimeout(updateCharts, 50);
+
+    // 监听 MkDocs Material 主题切换 (暗色/亮色模式自动重绘)
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'data-md-color-scheme') {
+                updateCharts();
+            }
+        });
+    });
+    observer.observe(document.body, { attributes: true });
+
+})();
+</script>

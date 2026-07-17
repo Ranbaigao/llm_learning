@@ -1,0 +1,1069 @@
+{
+  "nodes": [
+    {
+      "id": "__root__",
+      "name": "LLM Learning",
+      "type": "root",
+      "depth": -1,
+      "url": "",
+      "size": 28,
+      "note_count": 50
+    },
+    {
+      "id": "code_practice",
+      "name": "代码实践",
+      "type": "category",
+      "depth": 0,
+      "url": "code_practice/",
+      "size": 19,
+      "note_count": 5
+    },
+    {
+      "id": "code_practice/gpt.ipynb",
+      "name": "gpt",
+      "type": "note",
+      "format": "jupyter",
+      "depth": 1,
+      "url": "code_practice/gpt/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "code_practice/gqa.ipynb",
+      "name": "gqa",
+      "type": "note",
+      "format": "jupyter",
+      "depth": 1,
+      "url": "code_practice/gqa/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "code_practice/mhc.ipynb",
+      "name": "mhc",
+      "type": "note",
+      "format": "jupyter",
+      "depth": 1,
+      "url": "code_practice/mhc/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "code_practice/moe.ipynb",
+      "name": "moe",
+      "type": "note",
+      "format": "jupyter",
+      "depth": 1,
+      "url": "code_practice/moe/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "code_practice/vit.ipynb",
+      "name": "vit",
+      "type": "note",
+      "format": "jupyter",
+      "depth": 1,
+      "url": "code_practice/vit/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "computer_vision",
+      "name": "Computer Vision",
+      "type": "category",
+      "depth": 0,
+      "url": "computer_vision/",
+      "size": 19,
+      "note_count": 6
+    },
+    {
+      "id": "computer_vision/基础",
+      "name": "基础",
+      "type": "subcategory",
+      "depth": 1,
+      "url": "computer_vision/基础/",
+      "size": 12,
+      "note_count": 2
+    },
+    {
+      "id": "computer_vision/基础/Reparameterization Trick.md",
+      "name": "Reparameterization Trick",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "computer_vision/基础/Reparameterization Trick/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "computer_vision/基础/SD公式推导.md",
+      "name": "SD公式推导",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "computer_vision/基础/SD公式推导/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "computer_vision/模型架构",
+      "name": "模型架构",
+      "type": "subcategory",
+      "depth": 1,
+      "url": "computer_vision/模型架构/",
+      "size": 12,
+      "note_count": 4
+    },
+    {
+      "id": "computer_vision/模型架构/JEPA.md",
+      "name": "JEPA",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "computer_vision/模型架构/JEPA/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "computer_vision/模型架构/JiT.md",
+      "name": "JiT",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "computer_vision/模型架构/JiT/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "computer_vision/模型架构/SAM.md",
+      "name": "SAM",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "computer_vision/模型架构/SAM/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "computer_vision/模型架构/VAE.md",
+      "name": "VAE",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "computer_vision/模型架构/VAE/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm",
+      "name": "LLM",
+      "type": "category",
+      "depth": 0,
+      "url": "llm/",
+      "size": 25,
+      "note_count": 31
+    },
+    {
+      "id": "llm/开源llm解读",
+      "name": "开源llm解读",
+      "type": "subcategory",
+      "depth": 1,
+      "url": "llm/开源llm解读/",
+      "size": 12,
+      "note_count": 6
+    },
+    {
+      "id": "llm/开源llm解读/OpenMythos",
+      "name": "OpenMythos",
+      "type": "subcategory",
+      "depth": 2,
+      "url": "llm/开源llm解读/OpenMythos/",
+      "size": 12,
+      "note_count": 1
+    },
+    {
+      "id": "llm/开源llm解读/OpenMythos/OpenMythos Recurrent.md",
+      "name": "OpenMythos Recurrent",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/开源llm解读/OpenMythos/OpenMythos Recurrent/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/开源llm解读/AR-Diffusion与潜空间推理.md",
+      "name": "AR-Diffusion与潜空间推理",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/开源llm解读/AR-Diffusion与潜空间推理/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/开源llm解读/Claude Mythos 5推测.md",
+      "name": "Claude Mythos 5推测",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/开源llm解读/Claude Mythos 5推测/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/开源llm解读/DeepSeek-V4.md",
+      "name": "DeepSeek-V4",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/开源llm解读/DeepSeek-V4/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/开源llm解读/Nemotron-Labs-Diffusion.md",
+      "name": "Nemotron-Labs-Diffusion",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/开源llm解读/Nemotron-Labs-Diffusion/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/开源llm解读/qwen3.5.md",
+      "name": "qwen3.5",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/开源llm解读/qwen3.5/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构",
+      "name": "模型架构",
+      "type": "subcategory",
+      "depth": 1,
+      "url": "llm/模型架构/",
+      "size": 13,
+      "note_count": 11
+    },
+    {
+      "id": "llm/模型架构/Muon优化器",
+      "name": "Muon优化器",
+      "type": "subcategory",
+      "depth": 2,
+      "url": "llm/模型架构/Muon优化器/",
+      "size": 12,
+      "note_count": 2
+    },
+    {
+      "id": "llm/模型架构/Muon优化器/Muon优化器.md",
+      "name": "Muon优化器",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/Muon优化器/Muon优化器/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/Muon优化器/奇异值、特征值和正交矩阵.md",
+      "name": "奇异值、特征值和正交矩阵",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/Muon优化器/奇异值、特征值和正交矩阵/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/位置编码",
+      "name": "位置编码",
+      "type": "subcategory",
+      "depth": 2,
+      "url": "llm/模型架构/位置编码/",
+      "size": 12,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/位置编码/RoPe.md",
+      "name": "RoPe",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/位置编码/RoPe/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/残差连接",
+      "name": "残差连接",
+      "type": "subcategory",
+      "depth": 2,
+      "url": "llm/模型架构/残差连接/",
+      "size": 12,
+      "note_count": 4
+    },
+    {
+      "id": "llm/模型架构/残差连接/attention_residuals.md",
+      "name": "attention residuals",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/残差连接/attention_residuals/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/残差连接/mHC_残差流形.md",
+      "name": "mHC 残差流形",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/残差连接/mHC_残差流形/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/残差连接/Pre-Norm vs Post-Norm.md",
+      "name": "Pre-Norm vs Post-Norm",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/残差连接/Pre-Norm vs Post-Norm/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/残差连接/流形比较.md",
+      "name": "流形比较",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/残差连接/流形比较/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/注意力机制",
+      "name": "注意力机制",
+      "type": "subcategory",
+      "depth": 2,
+      "url": "llm/模型架构/注意力机制/",
+      "size": 12,
+      "note_count": 4
+    },
+    {
+      "id": "llm/模型架构/注意力机制/DSA.md",
+      "name": "DSA",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/注意力机制/DSA/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/注意力机制/GatedAttention.md",
+      "name": "GatedAttention",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/注意力机制/GatedAttention/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/注意力机制/LinearAttention.md",
+      "name": "LinearAttention",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/注意力机制/LinearAttention/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型架构/注意力机制/MLA.md",
+      "name": "MLA",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型架构/注意力机制/MLA/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型训练",
+      "name": "模型训练",
+      "type": "subcategory",
+      "depth": 1,
+      "url": "llm/模型训练/",
+      "size": 12,
+      "note_count": 7
+    },
+    {
+      "id": "llm/模型训练/SFT",
+      "name": "SFT",
+      "type": "subcategory",
+      "depth": 2,
+      "url": "llm/模型训练/SFT/",
+      "size": 12,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型训练/SFT/LoRA.md",
+      "name": "LoRA",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型训练/SFT/LoRA/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型训练/强化学习",
+      "name": "强化学习",
+      "type": "subcategory",
+      "depth": 2,
+      "url": "llm/模型训练/强化学习/",
+      "size": 12,
+      "note_count": 6
+    },
+    {
+      "id": "llm/模型训练/强化学习/ClipPPO原理.md",
+      "name": "ClipPPO原理",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型训练/强化学习/ClipPPO原理/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型训练/强化学习/DPO.md",
+      "name": "DPO",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型训练/强化学习/DPO/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型训练/强化学习/GSPO.md",
+      "name": "GSPO",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型训练/强化学习/GSPO/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型训练/强化学习/PPO.md",
+      "name": "PPO",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型训练/强化学习/PPO/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型训练/强化学习/RL知识图谱.md",
+      "name": "RL知识图谱",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型训练/强化学习/RL知识图谱/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/模型训练/强化学习/李宏毅DRL笔记.md",
+      "name": "李宏毅DRL笔记",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/模型训练/强化学习/李宏毅DRL笔记/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/源码解读",
+      "name": "源码解读",
+      "type": "subcategory",
+      "depth": 1,
+      "url": "llm/源码解读/",
+      "size": 12,
+      "note_count": 7
+    },
+    {
+      "id": "llm/源码解读/OpenMythos",
+      "name": "OpenMythos",
+      "type": "subcategory",
+      "depth": 2,
+      "url": "llm/源码解读/OpenMythos/",
+      "size": 12,
+      "note_count": 3
+    },
+    {
+      "id": "llm/源码解读/OpenMythos/ACT.md",
+      "name": "ACT",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/源码解读/OpenMythos/ACT/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/源码解读/OpenMythos/LTI Injection.md",
+      "name": "LTI Injection",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/源码解读/OpenMythos/LTI Injection/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/源码解读/OpenMythos/OpenMythos框架.md",
+      "name": "OpenMythos框架",
+      "type": "note",
+      "format": "markdown",
+      "depth": 3,
+      "url": "llm/源码解读/OpenMythos/OpenMythos框架/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/源码解读/ChatGPT.md",
+      "name": "ChatGPT",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/源码解读/ChatGPT/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/源码解读/Einsum.md",
+      "name": "Einsum",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/源码解读/Einsum/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/源码解读/MOE.md",
+      "name": "MOE",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/源码解读/MOE/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/源码解读/核心要义.md",
+      "name": "核心要义",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/源码解读/核心要义/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm应用开发",
+      "name": "LLM 应用开发",
+      "type": "category",
+      "depth": 0,
+      "url": "llm应用开发/",
+      "size": 18,
+      "note_count": 1
+    },
+    {
+      "id": "llm应用开发/Agent",
+      "name": "Agent",
+      "type": "subcategory",
+      "depth": 1,
+      "url": "llm应用开发/Agent/",
+      "size": 12,
+      "note_count": 1
+    },
+    {
+      "id": "llm应用开发/Agent/harness+agent引入.md",
+      "name": "harness+agent引入",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm应用开发/Agent/harness+agent引入/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "性能优化",
+      "name": "性能优化",
+      "type": "category",
+      "depth": 0,
+      "url": "性能优化/",
+      "size": 19,
+      "note_count": 7
+    },
+    {
+      "id": "性能优化/Deepspeed.md",
+      "name": "Deepspeed",
+      "type": "note",
+      "format": "markdown",
+      "depth": 1,
+      "url": "性能优化/Deepspeed/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "性能优化/Flash-Attention.md",
+      "name": "Flash-Attention",
+      "type": "note",
+      "format": "markdown",
+      "depth": 1,
+      "url": "性能优化/Flash-Attention/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "性能优化/MOE负载均衡.md",
+      "name": "MOE负载均衡",
+      "type": "note",
+      "format": "markdown",
+      "depth": 1,
+      "url": "性能优化/MOE负载均衡/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "性能优化/SGLang.md",
+      "name": "SGLang",
+      "type": "note",
+      "format": "markdown",
+      "depth": 1,
+      "url": "性能优化/SGLang/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "性能优化/vLLM.md",
+      "name": "vLLM",
+      "type": "note",
+      "format": "markdown",
+      "depth": 1,
+      "url": "性能优化/vLLM/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "性能优化/分布式.md",
+      "name": "分布式",
+      "type": "note",
+      "format": "markdown",
+      "depth": 1,
+      "url": "性能优化/分布式/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "性能优化/推理加速方法总结.md",
+      "name": "推理加速方法总结",
+      "type": "note",
+      "format": "markdown",
+      "depth": 1,
+      "url": "性能优化/推理加速方法总结/",
+      "size": 7,
+      "note_count": 1
+    }
+  ],
+  "links": [
+    {
+      "source": "__root__",
+      "target": "code_practice",
+      "type": "contains"
+    },
+    {
+      "source": "code_practice",
+      "target": "code_practice/gpt.ipynb",
+      "type": "contains"
+    },
+    {
+      "source": "code_practice",
+      "target": "code_practice/gqa.ipynb",
+      "type": "contains"
+    },
+    {
+      "source": "code_practice",
+      "target": "code_practice/mhc.ipynb",
+      "type": "contains"
+    },
+    {
+      "source": "code_practice",
+      "target": "code_practice/moe.ipynb",
+      "type": "contains"
+    },
+    {
+      "source": "code_practice",
+      "target": "code_practice/vit.ipynb",
+      "type": "contains"
+    },
+    {
+      "source": "__root__",
+      "target": "computer_vision",
+      "type": "contains"
+    },
+    {
+      "source": "computer_vision",
+      "target": "computer_vision/基础",
+      "type": "contains"
+    },
+    {
+      "source": "computer_vision/基础",
+      "target": "computer_vision/基础/Reparameterization Trick.md",
+      "type": "contains"
+    },
+    {
+      "source": "computer_vision/基础",
+      "target": "computer_vision/基础/SD公式推导.md",
+      "type": "contains"
+    },
+    {
+      "source": "computer_vision",
+      "target": "computer_vision/模型架构",
+      "type": "contains"
+    },
+    {
+      "source": "computer_vision/模型架构",
+      "target": "computer_vision/模型架构/JEPA.md",
+      "type": "contains"
+    },
+    {
+      "source": "computer_vision/模型架构",
+      "target": "computer_vision/模型架构/JiT.md",
+      "type": "contains"
+    },
+    {
+      "source": "computer_vision/模型架构",
+      "target": "computer_vision/模型架构/SAM.md",
+      "type": "contains"
+    },
+    {
+      "source": "computer_vision/模型架构",
+      "target": "computer_vision/模型架构/VAE.md",
+      "type": "contains"
+    },
+    {
+      "source": "__root__",
+      "target": "llm",
+      "type": "contains"
+    },
+    {
+      "source": "llm",
+      "target": "llm/开源llm解读",
+      "type": "contains"
+    },
+    {
+      "source": "llm/开源llm解读",
+      "target": "llm/开源llm解读/OpenMythos",
+      "type": "contains"
+    },
+    {
+      "source": "llm/开源llm解读/OpenMythos",
+      "target": "llm/开源llm解读/OpenMythos/OpenMythos Recurrent.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/开源llm解读",
+      "target": "llm/开源llm解读/AR-Diffusion与潜空间推理.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/开源llm解读",
+      "target": "llm/开源llm解读/Claude Mythos 5推测.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/开源llm解读",
+      "target": "llm/开源llm解读/DeepSeek-V4.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/开源llm解读",
+      "target": "llm/开源llm解读/Nemotron-Labs-Diffusion.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/开源llm解读",
+      "target": "llm/开源llm解读/qwen3.5.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm",
+      "target": "llm/模型架构",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构",
+      "target": "llm/模型架构/Muon优化器",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/Muon优化器",
+      "target": "llm/模型架构/Muon优化器/Muon优化器.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/Muon优化器",
+      "target": "llm/模型架构/Muon优化器/奇异值、特征值和正交矩阵.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构",
+      "target": "llm/模型架构/位置编码",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/位置编码",
+      "target": "llm/模型架构/位置编码/RoPe.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构",
+      "target": "llm/模型架构/残差连接",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/残差连接",
+      "target": "llm/模型架构/残差连接/attention_residuals.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/残差连接",
+      "target": "llm/模型架构/残差连接/mHC_残差流形.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/残差连接",
+      "target": "llm/模型架构/残差连接/Pre-Norm vs Post-Norm.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/残差连接",
+      "target": "llm/模型架构/残差连接/流形比较.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构",
+      "target": "llm/模型架构/注意力机制",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/注意力机制",
+      "target": "llm/模型架构/注意力机制/DSA.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/注意力机制",
+      "target": "llm/模型架构/注意力机制/GatedAttention.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/注意力机制",
+      "target": "llm/模型架构/注意力机制/LinearAttention.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/注意力机制",
+      "target": "llm/模型架构/注意力机制/MLA.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm",
+      "target": "llm/模型训练",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型训练",
+      "target": "llm/模型训练/SFT",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型训练/SFT",
+      "target": "llm/模型训练/SFT/LoRA.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型训练",
+      "target": "llm/模型训练/强化学习",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型训练/强化学习",
+      "target": "llm/模型训练/强化学习/ClipPPO原理.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型训练/强化学习",
+      "target": "llm/模型训练/强化学习/DPO.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型训练/强化学习",
+      "target": "llm/模型训练/强化学习/GSPO.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型训练/强化学习",
+      "target": "llm/模型训练/强化学习/PPO.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型训练/强化学习",
+      "target": "llm/模型训练/强化学习/RL知识图谱.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型训练/强化学习",
+      "target": "llm/模型训练/强化学习/李宏毅DRL笔记.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm",
+      "target": "llm/源码解读",
+      "type": "contains"
+    },
+    {
+      "source": "llm/源码解读",
+      "target": "llm/源码解读/OpenMythos",
+      "type": "contains"
+    },
+    {
+      "source": "llm/源码解读/OpenMythos",
+      "target": "llm/源码解读/OpenMythos/ACT.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/源码解读/OpenMythos",
+      "target": "llm/源码解读/OpenMythos/LTI Injection.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/源码解读/OpenMythos",
+      "target": "llm/源码解读/OpenMythos/OpenMythos框架.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/源码解读",
+      "target": "llm/源码解读/ChatGPT.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/源码解读",
+      "target": "llm/源码解读/Einsum.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/源码解读",
+      "target": "llm/源码解读/MOE.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/源码解读",
+      "target": "llm/源码解读/核心要义.md",
+      "type": "contains"
+    },
+    {
+      "source": "__root__",
+      "target": "llm应用开发",
+      "type": "contains"
+    },
+    {
+      "source": "llm应用开发",
+      "target": "llm应用开发/Agent",
+      "type": "contains"
+    },
+    {
+      "source": "llm应用开发/Agent",
+      "target": "llm应用开发/Agent/harness+agent引入.md",
+      "type": "contains"
+    },
+    {
+      "source": "__root__",
+      "target": "性能优化",
+      "type": "contains"
+    },
+    {
+      "source": "性能优化",
+      "target": "性能优化/Deepspeed.md",
+      "type": "contains"
+    },
+    {
+      "source": "性能优化",
+      "target": "性能优化/Flash-Attention.md",
+      "type": "contains"
+    },
+    {
+      "source": "性能优化",
+      "target": "性能优化/MOE负载均衡.md",
+      "type": "contains"
+    },
+    {
+      "source": "性能优化",
+      "target": "性能优化/SGLang.md",
+      "type": "contains"
+    },
+    {
+      "source": "性能优化",
+      "target": "性能优化/vLLM.md",
+      "type": "contains"
+    },
+    {
+      "source": "性能优化",
+      "target": "性能优化/分布式.md",
+      "type": "contains"
+    },
+    {
+      "source": "性能优化",
+      "target": "性能优化/推理加速方法总结.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/模型架构/残差连接/mHC_残差流形.md",
+      "target": "code_practice/mhc.ipynb",
+      "type": "reference"
+    },
+    {
+      "source": "llm/模型架构/残差连接/流形比较.md",
+      "target": "llm/模型架构/残差连接/mHC_残差流形.md",
+      "type": "reference"
+    },
+    {
+      "source": "llm/模型架构/残差连接/流形比较.md",
+      "target": "computer_vision/模型架构/JiT.md",
+      "type": "reference"
+    }
+  ],
+  "stats": {
+    "nodes": 71,
+    "links": 73,
+    "notes": 50,
+    "jupyter": 5,
+    "contains": 70,
+    "references": 3
+  },
+  "source_mtime": 1784325314464464078
+}

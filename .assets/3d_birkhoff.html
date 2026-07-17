@@ -1,0 +1,582 @@
+<style>
+  .bk-wrapper {
+    --bk-bg-color: #f8fafc;
+    --bk-panel-bg: #ffffff;
+    --bk-text-color: #334155;
+    --bk-title-color: #0f172a;
+    --bk-muted: #64748b;
+    --bk-border-color: #cbd5e1;
+    --bk-accent-primary: #3b82f6;
+    --bk-accent-text: #1e40af;
+    --bk-accent-light: #eff6ff;
+    --bk-warning: #d97706;
+    --bk-panel-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    width: 100%;
+    margin: 0 auto;
+    padding: 18px;
+    border-radius: 12px;
+    background: var(--bk-bg-color);
+    color: var(--bk-text-color);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    line-height: 1.6;
+    box-sizing: border-box;
+  }
+
+  .bk-wrapper * {
+    box-sizing: border-box;
+  }
+
+  .bk-wrapper .bk-header {
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .bk-wrapper .bk-header-title {
+    margin: 0 0 6px;
+    color: var(--bk-title-color);
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .bk-wrapper .bk-header-desc {
+    max-width: 860px;
+    margin: 0 auto;
+    color: var(--bk-muted);
+    font-size: 13px;
+  }
+
+  .bk-wrapper .bk-shell {
+    display: grid;
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    gap: 16px;
+    height: clamp(620px, 76vh, 760px);
+  }
+
+  .bk-wrapper .bk-panel,
+  .bk-wrapper .bk-canvas-panel {
+    min-width: 0;
+    min-height: 0;
+    background: var(--bk-panel-bg);
+    border: 1px solid var(--bk-border-color);
+    border-radius: 12px;
+    box-shadow: var(--bk-panel-shadow);
+  }
+
+  .bk-wrapper .bk-panel {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 18px 20px;
+    border-left: 5px solid var(--bk-accent-primary);
+  }
+
+  .bk-wrapper .bk-panel-title {
+    margin: 0 0 8px;
+    color: var(--bk-accent-text);
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .bk-wrapper .bk-intro {
+    margin: 0 0 18px;
+    color: #475569;
+    font-size: 13px;
+  }
+
+  .bk-wrapper .bk-highlight {
+    display: inline-block;
+    padding: 0 5px;
+    border: 1px solid #bfdbfe;
+    border-radius: 5px;
+    background: var(--bk-accent-light);
+    color: var(--bk-accent-text);
+    font-weight: 700;
+  }
+
+  .bk-wrapper .bk-matrix-box {
+    margin-bottom: 18px;
+    padding: 14px;
+    border: 1px solid var(--bk-border-color);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: var(--bk-panel-shadow);
+  }
+
+  .bk-wrapper .bk-section-title,
+  .bk-wrapper .bk-sliders-title {
+    margin: 0 0 10px;
+    color: var(--bk-accent-text);
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .bk-wrapper .bk-mat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .bk-wrapper .bk-mat-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    border: 1px solid var(--bk-border-color);
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--bk-text-color);
+    font-size: 1rem;
+    font-weight: 800;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .bk-wrapper .bk-sliders {
+    display: grid;
+    gap: 12px;
+  }
+
+  .bk-wrapper .bk-slider-row {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr) 42px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .bk-wrapper .bk-slider-label {
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .bk-wrapper .bk-slider-input {
+    width: 100%;
+    min-width: 0;
+    accent-color: var(--bk-accent-primary);
+    cursor: pointer;
+  }
+
+  .bk-wrapper .bk-slider-val {
+    color: var(--bk-muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .bk-wrapper .bk-canvas-panel {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+  }
+
+  .bk-wrapper .bk-canvas-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    overflow: hidden;
+  }
+
+  .bk-wrapper .bk-canvas-container canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .bk-wrapper .bk-label-3d {
+    position: absolute;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    padding: 4px 8px;
+    border: 1px solid var(--bk-border-color);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: var(--bk-text-color);
+    font-size: 12px;
+    font-weight: 800;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 0.1s ease;
+  }
+
+  .bk-wrapper .bk-label-center {
+    padding: 6px 12px;
+    border-color: transparent;
+    border-radius: 999px;
+    background: var(--bk-accent-primary);
+    box-shadow: 0 8px 18px rgba(59, 130, 246, 0.28);
+    color: #ffffff;
+    font-size: 13px;
+  }
+
+  .bk-wrapper .bk-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    z-index: 3;
+    max-width: calc(100% - 32px);
+    transform: translateX(-50%);
+    padding: 8px 14px;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--bk-panel-shadow);
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .bk-wrapper .bk-error {
+    position: absolute;
+    inset: 16px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    border: 1px dashed #93c5fd;
+    border-radius: 10px;
+    background: var(--bk-accent-light);
+    color: var(--bk-accent-text);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .bk-wrapper {
+      padding: 14px;
+    }
+
+    .bk-wrapper .bk-shell {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+
+    .bk-wrapper .bk-canvas-panel {
+      height: 460px;
+    }
+
+    .bk-wrapper .bk-canvas-container {
+      min-height: 460px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .bk-wrapper .bk-header-title {
+      font-size: 1.45rem;
+    }
+
+    .bk-wrapper .bk-panel {
+      padding: 16px;
+    }
+
+    .bk-wrapper .bk-slider-row {
+      grid-template-columns: 42px minmax(0, 1fr) 38px;
+      gap: 8px;
+    }
+
+    .bk-wrapper .bk-hint {
+      width: calc(100% - 28px);
+      white-space: normal;
+    }
+  }
+</style>
+
+<div class="bk-wrapper">
+  <div class="bk-header">
+    <h1 class="bk-header-title">3D 视角看懂 Birkhoff 多面体</h1>
+    <div class="bk-header-desc">
+      把 3x3 双随机矩阵看作 6 个置换矩阵的凸组合：顶点是纯置换矩阵，中间蓝点是当前混合结果。
+    </div>
+  </div>
+
+  <div class="bk-shell">
+    <aside class="bk-panel">
+      <h2 class="bk-panel-title">多面体就像一个调酒器</h2>
+      <p class="bk-intro">
+        <span class="bk-highlight">置换矩阵</span> 是 6 个顶点，类似 6 种纯基底；
+        <span class="bk-highlight">双随机矩阵</span> 是它们按比例混合后的结果。
+        拖动权重后，右侧蓝点会移动，下面矩阵也会同步更新。
+      </p>
+
+      <div class="bk-matrix-box">
+        <div class="bk-section-title">当前混合矩阵</div>
+        <div class="bk-mat-grid" data-bk-mat-grid></div>
+      </div>
+
+      <div class="bk-sliders-title">6 个置换矩阵的混合权重</div>
+      <div class="bk-sliders" data-bk-sliders></div>
+    </aside>
+
+    <section class="bk-canvas-panel">
+      <div class="bk-canvas-container" data-bk-canvas-container>
+        <div class="bk-hint">拖动滑块调整比例，按住画布旋转 3D 视角</div>
+
+        <div class="bk-label-3d" data-bk-label="p1">P1</div>
+        <div class="bk-label-3d" data-bk-label="p2">P2</div>
+        <div class="bk-label-3d" data-bk-label="p3">P3</div>
+        <div class="bk-label-3d" data-bk-label="p4">P4</div>
+        <div class="bk-label-3d" data-bk-label="p5">P5</div>
+        <div class="bk-label-3d" data-bk-label="p6">P6</div>
+        <div class="bk-label-3d bk-label-center" data-bk-label="center">混合矩阵</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+(() => {
+  const roots = document.querySelectorAll('.bk-wrapper:not([data-bk-initialized])');
+  roots.forEach(initBirkhoffDemo);
+
+  function initBirkhoffDemo(root) {
+    root.dataset.bkInitialized = 'true';
+
+    const container = root.querySelector('[data-bk-canvas-container]');
+    if (!window.THREE || !THREE.OrbitControls) {
+      showError(container, '3D 渲染库加载失败，请检查网络或 CDN 访问。');
+      return;
+    }
+
+    const radius = 9;
+    const vertices = [
+      { name: 'P1', col: '#ef4444', pos: new THREE.Vector3(0, radius, 0), mat: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] },
+      { name: 'P2', col: '#16a34a', pos: new THREE.Vector3(radius, 0, 0), mat: [[0, 1, 0], [1, 0, 0], [0, 0, 1]] },
+      { name: 'P3', col: '#3b82f6', pos: new THREE.Vector3(0, 0, radius), mat: [[0, 0, 1], [0, 1, 0], [1, 0, 0]] },
+      { name: 'P4', col: '#d97706', pos: new THREE.Vector3(-radius, 0, 0), mat: [[1, 0, 0], [0, 0, 1], [0, 1, 0]] },
+      { name: 'P5', col: '#0d9488', pos: new THREE.Vector3(0, 0, -radius), mat: [[0, 1, 0], [0, 0, 1], [1, 0, 0]] },
+      { name: 'P6', col: '#db2777', pos: new THREE.Vector3(0, -radius, 0), mat: [[0, 0, 1], [1, 0, 0], [0, 1, 0]] }
+    ];
+
+    let rawWeights = [50, 0, 0, 0, 0, 50];
+    let normalizedWeights = [0.5, 0, 0, 0, 0, 0.5];
+    let centerSphere = null;
+    const lines = [];
+
+    const matGrid = root.querySelector('[data-bk-mat-grid]');
+    const cells = [];
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'bk-mat-cell';
+      matGrid.appendChild(cell);
+      cells.push(cell);
+    }
+
+    const slidersContainer = root.querySelector('[data-bk-sliders]');
+    vertices.forEach((vertex, index) => {
+      const row = document.createElement('div');
+      row.className = 'bk-slider-row';
+      row.innerHTML = `
+        <div class="bk-slider-label" style="color:${vertex.col}">${vertex.name}</div>
+        <input type="range" class="bk-slider-input" min="0" max="100" value="${rawWeights[index]}">
+        <div class="bk-slider-val">${rawWeights[index]}%</div>
+      `;
+      slidersContainer.appendChild(row);
+
+      const input = row.querySelector('.bk-slider-input');
+      const value = row.querySelector('.bk-slider-val');
+      input.style.accentColor = vertex.col;
+      input.addEventListener('input', () => {
+        rawWeights[index] = parseInt(input.value, 10);
+        updateMath();
+      });
+      vertex.valueEl = value;
+    });
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.set(15, 12, 24);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.65);
+    dirLight.position.set(14, 24, 18);
+    scene.add(dirLight);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0xf8fafc, 1);
+    renderer.domElement.setAttribute('aria-label', 'Birkhoff 多面体三维视图');
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+
+    const geometry = new THREE.OctahedronGeometry(radius, 0);
+    const wireframe = new THREE.LineSegments(
+      new THREE.WireframeGeometry(geometry),
+      new THREE.LineBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.28 })
+    );
+    scene.add(wireframe);
+
+    const glassMesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({
+        color: 0xbfdbfe,
+        transparent: true,
+        opacity: 0.16,
+        side: THREE.DoubleSide
+      })
+    );
+    scene.add(glassMesh);
+
+    vertices.forEach(vertex => {
+      const sphereGeo = new THREE.SphereGeometry(0.6, 20, 20);
+      const sphereMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(vertex.col),
+        roughness: 0.32,
+        metalness: 0.08
+      });
+      const mesh = new THREE.Mesh(sphereGeo, sphereMat);
+      mesh.position.copy(vertex.pos);
+      scene.add(mesh);
+    });
+
+    centerSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.95, 32, 32),
+      new THREE.MeshStandardMaterial({
+        color: 0x3b82f6,
+        roughness: 0.16,
+        metalness: 0.22
+      })
+    );
+    scene.add(centerSphere);
+
+    vertices.forEach(vertex => {
+      const lineGeo = new THREE.BufferGeometry();
+      lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+      const lineMat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(vertex.col),
+        transparent: true,
+        opacity: 0.5
+      });
+      const line = new THREE.Line(lineGeo, lineMat);
+      scene.add(line);
+      lines.push(line);
+    });
+
+    resizeRenderer();
+    updateMath();
+    animate();
+
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(resizeRenderer);
+      observer.observe(container);
+    } else {
+      window.addEventListener('resize', resizeRenderer);
+    }
+
+    function updateMath() {
+      const sum = rawWeights.reduce((total, weight) => total + weight, 0);
+      normalizedWeights = sum === 0
+        ? Array(vertices.length).fill(1 / vertices.length)
+        : rawWeights.map(weight => weight / sum);
+
+      normalizedWeights.forEach((weight, index) => {
+        vertices[index].valueEl.textContent = `${(weight * 100).toFixed(0)}%`;
+      });
+
+      const finalMat = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+      vertices.forEach((vertex, index) => {
+        const weight = normalizedWeights[index];
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            finalMat[row][col] += weight * vertex.mat[row][col];
+          }
+        }
+      });
+
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const value = finalMat[row][col];
+          const cell = cells[row * 3 + col];
+          cell.textContent = value.toFixed(2);
+          cell.style.background = `rgba(59, 130, 246, ${value * 0.5 + 0.08})`;
+          cell.style.color = value > 0.7 ? '#0f172a' : '#334155';
+        }
+      }
+
+      const mixPos = new THREE.Vector3();
+      vertices.forEach((vertex, index) => {
+        mixPos.addScaledVector(vertex.pos, normalizedWeights[index]);
+      });
+      centerSphere.position.copy(mixPos);
+
+      lines.forEach((line, index) => {
+        const positions = line.geometry.attributes.position.array;
+        positions[0] = mixPos.x;
+        positions[1] = mixPos.y;
+        positions[2] = mixPos.z;
+        positions[3] = vertices[index].pos.x;
+        positions[4] = vertices[index].pos.y;
+        positions[5] = vertices[index].pos.z;
+        line.geometry.attributes.position.needsUpdate = true;
+        line.material.opacity = normalizedWeights[index] > 0.01
+          ? normalizedWeights[index] * 0.75 + 0.18
+          : 0;
+      });
+    }
+
+    function resizeRenderer() {
+      const width = Math.max(container.clientWidth, 320);
+      const height = Math.max(container.clientHeight, 360);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+      updateLabels();
+    }
+
+    function updateLabels() {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      vertices.forEach((vertex, index) => {
+        const label = root.querySelector(`[data-bk-label="p${index + 1}"]`);
+        const pos = vertex.pos.clone().project(camera);
+        placeLabel(label, pos, width, height, -18);
+      });
+
+      const centerLabel = root.querySelector('[data-bk-label="center"]');
+      const centerPos = centerSphere.position.clone().project(camera);
+      placeLabel(centerLabel, centerPos, width, height, -28);
+    }
+
+    function placeLabel(label, projectedPos, width, height, yOffset) {
+      if (projectedPos.z > 1) {
+        label.style.opacity = 0;
+        return;
+      }
+
+      label.style.opacity = 1;
+      label.style.left = `${(projectedPos.x * 0.5 + 0.5) * width}px`;
+      label.style.top = `${(-(projectedPos.y * 0.5) + 0.5) * height + yOffset}px`;
+    }
+
+    function showError(target, message) {
+      const error = document.createElement('div');
+      error.className = 'bk-error';
+      error.textContent = message;
+      target.appendChild(error);
+    }
+  }
+})();
+</script>

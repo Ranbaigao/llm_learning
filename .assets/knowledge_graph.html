@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Knowledge Graph · 我的 LLM 笔记</title>
+<style>
+  :root {
+    --bg-color: #f8fafc;
+    --text-color: #334155;
+    --title-color: #0f172a;
+    --panel-bg: rgba(255, 255, 255, 0.92);
+    --border-color: #cbd5e1;
+    --panel-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    --accent-primary: #3b82f6;
+    --accent-text: #1e40af;
+    --accent-light: #eff6ff;
+    --success: #16a34a;
+    --warning: #d97706;
+    --muted: #64748b;
+    --root-color: #0f172a;
+    --llm-color: #2563eb;
+    --cv-color: #0d9488;
+    --performance-color: #d97706;
+    --app-color: #7c3aed;
+    --practice-color: #0891b2;
+    --reference-color: #7c3aed;
+  }
+
+  * { box-sizing: border-box; }
+
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background:
+      radial-gradient(circle at 26% 18%, rgba(219, 234, 254, 0.95) 0, transparent 32%),
+      radial-gradient(circle at 80% 18%, rgba(239, 246, 255, 0.92) 0, transparent 34%),
+      radial-gradient(circle at 54% 84%, rgba(241, 245, 249, 0.96) 0, transparent 40%),
+      linear-gradient(135deg, #ffffff 0%, #f8fafc 46%, #eff6ff 100%);
+  }
+
+  .app::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(100, 116, 139, 0.055) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg, rgba(100, 116, 139, 0.05) 0 1px, transparent 1px 40px);
+    mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
+  }
+
+  #scene {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  #scene.is-dragging { cursor: grabbing; }
+
+  #labels {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    overflow: hidden;
+    pointer-events: none;
+    contain: layout style paint;
+  }
+
+  .graph-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: 220px;
+    color: var(--label-color, #475569);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    line-height: 1.16;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.94),
+      0 -1px 0 rgba(255, 255, 255, 0.86),
+      1px 0 0 rgba(255, 255, 255, 0.86),
+      -1px 0 0 rgba(255, 255, 255, 0.86),
+      0 8px 18px rgba(15, 23, 42, 0.10);
+    transform: translate3d(-999px, -999px, 0) translateX(-50%);
+    transform-origin: 50% 0;
+    will-change: transform, opacity;
+  }
+
+  .graph-label--note { font-weight: 500; }
+
+  .panel {
+    position: absolute;
+    z-index: 4;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(10px) saturate(130%);
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
+  }
+
+  /* 统计图谱 - 调整到右下方位置互换 */
+  .header-panel {
+    bottom: 18px;
+    right: 18px;
+    width: min(430px, calc(100vw - 36px));
+    padding: 14px 16px;
+  }
+
+  .eyebrow {
+    margin: 0 0 4px;
+    color: var(--accent-text);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .header-panel h1 {
+    margin: 0;
+    color: var(--title-color);
+    font-size: 19px;
+    line-height: 1.2;
+    font-weight: 750;
+  }
+
+  .metric-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 12px;
+  }
+
+  .metric {
+    min-width: 0;
+    padding: 7px 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+  }
+
+  .metric strong {
+    display: block;
+    color: var(--title-color);
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .metric span {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .legend-panel {
+    top: 18px;
+    right: 18px;
+    min-width: 166px;
+    padding: 11px 12px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .legend-title {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  .legend-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 999px;
+    box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 14%, transparent);
+    flex: 0 0 auto;
+  }
+
+  .toolbar {
+    left: 18px;
+    bottom: 18px;
+    padding: 7px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .icon-button {
+    width: 36px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+
+  .icon-button:hover {
+    transform: translateY(-1px);
+    background: var(--accent-light);
+    color: var(--accent-text);
+    border-color: rgba(59, 130, 246, 0.42);
+  }
+
+  .icon-button:active { transform: translateY(0) scale(0.97); }
+
+  .icon-button svg {
+    width: 17px;
+    height: 17px;
+    stroke-width: 2.1;
+  }
+
+  /* 搜索面板 - 调整到左上方位置互换 */
+  .search-panel {
+    top: 18px;
+    left: 18px;
+    width: min(310px, calc(100vw - 112px));
+    height: 48px;
+    padding: 0 13px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .search-panel svg {
+    width: 17px;
+    height: 17px;
+    color: var(--muted);
+    flex: 0 0 auto;
+  }
+
+  .search-panel input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--title-color);
+    font: inherit;
+    font-size: 13px;
+  }
+
+  .search-panel input::placeholder { color: #94a3b8; }
+
+  /* 搜索结果弹窗优先级提高(z-index: 10)，位置匹配左上方 */
+  .search-results {
+    position: absolute;
+    z-index: 10;
+    top: 72px;
+    left: 18px;
+    width: min(340px, calc(100vw - 34px));
+    max-height: min(380px, calc(100vh - 190px));
+    overflow: auto;
+    padding: 8px;
+    display: grid;
+    gap: 6px;
+  }
+
+  .search-results[hidden] { display: none; }
+
+  .search-result-item {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    color: var(--title-color);
+    padding: 8px 10px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  }
+
+  .search-result-item:hover,
+  .search-result-item.is-active {
+    border-color: rgba(59, 130, 246, 0.52);
+    background: #eff6ff;
+    transform: translateY(-1px);
+  }
+
+  .search-result-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .search-result-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .search-result-badge {
+    flex: 0 0 auto;
+    height: 18px;
+    border-radius: 999px;
+    padding: 0 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #1e40af;
+    background: #dbeafe;
+  }
+
+  .search-result-meta {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 10.5px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .search-result-type {
+    margin-top: 5px;
+    font-size: 10px;
+    color: #0f766e;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  #tooltip {
+    position: fixed;
+    z-index: 8;
+    min-width: 190px;
+    max-width: min(330px, calc(100vw - 28px));
+    padding: 10px 12px 11px;
+    border: 1px solid rgba(203, 213, 225, 0.96);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.14);
+    color: var(--text-color);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 140ms ease;
+  }
+
+  #tooltip.visible { opacity: 1; }
+
+  .tip-type {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .tip-title {
+    margin-top: 7px;
+    color: var(--title-color);
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .tip-path {
+    margin-top: 5px;
+    color: var(--muted);
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 10.5px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .tip-hint {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 10.5px;
+  }
+
+  #loading,
+  #error {
+    position: absolute;
+    z-index: 6;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(203, 213, 225, 0.92);
+    border-radius: 8px;
+    padding: 12px 15px;
+    box-shadow: var(--panel-shadow);
+  }
+
+  .spinner {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #dbeafe;
+    border-top-color: var(--accent-primary);
+    border-radius: 999px;
+    animation: spin 760ms linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #error {
+    width: min(460px, calc(100vw - 32px));
+    padding: 16px 18px;
+    border: 1px solid rgba(220, 38, 38, 0.28);
+    border-radius: 8px;
+    background: #fff7f7;
+    color: #991b1b;
+    box-shadow: var(--panel-shadow);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  #error[hidden],
+  #loading[hidden] { display: none; }
+
+  @media (max-width: 760px) {
+    .header-panel {
+      bottom: 10px;
+      right: 10px;
+      width: auto;
+    }
+
+    .legend-panel { display: none; }
+
+    .toolbar {
+      left: 10px;
+      bottom: 10px;
+    }
+
+    .search-panel {
+      top: 10px;
+      left: 10px;
+      width: min(240px, calc(100vw - 66px));
+    }
+
+    .search-results {
+      top: 64px;
+      left: 10px;
+      width: min(280px, calc(100vw - 20px));
+      max-height: min(330px, calc(100vh - 170px));
+    }
+
+    .metric-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <canvas id="scene" aria-label="notebooks 3D 知识星图"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+
+  <section class="panel header-panel" aria-label="图谱统计">
+    <p class="eyebrow">Knowledge Graph</p>
+    <h1>我的 LLM 笔记星图</h1>
+    <div class="metric-row">
+      <div class="metric"><strong id="stat-nodes">0</strong><span>节点</span></div>
+      <div class="metric"><strong id="stat-notes">0</strong><span>笔记</span></div>
+      <div class="metric"><strong id="stat-contains">0</strong><span>结构</span></div>
+      <div class="metric"><strong id="stat-refs">0</strong><span>引用</span></div>
+    </div>
+  </section>
+
+  <aside class="panel legend-panel" aria-label="图例">
+    <div class="legend-title">Constellation</div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--root-color); color: var(--root-color);"></span><span>根星</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--llm-color); color: var(--llm-color);"></span><span>LLM 星座</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--cv-color); color: var(--cv-color);"></span><span>CV 星座</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--performance-color); color: var(--performance-color);"></span><span>性能优化</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--practice-color); color: var(--practice-color);"></span><span>代码实践</span></div>
+  </aside>
+
+  <div class="panel toolbar" aria-label="图谱工具">
+    <button class="icon-button" id="fit-button" type="button" title="重置视角" aria-label="重置视角">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+    </button>
+    <button class="icon-button" id="relayout-button" type="button" title="重新排布星图" aria-label="重新排布星图">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+    </button>
+    <button class="icon-button" id="pause-button" type="button" title="暂停动画" aria-label="暂停动画">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 4H6v16h4z"/><path d="M18 4h-4v16h4z"/></svg>
+    </button>
+    <button class="icon-button" id="refresh-button" type="button" title="重新读取数据" aria-label="重新读取数据">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 11a8.1 8.1 0 0 0-15.5-2"/><path d="M4 4v5h5"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2"/><path d="M20 20v-5h-5"/></svg>
+    </button>
+  </div>
+
+  <label class="panel search-panel" for="search-input" aria-label="搜索节点">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+    <input id="search-input" type="search" placeholder="搜索笔记或目录" autocomplete="off" />
+  </label>
+  <section id="search-results" class="panel search-results" aria-label="搜索结果" hidden></section>
+
+  <div id="tooltip" role="status" aria-live="polite"></div>
+  <div id="loading"><span class="spinner"></span><span>加载知识星图</span></div>
+  <div id="error" hidden></div>
+</div>
+
+<script>
+'use strict';
+
+const DATA_URL = 'data/knowledge_graph.json';
+const TYPE_LABEL = {
+  root: 'ROOT',
+  category: 'CATEGORY',
+  subcategory: 'SUBCATEGORY',
+  note: 'NOTE',
+};
+const TYPE_COLOR = {
+  root: cssVar('--root-color'),
+};
+const CONSTELLATION_COLORS = {
+  llm: cssVar('--llm-color'),
+  computer_vision: cssVar('--cv-color'),
+  性能优化: cssVar('--performance-color'),
+  llm应用开发: cssVar('--app-color'),
+  code_practice: cssVar('--practice-color'),
+};
+const SECONDARY_CONSTELLATION_COLORS = {
+  'llm/llm技术报告': '#3b82f6',
+  'llm/模型架构': '#0ea5e9',
+  'llm/模型训练': '#1d4ed8',
+  'llm/源码解读': '#1e3a8a',
+  'computer_vision/基础': '#14b8a6',
+  'computer_vision/模型架构': '#0f766e',
+};
+const FALLBACK_CONSTELLATION_COLORS = [
+  '#3b82f6',
+  '#16a34a',
+  '#d97706',
+  '#7c3aed',
+  '#0891b2',
+  '#db2777',
+];
+const INDEX_CHAPTER_ANCHORS = {
+  '__root__': 'kg-home',
+  'llm': 'kg-llm',
+  'llm/llm技术报告': 'kg-llm-reports',
+  'llm/模型架构': 'kg-llm-architecture',
+  'llm/模型架构/优化器': 'kg-llm-architecture',
+  'llm/模型架构/位置编码': 'kg-llm-architecture',
+  'llm/模型架构/归一化': 'kg-llm-architecture',
+  'llm/模型架构/注意力机制': 'kg-llm-architecture',
+  'llm/模型训练': 'kg-llm-training',
+  'llm/模型训练/SFT': 'kg-llm-training',
+  'llm/模型训练/强化学习': 'kg-llm-training',
+  'llm/源码解读': 'kg-llm-source',
+  'llm应用开发': 'kg-llm-app',
+  'computer_vision': 'kg-cv',
+  'computer_vision/基础': 'kg-cv-basic',
+  'computer_vision/模型架构': 'kg-cv-architecture',
+  '性能优化': 'kg-performance',
+};
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d', { alpha: true });
+const labelLayer = document.getElementById('labels');
+const tooltip = document.getElementById('tooltip');
+const loading = document.getElementById('loading');
+const errorBox = document.getElementById('error');
+const searchInput = document.getElementById('search-input');
+const searchResultsPanel = document.getElementById('search-results');
+
+let width = 0;
+let height = 0;
+let dpr = 1;
+let nodes = [];
+let links = [];
+let stars = [];
+let nodeById = new Map();
+let adjacency = new Map();
+let childrenById = new Map();
+let parentById = new Map();
+let focusNode = null;
+let focusIds = new Set();
+let focusLabelIds = new Set();
+let searchMatches = new Set();
+let searchQuery = '';
+let searchResultNodes = [];
+let activeSearchResultIndex = -1;
+let hoveredNode = null;
+let isHoveringNode = false;
+let pressedNode = null;
+let paused = false;
+let dragState = null;
+let frameHandle = 0;
+let lastTime = 0;
+let time = 0;
+let constellationRotation = 0;
+let camera = {
+  rotX: 1.18,
+  rotY: -0.28,
+  zoom: 1,
+  panX: 0,
+  panY: 14,
+  distance: 980,
+};
+
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[char]));
+}
+
+function hexToRgb(hex) {
+  const normalized = hex.trim().replace('#', '');
+  const value = Number.parseInt(normalized.length === 3
+    ? normalized.split('').map(ch => ch + ch).join('')
+    : normalized, 16);
+  return {
+    r: (value >> 16) & 255,
+    g: (value >> 8) & 255,
+    b: value & 255,
+  };
+}
+
+function rgbToHex({ r, g, b }) {
+  return '#' + [r, g, b]
+    .map(value => Math.round(clamp(value, 0, 255)).toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function mixHex(from, to, amount) {
+  const a = hexToRgb(from);
+  const b = hexToRgb(to);
+  const t = clamp(amount, 0, 1);
+  return rgbToHex({
+    r: a.r + (b.r - a.r) * t,
+    g: a.g + (b.g - a.g) * t,
+    b: a.b + (b.b - a.b) * t,
+  });
+}
+
+function rgba(color, alpha) {
+  const rgb = hexToRgb(color);
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+}
+
+function branchIdFor(node) {
+  if (!node || node.id === '__root__') return '__root__';
+  return String(node.id).split('/')[0] || String(node.id);
+}
+
+function secondaryBranchIdFor(node) {
+  if (!node || node.id === '__root__') return '__root__';
+  const parts = String(node.id).split('/');
+  return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : parts[0];
+}
+
+function fallbackConstellationColor(branchId) {
+  let hash = 0;
+  for (const char of String(branchId)) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }
+  return FALLBACK_CONSTELLATION_COLORS[hash % FALLBACK_CONSTELLATION_COLORS.length];
+}
+
+function baseColorForBranch(branchId) {
+  return CONSTELLATION_COLORS[branchId] || fallbackConstellationColor(branchId);
+}
+
+function baseColorForSecondaryBranch(node) {
+  const branchId = branchIdFor(node);
+  const secondaryId = secondaryBranchIdFor(node);
+  if (!secondaryId || secondaryId === branchId) return baseColorForBranch(branchId);
+  if (SECONDARY_CONSTELLATION_COLORS[secondaryId]) return SECONDARY_CONSTELLATION_COLORS[secondaryId];
+
+  const base = baseColorForBranch(branchId);
+  const driftPalette = ['#38bdf8', '#2563eb', '#0f766e', '#4338ca', '#0369a1', '#1e40af'];
+  const drift = driftPalette[Math.floor(hashUnit(secondaryId, 91) * driftPalette.length) % driftPalette.length];
+  return mixHex(base, drift, 0.36);
+}
+
+function colorForNode(node) {
+  if (!node || node.type === 'root') return TYPE_COLOR.root;
+  const base = node.type === 'category'
+    ? baseColorForBranch(branchIdFor(node))
+    : baseColorForSecondaryBranch(node);
+  if (node.type === 'category') return base;
+  if (node.type === 'subcategory') {
+    const darkAmount = node.depth <= 1
+      ? 0.04
+      : clamp(0.08 + Math.max(0, node.depth - 1) * 0.04, 0.10, 0.24);
+    return mixHex(base, '#0f172a', darkAmount);
+  }
+  const lightAmount = node.format === 'jupyter'
+    ? clamp(0.08 + Math.max(0, node.depth) * 0.025, 0.10, 0.22)
+    : clamp(0.20 + Math.max(0, node.depth) * 0.035, 0.22, 0.38);
+  return mixHex(base, '#ffffff', lightAmount);
+}
+
+function radiusFor(node) {
+  if (node.type === 'root') return 15;
+  if (node.type === 'category') return Math.max(11, Math.min(16, node.size * 0.62 || 12));
+  if (node.type === 'subcategory') return Math.max(8, Math.min(12, node.size * 0.58 || 9));
+  return Math.max(4.5, Math.min(6.2, node.size * 0.72 || 5));
+}
+
+function measure() {
+  const rect = canvas.getBoundingClientRect();
+  width = Math.max(320, rect.width);
+  height = Math.max(420, rect.height);
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function orderedChildren(parentId) {
+  return [...(childrenById.get(parentId) || [])].sort((a, b) => {
+    const rank = { category: 0, subcategory: 1, note: 2 };
+    const dr = (rank[a.type] ?? 9) - (rank[b.type] ?? 9);
+    if (dr !== 0) return dr;
+    return a.name.localeCompare(b.name, 'zh-Hans-CN');
+  });
+}
+
+function hashUnit(value, salt = 0) {
+  let hash = 2166136261 ^ salt;
+  for (const char of String(value)) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0) / 4294967295;
+}
+
+function signedHash(value, salt = 0) {
+  return hashUnit(value, salt) * 2 - 1;
+}
+
+async function loadGraph() {
+  loading.hidden = false;
+  errorBox.hidden = true;
+  try {
+    const response = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    buildGraph(data);
+    loading.hidden = true;
+  } catch (error) {
+    loading.hidden = true;
+    errorBox.hidden = false;
+    errorBox.textContent = `知识星图数据加载失败：${error.message}。请先运行 mkdocs serve、mkdocs build，或直接执行 python hooks/generate_graph_data.py。`;
+  }
+}
+
+function buildGraph(data) {
+  cancelAnimationFrame(frameHandle);
+  measure();
+
+  nodeById = new Map();
+  nodes = (Array.isArray(data.nodes) ? data.nodes : []).map((node, index) => {
+    const next = {
+      ...node,
+      index,
+      radius: radiusFor(node),
+      branchId: branchIdFor(node),
+      color: colorForNode(node),
+      x: 0,
+      y: 0,
+      z: 0,
+      tx: 0,
+      ty: 0,
+      tz: 0,
+      screen: null,
+      pulse: Math.random() * Math.PI * 2,
+      scale: 1,
+      labelX: null,
+      labelY: null,
+      labelEl: null,
+    };
+    nodeById.set(next.id, next);
+    return next;
+  });
+
+  links = (Array.isArray(data.links) ? data.links : [])
+    .map((link, index) => ({
+      ...link,
+      index,
+      source: nodeById.get(link.source),
+      target: nodeById.get(link.target),
+    }))
+    .filter(link => link.source && link.target);
+
+  adjacency = new Map(nodes.map(node => [node.id, new Set()]));
+  childrenById = new Map(nodes.map(node => [node.id, []]));
+  parentById = new Map();
+  for (const link of links) {
+    adjacency.get(link.source.id)?.add(link.target.id);
+    adjacency.get(link.target.id)?.add(link.source.id);
+    if (link.type === 'contains') {
+      childrenById.get(link.source.id)?.push(link.target);
+      parentById.set(link.target.id, link.source);
+    }
+  }
+
+  createGraphLabels();
+  seedConstellation();
+  createBackgroundStars();
+  updateStats(data.stats || {});
+  resetView();
+  clearFocus();
+  lastTime = performance.now();
+  frameHandle = requestAnimationFrame(animate);
+}
+
+function updateStats(stats) {
+  document.getElementById('stat-nodes').textContent = stats.nodes ?? nodes.length;
+  document.getElementById('stat-notes').textContent = stats.notes ?? nodes.filter(node => node.type === 'note').length;
+  document.getElementById('stat-contains').textContent = stats.contains ?? links.filter(link => link.type === 'contains').length;
+  document.getElementById('stat-refs').textContent = stats.references ?? links.filter(link => link.type === 'reference').length;
+}
+
+function createGraphLabels() {
+  labelLayer.replaceChildren();
+  for (const node of nodes) {
+    const label = document.createElement('div');
+    label.className = `graph-label graph-label--${node.type}`;
+    label.textContent = node.name;
+    label.style.setProperty('--label-color', labelColorFor(node));
+    label.style.opacity = '0';
+    labelLayer.appendChild(label);
+    node.labelEl = label;
+  }
+}
+
+function seedConstellation() {
+  const root = nodeById.get('__root__');
+  const categories = orderedChildren('__root__');
+  const baseRadius = 320;
+  const orbitScaleZ = 0.72;
+
+  if (root) {
+    root.tx = 0;
+    root.ty = 0;
+    root.tz = 0;
+    root.branchAngle = 0;
+  }
+
+  function placeChildren(parent, angle, level) {
+    const children = orderedChildren(parent.id);
+    if (!children.length) return;
+
+    const count = children.length;
+    const parentIsCategory = parent.type === 'category';
+    const tangentSpan = clamp(
+      (parentIsCategory ? 110 : 72) + count * (parentIsCategory ? 38 : 22),
+      parentIsCategory ? 200 : 100,
+      parentIsCategory ? 400 : 240
+    );
+    const verticalSpan = clamp(
+      (parentIsCategory ? 52 : 36) + count * (parentIsCategory ? 20 : 12),
+      parentIsCategory ? 110 : 60,
+      parentIsCategory ? 260 : 140
+    );
+    const verticalAmplitude = clamp(
+      (parentIsCategory ? 100 : 70) + count * (parentIsCategory ? 18 : 11),
+      parentIsCategory ? 140 : 90,
+      parentIsCategory ? 280 : 170
+    );
+    const depthAmplitude = clamp(
+      (parentIsCategory ? 64 : 44) + count * (parentIsCategory ? 12 : 7),
+      parentIsCategory ? 88 : 58,
+      parentIsCategory ? 180 : 108
+    );
+    const radialGap = clamp(parentIsCategory ? 145 : 102 - level * 4, 72, 148);
+    const noteRadialGap = clamp(radialGap * 0.85, 62, 96);
+    const normal = {
+      x: Math.cos(angle),
+      z: Math.sin(angle) * orbitScaleZ,
+    };
+    const tangent = {
+      x: -Math.sin(angle),
+      z: Math.cos(angle) * orbitScaleZ,
+    };
+
+    children.forEach((child, index) => {
+      const ratio = count === 1 ? 0 : index / (count - 1) - 0.5;
+      const ringOffset = ((index % 3) - 1) * (child.type === 'note' ? 8 : 12);
+      const orbitOffset = ratio * tangentSpan + ringOffset;
+      const depthBias = Math.max(0, level) * 7;
+      const childRadial = child.type === 'note' ? noteRadialGap : radialGap;
+      const microWave = Math.sin((index + 1) * 1.618 + level) * (child.type === 'note' ? 7 : 10);
+      const childAngle = angle + ratio * (parentIsCategory ? 0.36 : 0.24);
+      const shellAngle = (index + 1) * 2.399963 + level * 0.83 + hashUnit(parent.id, 17) * Math.PI;
+      const verticalLift =
+        Math.sin(shellAngle) * verticalAmplitude +
+        ratio * verticalSpan * 0.42 +
+        signedHash(child.id, 31) * (parentIsCategory ? 18 : 12);
+      const depthLift =
+        Math.cos(shellAngle * 1.13) * depthAmplitude +
+        signedHash(child.id, 47) * (parentIsCategory ? 28 : 18);
+
+      child.branchAngle = childAngle;
+      child.tx = parent.tx + normal.x * (childRadial + depthLift * 0.22) + tangent.x * (orbitOffset + microWave);
+      child.tz = parent.tz + normal.z * (childRadial + depthLift * 0.34) + tangent.z * (orbitOffset + microWave) + depthLift * 0.58;
+      child.ty = parent.ty + verticalLift + depthBias + (child.type === 'note' ? 5 : -4);
+
+      if (orderedChildren(child.id).length) {
+        placeChildren(child, childAngle, level + 1);
+      }
+    });
+  }
+
+  categories.forEach((node, index) => {
+    const angle = -Math.PI / 2 + (index / Math.max(1, categories.length)) * Math.PI * 2;
+    const children = orderedChildren(node.id);
+    const branchRadius = baseRadius + Math.min(32, children.length * 3.2);
+    const wave = Math.sin(angle * 1.7 + node.depth) * 24;
+    node.branchAngle = angle;
+    node.tx = Math.cos(angle) * branchRadius;
+    node.tz = Math.sin(angle) * branchRadius * orbitScaleZ;
+    node.ty = (index - (categories.length - 1) / 2) * 40 + wave;
+    placeChildren(node, angle, 0);
+  });
+
+  // 排斥力后处理：推开初始坐标过近的节点，再加 jitter
+  applyRepulsion();
+
+  nodes.forEach((node, index) => {
+    const jitter =
+      node.type === 'root' ? 0 :
+      node.type === 'category' ? 5 :
+      node.type === 'subcategory' ? 4 :
+      3.2;
+    const phase = (index % 5) / 5 * Math.PI * 2;
+    node.x = node.tx + Math.cos(phase) * jitter;
+    node.y = node.ty + Math.sin(phase) * jitter * 0.8;
+    node.z = node.tz + Math.sin(phase * 0.7) * jitter;
+  });
+}
+
+/**
+ * 排斥力后处理：在初始布局坐标 (tx,ty,tz) 基础上，迭代推开同星座内距离过近的节点。
+ * 只修改 tx/ty/tz，后续 jitter 和 easeNodes 再处理 x/y/z。
+ */
+function applyRepulsion() {
+  const ITERATIONS = 100;
+  // 不同类型节点对的最小 3D 期望距离
+  const MIN_NOTE_NOTE = 75;
+  const MIN_NOTE_SUB  = 90;
+  const MIN_SUB_SUB   = 100;
+
+  for (let iter = 0; iter < ITERATIONS; iter++) {
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        // 跳过根节点、跨星座节点、以及 category 自身间的排斥（由 baseRadius 控制）
+        if (a.type === 'root' || b.type === 'root') continue;
+        if (a.type === 'category' && b.type === 'category') continue;
+        if (a.branchId !== b.branchId) continue;
+
+        const dx = b.tx - a.tx;
+        const dy = b.ty - a.ty;
+        const dz = b.tz - a.tz;
+        const d2 = dx * dx + dy * dy + dz * dz;
+
+        let minDist;
+        if (a.type === 'note' && b.type === 'note') {
+          minDist = MIN_NOTE_NOTE;
+        } else if (a.type === 'note' || b.type === 'note') {
+          minDist = MIN_NOTE_SUB;
+        } else {
+          minDist = MIN_SUB_SUB;
+        }
+
+        if (d2 < minDist * minDist) {
+          const d = Math.sqrt(d2) || 0.001;
+          const overlap = (minDist - d) / d;
+          // subcategory 节点质量更大，移动幅度更小
+          const wa = a.type === 'note' ? 0.56 : 0.24;
+          const wb = b.type === 'note' ? 0.56 : 0.24;
+          a.tx -= dx * overlap * wa;
+          a.ty -= dy * overlap * wa;
+          a.tz -= dz * overlap * wa;
+          b.tx += dx * overlap * wb;
+          b.ty += dy * overlap * wb;
+          b.tz += dz * overlap * wb;
+        }
+      }
+    }
+  }
+}
+
+function createBackgroundStars() {
+  stars = [];
+  const count = Math.round(clamp((width * height) / 9000, 70, 150));
+  for (let i = 0; i < count; i += 1) {
+    stars.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: 0.45 + Math.random() * 1.25,
+      a: 0.16 + Math.random() * 0.28,
+      p: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function projectPoint(x, y, z) {
+  const cosConstellation = Math.cos(constellationRotation);
+  const sinConstellation = Math.sin(constellationRotation);
+  const rx = x * cosConstellation - z * sinConstellation;
+  const rz = x * sinConstellation + z * cosConstellation;
+  const cosY = Math.cos(camera.rotY);
+  const sinY = Math.sin(camera.rotY);
+  const cosX = Math.cos(camera.rotX);
+  const sinX = Math.sin(camera.rotX);
+
+  const x1 = rx * cosY - rz * sinY;
+  const z1 = rx * sinY + rz * cosY;
+  const y1 = y * cosX - z1 * sinX;
+  const z2 = y * sinX + z1 * cosX;
+  const perspective = camera.distance / Math.max(180, camera.distance + z2);
+
+  return {
+    x: width / 2 + camera.panX + x1 * perspective * camera.zoom,
+    y: height / 2 + camera.panY + y1 * perspective * camera.zoom,
+    z: z2,
+    scale: perspective * camera.zoom,
+  };
+}
+
+function updateProjection() {
+  for (const node of nodes) {
+    node.screen = projectPoint(node.x, node.y, node.z);
+  }
+}
+
+function targetScale(node) {
+  if (focusNode) {
+    if (node.id === focusNode.id) return 1.62;
+    if (focusIds.has(node.id)) return 1.17;
+    return 0.86;
+  }
+  return searchMatches.has(node.id) ? 1.32 : 1;
+}
+
+function collectDescendantIds(nodeId) {
+  const descendants = new Set();
+  const stack = [...(childrenById.get(nodeId) || [])];
+  while (stack.length) {
+    const current = stack.pop();
+    if (!current || descendants.has(current.id)) continue;
+    descendants.add(current.id);
+    const children = childrenById.get(current.id) || [];
+    for (const child of children) stack.push(child);
+  }
+  return descendants;
+}
+
+function animate(now) {
+  const dt = Math.min(48, now - lastTime || 16);
+  lastTime = now;
+  if (!paused) {
+    time += dt * 0.001;
+    if (!dragState && !isHoveringNode) constellationRotation += dt * 0.000038;
+    easeNodes(dt);
+  }
+  updateProjection();
+  drawScene();
+  if (focusNode) placeTooltipSmart(focusNode);
+  frameHandle = requestAnimationFrame(animate);
+}
+
+function easeNodes(dt) {
+  const ease = 1 - Math.pow(0.001, dt / 1000);
+  for (const node of nodes) {
+    node.x += (node.tx - node.x) * ease * 0.82;
+    node.y += (node.ty - node.y) * ease * 0.82;
+    node.z += (node.tz - node.z) * ease * 0.82;
+    node.scale += (targetScale(node) - node.scale) * 0.18;
+  }
+}
+
+function drawScene() {
+  ctx.clearRect(0, 0, width, height);
+  drawBackgroundStars();
+  drawLinks();
+  drawNodes();
+  updateLabels();
+}
+
+function drawBackgroundStars() {
+  ctx.save();
+  for (const star of stars) {
+    const pulse = 0.72 + Math.sin(time * 0.8 + star.p) * 0.28;
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(59, 130, 246, ${star.a * pulse})`;
+    ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawLinks() {
+  const sorted = [...links].sort((a, b) => ((b.source.screen?.z || 0) + (b.target.screen?.z || 0)) - ((a.source.screen?.z || 0) + (a.target.screen?.z || 0)));
+  for (const link of sorted) {
+    const source = link.source.screen;
+    const target = link.target.screen;
+    if (!source || !target) continue;
+
+    const active = focusNode && (link.source.id === focusNode.id || link.target.id === focusNode.id);
+    const related = focusNode && (focusIds.has(link.source.id) || focusIds.has(link.target.id));
+    const muted = focusNode && !related;
+    const reference = link.type === 'reference';
+    const color = reference
+      ? mixHex(link.source.color || colorForNode(link.source), link.target.color || colorForNode(link.target), 0.5)
+      : (link.source.color || colorForNode(link.source));
+    const alpha = muted ? 0.055 : active ? 0.78 : reference ? 0.28 : 0.24;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(source.x, source.y);
+    ctx.lineTo(target.x, target.y);
+    ctx.lineWidth = active ? 2.2 : 1.05;
+    ctx.strokeStyle = reference ? rgba(color, alpha) : rgba(color, alpha);
+    ctx.shadowColor = rgba(color, active ? 0.28 : 0.08);
+    ctx.shadowBlur = active ? 12 : 4;
+    if (reference) ctx.setLineDash([5, 7]);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawNodes() {
+  const sorted = [...nodes].sort((a, b) => (b.screen?.z || 0) - (a.screen?.z || 0));
+  for (const node of sorted) {
+    const p = node.screen;
+    if (!p) continue;
+    const active = focusNode && focusIds.has(node.id);
+    const muted = focusNode && !active;
+    const matched = searchMatches.has(node.id);
+    const baseRadius = node.radius * p.scale * node.scale;
+    const r = clamp(baseRadius, node.type === 'note' ? 3.2 : 5.4, node.type === 'root' ? 30 : 22);
+    node.hitRadius = Math.max(9, r + (node.type === 'note' ? 7 : 5));
+
+    const glowPulse = 0.92 + Math.sin(time * 0.9 + node.pulse) * 0.08;
+    const alpha = muted ? 0.20 : 1;
+    const color = node.color;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    const halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * (active ? 3.8 : 2.9));
+    halo.addColorStop(0, rgba(color, (active ? 0.30 : 0.20) * glowPulse));
+    halo.addColorStop(1, rgba(color, 0));
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r * (active ? 3.8 : 2.9), 0, Math.PI * 2);
+    ctx.fill();
+
+    if (node.type !== 'note' || active || matched) {
+      ctx.strokeStyle = rgba(color, active ? 0.42 : 0.22);
+      ctx.lineWidth = active ? 1.6 : 1;
+      ctx.beginPath();
+      ctx.moveTo(p.x - r * 2.1, p.y);
+      ctx.lineTo(p.x + r * 2.1, p.y);
+      ctx.moveTo(p.x, p.y - r * 2.1);
+      ctx.lineTo(p.x, p.y + r * 2.1);
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.shadowColor = rgba(color, active ? 0.50 : 0.24);
+    ctx.shadowBlur = active ? 18 : 9;
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.lineWidth = active ? 2.7 : 1.7;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    if (node.format === 'jupyter') {
+      ctx.beginPath();
+      ctx.setLineDash([3, 3]);
+      ctx.arc(p.x, p.y, r + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = rgba(color, active ? 0.78 : 0.48);
+      ctx.lineWidth = active ? 2.1 : 1.4;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    if (matched && !focusNode) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 7, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(217, 119, 6, 0.48)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+}
+
+function labelPriority(node) {
+  if (focusNode && node.id === focusNode.id) return 6;
+  if (focusLabelIds.has(node.id)) return 5;
+  if (searchMatches.has(node.id)) return 5;
+  if (node.type === 'root') return 4;
+  if (node.type === 'category') return 3;
+  if (node.type === 'subcategory') return 2;
+  return 1;
+}
+
+function labelBaseSize(node) {
+  if (node.type === 'root') return 14.5;
+  if (node.type === 'category') return 13;
+  if (node.type === 'subcategory') return 10.2;
+  return 8.8;
+}
+
+function labelColorFor(node) {
+  if (node.type === 'root' || node.type === 'category') return '#0f172a';
+  if (node.type === 'subcategory') return '#475569';
+  return '#64748b';
+}
+
+function labelZoomClarity() {
+  return clamp((camera.zoom - 0.48) / 1.08, 0, 1);
+}
+
+function labelZoomBoost() {
+  return clamp(0.72 + camera.zoom * 0.42, 0.82, 1.55);
+}
+
+function labelAlphaFor(node) {
+  const zoomClarity = labelZoomClarity();
+  let alpha =
+    node.type === 'root' ? 1 :
+    node.type === 'category' ? 0.94 :
+    node.type === 'subcategory' ? 0.46 + zoomClarity * 0.28 :
+    0.30 + zoomClarity * 0.36;
+
+  if (node.format === 'jupyter') alpha += 0.08;
+  if (focusNode) {
+    if (focusNode.id === node.id) alpha = Math.max(alpha, 1);
+    else if (focusLabelIds.has(node.id)) alpha = Math.max(alpha, 0.95);
+    else if (focusIds.has(node.id)) alpha = Math.max(alpha, 0.72);
+    else alpha *= 0.42;
+  }
+  if (searchMatches.has(node.id)) alpha = 1;
+
+  return clamp(alpha, node.type === 'note' ? 0.24 : 0.34, 1);
+}
+
+function labelFontSizeFor(node) {
+  const depthPenalty = Math.max(0, node.depth - 1) * 0.34;
+  const focusBoost =
+    focusNode && focusNode.id === node.id ? 1.32 :
+    focusNode && focusLabelIds.has(node.id) ? 1.22 :
+    focusNode && focusIds.has(node.id) ? 1.08 :
+    1;
+  const size = (labelBaseSize(node) - depthPenalty) * labelZoomBoost() * focusBoost;
+  if (node.type === 'root') return clamp(size, 12, 20);
+  if (node.type === 'category') return clamp(size, 10.5, 18);
+  if (node.type === 'subcategory') return clamp(size, 7.8, 15);
+  return clamp(size, 6.8, 13.5);
+}
+
+function labelOffsetFor(node) {
+  const focusBoost =
+    focusNode && focusNode.id === node.id ? 1.28 :
+    focusNode && focusLabelIds.has(node.id) ? 1.18 :
+    focusNode && focusIds.has(node.id) ? 1.08 :
+    1;
+  const offset = node.radius * labelZoomBoost() * focusBoost + 8;
+  return clamp(offset, node.type === 'note' ? 9 : 13, node.type === 'root' ? 34 : 26);
+}
+
+function updateLabels() {
+  for (const node of nodes) {
+    const label = node.labelEl;
+    if (!label) continue;
+    const p = node.screen;
+    if (!p) {
+      label.style.opacity = '0';
+      continue;
+    }
+
+    const fontSize = labelFontSizeFor(node);
+    const targetX = p.x;
+    const targetY = p.y + labelOffsetFor(node);
+    const hasLabelPosition = Number.isFinite(node.labelX) && Number.isFinite(node.labelY);
+    const distance = hasLabelPosition ? Math.hypot(targetX - node.labelX, targetY - node.labelY) : Infinity;
+    const follow = dragState ? 0.62 : 0.24;
+    if (!hasLabelPosition || distance > 120) {
+      node.labelX = targetX;
+      node.labelY = targetY;
+    } else {
+      node.labelX += (targetX - node.labelX) * follow;
+      node.labelY += (targetY - node.labelY) * follow;
+    }
+
+    label.style.fontSize = `${fontSize.toFixed(2)}px`;
+    label.style.fontWeight = node.type === 'note' ? '500' : '700';
+    label.style.opacity = labelAlphaFor(node).toFixed(3);
+    const isPrimaryFocus = focusNode && focusNode.id === node.id;
+    const isFocusChild = focusNode && focusLabelIds.has(node.id) && !isPrimaryFocus;
+    label.style.textShadow = isPrimaryFocus
+      ? '0 1px 0 rgba(255, 255, 255, 0.96), 0 -1px 0 rgba(255, 255, 255, 0.92), 1px 0 0 rgba(255, 255, 255, 0.92), -1px 0 0 rgba(255, 255, 255, 0.92), 0 10px 24px rgba(59, 130, 246, 0.30)'
+      : isFocusChild
+        ? '0 1px 0 rgba(255, 255, 255, 0.95), 0 -1px 0 rgba(255, 255, 255, 0.90), 1px 0 0 rgba(255, 255, 255, 0.90), -1px 0 0 rgba(255, 255, 255, 0.90), 0 8px 20px rgba(59, 130, 246, 0.20)'
+        : '';
+    label.style.zIndex = String(10 + labelPriority(node));
+    label.style.transform = `translate3d(${node.labelX.toFixed(2)}px, ${node.labelY.toFixed(2)}px, 0) translateX(-50%)`;
+  }
+}
+
+function hitTest(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const sorted = [...nodes].sort((a, b) => (a.screen?.z || 0) - (b.screen?.z || 0));
+  for (const node of sorted) {
+    const p = node.screen;
+    if (!p) continue;
+    const dist = Math.hypot(x - p.x, y - p.y);
+    if (dist <= (node.hitRadius || 10)) return node;
+  }
+  return null;
+}
+
+function setFocus(node, fromPointer = false) {
+  focusNode = node;
+  if (fromPointer) {
+    hoveredNode = node;
+    isHoveringNode = true;
+  }
+  const ids = new Set([node.id, ...(adjacency.get(node.id) || [])]);
+  const children = childrenById.get(node.id) || [];
+  for (const child of children) ids.add(child.id);
+  const parent = parentById.get(node.id);
+  if (parent) ids.add(parent.id);
+  focusIds = ids;
+  focusLabelIds = collectDescendantIds(node.id);
+  focusLabelIds.add(node.id);
+  showTooltip(node);
+}
+
+function clearFocus() {
+  focusNode = null;
+  hoveredNode = null;
+  isHoveringNode = false;
+  focusIds = new Set();
+  focusLabelIds = new Set();
+  searchMatches = searchQuery
+    ? new Set(nodes.filter(node => searchable(node).includes(searchQuery)).map(node => node.id))
+    : new Set();
+  hideTooltip();
+}
+
+function searchable(node) {
+  return `${node.name} ${node.id}`.toLowerCase();
+}
+
+function clearSearchResults() {
+  searchResultNodes = [];
+  activeSearchResultIndex = -1;
+  searchResultsPanel.replaceChildren();
+  searchResultsPanel.hidden = true;
+  searchInput.setAttribute('aria-expanded', 'false');
+}
+
+function setActiveSearchResult(index, syncFocus = true) {
+  if (!searchResultNodes.length) return;
+  const nextIndex = clamp(index, 0, searchResultNodes.length - 1);
+  activeSearchResultIndex = nextIndex;
+  const items = searchResultsPanel.querySelectorAll('.search-result-item');
+  items.forEach((item, itemIndex) => {
+    item.classList.toggle('is-active', itemIndex === nextIndex);
+  });
+  if (syncFocus) setFocus(searchResultNodes[nextIndex], false);
+}
+
+function selectSearchResult(index, openAfterSelect = false) {
+  if (!searchResultNodes.length) return;
+  setActiveSearchResult(index, true);
+  if (openAfterSelect) openNode(searchResultNodes[activeSearchResultIndex]);
+}
+
+function renderSearchResultsPanel(results) {
+  if (results.length <= 1) {
+    clearSearchResults();
+    return;
+  }
+
+  const nameCounts = new Map();
+  for (const node of results) {
+    const key = String(node.name || '').trim().toLowerCase();
+    nameCounts.set(key, (nameCounts.get(key) || 0) + 1);
+  }
+
+  searchResultNodes = results;
+  activeSearchResultIndex = -1;
+  searchResultsPanel.replaceChildren();
+
+  results.slice(0, 18).forEach((node, index) => {
+    const key = String(node.name || '').trim().toLowerCase();
+    const duplicateCount = nameCounts.get(key) || 0;
+    const duplicateLabel = duplicateCount > 1 ? `重名 x${duplicateCount}` : null;
+    const typeLabel = node.format === 'jupyter'
+      ? 'Jupyter'
+      : (TYPE_LABEL[node.type] || node.type || '').toUpperCase();
+
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'search-result-item';
+    item.setAttribute('aria-label', `${node.name}，${node.id}`);
+    item.innerHTML = `
+      <div class="search-result-head">
+        <div class="search-result-name">${escapeHtml(node.name)}</div>
+        ${duplicateLabel ? `<span class="search-result-badge">${duplicateLabel}</span>` : ''}
+      </div>
+      <div class="search-result-meta">/${escapeHtml(node.id)}</div>
+      <div class="search-result-type">${escapeHtml(typeLabel)}</div>
+    `;
+    item.addEventListener('mouseenter', () => setActiveSearchResult(index, true));
+    
+    // 【修改】直接在点击时也进行跳转
+    item.addEventListener('click', () => selectSearchResult(index, true));
+    item.addEventListener('dblclick', () => selectSearchResult(index, true));
+    searchResultsPanel.appendChild(item);
+  });
+
+  searchResultsPanel.hidden = false;
+  searchInput.setAttribute('aria-expanded', 'true');
+  setActiveSearchResult(0, false);
+}
+
+function showTooltip(node) {
+  const color = node.color || colorForNode(node);
+  const typeLabel = node.format === 'jupyter' ? 'JUPYTER' : (TYPE_LABEL[node.type] || node.type);
+  tooltip.innerHTML = `
+    <div class="tip-type" style="background:${color}18;color:${color}">${typeLabel}</div>
+    <div class="tip-title">${escapeHtml(node.name)}</div>
+    <div class="tip-path">/${escapeHtml(node.id)}</div>
+    <div class="tip-hint">点击跳转到对应${node.type === 'note' ? '笔记' : '章节'}</div>
+  `;
+  tooltip.classList.add('visible');
+  placeTooltipSmart(node);
+}
+
+function hideTooltip() {
+  tooltip.classList.remove('visible');
+}
+
+function protectedRectsFor(node) {
+  const protectedNodes = [
+    node,
+    ...(childrenById.get(node.id) || []),
+    ...(adjacency.get(node.id) ? [...adjacency.get(node.id)].map(id => nodeById.get(id)).filter(Boolean) : []),
+  ];
+  const rects = [];
+  for (const item of protectedNodes) {
+    const p = item.screen;
+    if (!p) continue;
+    const labelWidth = Math.min(220, Math.max(58, item.name.length * 8));
+    const r = item.hitRadius || 10;
+    rects.push({
+      left: p.x - Math.max(r + 8, labelWidth / 2),
+      top: p.y - r - 10,
+      right: p.x + Math.max(r + 8, labelWidth / 2),
+      bottom: p.y + r + 34,
+      weight: item === node ? 5 : parentById.get(item.id) === node ? 4 : 2,
+    });
+  }
+  return rects;
+}
+
+function intersectArea(a, b) {
+  const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+  const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+  return x * y;
+}
+
+function clampRect(rect, margin) {
+  const w = rect.right - rect.left;
+  const h = rect.bottom - rect.top;
+  const left = clamp(rect.left, margin, width - w - margin);
+  const top = clamp(rect.top, margin, height - h - margin);
+  return { left, top, right: left + w, bottom: top + h };
+}
+
+function placeTooltipSmart(node) {
+  if (!tooltip.classList.contains('visible') || !node.screen) return;
+
+  const tipWidth = tooltip.offsetWidth || 220;
+  const tipHeight = tooltip.offsetHeight || 84;
+  const p = node.screen;
+  const gap = Math.max(20, (node.hitRadius || 12) + 14);
+  const margin = 12;
+  const children = childrenById.get(node.id) || [];
+  const neighborScreens = children.map(child => child.screen).filter(Boolean);
+  const avoidVector = neighborScreens.length
+    ? neighborScreens.reduce((acc, point) => ({ x: acc.x + point.x - p.x, y: acc.y + point.y - p.y }), { x: 0, y: 0 })
+    : { x: 0, y: -1 };
+  const avoidLength = Math.hypot(avoidVector.x, avoidVector.y) || 1;
+  const avoid = { x: avoidVector.x / avoidLength, y: avoidVector.y / avoidLength };
+
+  const directions = [
+    { x: 0, y: -1, anchor: 'bottom' },
+    { x: 1, y: -0.35, anchor: 'left' },
+    { x: -1, y: -0.35, anchor: 'right' },
+    { x: 0, y: 1, anchor: 'top' },
+    { x: 1, y: 0.85, anchor: 'left' },
+    { x: -1, y: 0.85, anchor: 'right' },
+    { x: 1, y: -1, anchor: 'left' },
+    { x: -1, y: -1, anchor: 'right' },
+  ];
+  const protectedRects = protectedRectsFor(node);
+  let best = null;
+
+  for (const dir of directions) {
+    const length = Math.hypot(dir.x, dir.y) || 1;
+    const nx = dir.x / length;
+    const ny = dir.y / length;
+    const cx = p.x + nx * gap;
+    const cy = p.y + ny * gap;
+    let rect;
+    if (dir.anchor === 'left') {
+      rect = { left: cx, top: cy - tipHeight / 2, right: cx + tipWidth, bottom: cy + tipHeight / 2 };
+    } else if (dir.anchor === 'right') {
+      rect = { left: cx - tipWidth, top: cy - tipHeight / 2, right: cx, bottom: cy + tipHeight / 2 };
+    } else if (dir.anchor === 'top') {
+      rect = { left: cx - tipWidth / 2, top: cy, right: cx + tipWidth / 2, bottom: cy + tipHeight };
+    } else {
+      rect = { left: cx - tipWidth / 2, top: cy - tipHeight, right: cx + tipWidth / 2, bottom: cy };
+    }
+    rect = clampRect(rect, margin);
+
+    let score = 0;
+    for (const protectedRect of protectedRects) {
+      score += intersectArea(rect, protectedRect) * protectedRect.weight;
+    }
+    const sameDirectionPenalty = Math.max(0, nx * avoid.x + ny * avoid.y) * 1800;
+    const edgePenalty =
+      Math.max(0, margin - rect.left) +
+      Math.max(0, margin - rect.top) +
+      Math.max(0, rect.right - width + margin) +
+      Math.max(0, rect.bottom - height + margin);
+    score += sameDirectionPenalty + edgePenalty * 120;
+
+    if (!best || score < best.score) best = { rect, score };
+  }
+
+  const rect = best?.rect || { left: p.x + gap, top: p.y - tipHeight / 2 };
+  tooltip.style.left = `${Math.round(rect.left)}px`;
+  tooltip.style.top = `${Math.round(rect.top)}px`;
+}
+
+function chapterAnchorFor(node) {
+  if (!node) return 'llm';
+  let id = node.id;
+  if (INDEX_CHAPTER_ANCHORS[id]) return INDEX_CHAPTER_ANCHORS[id];
+  if (node.type !== 'note' && id && id !== '__root__') {
+    const slug = String(id).toLowerCase().replace(/[^\w\u4e00-\u9fff]+/g, '-').replace(/^-+|-+$/g, '');
+    if (slug) return `kg-${slug}`;
+  }
+  while (id) {
+    if (INDEX_CHAPTER_ANCHORS[id]) return INDEX_CHAPTER_ANCHORS[id];
+    const slash = id.lastIndexOf('/');
+    if (slash < 0) break;
+    id = id.slice(0, slash);
+  }
+  return 'kg-nav';
+}
+
+function targetUrlForNode(node) {
+  if (!node) return null;
+  if (node.type === 'note' && node.url) {
+    return new URL(`../${node.url}`, window.location.href);
+  }
+  const anchor = chapterAnchorFor(node);
+  return new URL(`../#${anchor}`, window.location.href);
+}
+
+function openNode(node) {
+  const targetUrl = targetUrlForNode(node);
+  if (!targetUrl) return;
+  try {
+    window.top.location.href = targetUrl.href;
+  } catch (_) {
+    window.location.href = targetUrl.href;
+  }
+}
+
+function resetView() {
+  camera.rotX = 1.18;
+  camera.rotY = -0.28;
+  constellationRotation = 0;
+  camera.panX = 0;
+  camera.panY = 14;
+  const maxR = Math.max(520, ...nodes.map(node => Math.hypot(node.tx, node.ty, node.tz)));
+  camera.zoom = clamp(Math.min(width, height) / (maxR * 1.95), 0.56, 1.08);
+}
+
+function relayout() {
+  seedConstellation();
+  createBackgroundStars();
+  resetView();
+}
+
+function setPaused(nextPaused) {
+  paused = nextPaused;
+  const button = document.getElementById('pause-button');
+  button.title = paused ? '继续动画' : '暂停动画';
+  button.setAttribute('aria-label', button.title);
+  button.innerHTML = paused
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 5v14l11-7z"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 4H6v16h4z"/><path d="M18 4h-4v16h4z"/></svg>';
+}
+
+canvas.addEventListener('pointerdown', event => {
+  if (event.button === 2) event.preventDefault();
+  const panDrag = event.button === 2;
+  const node = panDrag ? null : hitTest(event.clientX, event.clientY);
+  pressedNode = node;
+  dragState = {
+    mode: panDrag ? 'pan' : 'rotate',
+    x: event.clientX,
+    y: event.clientY,
+    rotX: camera.rotX,
+    rotY: camera.rotY,
+    panX: camera.panX,
+    panY: camera.panY,
+    moved: false,
+  };
+  canvas.classList.add('is-dragging');
+  canvas.setPointerCapture?.(event.pointerId);
+});
+
+canvas.addEventListener('pointermove', event => {
+  if (dragState) {
+    const dx = event.clientX - dragState.x;
+    const dy = event.clientY - dragState.y;
+    if (Math.hypot(dx, dy) > 3) dragState.moved = true;
+    if (dragState.mode === 'pan' || event.shiftKey) {
+      camera.panX = dragState.panX + dx;
+      camera.panY = dragState.panY + dy;
+    } else {
+      camera.rotY = dragState.rotY + dx * 0.0052;
+      camera.rotX = clamp(dragState.rotX + dy * 0.0042, -0.45, 1.42);
+    }
+    if (focusNode) placeTooltipSmart(focusNode);
+    return;
+  }
+
+  const node = hitTest(event.clientX, event.clientY);
+  canvas.style.cursor = node ? 'pointer' : 'grab';
+  if (node !== hoveredNode) {
+    if (node) {
+      setFocus(node, true);
+    } else {
+      hoveredNode = null;
+      isHoveringNode = false;
+      if (!searchQuery) clearFocus();
+    }
+  }
+});
+
+function endPointer(event) {
+  canvas.releasePointerCapture?.(event.pointerId);
+  canvas.classList.remove('is-dragging');
+  if (dragState && dragState.mode === 'rotate' && !dragState.moved && pressedNode) openNode(pressedNode);
+  dragState = null;
+  pressedNode = null;
+}
+
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('contextmenu', event => event.preventDefault());
+canvas.addEventListener('mouseleave', () => {
+  hoveredNode = null;
+  isHoveringNode = false;
+  if (!dragState && !searchQuery) clearFocus();
+});
+
+canvas.addEventListener('wheel', event => {
+  event.preventDefault();
+  const delta = Math.exp(-event.deltaY * 0.0011);
+  camera.zoom = clamp(camera.zoom * delta, 0.34, 2.1);
+  if (focusNode) placeTooltipSmart(focusNode);
+}, { passive: false });
+
+searchInput.addEventListener('input', event => {
+  searchQuery = event.target.value.trim().toLowerCase();
+  const matchedNodes = searchQuery
+    ? nodes.filter(node => searchable(node).includes(searchQuery))
+    : [];
+  searchMatches = searchQuery ? new Set(matchedNodes.map(node => node.id)) : new Set();
+
+  if (!searchQuery) {
+    clearSearchResults();
+    clearFocus();
+    return;
+  }
+
+  const preferredResults = matchedNodes.filter(node => node.type === 'note');
+  const rankedResults = (preferredResults.length ? preferredResults : matchedNodes)
+    .filter(node => node.id !== '__root__')
+    .sort((a, b) => {
+      const byName = a.name.localeCompare(b.name, 'zh-Hans-CN');
+      if (byName !== 0) return byName;
+      return a.id.localeCompare(b.id, 'zh-Hans-CN');
+    });
+
+  if (rankedResults.length) {
+    setFocus(rankedResults[0], false);
+    renderSearchResultsPanel(rankedResults);
+  }
+  else {
+    clearSearchResults();
+    focusNode = null;
+    hoveredNode = null;
+    focusIds = new Set();
+    focusLabelIds = new Set();
+    hideTooltip();
+  }
+});
+
+searchInput.addEventListener('keydown', event => {
+  if (searchResultsPanel.hidden || !searchResultNodes.length) return;
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    setActiveSearchResult(activeSearchResultIndex + 1, true);
+    return;
+  }
+  if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    setActiveSearchResult(activeSearchResultIndex - 1, true);
+    return;
+  }
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    // 【修改】按回车直接触发跳转
+    selectSearchResult(activeSearchResultIndex >= 0 ? activeSearchResultIndex : 0, true);
+    return;
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    clearSearchResults();
+  }
+});
+
+document.addEventListener('pointerdown', event => {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const inSearch = !!target.closest('.search-panel');
+  const inResults = !!target.closest('#search-results');
+  if (!inSearch && !inResults) clearSearchResults();
+});
+
+document.getElementById('fit-button').addEventListener('click', resetView);
+document.getElementById('relayout-button').addEventListener('click', relayout);
+document.getElementById('pause-button').addEventListener('click', () => setPaused(!paused));
+document.getElementById('refresh-button').addEventListener('click', loadGraph);
+
+window.addEventListener('resize', () => {
+  measure();
+  createBackgroundStars();
+  resetView();
+});
+
+measure();
+loadGraph();
+
+// ======= 【魔法注入：DOM 穿越充当悬浮 dock】 =======
+document.addEventListener('DOMContentLoaded', () => {
+  // 如果页面存在于 iframe 中并且允许同源跨域操作
+  if (window.parent && window.parent !== window) {
+    try {
+      const parentDoc = window.parent.document;
+      
+      // 在外部父容器注入 dock 栏所需样式
+      const dockStyle = parentDoc.createElement('style');
+      dockStyle.textContent = `
+        .kg-docked-search {
+          position: fixed !important;
+          left: 50% !important;
+          bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+          top: auto !important;
+          right: auto !important;
+          transform: translateX(-50%) !important;
+          z-index: 10000 !important;
+          width: min(420px, calc(100vw - 32px)) !important;
+          background: rgba(255, 255, 255, 0.94) !important;
+          backdrop-filter: blur(12px) !important;
+          -webkit-backdrop-filter: blur(12px) !important;
+          border-radius: 999px !important;
+          border: 1px solid rgba(203, 213, 225, 0.95) !important;
+          box-shadow: 0 12px 28px -10px rgba(15,23,42,0.22), 0 4px 10px -6px rgba(15,23,42,0.16) !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 12px !important;
+          padding: 10px 18px !important;
+          height: 48px !important;
+        }
+        .kg-docked-search svg { width: 18px !important; height: 18px !important; color: #475569 !important; flex: 0 0 auto !important; }
+        .kg-docked-search input {
+          flex: 1 !important;
+          border: none !important;
+          outline: none !important;
+          background: transparent !important;
+          font-size: 14px !important;
+          color: #0f172a !important;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif !important;
+          width: 100% !important;
+        }
+        .kg-docked-search input::placeholder { color: #94a3b8 !important; }
+
+        .kg-docked-results {
+          position: fixed !important;
+          left: 50% !important;
+          bottom: calc(84px + env(safe-area-inset-bottom)) !important; /* 从 dock 栏上方弹起 */
+          top: auto !important;
+          right: auto !important;
+          transform: translateX(-50%) !important;
+          z-index: 10000 !important;
+          width: min(420px, calc(100vw - 32px)) !important;
+          background: rgba(255, 255, 255, 0.96) !important;
+          backdrop-filter: blur(10px) !important;
+          -webkit-backdrop-filter: blur(10px) !important;
+          border-radius: 12px !important;
+          border: 1px solid #cbd5e1 !important;
+          box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1) !important;
+          max-height: 320px !important;
+          overflow-y: auto !important;
+          display: flex !important;
+          flex-direction: column !important;
+          padding: 8px !important;
+          gap: 4px !important;
+        }
+        .kg-docked-results[hidden] { display: none !important; }
+        .kg-docked-results .search-result-item {
+          width: 100% !important;
+          border: 1px solid transparent !important;
+          border-radius: 8px !important;
+          background: transparent !important;
+          padding: 10px 12px !important;
+          text-align: left !important;
+          cursor: pointer !important;
+          transition: background 0.15s ease !important;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif !important;
+          display: block !important;
+        }
+        .kg-docked-results .search-result-item:hover,
+        .kg-docked-results .search-result-item.is-active { background: #eff6ff !important; }
+        .kg-docked-results .search-result-head { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; }
+        .kg-docked-results .search-result-name { font-size: 13px !important; font-weight: 700 !important; color: #0f172a !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+        .kg-docked-results .search-result-meta { margin-top: 4px !important; font-size: 11px !important; color: #64748b !important; }
+        .kg-docked-results .search-result-badge { flex: 0 0 auto !important; height: 18px !important; border-radius: 999px !important; padding: 0 7px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 10px !important; font-weight: 700 !important; color: #1e40af !important; background: #dbeafe !important; }
+        .kg-docked-results .search-result-type { display: none !important; } /* 精简Dock栏模式下的显示 */
+      `;
+      parentDoc.head.appendChild(dockStyle);
+
+      const searchPanel = document.querySelector('.search-panel');
+      const searchResults = document.querySelector('.search-results');
+      let isDocked = false;
+
+      const toggleDock = () => {
+        const iframe = parentDoc.querySelector('.knowledge-graph-frame');
+        if (!iframe) return;
+        const rect = iframe.getBoundingClientRect();
+        // 核心：当页面滚动到 星图 iframe 几乎离开可视区域时（底部只剩 150px）
+        const shouldDock = rect.bottom < 150;
+
+        if (shouldDock && !isDocked) {
+          isDocked = true;
+          searchPanel.classList.add('kg-docked-search');
+          searchResults.classList.add('kg-docked-results');
+          // 将搜索框和结果直接穿越附加到 index.md 的 body 中，作为真正的全局 Dock
+          parentDoc.body.appendChild(searchPanel);
+          parentDoc.body.appendChild(searchResults);
+        } else if (!shouldDock && isDocked) {
+          isDocked = false;
+          searchPanel.classList.remove('kg-docked-search');
+          searchResults.classList.remove('kg-docked-results');
+          // 滚回到视口中时，搜索框回归 iframe 内部
+          document.body.appendChild(searchPanel);
+          document.body.appendChild(searchResults);
+        }
+      };
+
+      // 监听外部滚动以及重置大小
+      parentDoc.defaultView.addEventListener('scroll', toggleDock, { passive: true });
+      window.addEventListener('resize', toggleDock, { passive: true });
+
+      // 在 docked 状态时，点击外侧需要关闭结果列表，绑定在父文档上
+      parentDoc.addEventListener('pointerdown', event => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const inSearch = !!target.closest('.search-panel');
+        const inResults = !!target.closest('.search-results');
+        if (!inSearch && !inResults) clearSearchResults();
+      });
+    } catch(e) {
+      console.warn("DOM穿越受同源策略限制，退化为仅星图内展示:", e);
+    }
+  }
+});
+</script>
+</body>
+</html>

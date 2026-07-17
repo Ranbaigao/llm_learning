@@ -1,0 +1,1054 @@
+<style>
+.mhc-flow-wrapper{
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #cbd5e1;
+    --soft: #f1f5f9;
+    --blue: #3b82f6;
+    --blue-soft: #eff6ff;
+    --green: #16a34a;
+    --green-soft: #dcfce7;
+    --orange: #d97706;
+    --orange-soft: #ffedd5;
+    --purple: #7c3aed;
+    --purple-soft: #ede9fe;
+    --rose: #e11d48;
+    --rose-soft: #ffe4e6;
+  }
+
+  .mhc-flow-wrapper *{ box-sizing: border-box; }
+
+  .mhc-flow-wrapper{
+    margin: 0;
+    padding: 18px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+  }
+
+  .mhc-flow-wrapper .mhc-shell{
+    max-width: 1180px;
+    margin: 0 auto;
+    container-type: inline-size;
+  }
+
+  .mhc-flow-wrapper header{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+  }
+
+  .mhc-flow-wrapper h1{
+    margin: 0;
+    font-size: 1.55rem;
+    letter-spacing: 0;
+    color: var(--ink);
+  }
+
+  .mhc-flow-wrapper .mhc-subtitle{
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .mhc-flow-wrapper .mhc-pill-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .mhc-flow-wrapper .mhc-pill{
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: #334155;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .mhc-flow-wrapper .mhc-toolbar{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0;
+    align-items: center;
+  }
+
+  .mhc-flow-wrapper .mhc-toolbar-group{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  .mhc-flow-wrapper button{
+    border: 1px solid transparent;
+    background: var(--panel);
+    color: #334155;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.86rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.18s;
+  }
+
+  .mhc-flow-wrapper button:hover{
+    border-color: var(--blue);
+    color: #1e40af;
+    background: var(--blue-soft);
+  }
+
+  .mhc-flow-wrapper button.mhc-active{
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #ffffff;
+  }
+
+  .mhc-flow-wrapper .mhc-main-grid{
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .mhc-flow-wrapper .mhc-diagram-shell, .mhc-flow-wrapper .mhc-side-panel, .mhc-flow-wrapper .mhc-comparison, .mhc-flow-wrapper .mhc-shape-strip{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  }
+
+  .mhc-flow-wrapper .mhc-diagram-shell{
+    padding: 18px;
+    min-height: auto;
+  }
+
+  .mhc-flow-wrapper .mhc-section-label{
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    margin-bottom: 10px;
+  }
+
+  .mhc-flow-wrapper .mhc-board{
+    display: grid;
+    grid-template-columns: minmax(145px, 0.8fr) 52px minmax(300px, 1.25fr) 52px minmax(145px, 0.8fr);
+    gap: 8px;
+    align-items: start;
+  }
+
+  .mhc-flow-wrapper .mhc-lane-bank{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    background: #ffffff;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mhc-flow-wrapper .mhc-bank-title{
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+
+  .mhc-flow-wrapper .mhc-lanes{
+    display: grid;
+    gap: 10px;
+    flex: 1;
+    align-content: center;
+  }
+
+  .mhc-flow-wrapper .mhc-lane{
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mhc-flow-wrapper .mhc-lane-index{
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.82rem;
+    box-shadow: inset 0 -8px 14px rgba(15, 23, 42, 0.18);
+  }
+
+  .mhc-flow-wrapper .mhc-lane-track{
+    height: 38px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #f8fafc;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .mhc-flow-wrapper .mhc-lane-fill{
+    height: 100%;
+    width: var(--w, 75%);
+    background: var(--c, var(--blue));
+    opacity: 0.84;
+  }
+
+  .mhc-flow-wrapper .mhc-lane-track span{
+    position: absolute;
+    inset: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: #0f172a;
+    font-size: 0.78rem;
+    font-weight: 750;
+    white-space: nowrap;
+  }
+
+  .mhc-flow-wrapper .mhc-arrow-column{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 2rem;
+    font-weight: 300;
+  }
+
+  .mhc-flow-wrapper .mhc-router{
+    display: grid;
+    grid-template-rows: auto auto auto;
+    gap: 12px;
+  }
+
+  .mhc-flow-wrapper .mhc-route-row{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr) 32px minmax(0, 1fr);
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .mhc-flow-wrapper .mhc-node{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 116px;
+    background: #ffffff;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .mhc-flow-wrapper .mhc-node-title{
+    font-size: 0.88rem;
+    font-weight: 850;
+    color: #1e293b;
+    margin-bottom: 6px;
+  }
+
+  .mhc-flow-wrapper .mhc-node-sub{
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .mhc-flow-wrapper .mhc-node-formula{
+    margin-top: 8px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    background: var(--soft);
+    color: #334155;
+    font-family: "Cascadia Mono", "Consolas", monospace;
+    font-size: 0.74rem;
+    white-space: nowrap;
+    overflow-x: auto;
+  }
+
+  .mhc-flow-wrapper .mhc-route-arrow{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 1.65rem;
+    font-weight: 300;
+  }
+
+  .mhc-flow-wrapper .mhc-mix-area{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .mhc-flow-wrapper .mhc-matrix-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .mhc-flow-wrapper .mhc-matrix-title{
+    color: #1e293b;
+    font-weight: 850;
+    font-size: 0.9rem;
+  }
+
+  .mhc-flow-wrapper .mhc-matrix-badge{
+    color: #166534;
+    background: var(--green-soft);
+    border: 1px solid #bbf7d0;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  .mhc-flow-wrapper .mhc-matrix-grid{
+    display: grid;
+    gap: 5px;
+    max-width: 315px;
+    margin: 0 auto;
+  }
+
+  .mhc-flow-wrapper .mhc-mcell{
+    min-height: 34px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    font-family: "Cascadia Mono", "Consolas", monospace;
+    font-size: 0.76rem;
+    font-weight: 750;
+  }
+
+  .mhc-flow-wrapper .mhc-mix-caption{
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  .mhc-flow-wrapper .mhc-final-formula{
+    margin-top: 14px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--purple);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    color: #4c1d95;
+    background: #faf5ff;
+    font-family: "Cascadia Mono", "Consolas", monospace;
+    font-size: 0.86rem;
+    overflow-x: auto;
+  }
+
+  .mhc-flow-wrapper [data-node].mhc-active{
+    border-color: var(--blue) !important;
+    background: #eff6ff !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13);
+    transform: none;
+  }
+
+  .mhc-flow-wrapper .mhc-node.mhc-read.mhc-active{
+    border-color: var(--blue) !important;
+    background: var(--blue-soft) !important;
+  }
+
+  .mhc-flow-wrapper .mhc-node.mhc-compute.mhc-active{
+    border-color: var(--orange) !important;
+    background: var(--orange-soft) !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.14);
+  }
+
+  .mhc-flow-wrapper .mhc-mix-area.mhc-active{
+    border-color: var(--green) !important;
+    background: var(--green-soft) !important;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14);
+  }
+
+  .mhc-flow-wrapper .mhc-node.mhc-write.mhc-active{
+    border-color: var(--purple) !important;
+    background: var(--purple-soft) !important;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.14);
+  }
+
+  .mhc-flow-wrapper .mhc-side-panel{
+    padding: 18px;
+    position: sticky;
+    top: 14px;
+    align-self: start;
+    max-height: calc(100vh - 28px);
+    overflow: auto;
+  }
+
+  .mhc-flow-wrapper .mhc-step-kicker{
+    color: var(--blue);
+    font-size: 0.78rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  .mhc-flow-wrapper .mhc-step-title{
+    margin: 6px 0 8px;
+    color: var(--ink);
+    font-size: 1.12rem;
+    font-weight: 850;
+  }
+
+  .mhc-flow-wrapper .mhc-step-desc{
+    color: #475569;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+
+  .mhc-flow-wrapper .mhc-step-list{
+    margin: 0;
+    padding-left: 18px;
+    color: #475569;
+    font-size: 0.86rem;
+  }
+
+  .mhc-flow-wrapper .mhc-step-list li{ margin-bottom: 6px; }
+
+  .mhc-flow-wrapper .mhc-code-shape{
+    margin-top: 14px;
+    background: #f8fafc;
+    color: #334155;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 13px 14px;
+    font-family: "Cascadia Mono", "Consolas", monospace;
+    font-size: 0.78rem;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+
+  .mhc-flow-wrapper .mhc-comparison{
+    margin-top: 18px;
+    padding: 16px;
+  }
+
+  .mhc-flow-wrapper .mhc-compare-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .mhc-flow-wrapper .mhc-compare-item{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    background: #ffffff;
+  }
+
+  .mhc-flow-wrapper .mhc-compare-title{
+    font-weight: 850;
+    margin-bottom: 8px;
+    color: #1e293b;
+  }
+
+  .mhc-flow-wrapper .mhc-single-road, .mhc-flow-wrapper .mhc-multi-road{
+    display: grid;
+    gap: 7px;
+    margin: 10px 0;
+  }
+
+  .mhc-flow-wrapper .mhc-road{
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #eef2ff;
+    display: flex;
+    align-items: center;
+    padding: 0 9px;
+    font-size: 0.78rem;
+    font-weight: 750;
+    color: #3730a3;
+  }
+
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(1){ background: #dbeafe; color: #1e3a8a; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(2){ background: #ffedd5; color: #7c2d12; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(3){ background: #dcfce7; color: #14532d; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(4){ background: #ede9fe; color: #4c1d95; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(5){ background: #ffe4e6; color: #881337; }
+  .mhc-flow-wrapper .mhc-multi-road .mhc-road:nth-child(6){ background: #fef9c3; color: #713f12; }
+
+  .mhc-flow-wrapper .mhc-compare-text{
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .mhc-flow-wrapper .mhc-shape-strip{
+    margin-top: 18px;
+    padding: 16px;
+  }
+
+  .mhc-flow-wrapper .mhc-shape-grid{
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .mhc-flow-wrapper .mhc-shape{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px;
+    background: #ffffff;
+  }
+
+  .mhc-flow-wrapper .mhc-shape b{
+    display: block;
+    font-size: 0.82rem;
+    color: #1e293b;
+    margin-bottom: 4px;
+  }
+
+  .mhc-flow-wrapper .mhc-shape span{
+    display: block;
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-family: "Cascadia Mono", "Consolas", monospace;
+  }
+
+  @media (max-width: 980px) {
+    .mhc-flow-wrapper{ padding: 16px; }
+    .mhc-flow-wrapper header{ align-items: flex-start; flex-direction: column; }
+    .mhc-flow-wrapper .mhc-pill-row{ justify-content: flex-start; }
+    .mhc-flow-wrapper .mhc-main-grid{ grid-template-columns: 1fr; }
+    .mhc-flow-wrapper .mhc-side-panel{ position: static; }
+    .mhc-flow-wrapper .mhc-board{
+      grid-template-columns: 1fr;
+    }
+    .mhc-flow-wrapper .mhc-arrow-column{
+      transform: rotate(90deg);
+      min-height: 40px;
+    }
+    .mhc-flow-wrapper .mhc-route-row{
+      grid-template-columns: 1fr;
+    }
+    .mhc-flow-wrapper .mhc-route-arrow{
+      transform: rotate(90deg);
+      min-height: 24px;
+    }
+    .mhc-flow-wrapper .mhc-shape-grid, .mhc-flow-wrapper .mhc-compare-grid{
+      grid-template-columns: 1fr;
+    }
+  }
+
+.mhc-flow-wrapper { width:100%; margin:0 auto; padding:18px; box-sizing:border-box; border-radius:12px; background:var(--bg); position:relative; }
+@media (max-width:980px) { .mhc-flow-wrapper { padding:16px; } }
+
+
+.mhc-flow-wrapper .mhc-pages { position: relative; max-height: min(74vh, 840px); overflow-y: auto; overflow-x: hidden; padding-right: 4px; }
+.mhc-flow-wrapper .mhc-page { display: none; }
+.mhc-flow-wrapper .mhc-page.mhc-active { display: block; animation: mhc-fade-in 0.24s ease; }
+@keyframes mhc-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.mhc-flow-wrapper .mhc-dock-container { position: static; z-index: auto; width: 100%; display: flex; justify-content: center; margin: 18px auto 0; transform: none; pointer-events: auto; }
+.mhc-flow-wrapper .mhc-dock { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 10px 14px; width: max-content; max-width: 100%; background: #ffffff; border-radius: 8px; border: 1px solid rgba(203,213,225,0.95); box-shadow: 0 4px 6px rgba(0,0,0,0.05); pointer-events: auto; }
+.mhc-flow-wrapper .mhc-dock-btn { background: transparent; border: none; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 6px; border-radius: 50%; transition: all 0.2s; }
+.mhc-flow-wrapper .mhc-dock-btn:hover:not(:disabled) { background: #f1f5f9; color: #0f172a; }
+.mhc-flow-wrapper .mhc-dock-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.mhc-flow-wrapper .mhc-dock-btn svg { width: 18px; height: 18px; }
+.mhc-flow-wrapper .mhc-dock-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.mhc-flow-wrapper .mhc-dot { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #64748b; background: transparent; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.mhc-flow-wrapper .mhc-dot:hover { background: #e2e8f0; }
+.mhc-flow-wrapper .mhc-dot.mhc-active { background: var(--blue); color: white; box-shadow: 0 4px 8px rgba(59,130,246,0.3); }
+
+.mhc-flow-wrapper .mhc-dock-container {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.mhc-flow-wrapper .mhc-dock {
+  min-width: max-content;
+}
+
+@container (max-width: 1200px) {
+  .mhc-flow-wrapper .mhc-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mhc-flow-wrapper .mhc-side-panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@container (max-width: 980px) {
+  .mhc-flow-wrapper .mhc-pages {
+    max-height: min(68vh, 760px);
+  }
+
+  .mhc-flow-wrapper header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mhc-flow-wrapper .mhc-pill-row {
+    justify-content: flex-start;
+  }
+
+  .mhc-flow-wrapper .mhc-board {
+    grid-template-columns: 1fr;
+  }
+
+  .mhc-flow-wrapper .mhc-arrow-column {
+    transform: rotate(90deg);
+    min-height: 40px;
+  }
+
+  .mhc-flow-wrapper .mhc-route-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mhc-flow-wrapper .mhc-route-arrow {
+    transform: rotate(90deg);
+    min-height: 24px;
+  }
+
+  .mhc-flow-wrapper .mhc-shape-grid,
+  .mhc-flow-wrapper .mhc-compare-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1200px) {
+  .mhc-flow-wrapper .mhc-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mhc-flow-wrapper .mhc-side-panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+</style>
+
+<div class="mhc-flow-wrapper">
+<div class="mhc-shell">
+  <header>
+    <div>
+      <h1>mHC 宏观拓扑流程图</h1>
+      <p class="mhc-subtitle">mHC 不改 Attention/FFN 的计算本体，而是改造残差流之间的读、混合、写。</p>
+    </div>
+    <div class="mhc-pill-row">
+      <span class="mhc-pill">残差流从 1 条扩到 n 条</span>
+      <span class="mhc-pill">主干计算仍是 C 维</span>
+      <span class="mhc-pill">H<sub>res</sub> 受 Birkhoff 约束</span>
+    </div>
+  </header>
+
+  <div class="mhc-pages">
+  <div class="mhc-page mhc-active" data-mhc-page="0">
+  <div class="mhc-toolbar">
+    <div class="mhc-toolbar-group" id="step-buttons">
+      <button data-step="0" class="mhc-active">总览</button>
+      <button data-step="1">① Read</button>
+      <button data-step="2">② Compute</button>
+      <button data-step="3">③ Mix</button>
+      <button data-step="4">④ Write</button>
+    </div>
+    <div class="mhc-toolbar-group" id="stream-buttons">
+      <button data-n="2">n=2</button>
+      <button data-n="4" class="mhc-active">n=4</button>
+      <button data-n="6">n=6</button>
+    </div>
+    <div class="mhc-toolbar-group" id="matrix-buttons">
+      <button data-preset="identity" class="mhc-active">单位矩阵</button>
+      <button data-preset="uniform">均匀混合</button>
+      <button data-preset="shift">循环移位</button>
+    </div>
+  </div>
+
+  <div class="mhc-main-grid">
+    <section class="mhc-diagram-shell">
+      <div class="mhc-section-label">One Transformer Sublayer Wrapped By mHC</div>
+      <div class="mhc-board">
+        <div class="mhc-lane-bank" data-node="streams">
+          <div class="mhc-bank-title">输入残差流 x<sub>l</sub></div>
+          <div class="mhc-lanes" id="input-lanes"></div>
+        </div>
+
+        <div class="mhc-arrow-column">→</div>
+
+        <div class="mhc-router">
+          <div class="mhc-route-row">
+            <div class="mhc-node mhc-read" data-node="read">
+              <div class="mhc-node-title">H<sub>pre</sub> · Read</div>
+              <div class="mhc-node-sub">从 n 条残差流里加权读取，聚合成主干层能吃下的 1 条 C 维输入。</div>
+              <div class="mhc-node-formula">x<sub>main</sub> = H<sub>pre</sub> · x<sub>l</sub></div>
+            </div>
+            <div class="mhc-route-arrow">→</div>
+            <div class="mhc-node mhc-compute" data-node="compute">
+              <div class="mhc-node-title">F · Attention / FFN</div>
+              <div class="mhc-node-sub">主干网络照常工作，不需要知道外面有几条残差流。</div>
+              <div class="mhc-node-formula">y = F(x<sub>main</sub>)</div>
+            </div>
+            <div class="mhc-route-arrow">→</div>
+            <div class="mhc-node mhc-write" data-node="write">
+              <div class="mhc-node-title">H<sub>post</sub> · Write</div>
+              <div class="mhc-node-sub">把主干层的新结果按比例广播回 n 条残差流。</div>
+              <div class="mhc-node-formula">H<sub>post</sub> ⊙ y</div>
+            </div>
+          </div>
+
+          <div class="mhc-mix-area" data-node="mix">
+            <div class="mhc-matrix-head">
+              <div class="mhc-matrix-title">H<sub>res</sub> · 残差内循环混合</div>
+              <div class="mhc-matrix-badge">行和=1 · 列和=1</div>
+            </div>
+            <div id="matrix-grid" class="mhc-matrix-grid"></div>
+            <div class="mhc-mix-caption">
+              Sinkhorn 把原始路由矩阵拉回 Birkhoff polytope，约束车道间交换不整体放大信号。
+            </div>
+          </div>
+
+          <div class="mhc-final-formula">
+            x<sub>l+1</sub> =
+            H<sub>res</sub> · x<sub>l</sub>
+            + H<sub>post</sub> ⊙ F(H<sub>pre</sub> · x<sub>l</sub>)
+          </div>
+        </div>
+
+        <div class="mhc-arrow-column">→</div>
+
+        <div class="mhc-lane-bank" data-node="output">
+          <div class="mhc-bank-title">输出残差流 x<sub>l+1</sub></div>
+          <div class="mhc-lanes" id="output-lanes"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="mhc-side-panel">
+      <div class="mhc-step-kicker" id="step-kicker">Overview</div>
+      <div class="mhc-step-title" id="step-title">从“一个加号”变成“读、算、混、写”</div>
+      <div class="mhc-step-desc" id="step-desc">
+        标准残差连接只有 x + F(x)。mHC 把残差状态扩成 n 条并行流，再用三套路由权重控制信息流向。
+      </div>
+      <ul class="mhc-step-list" id="step-list">
+        <li>H<sub>pre</sub> 负责从多条流中读取。</li>
+        <li>F 仍然是普通 Attention 或 FFN。</li>
+        <li>H<sub>res</sub> 负责流与流之间的稳定混合。</li>
+        <li>H<sub>post</sub> 负责把新结果写回多条流。</li>
+      </ul>
+      <pre class="mhc-code-shape" id="code-shape">x:        [B, T, n, C]
+H_pre:   [B, T, n, 1]
+H_res:   [B, T, n, n]
+H_post:  [B, T, n, 1]
+x_next:  [B, T, n, C]</pre>
+    </aside>
+  </div>
+  </div>
+
+  <div class="mhc-page" data-mhc-page="1">
+  <section class="mhc-comparison">
+    <div class="mhc-section-label">Residual Topology</div>
+    <div class="mhc-compare-grid">
+      <div class="mhc-compare-item">
+        <div class="mhc-compare-title">标准 Transformer</div>
+        <div class="mhc-single-road">
+          <div class="mhc-road">一条 C 维残差流：x<sub>l</sub> → x<sub>l</sub> + F(x<sub>l</sub>)</div>
+        </div>
+        <div class="mhc-compare-text">所有信息挤在同一条残差通道里，模型能力主要靠加深或加宽主干网络扩展。</div>
+      </div>
+      <div class="mhc-compare-item">
+        <div class="mhc-compare-title">mHC Transformer</div>
+        <div class="mhc-multi-road" id="mini-roads"></div>
+        <div class="mhc-compare-text">残差状态变宽，主干计算宽度保持 C；额外成本集中在很小的路由矩阵和门控上。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mhc-shape-strip">
+    <div class="mhc-section-label">Tensor Shape Cheat Sheet</div>
+    <div class="mhc-shape-grid">
+      <div class="mhc-shape">
+        <b>输入状态</b>
+        <span>x: [B,T,n,C]</span>
+      </div>
+      <div class="mhc-shape">
+        <b>Read 门控</b>
+        <span>H_pre: [B,T,n,1]</span>
+      </div>
+      <div class="mhc-shape">
+        <b>主干输入</b>
+        <span>sum_n(H_pre*x): [B,T,C]</span>
+      </div>
+      <div class="mhc-shape">
+        <b>Mix 矩阵</b>
+        <span>H_res: [B,T,n,n]</span>
+      </div>
+      <div class="mhc-shape">
+        <b>输出状态</b>
+        <span>x_next: [B,T,n,C]</span>
+      </div>
+    </div>
+  </section>
+  </div>
+  </div>
+
+<div class="mhc-dock-container" aria-label="mHC 流程分页导航">
+    <div class="mhc-dock">
+        <button class="mhc-dock-btn" type="button" data-mhc-prev aria-label="上一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+        <div class="mhc-dock-steps">
+            <button class="mhc-dot mhc-active" type="button" data-mhc-page-target="0" aria-label="流程图">1</button>
+            <button class="mhc-dot" type="button" data-mhc-page-target="1" aria-label="拓扑对比">2</button>
+        </div>
+        <button class="mhc-dock-btn" type="button" data-mhc-next aria-label="下一页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+(function () {
+const colors = ['#3b82f6', '#d97706', '#16a34a', '#7c3aed', '#e11d48', '#ca8a04'];
+const widths = [82, 64, 73, 56, 69, 61];
+
+const state = {
+  n: 4,
+  step: 0,
+  preset: 'identity'
+};
+
+const stepCopy = [
+  {
+    kicker: 'Overview',
+    title: '从“一个加号”变成“读、算、混、写”',
+    desc: '标准残差连接只有 x + F(x)。mHC 把残差状态扩成 n 条并行流，再用三套路由权重控制信息流向。',
+    bullets: [
+      'H_pre 负责从多条流中读取。',
+      'F 仍然是普通 Attention 或 FFN。',
+      'H_res 负责流与流之间的稳定混合。',
+      'H_post 负责把新结果写回多条流。'
+    ],
+    active: ['streams', 'read', 'compute', 'mix', 'write', 'output'],
+    code: `x:        [B, T, n, C]
+H_pre:   [B, T, n, 1]
+H_res:   [B, T, n, n]
+H_post:  [B, T, n, 1]
+x_next:  [B, T, n, C]`
+  },
+  {
+    kicker: 'Step 1 / Read',
+    title: 'H_pre 把 n 条残差流聚合成 1 条主干输入',
+    desc: 'Attention 或 FFN 的输入宽度仍然是 C。H_pre 像一个读取门控，决定每条残差流贡献多少。',
+    bullets: [
+      '输入是 [B,T,n,C]。',
+      'H_pre 是 [B,T,n,1] 的门控权重。',
+      '沿 n 维求和后得到 [B,T,C]。'
+    ],
+    active: ['streams', 'read'],
+    code: `H_pre = sigmoid(alpha_pre * proj_pre(x))
+x_main = (x * H_pre).sum(dim=2)
+# x_main: [B, T, C]`
+  },
+  {
+    kicker: 'Step 2 / Compute',
+    title: 'F 仍然是原来的 Attention 或 FFN',
+    desc: 'mHC 不重写注意力机制，也不重写 MLP。它只改变 F 外面的残差通信拓扑。',
+    bullets: [
+      '主干层输入是 [B,T,C]。',
+      '计算复杂度主要仍由原来的 F 决定。',
+      '这就是“拓宽残差状态，而不是直接拓宽主干计算”。'
+    ],
+    active: ['read', 'compute'],
+    code: `y = layer_func(x_main)
+# layer_func 可以是 Attention 或 FFN
+# y: [B, T, C]`
+  },
+  {
+    kicker: 'Step 3 / Mix',
+    title: 'H_res 让 n 条残差流互相交换信息',
+    desc: 'H_res 是 mHC 稳定性的核心。它被 Sinkhorn 约束成双随机矩阵，位于 Birkhoff polytope 内。',
+    bullets: [
+      '每一行和每一列都接近 1。',
+      '这让残差混合具有非扩张性质。',
+      '深层堆叠时更不容易发生数值爆炸。'
+    ],
+    active: ['streams', 'mix'],
+    code: `H_raw = proj_res(x).view(B, T, n, n)
+H_res = sinkhorn_knopp(alpha_res * H_raw)
+x_res = torch.matmul(H_res, x)`
+  },
+  {
+    kicker: 'Step 4 / Write',
+    title: 'H_post 把 F 的输出广播回 n 条残差流',
+    desc: '主干层只产出 1 条 C 维结果，H_post 决定这份新信息写入每条残差流的比例。',
+    bullets: [
+      'H_post 的形状是 [B,T,n,1]。',
+      'y.unsqueeze(2) 被广播到 n 条流。',
+      '最终输出仍是 [B,T,n,C]。'
+    ],
+    active: ['mix', 'compute', 'write', 'output'],
+    code: `H_post = 2 * sigmoid(alpha_post * proj_post(x))
+x_next = x_res + H_post * y.unsqueeze(2)
+# x_next: [B, T, n, C]`
+  }
+];
+
+function laneMarkup(i, output = false) {
+  const c = colors[i % colors.length];
+  const w = output ? Math.min(92, widths[(i + 2) % widths.length] + 8) : widths[i % widths.length];
+  const label = output ? `流 ${i + 1}′` : `流 ${i + 1}`;
+  return `
+    <div class="mhc-lane">
+      <div class="mhc-lane-index" style="background:${c}">${i + 1}</div>
+      <div class="mhc-lane-track">
+        <div class="mhc-lane-fill" style="--c:${c}; --w:${w}%"></div>
+        <span>${label} · C 维状态</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderLanes() {
+  const input = document.getElementById('input-lanes');
+  const output = document.getElementById('output-lanes');
+  const mini = document.getElementById('mini-roads');
+  input.innerHTML = '';
+  output.innerHTML = '';
+  mini.innerHTML = '';
+  for (let i = 0; i < state.n; i++) {
+    input.insertAdjacentHTML('beforeend', laneMarkup(i, false));
+    output.insertAdjacentHTML('beforeend', laneMarkup(i, true));
+    mini.insertAdjacentHTML('beforeend', `<div class="mhc-road">残差流 ${i + 1}: C 维</div>`);
+  }
+}
+
+function matrixValue(i, j) {
+  if (state.preset === 'identity') return i === j ? 1 : 0;
+  if (state.preset === 'uniform') return 1 / state.n;
+  if (state.preset === 'shift') return j === (i + 1) % state.n ? 1 : 0;
+  return 0;
+}
+
+function renderMatrix() {
+  const grid = document.getElementById('matrix-grid');
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${state.n}, minmax(0, 1fr))`;
+  for (let i = 0; i < state.n; i++) {
+    for (let j = 0; j < state.n; j++) {
+      const v = matrixValue(i, j);
+      const alpha = Math.max(0.08, Math.min(1, v));
+      const bg = state.preset === 'uniform'
+        ? `rgba(22,163,74,${0.22 + alpha * 0.55})`
+        : `rgba(37,99,235,${0.10 + alpha * 0.68})`;
+      const text = v === 0 ? '0' : v === 1 ? '1' : v.toFixed(2);
+      grid.insertAdjacentHTML(
+        'beforeend',
+        `<div class="mhc-mcell" style="background:${bg}">${text}</div>`
+      );
+    }
+  }
+}
+
+function setStep(step) {
+  state.step = step;
+  document.querySelectorAll('#step-buttons button').forEach(btn => {
+    btn.classList.toggle('mhc-active', Number(btn.dataset.step) === step);
+  });
+
+  document.querySelectorAll('[data-node]').forEach(el => el.classList.remove('mhc-active'));
+  const copy = stepCopy[step];
+  copy.active.forEach(name => {
+    document.querySelectorAll(`[data-node="${name}"]`).forEach(el => el.classList.add('mhc-active'));
+  });
+
+  document.getElementById('step-kicker').textContent = copy.kicker;
+  document.getElementById('step-title').textContent = copy.title;
+  document.getElementById('step-desc').textContent = copy.desc;
+  document.getElementById('step-list').innerHTML = copy.bullets.map(item => `<li>${item}</li>`).join('');
+  document.getElementById('code-shape').textContent = copy.code;
+}
+
+function setN(n) {
+  state.n = n;
+  document.querySelectorAll('#stream-buttons button').forEach(btn => {
+    btn.classList.toggle('mhc-active', Number(btn.dataset.n) === n);
+  });
+  renderLanes();
+  renderMatrix();
+  setStep(state.step);
+}
+
+function setPreset(preset) {
+  state.preset = preset;
+  document.querySelectorAll('#matrix-buttons button').forEach(btn => {
+    btn.classList.toggle('mhc-active', btn.dataset.preset === preset);
+  });
+  renderMatrix();
+}
+
+document.getElementById('step-buttons').addEventListener('click', event => {
+  const button = event.target.closest('button[data-step]');
+  if (!button) return;
+  setStep(Number(button.dataset.step));
+});
+
+document.getElementById('stream-buttons').addEventListener('click', event => {
+  const button = event.target.closest('button[data-n]');
+  if (!button) return;
+  setN(Number(button.dataset.n));
+});
+
+document.getElementById('matrix-buttons').addEventListener('click', event => {
+  const button = event.target.closest('button[data-preset]');
+  if (!button) return;
+  setPreset(button.dataset.preset);
+});
+
+renderLanes();
+renderMatrix();
+setStep(0);
+})();
+
+
+(function () {
+  const root = document.querySelector('.mhc-flow-wrapper');
+  if (!root) return;
+  const pages = Array.from(root.querySelectorAll('.mhc-page'));
+  const dots = Array.from(root.querySelectorAll('[data-mhc-page-target]'));
+  const prev = root.querySelector('[data-mhc-prev]');
+  const next = root.querySelector('[data-mhc-next]');
+  let current = 0;
+  function goToPage(index) {
+    current = Math.max(0, Math.min(index, pages.length - 1));
+    pages.forEach((page, i) => page.classList.toggle('mhc-active', i === current));
+    dots.forEach((dot, i) => dot.classList.toggle('mhc-active', i === current));
+    if (prev) prev.disabled = current === 0;
+    if (next) next.disabled = current === pages.length - 1;
+    root.dataset.mhcPage = String(current + 1);
+    requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+  }
+  dots.forEach(dot => dot.addEventListener('click', () => goToPage(Number(dot.dataset.mhcPageTarget))));
+  if (prev) prev.addEventListener('click', () => goToPage(current - 1));
+  if (next) next.addEventListener('click', () => goToPage(current + 1));
+  window.mhcGoToPage = goToPage;
+  goToPage(0);
+})();
+</script>
