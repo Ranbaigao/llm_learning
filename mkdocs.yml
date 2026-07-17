@@ -36,7 +36,14 @@ markdown_extensions:
       base_path:
         - notebooks
       check_paths: true # 推荐开启：如果引入的文件路径不对，会在 build 时报错提示
-
+  
+  # --- 2. 新增：代码块渲染核心扩展 ---
+  - pymdownx.highlight:
+      anchor_linenums: true       # 点击行号可以生成锚点链接
+      line_spans: __span          # 提高行号在 Material 主题中的样式兼容性
+      pygments_lang_class: true   # 允许根据语言自动适配 Material 的白天/黑夜主题
+  - pymdownx.inlinehilite         # 支持行内代码高亮，例如 `python import os`
+  - pymdownx.superfences          # 【最核心】完美支持 ``` 围栏代码块，且允许在列表、引用中嵌套代码块
 
 
 # 引入本地配置与在线数学引擎

@@ -83,31 +83,32 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 
 ### 🚀 LLM 大语言模型
 
-<span id="kg-llm-reports"></span>
+<span id="kg-llm-开源llm解读"></span>
 
-#### 📘 LLM 技术报告
+#### 开源llm解读
 
-- [AR-Diffusion与潜空间推理](llm/llm技术报告/AR-Diffusion与潜空间推理.md)
-- [Claude Mythos 5推测](llm/llm技术报告/Claude%20Mythos%205推测.md)
-- [DeepSeek-V4](llm/llm技术报告/DeepSeek-V4.md)
-- [Nemotron-Labs-Diffusion](llm/llm技术报告/Nemotron-Labs-Diffusion.md)
-- [Qwen3.5 技术报告](llm/llm技术报告/qwen3.5.md)
+- [AR-Diffusion与潜空间推理](llm/开源llm解读/AR-Diffusion与潜空间推理.md)
+- [Claude Mythos 5推测](llm/开源llm解读/Claude%20Mythos%205推测.md)
+- [DeepSeek-V4](llm/开源llm解读/DeepSeek-V4.md)
+- [Nemotron-Labs-Diffusion](llm/开源llm解读/Nemotron-Labs-Diffusion.md)
+- [qwen3.5](llm/开源llm解读/qwen3.5.md)
+
+<span id="kg-llm-开源llm解读-openmythos"></span>
+
+##### OpenMythos
+
+- [OpenMythos Recurrent](llm/开源llm解读/OpenMythos/OpenMythos%20Recurrent.md)
 
 <span id="kg-llm-architecture"></span>
 
 #### 🏗️ 模型架构
 
-<span id="kg-llm-模型架构-transformers"></span>
+<span id="kg-llm-模型架构-muon优化器"></span>
 
-##### Transformers
+##### Muon优化器
 
-- [OpenMythos Recurrent](llm/模型架构/Transformers/OpenMythos%20Recurrent.md)
-
-<span id="kg-llm-architecture-optimizer"></span>
-
-##### 优化器
-
-- [Muon优化器](llm/模型架构/优化器/Muon优化器.md)
+- [Muon优化器](llm/模型架构/Muon优化器/Muon优化器.md)
+- [奇异值、特征值和正交矩阵](llm/模型架构/Muon优化器/奇异值、特征值和正交矩阵.md)
 
 <span id="kg-llm-architecture-position"></span>
 
@@ -120,7 +121,6 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 ##### 残差连接
 
 - [attention residuals](llm/模型架构/残差连接/attention_residuals.md)
-- [LTI Injection](llm/模型架构/残差连接/LTI%20Injection.md)
 - [mHC 残差流形](llm/模型架构/残差连接/mHC_残差流形.md)
 - [Pre-Norm vs Post-Norm](llm/模型架构/残差连接/Pre-Norm%20vs%20Post-Norm.md)
 - [流形比较](llm/模型架构/残差连接/流形比较.md)
@@ -162,8 +162,15 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 - [ChatGPT](llm/源码解读/ChatGPT.md)
 - [Einsum](llm/源码解读/Einsum.md)
 - [MOE](llm/源码解读/MOE.md)
-- [OpenMythos](llm/源码解读/OpenMythos.md)
 - [核心要义](llm/源码解读/核心要义.md)
+
+<span id="kg-llm-源码解读-openmythos"></span>
+
+##### OpenMythos
+
+- [ACT](llm/源码解读/OpenMythos/ACT.md)
+- [LTI Injection](llm/源码解读/OpenMythos/LTI%20Injection.md)
+- [OpenMythos框架](llm/源码解读/OpenMythos/OpenMythos框架.md)
 
 <span id="kg-llm-app"></span>
 
@@ -215,12 +222,7 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 - [gqa](code_practice/gqa.ipynb)
 - [mHC](code_practice/mhc.ipynb)
 - [moe](code_practice/moe.ipynb)
-
-<span id="kg-数据结构"></span>
-
-### 数据结构
-
-- [排序](数据结构/排序.md)
+- [vit](code_practice/vit.ipynb)
 
 <span id="kg-other"></span>
 
