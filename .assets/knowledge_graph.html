@@ -1443,7 +1443,7 @@ function selectSearchResult(index, openAfterSelect = false) {
 }
 
 function renderSearchResultsPanel(results) {
-  if (results.length <= 1) {
+  if (!results.length) {
     clearSearchResults();
     return;
   }

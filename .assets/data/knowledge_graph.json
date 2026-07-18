@@ -174,25 +174,6 @@
       "note_count": 6
     },
     {
-      "id": "llm/开源llm解读/OpenMythos",
-      "name": "OpenMythos",
-      "type": "subcategory",
-      "depth": 2,
-      "url": "llm/开源llm解读/OpenMythos/",
-      "size": 12,
-      "note_count": 1
-    },
-    {
-      "id": "llm/开源llm解读/OpenMythos/OpenMythos Recurrent.md",
-      "name": "OpenMythos Recurrent",
-      "type": "note",
-      "format": "markdown",
-      "depth": 3,
-      "url": "llm/开源llm解读/OpenMythos/OpenMythos Recurrent/",
-      "size": 7,
-      "note_count": 1
-    },
-    {
       "id": "llm/开源llm解读/AR-Diffusion与潜空间推理.md",
       "name": "AR-Diffusion与潜空间推理",
       "type": "note",
@@ -229,6 +210,16 @@
       "format": "markdown",
       "depth": 2,
       "url": "llm/开源llm解读/Nemotron-Labs-Diffusion/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm/开源llm解读/OpenMythos Recurrent.md",
+      "name": "OpenMythos Recurrent",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm/开源llm解读/OpenMythos Recurrent/",
       "size": 7,
       "note_count": 1
     },
@@ -778,16 +769,6 @@
     },
     {
       "source": "llm/开源llm解读",
-      "target": "llm/开源llm解读/OpenMythos",
-      "type": "contains"
-    },
-    {
-      "source": "llm/开源llm解读/OpenMythos",
-      "target": "llm/开源llm解读/OpenMythos/OpenMythos Recurrent.md",
-      "type": "contains"
-    },
-    {
-      "source": "llm/开源llm解读",
       "target": "llm/开源llm解读/AR-Diffusion与潜空间推理.md",
       "type": "contains"
     },
@@ -804,6 +785,11 @@
     {
       "source": "llm/开源llm解读",
       "target": "llm/开源llm解读/Nemotron-Labs-Diffusion.md",
+      "type": "contains"
+    },
+    {
+      "source": "llm/开源llm解读",
+      "target": "llm/开源llm解读/OpenMythos Recurrent.md",
       "type": "contains"
     },
     {
@@ -1058,12 +1044,12 @@
     }
   ],
   "stats": {
-    "nodes": 71,
-    "links": 73,
+    "nodes": 70,
+    "links": 72,
     "notes": 50,
     "jupyter": 5,
-    "contains": 70,
+    "contains": 69,
     "references": 3
   },
-  "source_mtime": 1784325314464464078
+  "source_mtime": 1784358414684645114
 }
