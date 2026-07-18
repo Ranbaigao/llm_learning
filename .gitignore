@@ -8,3 +8,4 @@ ai_docs/
 # 知识图谱数据 (由 hooks/generate_graph_data.py 在每次构建前自动生成)
 notebooks/.assets/data/
 feedbacks/
+.agents/

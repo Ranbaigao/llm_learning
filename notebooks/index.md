@@ -63,13 +63,9 @@ hide:
 
 <span id="kg-home"></span>
 
-# 我的LLM笔记
+# Ranhao的LLM知识库
 
-这是一个用于自我学习的 LLM / VLM 学习仓库。
-
-它是一个 AI 与我共创的仓库，需要 AI 与我一同维护仓库。
-
-AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blob/main/AGENT.md)。
+专注LLM/VLM算法，跟踪LLM最新技术
 
 <span id="kg-start"></span>
 
@@ -91,13 +87,8 @@ AI 的行动准则参考 [AGENT.md](https://github.com/Sui-Xing/llm_learning/blo
 - [Claude Mythos 5推测](llm/开源llm解读/Claude%20Mythos%205推测.md)
 - [DeepSeek-V4](llm/开源llm解读/DeepSeek-V4.md)
 - [Nemotron-Labs-Diffusion](llm/开源llm解读/Nemotron-Labs-Diffusion.md)
+- [OpenMythos Recurrent](llm/开源llm解读/OpenMythos%20Recurrent.md)
 - [qwen3.5](llm/开源llm解读/qwen3.5.md)
-
-<span id="kg-llm-开源llm解读-openmythos"></span>
-
-##### OpenMythos
-
-- [OpenMythos Recurrent](llm/开源llm解读/OpenMythos/OpenMythos%20Recurrent.md)
 
 <span id="kg-llm-architecture"></span>
 

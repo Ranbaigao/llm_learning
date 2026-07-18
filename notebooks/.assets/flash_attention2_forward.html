@@ -39,7 +39,9 @@
     background: linear-gradient(180deg, #ffffff 0%, var(--fa2-bg-color) 100%);
     border: 1px solid var(--fa2-border-color);
     border-radius: 12px;
-    padding: 20px;
+    padding: 20px 20px 96px; /* 底部预留 96px 给绝对定位的页码栏 */
+    position: relative; /* 保证内部绝对定位的 Dock 不脱离此容器 */
+    min-height: 1130px; /* 增加最小高度，防止切换阶段时底部 Dock 剧烈跳动（内容区高度，含 padding 后总高约 1250px） */
 }
 
 .fa2-container {
@@ -76,27 +78,18 @@
     margin-bottom: 20px;
 }
 
+/* --- Dock 风格底部导航 - 内部绝对定位（与 ds 版同一逻辑） --- */
 .fa2-dock-container {
-    position: fixed;
+    position: absolute;
     left: 50%;
-    transform: translateX(-50%);
-    bottom: 14px;
-    width: auto;
-    max-width: calc(100vw - 20px);
+    bottom: 24px;
+    z-index: 100;
+    width: min(420px, calc(100% - 32px));
     display: flex;
     justify-content: center;
-    z-index: 20;
-    margin-top: 8px;
-    padding-top: 0;
-    opacity: 1;
-    pointer-events: auto;
-    transition: opacity 0.22s ease, transform 0.22s ease;
-}
-
-.fa2-dock-container.fa2-hidden {
-    opacity: 0;
+    margin: 0;
+    transform: translateX(-50%);
     pointer-events: none;
-    transform: translateX(-50%) translateY(10px);
 }
 
 .fa2-dock {
@@ -109,6 +102,7 @@
     box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
     padding: 8px 12px;
     backdrop-filter: blur(8px);
+    pointer-events: auto; /* 容器层已禁用指针事件，Dock 本体恢复可点击 */
 }
 
 .fa2-dock-btn {
@@ -696,24 +690,6 @@
         return document.getElementById(id);
     }
 
-    function fa2SyncDockVisibility() {
-        const wrapper = fa2Get("fa2-wrapper-root");
-        const dockContainer = fa2Get("fa2-dock-container");
-        if (!wrapper || !dockContainer) {
-            return;
-        }
-
-        const rect = wrapper.getBoundingClientRect();
-        const viewportH = window.innerHeight || document.documentElement.clientHeight;
-        const isVisible = rect.bottom > 0 && rect.top < viewportH;
-
-        if (isVisible) {
-            dockContainer.classList.remove("fa2-hidden");
-        } else {
-            dockContainer.classList.add("fa2-hidden");
-        }
-    }
-
     function fa2ResetUI() {
         for (let i = 1; i <= 4; i++) {
             fa2Get("fa2-q-" + i).className = "fa2-chunk fa2-bg-q";
@@ -897,6 +873,12 @@
         fa2Get("fa2-step-desc").innerHTML = fa2Steps[fa2CurrentStep].desc;
 
         fa2UpdateVisuals();
+
+        // 将视角平滑滚动回到容器的顶部（与 ds 版一致）
+        const wrapper = fa2Get("fa2-wrapper-root");
+        if (wrapper) {
+            wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
     }
 
     function fa2GoToStep(step) {
@@ -941,11 +923,7 @@
     window.fa2ChangeStep = fa2ChangeStep;
     window.fa2GoToStep = fa2GoToStep;
 
-    window.addEventListener("scroll", fa2SyncDockVisibility, { passive: true });
-    window.addEventListener("resize", fa2SyncDockVisibility);
-
     fa2ResetUI();
     fa2UpdateALUMath("i", "j");
-    fa2SyncDockVisibility();
 })();
 </script>
