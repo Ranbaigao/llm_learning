@@ -1783,6 +1783,10 @@ searchInput.addEventListener('input', event => {
 });
 
 searchInput.addEventListener('keydown', event => {
+  // 【修改】Dock 到父页面后，输入框仍保留 iframe 的原型链，导致
+  // mkdocs-material 的 ja() 焦点豁免失效，f/s///n/p 等按键会被站点
+  // 全局热键抢走。这里在源头阻止冒泡，确保按键只服务于本搜索框。
+  event.stopPropagation();
   if (searchResultsPanel.hidden || !searchResultNodes.length) return;
   if (event.key === 'ArrowDown') {
     event.preventDefault();

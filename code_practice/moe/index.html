@@ -304,7 +304,7 @@
   <span class="md-ellipsis">
     
   
-    GPT
+    VLM
   
 
     
@@ -3700,7 +3700,7 @@ tensor([0, 0, 1, 0, 1, 2])
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=5a746803">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=abdacf07">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3718,26 +3718,34 @@ tensor([0, 0, 1, 0, 1, 2])
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ModelConfig</span><span class="p">:</span>
-    <span class="n">n_export</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
-    <span class="n">n_top</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="n">seq_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
-    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">hidden_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">BasicExpert</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="c1"># 一个 Expert 可以是一个最简单的， linear 层即可</span>
+    <span class="c1"># 也可以是 MLP 层</span>
+    <span class="c1"># 也可以是 更复杂的 MLP 层（active function 设置为 swiglu）</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_in</span><span class="p">,</span> <span class="n">feature_out</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">feature_in</span><span class="p">,</span> <span class="n">feature_out</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-5">class ModelConfig:
-    n_export: int = 8
-    n_top: int = 4
-    seq_len: int = 1024
-    batch_size: int = 2
-    hidden_dim: int = 512</div>
+<div class="clipboard-copy-txt" id="cell-5">class BasicExpert(nn.Module):
+    # 一个 Expert 可以是一个最简单的， linear 层即可
+    # 也可以是 MLP 层
+    # 也可以是 更复杂的 MLP 层（active function 设置为 swiglu）
+    def __init__(self, feature_in, feature_out):
+        super().__init__()
+        self.linear = nn.Linear(feature_in, feature_out)
+    
+    def forward(self, x):
+        return self.linear(x)</div>
 </div>
 </div>
 </div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=311362fb">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=8db6e74d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3755,166 +3763,261 @@ tensor([0, 0, 1, 0, 1, 2])
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SingleExport</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="c1"># 主要参考自 mistral MOE 的实现</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MOERouter</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">expert_number</span><span class="p">,</span> <span class="n">top_k</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span><span class="n">output_dim</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-</pre></div>
-<div class="clipboard-copy-txt" id="cell-6">class SingleExport(nn.Module):
-    def __init__(self, input_dim, output_dim) -&gt; None:
-        super().__init__()
-        self.fn = nn.Linear(input_dim,output_dim)
-    def forward(self, x):
-        return self.fn(x)</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=8db6e74d">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="CodeMirror cm-s-jupyter">
-<div class="zeroclipboard-container">
-<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-7">
-<div>
-<span class="notice" hidden="">Copied!</span>
-<svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
-<path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z" fill="currentColor" fill-rule="evenodd"></path>
-<path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z" fill="currentColor" fill-rule="evenodd"></path>
-</svg>
-</div>
-</clipboard-copy>
-</div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MoeRouter</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_export</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gate</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">n_export</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_export</span> <span class="o">=</span> <span class="n">n_export</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-
-        <span class="n">route_logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-
-        <span class="n">route_porb</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">route_logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">route_weight</span><span class="p">,</span> <span class="n">selected_export</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">route_porb</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="n">route_weight</span> <span class="o">=</span> <span class="n">route_weight</span> <span class="o">/</span> <span class="n">route_weight</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="n">route_weight</span> <span class="o">=</span> <span class="n">route_weight</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-
-        <span class="n">mask_export</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">route_weight</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_export</span><span class="p">)</span>
-        <span class="n">mask_export</span> <span class="o">=</span> <span class="n">mask_export</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">route_weight</span><span class="p">,</span> <span class="n">selected_export</span><span class="p">,</span> <span class="n">mask_export</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">expert_number</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expert_number</span> <span class="o">=</span> <span class="n">expert_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_k</span> <span class="o">=</span> <span class="n">top_k</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_states</span><span class="p">):</span>
+        <span class="c1"># 计算路由logits</span>
+        <span class="n">router_logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gate</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">)</span>  <span class="c1"># shape is (b * s, expert_number)</span>
+        
+        <span class="c1"># 计算专家经过softmax之后的概率</span>
+        <span class="n">routing_probs</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">router_logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        
+        <span class="c1"># 计算topk的专家的输出</span>
+        <span class="n">router_weights</span><span class="p">,</span> <span class="n">selected_experts</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span>
+            <span class="n">routing_probs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_k</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>  <span class="c1"># shape都是 (b * s, top_k)</span>
+        
+        <span class="c1"># 专家权重归一化</span>
+        <span class="n">router_weights</span> <span class="o">=</span> <span class="n">router_weights</span> <span class="o">/</span> <span class="n">router_weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">router_weights</span> <span class="o">=</span> <span class="n">router_weights</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">hidden_states</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        
+        <span class="c1"># 生成专家掩码</span>
+        <span class="n">expert_mask</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span>
+            <span class="n">selected_experts</span><span class="p">,</span>
+            <span class="n">num_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">expert_number</span>
+        <span class="p">)</span>  <span class="c1"># shape是 (b * s, top_k, expert_number)</span>
+        <span class="n">expert_mask</span> <span class="o">=</span> <span class="n">expert_mask</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># (expert_number, top_k, b * s)</span>
+        
+        <span class="k">return</span> <span class="n">router_logits</span><span class="p">,</span> <span class="n">router_weights</span><span class="p">,</span> <span class="n">selected_experts</span><span class="p">,</span> <span class="n">expert_mask</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">SparseMoe</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ModelConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MOEConfig</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> 
+            <span class="n">hidden_dim</span><span class="p">,</span> 
+            <span class="n">expert_number</span><span class="p">,</span> 
+            <span class="n">top_k</span><span class="p">,</span> 
+            <span class="n">shared_experts_number</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">hidden_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expert_number</span> <span class="o">=</span> <span class="n">expert_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_k</span> <span class="o">=</span> <span class="n">top_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shared_experts_number</span> <span class="o">=</span> <span class="n">shared_experts_number</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SparseMOE</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="c1"># 稀疏 MOE 模型，这里每一个 token 都会过 topk 个专家，得到对应token 的 hidden_embeddings</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_list</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">SingleExport</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">n_export</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">hidden_dim</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">expert_number</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">expert_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_k</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">top_k</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">experts</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">BasicExpert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expert_number</span><span class="p">)</span>
+            <span class="p">]</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">router</span> <span class="o">=</span> <span class="n">MoeRouter</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">n_export</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">n_top</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">router</span> <span class="o">=</span> <span class="n">MOERouter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">expert_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_k</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># x shape is (b, s, hidden_dim)</span>
+        <span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">,</span> <span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+
+        <span class="c1"># 合并前两个维度，因为不是 Sample 维度了，而是 token 维度</span>
+        <span class="n">hidden_states</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">)</span> <span class="c1"># shape is(b * s, hidden_dim)</span>
+
+        <span class="n">router_logits</span><span class="p">,</span> <span class="n">router_weights</span><span class="p">,</span> <span class="n">selected_experts_indices</span><span class="p">,</span> <span class="n">expert_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">router</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">)</span>
+        <span class="c1"># 其中 selected_experts_indices shape 是 (b * s, top_k)</span>
+        <span class="c1"># 其中 expert_mask shape 是 (expert_number, top_k, b * s)</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_export</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">n_export</span>
-        
-    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">hidden_state</span><span class="p">):</span>
-        <span class="c1"># hidden_state shepe: (batch_size, seq_len, hidden_dim)</span>
-        <span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">,</span> <span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">hidden_state</span><span class="o">.</span><span class="n">szie</span><span class="p">()</span>
-        <span class="n">hidden_state</span> <span class="o">=</span> <span class="n">hidden_state</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">hiddem_dim</span><span class="p">)</span>  <span class="c1"># shape: (batch_size * seq_len, hidden_dim)</span>
-        
-        <span class="n">route_weight</span><span class="p">,</span> <span class="n">selected_export</span><span class="p">,</span> <span class="n">mask_export</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">router</span><span class="p">(</span><span class="n">hidden_state</span><span class="p">)</span>
-        
-        <span class="n">final_state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">batch_size</span><span class="o">*</span><span class="n">seq_len</span><span class="p">,</span><span class="n">hidden_dim</span><span class="p">)</span>
-        
-        <span class="k">for</span> <span class="n">export_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_export</span><span class="p">):</span>
-            <span class="n">export_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_list</span><span class="p">[</span><span class="n">export_idx</span><span class="p">]</span>
-            <span class="n">current_mask_export</span> <span class="o">=</span> <span class="n">mask_export</span><span class="p">[</span><span class="n">epxort_idx</span><span class="p">]</span>
-            
-            <span class="n">top_idx</span><span class="p">,</span> <span class="n">top_x</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">current_mask_export</span><span class="p">)</span>  
-            <span class="c1"># top_idx是 export_idx这个专家 选中的token 他是top几，</span>
-            <span class="c1"># top_x 是 export_idx这个专家 选中的token 他的序号是几</span>
-            
-            <span class="n">current_state</span> <span class="o">=</span> <span class="n">export_layer</span><span class="p">(</span><span class="n">hidden_state</span><span class="p">[</span><span class="n">top_x</span><span class="p">,:])</span>
-            
-            <span class="n">current_route_weight</span> <span class="o">=</span> <span class="n">route_weight</span><span class="p">[</span><span class="n">top_x</span><span class="p">,</span><span class="n">top_idx</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">current_state</span>
-            <span class="n">final_state</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-            
-            
-        
-            
+        <span class="n">final_hidden_states</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">batch_size</span> <span class="o">*</span> <span class="n">seq_len</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">hidden_states</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">hidden_states</span><span class="o">.</span><span class="n">device</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">expert_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expert_number</span><span class="p">):</span>
+            <span class="n">expert_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experts</span><span class="p">[</span><span class="n">expert_idx</span><span class="p">]</span>
+            <span class="c1"># expert_mask[expert_idx] shape 是 (top_k, b * s)</span>
+            <span class="n">idx</span><span class="p">,</span> <span class="n">top_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">expert_mask</span><span class="p">[</span><span class="n">expert_idx</span><span class="p">])</span> 
+            <span class="c1"># idx 和 top_x 都是一维 tensor</span>
+            <span class="c1"># idx 的值是 0 或 1, 表示这个 token 是作为当前专家的 top1 还是 top2</span>
+            <span class="c1"># top_x 的值是 token 在 batch*seq_len 中的位置索引</span>
+            <span class="c1"># 例如对于 batch_size=2, seq_len=4 的输入:</span>
+            <span class="c1"># top_x 的值范围是 0-7, 表示在展平后的 8 个 token 中的位置</span>
+            <span class="c1"># idx 的值是 0/1, 表示这个 token 把当前专家作为其 top1/top2 专家</span>
+
+            <span class="c1"># hidden_states 的 shape 是 (b * s, hidden_dim)</span>
+            <span class="c1"># 需要取到 top_x 对应的 hidden_states</span>
+            <span class="n">current_state</span> <span class="o">=</span> <span class="n">hidden_states</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span>
+                <span class="mi">0</span>
+            <span class="p">)[:,</span> <span class="n">top_x</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">)</span> <span class="c1"># （selected_token_number, hidden_dim）</span>
+
+            <span class="c1"># router_weight 的 shape 是 (b * s, top_k)</span>
+            <span class="n">current_hidden_states</span> <span class="o">=</span> <span class="n">expert_layer</span><span class="p">(</span>
+                <span class="n">current_state</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="n">router_weights</span><span class="p">[</span><span class="n">top_x</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># （selected_token_number, 1） 这里有广播</span>
+
+            <span class="c1"># 把当前专家的输出加到 final_hidden_states 中</span>
+            <span class="c1"># 方式1 的写法性能更好，并且方式1容易出现</span>
+            <span class="n">final_hidden_states</span><span class="o">.</span><span class="n">index_add_</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">top_x</span><span class="p">,</span> <span class="n">current_hidden_states</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">hidden_states</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+            <span class="c1"># 方式2</span>
+            <span class="c1"># final_hidden_states[top_x] += current_hidden_states.to(hidden_states.dtype)</span>
+            <span class="c1"># 方式1 的写法性能更差，并且方式1容易出现错误，+= 操作在处理重复索引时需要多次读写内存，可能会导致竞争条件</span>
+
+        <span class="c1"># 把 final_hidden_states 还原到原来的 shape</span>
+        <span class="n">final_hidden_states</span> <span class="o">=</span> <span class="n">final_hidden_states</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">final_hidden_states</span><span class="p">,</span> <span class="n">router_logits</span> <span class="c1"># shape 是 (b * s, expert_number)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_token_level_moe</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">MOEConfig</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">token_level_moe</span> <span class="o">=</span> <span class="n">SparseMOE</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">token_level_moe</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+
+<span class="n">test_token_level_moe</span><span class="p">()</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-7">class MoeRouter(nn.Module):
-    def __init__(self, n_export, hidden_dim, k) -&gt; None:
+<div class="clipboard-copy-txt" id="cell-6"># 主要参考自 mistral MOE 的实现
+
+class MOERouter(nn.Module):
+    def __init__(self, hidden_dim, expert_number, top_k):
         super().__init__()
-        self.gate = nn.Linear(hidden_dim, n_export)
-        self.n_export = n_export
-        self.k = k
+        self.gate = nn.Linear(hidden_dim, expert_number)
+        self.expert_number = expert_number
+        self.top_k = top_k
+    
+    def forward(self, hidden_states):
+        # 计算路由logits
+        router_logits = self.gate(hidden_states)  # shape is (b * s, expert_number)
+        
+        # 计算专家经过softmax之后的概率
+        routing_probs = F.softmax(router_logits, dim=-1, dtype=torch.float)
+        
+        # 计算topk的专家的输出
+        router_weights, selected_experts = torch.topk(
+            routing_probs, self.top_k, dim=-1
+        )  # shape都是 (b * s, top_k)
+        
+        # 专家权重归一化
+        router_weights = router_weights / router_weights.sum(dim=-1, keepdim=True)
+        router_weights = router_weights.to(hidden_states.dtype)
+        
+        # 生成专家掩码
+        expert_mask = F.one_hot(
+            selected_experts,
+            num_classes=self.expert_number
+        )  # shape是 (b * s, top_k, expert_number)
+        expert_mask = expert_mask.permute(2, 1, 0)  # (expert_number, top_k, b * s)
+        
+        return router_logits, router_weights, selected_experts, expert_mask
 
-    def forward(self, x: torch.Tensor):
 
-        route_logits = self.gate(x)
+class MOEConfig:
+    def __init__(
+            self, 
+            hidden_dim, 
+            expert_number, 
+            top_k, 
+            shared_experts_number=2,
+        ):
+        self.hidden_dim = hidden_dim
+        self.expert_number = expert_number
+        self.top_k = top_k
+        self.shared_experts_number = shared_experts_number
 
-        route_porb = F.softmax(route_logits, dim=-1)
-        route_weight, selected_export = torch.topk(route_porb, k=self.k, dim=-1)
-
-        route_weight = route_weight / route_weight.sum(dim=-1, keepdim=True)
-
-        route_weight = route_weight.to(x.dtype)
-
-        mask_export = F.one_hot(route_weight, num_classes=self.n_export)
-        mask_export = mask_export.permute(2, 1, 0)
-
-        return route_weight, selected_export, mask_export
-
-
-class SparseMoe(nn.Module):
-    def __init__(self, config: ModelConfig) -&gt; None:
+class SparseMOE(nn.Module):
+    # 稀疏 MOE 模型，这里每一个 token 都会过 topk 个专家，得到对应token 的 hidden_embeddings
+    def __init__(self, config):
         super().__init__()
 
-        self.export_list = nn.ModuleList(
-            [SingleExport(config.hidden_dim, config.hidden_dim) for _ in range(config.n_export)]
+        self.hidden_dim = config.hidden_dim
+
+        self.expert_number = config.expert_number
+        self.top_k = config.top_k
+
+        self.experts = nn.ModuleList(
+            [
+                BasicExpert(self.hidden_dim, self.hidden_dim) for _ in range(self.expert_number)
+            ]
         )
 
-        self.router = MoeRouter(config.n_export, config.hidden_dim, config.n_top)
+        self.router = MOERouter(self.hidden_dim, self.expert_number, self.top_k)
+    
+    def forward(self, x):
+        # x shape is (b, s, hidden_dim)
+        batch_size, seq_len, hidden_dim = x.size()
+
+        # 合并前两个维度，因为不是 Sample 维度了，而是 token 维度
+        hidden_states = x.view(-1, hidden_dim) # shape is(b * s, hidden_dim)
+
+        router_logits, router_weights, selected_experts_indices, expert_mask = self.router(hidden_states)
+        # 其中 selected_experts_indices shape 是 (b * s, top_k)
+        # 其中 expert_mask shape 是 (expert_number, top_k, b * s)
         
-        self.n_export = config.n_export
-        
-    def forward(self,hidden_state):
-        # hidden_state shepe: (batch_size, seq_len, hidden_dim)
-        batch_size, seq_len, hidden_dim = hidden_state.szie()
-        hidden_state = hidden_state.view(-1,hiddem_dim)  # shape: (batch_size * seq_len, hidden_dim)
-        
-        route_weight, selected_export, mask_export = self.router(hidden_state)
-        
-        final_state = torch.zeros(batch_size*seq_len,hidden_dim)
-        
-        for export_idx in range(self.n_export):
-            export_layer = self.export_list[export_idx]
-            current_mask_export = mask_export[epxort_idx]
-            
-            top_idx, top_x=torch.where(current_mask_export)  
-            # top_idx是 export_idx这个专家 选中的token 他是top几，
-            # top_x 是 export_idx这个专家 选中的token 他的序号是几
-            
-            current_state = export_layer(hidden_state[top_x,:])
-            
-            current_route_weight = route_weight[top_x,top_idx].unsqueeze(-1) * current_state
-            final_state.index(a)
-            
-            
-        
-            </div>
+        final_hidden_states = torch.zeros(
+            (batch_size * seq_len, hidden_dim),
+            dtype=hidden_states.dtype,
+            device=hidden_states.device
+        )
+
+        for expert_idx in range(self.expert_number):
+            expert_layer = self.experts[expert_idx]
+            # expert_mask[expert_idx] shape 是 (top_k, b * s)
+            idx, top_x = torch.where(expert_mask[expert_idx]) 
+            # idx 和 top_x 都是一维 tensor
+            # idx 的值是 0 或 1, 表示这个 token 是作为当前专家的 top1 还是 top2
+            # top_x 的值是 token 在 batch*seq_len 中的位置索引
+            # 例如对于 batch_size=2, seq_len=4 的输入:
+            # top_x 的值范围是 0-7, 表示在展平后的 8 个 token 中的位置
+            # idx 的值是 0/1, 表示这个 token 把当前专家作为其 top1/top2 专家
+
+            # hidden_states 的 shape 是 (b * s, hidden_dim)
+            # 需要取到 top_x 对应的 hidden_states
+            current_state = hidden_states.unsqueeze(
+                0
+            )[:, top_x, :].reshape(-1, hidden_dim) # （selected_token_number, hidden_dim）
+
+            # router_weight 的 shape 是 (b * s, top_k)
+            current_hidden_states = expert_layer(
+                current_state
+            ) * router_weights[top_x, idx].unsqueeze(-1)  # （selected_token_number, 1） 这里有广播
+
+            # 把当前专家的输出加到 final_hidden_states 中
+            # 方式1 的写法性能更好，并且方式1容易出现
+            final_hidden_states.index_add_(0, top_x, current_hidden_states.to(hidden_states.dtype))
+            # 方式2
+            # final_hidden_states[top_x] += current_hidden_states.to(hidden_states.dtype)
+            # 方式1 的写法性能更差，并且方式1容易出现错误，+= 操作在处理重复索引时需要多次读写内存，可能会导致竞争条件
+
+        # 把 final_hidden_states 还原到原来的 shape
+        final_hidden_states = final_hidden_states.reshape(batch_size, seq_len, hidden_dim)
+
+        return final_hidden_states, router_logits # shape 是 (b * s, expert_number)
+
+
+def test_token_level_moe():
+    x = torch.rand(2, 4, 16)
+    config = MOEConfig(16, 2, 2)
+    token_level_moe = SparseMOE(config)
+    out = token_level_moe(x)
+    print(out[0].shape, out[1].shape)
+
+
+test_token_level_moe()</div>
 </div>
 </div>
 </div>
@@ -3929,7 +4032,7 @@ class SparseMoe(nn.Module):
 <div class="jp-InputPrompt jp-InputArea-prompt">In [11]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-8">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-7">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -3941,7 +4044,7 @@ class SparseMoe(nn.Module):
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-8">torch.zeros(1,5).unsqueeze(-1)</div>
+<div class="clipboard-copy-txt" id="cell-7">torch.zeros(1,5).unsqueeze(-1)</div>
 </div>
 </div>
 </div>
@@ -3972,7 +4075,7 @@ class SparseMoe(nn.Module):
 <div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-9">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-8">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -3986,7 +4089,7 @@ class SparseMoe(nn.Module):
 <span class="nb">print</span><span class="p">(</span><span class="n">test_x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="n">test_x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-9">test_x = torch.randn((2,3,4))
+<div class="clipboard-copy-txt" id="cell-8">test_x = torch.randn((2,3,4))
 print(test_x.shape)
 test_x.view(-1,4).shape</div>
 </div>
@@ -4022,7 +4125,7 @@ test_x.view(-1,4).shape</div>
 <div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-10">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-9">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -4037,7 +4140,7 @@ test_x.view(-1,4).shape</div>
 <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="o">=</span><span class="n">test_x</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
 <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">test_x</span><span class="p">,)</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-10">test_x = torch.tensor([[1,0,1],[1,1,0]])
+<div class="clipboard-copy-txt" id="cell-9">test_x = torch.tensor([[1,0,1],[1,1,0]])
 print(test_x.size())
 a,b=test_x.size()
 torch.where(test_x,)</div>
@@ -4085,7 +4188,7 @@ torch.where(test_x,)</div>
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-11">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-10">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -4127,7 +4230,7 @@ torch.where(test_x,)</div>
     
         
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-11">class SingleExpert(nn.Module):
+<div class="clipboard-copy-txt" id="cell-10">class SingleExpert(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
         self.linear = nn.Linear(input_dim, output_dim)
@@ -4183,7 +4286,7 @@ class ExportRouter(nn.Module):
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
-<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-12">
+<clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-11">
 <div>
 <span class="notice" hidden="">Copied!</span>
 <svg aria-hidden="true" class="clipboard-copy-icon" data-view-component="true" height="20" version="1.1" viewbox="0 0 16 16" width="20">
@@ -4224,7 +4327,7 @@ class ExportRouter(nn.Module):
         <span class="k">return</span> <span class="n">final_hidden_state</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">seq_len</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">)</span>
         
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-12">class SparseMOE(nn.Module):
+<div class="clipboard-copy-txt" id="cell-11">class SparseMOE(nn.Module):
     def __init__(self, config):
         
         self.exports = nn.ModuleList([SingleExpert(config.hidden_dim, config.hidden_dim) for _ in range(config.n_export)])
