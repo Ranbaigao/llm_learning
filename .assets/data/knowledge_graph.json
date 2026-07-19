@@ -7,7 +7,7 @@
       "depth": -1,
       "url": "",
       "size": 28,
-      "note_count": 50
+      "note_count": 51
     },
     {
       "id": "code_practice",
@@ -16,7 +16,7 @@
       "depth": 0,
       "url": "code_practice/",
       "size": 19,
-      "note_count": 5
+      "note_count": 6
     },
     {
       "id": "code_practice/gpt.ipynb",
@@ -55,6 +55,16 @@
       "format": "jupyter",
       "depth": 1,
       "url": "code_practice/moe/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "code_practice/open_mythos.ipynb",
+      "name": "open mythos",
+      "type": "note",
+      "format": "jupyter",
+      "depth": 1,
+      "url": "code_practice/open_mythos/",
       "size": 7,
       "note_count": 1
     },
@@ -709,6 +719,11 @@
     },
     {
       "source": "code_practice",
+      "target": "code_practice/open_mythos.ipynb",
+      "type": "contains"
+    },
+    {
+      "source": "code_practice",
       "target": "code_practice/vit.ipynb",
       "type": "contains"
     },
@@ -1044,12 +1059,12 @@
     }
   ],
   "stats": {
-    "nodes": 70,
-    "links": 72,
-    "notes": 50,
-    "jupyter": 5,
-    "contains": 69,
+    "nodes": 71,
+    "links": 73,
+    "notes": 51,
+    "jupyter": 6,
+    "contains": 70,
     "references": 3
   },
-  "source_mtime": 1784446907633755541
+  "source_mtime": 1784465759472035507
 }
