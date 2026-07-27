@@ -7,7 +7,7 @@
       "depth": -1,
       "url": "",
       "size": 28,
-      "note_count": 51
+      "note_count": 52
     },
     {
       "id": "code_practice",
@@ -16,7 +16,17 @@
       "depth": 0,
       "url": "code_practice/",
       "size": 19,
-      "note_count": 6
+      "note_count": 7
+    },
+    {
+      "id": "code_practice/esft.ipynb",
+      "name": "esft",
+      "type": "note",
+      "format": "jupyter",
+      "depth": 1,
+      "url": "code_practice/esft/",
+      "size": 7,
+      "note_count": 1
     },
     {
       "id": "code_practice/gpt.ipynb",
@@ -699,6 +709,11 @@
     },
     {
       "source": "code_practice",
+      "target": "code_practice/esft.ipynb",
+      "type": "contains"
+    },
+    {
+      "source": "code_practice",
       "target": "code_practice/gpt.ipynb",
       "type": "contains"
     },
@@ -1059,12 +1074,12 @@
     }
   ],
   "stats": {
-    "nodes": 71,
-    "links": 73,
-    "notes": 51,
-    "jupyter": 6,
-    "contains": 70,
+    "nodes": 72,
+    "links": 74,
+    "notes": 52,
+    "jupyter": 7,
+    "contains": 71,
     "references": 3
   },
-  "source_mtime": 1784465759472035507
+  "source_mtime": 1784635903680033518
 }
