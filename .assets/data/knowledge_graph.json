@@ -7,7 +7,7 @@
       "depth": -1,
       "url": "",
       "size": 28,
-      "note_count": 52
+      "note_count": 53
     },
     {
       "id": "code_practice",
@@ -600,7 +600,7 @@
       "depth": 0,
       "url": "llm应用开发/",
       "size": 18,
-      "note_count": 1
+      "note_count": 2
     },
     {
       "id": "llm应用开发/Agent",
@@ -609,7 +609,7 @@
       "depth": 1,
       "url": "llm应用开发/Agent/",
       "size": 12,
-      "note_count": 1
+      "note_count": 2
     },
     {
       "id": "llm应用开发/Agent/harness+agent引入.md",
@@ -618,6 +618,16 @@
       "format": "markdown",
       "depth": 2,
       "url": "llm应用开发/Agent/harness+agent引入/",
+      "size": 7,
+      "note_count": 1
+    },
+    {
+      "id": "llm应用开发/Agent/skill意义探讨.md",
+      "name": "skill意义探讨",
+      "type": "note",
+      "format": "markdown",
+      "depth": 2,
+      "url": "llm应用开发/Agent/skill意义探讨/",
       "size": 7,
       "note_count": 1
     },
@@ -1018,6 +1028,11 @@
       "type": "contains"
     },
     {
+      "source": "llm应用开发/Agent",
+      "target": "llm应用开发/Agent/skill意义探讨.md",
+      "type": "contains"
+    },
+    {
       "source": "__root__",
       "target": "性能优化",
       "type": "contains"
@@ -1074,12 +1089,12 @@
     }
   ],
   "stats": {
-    "nodes": 72,
-    "links": 74,
-    "notes": 52,
+    "nodes": 73,
+    "links": 75,
+    "notes": 53,
     "jupyter": 7,
-    "contains": 71,
+    "contains": 72,
     "references": 3
   },
-  "source_mtime": 1784635903680033518
+  "source_mtime": 1785603661333366019
 }
