@@ -6,25 +6,25 @@
 <title>Knowledge Graph · 我的 LLM 笔记</title>
 <style>
   :root {
-    --bg-color: #f8fafc;
-    --text-color: #334155;
-    --title-color: #0f172a;
-    --panel-bg: rgba(255, 255, 255, 0.92);
-    --border-color: #cbd5e1;
-    --panel-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-    --accent-primary: #3b82f6;
-    --accent-text: #1e40af;
-    --accent-light: #eff6ff;
-    --success: #16a34a;
-    --warning: #d97706;
-    --muted: #64748b;
-    --root-color: #0f172a;
-    --llm-color: #2563eb;
-    --cv-color: #0d9488;
-    --performance-color: #d97706;
-    --app-color: #7c3aed;
-    --practice-color: #0891b2;
-    --reference-color: #7c3aed;
+    --bg-color: #030712;
+    --text-color: #cbd5e1;
+    --title-color: #f1f5f9;
+    --panel-bg: rgba(10, 16, 32, 0.58);
+    --border-color: rgba(148, 163, 184, 0.16);
+    --panel-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --accent-primary: #60a5fa;
+    --accent-text: #93c5fd;
+    --accent-light: rgba(59, 130, 246, 0.20);
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --muted: #7d8ca3;
+    --root-color: #f1f5f9;
+    --llm-color: #60a5fa;
+    --cv-color: #2dd4bf;
+    --performance-color: #fbbf24;
+    --app-color: #a78bfa;
+    --practice-color: #22d3ee;
+    --reference-color: #a78bfa;
   }
 
   * { box-sizing: border-box; }
@@ -46,10 +46,11 @@
     width: 100vw;
     height: 100vh;
     background:
-      radial-gradient(circle at 26% 18%, rgba(219, 234, 254, 0.95) 0, transparent 32%),
-      radial-gradient(circle at 80% 18%, rgba(239, 246, 255, 0.92) 0, transparent 34%),
-      radial-gradient(circle at 54% 84%, rgba(241, 245, 249, 0.96) 0, transparent 40%),
-      linear-gradient(135deg, #ffffff 0%, #f8fafc 46%, #eff6ff 100%);
+      radial-gradient(circle at 24% 16%, rgba(37, 60, 120, 0.30) 0, transparent 46%),
+      radial-gradient(circle at 80% 22%, rgba(88, 40, 140, 0.24) 0, transparent 48%),
+      radial-gradient(circle at 56% 88%, rgba(10, 50, 78, 0.34) 0, transparent 55%),
+      radial-gradient(circle at 8% 78%, rgba(64, 30, 90, 0.22) 0, transparent 42%),
+      linear-gradient(160deg, #030712 0%, #070d1f 48%, #0a1226 100%);
   }
 
   .app::after {
@@ -58,8 +59,8 @@
     inset: 0;
     pointer-events: none;
     background:
-      repeating-linear-gradient(0deg, rgba(100, 116, 139, 0.055) 0 1px, transparent 1px 40px),
-      repeating-linear-gradient(90deg, rgba(100, 116, 139, 0.05) 0 1px, transparent 1px 40px);
+      repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.05) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.045) 0 1px, transparent 1px 40px);
     mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
     -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
   }
@@ -91,17 +92,17 @@
     left: 0;
     top: 0;
     max-width: 220px;
-    color: var(--label-color, #475569);
+    color: var(--label-color, #cbd5e1);
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
     line-height: 1.16;
     text-align: center;
     white-space: nowrap;
     text-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.94),
-      0 -1px 0 rgba(255, 255, 255, 0.86),
-      1px 0 0 rgba(255, 255, 255, 0.86),
-      -1px 0 0 rgba(255, 255, 255, 0.86),
-      0 8px 18px rgba(15, 23, 42, 0.10);
+      0 1px 0 rgba(2, 6, 23, 0.92),
+      0 -1px 0 rgba(2, 6, 23, 0.86),
+      1px 0 0 rgba(2, 6, 23, 0.86),
+      -1px 0 0 rgba(2, 6, 23, 0.86),
+      0 0 12px rgba(2, 6, 23, 0.60);
     transform: translate3d(-999px, -999px, 0) translateX(-50%);
     transform-origin: 50% 0;
     will-change: transform, opacity;
@@ -155,8 +156,8 @@
   .metric {
     min-width: 0;
     padding: 7px 8px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: rgba(148, 163, 184, 0.07);
+    border: 1px solid rgba(148, 163, 184, 0.12);
     border-radius: 8px;
   }
 
@@ -196,7 +197,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #475569;
+    color: #cbd5e1;
     font-size: 12px;
     line-height: 1.1;
   }
@@ -223,10 +224,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(203, 213, 225, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 8px;
-    background: #ffffff;
-    color: #334155;
+    background: rgba(148, 163, 184, 0.06);
+    color: #cbd5e1;
     cursor: pointer;
     transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
   }
@@ -235,7 +236,7 @@
     transform: translateY(-1px);
     background: var(--accent-light);
     color: var(--accent-text);
-    border-color: rgba(59, 130, 246, 0.42);
+    border-color: rgba(96, 165, 250, 0.42);
   }
 
   .icon-button:active { transform: translateY(0) scale(0.97); }
@@ -276,7 +277,7 @@
     font-size: 13px;
   }
 
-  .search-panel input::placeholder { color: #94a3b8; }
+  .search-panel input::placeholder { color: #5b6b84; }
 
   /* 搜索结果弹窗优先级提高(z-index: 10)，位置匹配左上方 */
   .search-results {
@@ -296,9 +297,9 @@
 
   .search-result-item {
     width: 100%;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.14);
     border-radius: 10px;
-    background: #ffffff;
+    background: rgba(148, 163, 184, 0.05);
     color: var(--title-color);
     padding: 8px 10px;
     text-align: left;
@@ -308,8 +309,8 @@
 
   .search-result-item:hover,
   .search-result-item.is-active {
-    border-color: rgba(59, 130, 246, 0.52);
-    background: #eff6ff;
+    border-color: rgba(96, 165, 250, 0.45);
+    background: rgba(59, 130, 246, 0.16);
     transform: translateY(-1px);
   }
 
@@ -339,13 +340,13 @@
     justify-content: center;
     font-size: 10px;
     font-weight: 700;
-    color: #1e40af;
-    background: #dbeafe;
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.25);
   }
 
   .search-result-meta {
     margin-top: 4px;
-    color: #64748b;
+    color: var(--muted);
     font-size: 10.5px;
     line-height: 1.4;
     overflow-wrap: anywhere;
@@ -354,7 +355,7 @@
   .search-result-type {
     margin-top: 5px;
     font-size: 10px;
-    color: #0f766e;
+    color: #5eead4;
     font-weight: 700;
     letter-spacing: 0.02em;
     text-transform: uppercase;
@@ -366,10 +367,12 @@
     min-width: 190px;
     max-width: min(330px, calc(100vw - 28px));
     padding: 10px 12px 11px;
-    border: 1px solid rgba(203, 213, 225, 0.96);
+    border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.14);
+    background: rgba(10, 16, 32, 0.85);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
     color: var(--text-color);
     pointer-events: none;
     opacity: 0;
@@ -429,8 +432,8 @@
     gap: 12px;
     color: var(--muted);
     font-size: 13px;
-    background: rgba(255, 255, 255, 0.86);
-    border: 1px solid rgba(203, 213, 225, 0.92);
+    background: rgba(10, 16, 32, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.2);
     border-radius: 8px;
     padding: 12px 15px;
     box-shadow: var(--panel-shadow);
@@ -439,7 +442,7 @@
   .spinner {
     width: 22px;
     height: 22px;
-    border: 2px solid #dbeafe;
+    border: 2px solid rgba(148, 163, 184, 0.25);
     border-top-color: var(--accent-primary);
     border-radius: 999px;
     animation: spin 760ms linear infinite;
@@ -450,10 +453,10 @@
   #error {
     width: min(460px, calc(100vw - 32px));
     padding: 16px 18px;
-    border: 1px solid rgba(220, 38, 38, 0.28);
+    border: 1px solid rgba(248, 113, 113, 0.3);
     border-radius: 8px;
-    background: #fff7f7;
-    color: #991b1b;
+    background: rgba(69, 10, 10, 0.5);
+    color: #fca5a5;
     box-shadow: var(--panel-shadow);
     font-size: 13px;
     line-height: 1.55;
@@ -565,20 +568,20 @@ const CONSTELLATION_COLORS = {
   code_practice: cssVar('--practice-color'),
 };
 const SECONDARY_CONSTELLATION_COLORS = {
-  'llm/llm技术报告': '#3b82f6',
-  'llm/模型架构': '#0ea5e9',
-  'llm/模型训练': '#1d4ed8',
-  'llm/源码解读': '#1e3a8a',
-  'computer_vision/基础': '#14b8a6',
-  'computer_vision/模型架构': '#0f766e',
+  'llm/llm技术报告': '#93c5fd',
+  'llm/模型架构': '#38bdf8',
+  'llm/模型训练': '#60a5fa',
+  'llm/源码解读': '#818cf8',
+  'computer_vision/基础': '#5eead4',
+  'computer_vision/模型架构': '#2dd4bf',
 };
 const FALLBACK_CONSTELLATION_COLORS = [
-  '#3b82f6',
-  '#16a34a',
-  '#d97706',
-  '#7c3aed',
-  '#0891b2',
-  '#db2777',
+  '#60a5fa',
+  '#4ade80',
+  '#fbbf24',
+  '#a78bfa',
+  '#22d3ee',
+  '#f472b6',
 ];
 const INDEX_CHAPTER_ANCHORS = {
   '__root__': 'kg-home',
@@ -615,6 +618,9 @@ let dpr = 1;
 let nodes = [];
 let links = [];
 let stars = [];
+let dustParticles = [];
+let meteors = [];
+let nextMeteorAt = 8;
 let nodeById = new Map();
 let adjacency = new Map();
 let childrenById = new Map();
@@ -628,6 +634,7 @@ let searchResultNodes = [];
 let activeSearchResultIndex = -1;
 let hoveredNode = null;
 let isHoveringNode = false;
+let pinnedNode = null;
 let pressedNode = null;
 let paused = false;
 let dragState = null;
@@ -635,6 +642,9 @@ let frameHandle = 0;
 let lastTime = 0;
 let time = 0;
 let constellationRotation = 0;
+// 视角旋转中心（世界坐标）：默认银心原点，固定节点后平滑移动到该节点
+let viewCenter = { x: 0, y: 0, z: 0 };
+let layoutSeed = 0;
 let camera = {
   rotX: 1.18,
   rotY: -0.28,
@@ -696,6 +706,466 @@ function rgba(color, alpha) {
   return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
 }
 
+// ======= 星空精灵图缓存 =======
+// 恒星星芒 / 虚焦恒星 / 光晕 / 星云 / 暗角均为预渲染的离屏 canvas，绘制时只 drawImage，
+// 避免每帧 createRadialGradient 与 shadowBlur 带来的性能开销。
+const STAR_SPRITE_RES = 256;
+const starSpriteCache = new Map();
+const starSoftSpriteCache = new Map();
+const haloSpriteCache = new Map();
+let blackHoleCanvas = null;   // 银心黑洞精灵（预渲染一次）
+let milkyWayCanvas = null;    // 静态银河带（resize / relayout 时重绘）
+let nebulaCanvas = null;      // 静态星云层（resize / relayout 时重绘）
+let vignetteCanvas = null;    // 暗角后期层
+let bloomCanvas = null;       // 泛光后期用的低分辨率缓冲（1/8）
+let bloomCtx = null;
+let bloom2Canvas = null;      // 宽裙边泛光缓冲（1/16）
+let bloom2Ctx = null;
+let lensCanvas = null;        // 引力透镜：背景复制缓冲（固定 256px）
+let lensCtx = null;
+let lensMaskCanvas = null;    // 透镜软环遮罩
+let lensMixCanvas = null;     // 透镜合成缓冲
+let lensMixCtx = null;
+
+function makeSpriteCanvas(res) {
+  const sprite = document.createElement('canvas');
+  sprite.width = res;
+  sprite.height = res;
+  return sprite;
+}
+
+// 恒星精灵（物理化）：艾里斑式极亮小核 + 幂律衰减冕光 + 色温偏移 + 衍射星芒
+function starSpriteFor(color) {
+  let sprite = starSpriteCache.get(color);
+  if (sprite) return sprite;
+  sprite = makeSpriteCanvas(STAR_SPRITE_RES);
+  const g = sprite.getContext('2d');
+  const half = STAR_SPRITE_RES / 2;
+  // 色温：星核不是纯白，向星座色轻微偏移（蓝星偏蓝白、橙星偏暖白）
+  const coreTint = mixHex(color, '#ffffff', 0.82);
+  const midTint = mixHex(color, '#ffffff', 0.45);
+
+  // 衍射星芒（先画，压在冕光下面）：主芒正交两条，副芒 45° 两条更细更淡
+  const spikes = [
+    { angle: 0, alpha: 0.85, width: 0.016 },
+    { angle: Math.PI / 2, alpha: 0.85, width: 0.016 },
+    { angle: Math.PI / 4, alpha: 0.28, width: 0.009 },
+    { angle: -Math.PI / 4, alpha: 0.28, width: 0.009 },
+  ];
+  for (const { angle, alpha, width } of spikes) {
+    g.save();
+    g.translate(half, half);
+    g.rotate(angle);
+    const spike = g.createLinearGradient(-half, 0, half, 0);
+    spike.addColorStop(0, rgba(color, 0));
+    spike.addColorStop(0.30, rgba(color, 0.08 * alpha));
+    spike.addColorStop(0.5, rgba(coreTint, 0.85 * alpha));
+    spike.addColorStop(0.70, rgba(color, 0.08 * alpha));
+    spike.addColorStop(1, rgba(color, 0));
+    g.fillStyle = spike;
+    g.fillRect(-half, -STAR_SPRITE_RES * width / 2, STAR_SPRITE_RES, STAR_SPRITE_RES * width);
+    g.restore();
+  }
+
+  // 冕光：艾里斑形态 —— 极亮小核快速收敛，裙边按幂律 (1-t)^2.2 衰减（近似 1/d² 照度）
+  const corona = g.createRadialGradient(half, half, 0, half, half, half);
+  corona.addColorStop(0, rgba(coreTint, 1));
+  corona.addColorStop(0.045, rgba(coreTint, 0.96));
+  corona.addColorStop(0.10, rgba(midTint, 0.66));
+  corona.addColorStop(0.20, rgba(color, 0.36));
+  corona.addColorStop(0.36, rgba(color, 0.15));
+  corona.addColorStop(0.58, rgba(color, 0.05));
+  corona.addColorStop(0.82, rgba(color, 0.012));
+  corona.addColorStop(1, rgba(color, 0));
+  g.fillStyle = corona;
+  g.fillRect(0, 0, STAR_SPRITE_RES, STAR_SPRITE_RES);
+
+  starSpriteCache.set(color, sprite);
+  return sprite;
+}
+
+// 虚焦恒星精灵：景深远处使用 —— 无星芒、更大更柔的低对比光斑（bokeh）
+function starSoftSpriteFor(color) {
+  let sprite = starSoftSpriteCache.get(color);
+  if (sprite) return sprite;
+  sprite = makeSpriteCanvas(STAR_SPRITE_RES);
+  const g = sprite.getContext('2d');
+  const half = STAR_SPRITE_RES / 2;
+  const grad = g.createRadialGradient(half, half, 0, half, half, half * 0.62);
+  grad.addColorStop(0, rgba(mixHex(color, '#ffffff', 0.5), 0.55));
+  grad.addColorStop(0.35, rgba(color, 0.28));
+  grad.addColorStop(0.7, rgba(color, 0.08));
+  grad.addColorStop(1, rgba(color, 0));
+  g.fillStyle = grad;
+  g.fillRect(0, 0, STAR_SPRITE_RES, STAR_SPRITE_RES);
+  starSoftSpriteCache.set(color, sprite);
+  return sprite;
+}
+
+// 柔和光晕精灵（供连线光流使用）
+function haloSpriteFor(color) {
+  let sprite = haloSpriteCache.get(color);
+  if (sprite) return sprite;
+  sprite = makeSpriteCanvas(STAR_SPRITE_RES);
+  const g = sprite.getContext('2d');
+  const half = STAR_SPRITE_RES / 2;
+  const grad = g.createRadialGradient(half, half, 0, half, half, half);
+  grad.addColorStop(0, rgba(color, 0.55));
+  grad.addColorStop(0.42, rgba(color, 0.22));
+  grad.addColorStop(1, rgba(color, 0));
+  g.fillStyle = grad;
+  g.fillRect(0, 0, STAR_SPRITE_RES, STAR_SPRITE_RES);
+  haloSpriteCache.set(color, sprite);
+  return sprite;
+}
+
+// 银河带：斜贯画面的浅淡亮带 = 弥散辉光 + 大量细密暗星 + 暗尘埃裂隙
+function renderMilkyWayCanvas() {
+  milkyWayCanvas = document.createElement('canvas');
+  milkyWayCanvas.width = Math.max(1, Math.floor(width));
+  milkyWayCanvas.height = Math.max(1, Math.floor(height));
+  const g = milkyWayCanvas.getContext('2d');
+  const diag = Math.hypot(width, height);
+  const bandHeight = Math.min(width, height) * 0.52;
+
+  g.save();
+  g.translate(width / 2, height / 2);
+  g.rotate(-0.46);
+
+  // 弥散辉光（沿带轴垂直方向衰减，中心略偏蓝白）
+  const glow = g.createLinearGradient(0, -bandHeight / 2, 0, bandHeight / 2);
+  glow.addColorStop(0, 'rgba(147, 197, 253, 0)');
+  glow.addColorStop(0.30, 'rgba(147, 197, 253, 0.045)');
+  glow.addColorStop(0.50, 'rgba(226, 232, 240, 0.10)');
+  glow.addColorStop(0.70, 'rgba(191, 219, 254, 0.045)');
+  glow.addColorStop(1, 'rgba(147, 197, 253, 0)');
+  g.fillStyle = glow;
+  g.fillRect(-diag, -bandHeight / 2, diag * 2, bandHeight);
+
+  // 细密星尘：沿带轴均匀、垂直方向近似高斯分布
+  const dustCount = Math.round(clamp((width * height) / 1400, 500, 1400));
+  for (let i = 0; i < dustCount; i += 1) {
+    const x = (Math.random() * 2 - 1) * diag * 0.62;
+    const gauss = (Math.random() + Math.random() + Math.random()) / 1.5 - 1;
+    const y = gauss * bandHeight * 0.24;
+    const edgeFade = 1 - Math.min(1, Math.abs(x) / (diag * 0.62));
+    const roll = Math.random();
+    const rgb = roll < 0.6 ? '226, 232, 240' : roll < 0.85 ? '191, 219, 254' : '253, 230, 138';
+    g.fillStyle = `rgba(${rgb}, ${(0.10 + Math.random() * 0.42) * edgeFade})`;
+    g.beginPath();
+    g.arc(x, y, 0.3 + Math.random() * 0.8, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  // 暗尘埃裂隙：银河带内的吸收云，增加真实感
+  for (let i = 0; i < 6; i += 1) {
+    const x = (hashUnit(i, 211) * 2 - 1) * diag * 0.34;
+    const y = (hashUnit(i, 307) * 2 - 1) * bandHeight * 0.14;
+    const rx = 60 + hashUnit(i, 101) * 150;
+    const ry = rx * (0.28 + hashUnit(i, 157) * 0.22);
+    const grad = g.createRadialGradient(x, y, 0, x, y, rx);
+    grad.addColorStop(0, 'rgba(2, 6, 23, 0.34)');
+    grad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+    g.save();
+    g.translate(x, y);
+    g.scale(1, ry / rx);
+    g.translate(-x, -y);
+    g.fillStyle = grad;
+    g.fillRect(x - rx, y - rx, rx * 2, rx * 2);
+    g.restore();
+  }
+
+  g.restore();
+}
+
+// 静态星云层：深空中的彩色发射云 + 暗尘埃区，营造纵深与明暗
+function renderNebulaCanvas() {
+  nebulaCanvas = document.createElement('canvas');
+  nebulaCanvas.width = Math.max(1, Math.floor(width));
+  nebulaCanvas.height = Math.max(1, Math.floor(height));
+  const g = nebulaCanvas.getContext('2d');
+  const tints = ['#1e3a8a', '#4c1d95', '#134e4a', '#1d4ed8', '#701a75', '#0c4a6e'];
+  const blobCount = Math.round(clamp((width * height) / 260000, 5, 9));
+  for (let i = 0; i < blobCount; i += 1) {
+    const x = hashUnit(i, 7) * width;
+    const y = hashUnit(i, 13) * height;
+    const r = 140 + hashUnit(i, 29) * Math.min(width, height) * 0.32;
+    const tint = tints[i % tints.length];
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, rgba(tint, 0.22 + hashUnit(i, 41) * 0.14));
+    grad.addColorStop(0.55, rgba(tint, 0.09));
+    grad.addColorStop(1, rgba(tint, 0));
+    g.fillStyle = grad;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  // 暗尘埃区（阴影层）：局部压暗，衬托恒星的亮
+  for (let i = 0; i < 3; i += 1) {
+    const x = hashUnit(i, 71) * width;
+    const y = hashUnit(i, 97) * height;
+    const r = 120 + hashUnit(i, 53) * Math.min(width, height) * 0.22;
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, 'rgba(2, 6, 23, 0.30)');
+    grad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+    g.fillStyle = grad;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+}
+
+// 暗角后期层：四角轻微压暗，模拟镜头成像
+function renderVignetteCanvas() {
+  vignetteCanvas = document.createElement('canvas');
+  vignetteCanvas.width = Math.max(1, Math.floor(width));
+  vignetteCanvas.height = Math.max(1, Math.floor(height));
+  const g = vignetteCanvas.getContext('2d');
+  const cx = width / 2;
+  const cy = height / 2;
+  const outer = Math.hypot(cx, cy);
+  const grad = g.createRadialGradient(cx, cy, outer * 0.42, cx, cy, outer);
+  grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0.42)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, width, height);
+}
+
+// 泛光后期（双尺度）：1/8 窄裙边 + 1/16 宽裙边叠加，'screen' 混合逼近物理镜头泛光
+function applyBloomPass() {
+  const bw = Math.max(1, Math.floor(width / 8));
+  const bh = Math.max(1, Math.floor(height / 8));
+  if (!bloomCanvas || bloomCanvas.width !== bw || bloomCanvas.height !== bh) {
+    bloomCanvas = document.createElement('canvas');
+    bloomCanvas.width = bw;
+    bloomCanvas.height = bh;
+    bloomCtx = bloomCanvas.getContext('2d');
+    bloom2Canvas = document.createElement('canvas');
+    bloom2Canvas.width = Math.max(1, Math.floor(bw / 2));
+    bloom2Canvas.height = Math.max(1, Math.floor(bh / 2));
+    bloom2Ctx = bloom2Canvas.getContext('2d');
+  }
+  bloomCtx.clearRect(0, 0, bw, bh);
+  bloomCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, bw, bh);
+  const b2w = bloom2Canvas.width;
+  const b2h = bloom2Canvas.height;
+  bloom2Ctx.clearRect(0, 0, b2w, b2h);
+  bloom2Ctx.drawImage(bloomCanvas, 0, 0, bw, bh, 0, 0, b2w, b2h);
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.imageSmoothingEnabled = true;
+  ctx.globalAlpha = 0.30;
+  ctx.drawImage(bloomCanvas, 0, 0, bw, bh, 0, 0, width, height);
+  ctx.globalAlpha = 0.26;
+  ctx.drawImage(bloom2Canvas, 0, 0, b2w, b2h, 0, 0, width, height);
+  ctx.restore();
+}
+
+function applyVignettePass() {
+  if (!vignetteCanvas) return;
+  ctx.save();
+  ctx.drawImage(vignetteCanvas, 0, 0, width, height);
+  ctx.restore();
+}
+
+// 银心黑洞精灵（1024px 超采样烘焙，显示时降采样获得平滑边缘）：
+// 盘面状环境辉光（压扁，非球形）+ 内缘白热的吸积盘（近侧压到视界前方）
+// + 多普勒束流 + 黑洞阴影环（视界与盘内缘的黑暗间隙）+ 引力透镜弧 + 光子环
+function blackHoleSprite() {
+  if (blackHoleCanvas) return blackHoleCanvas;
+  const S = 1024;
+  const C = S / 2;
+  const R = S * 0.145; // 事件视界半径
+  blackHoleCanvas = makeSpriteCanvas(S);
+  const g = blackHoleCanvas.getContext('2d');
+
+  // 0) 环境辉光：压扁到吸积盘平面（物理上光来自盘而非球对称晕）
+  g.save();
+  g.translate(C, C);
+  g.scale(1, 0.34);
+  let grad = g.createRadialGradient(0, 0, 0, 0, 0, S * 0.5);
+  grad.addColorStop(0, 'rgba(253, 224, 171, 0.22)');
+  grad.addColorStop(0.4, 'rgba(251, 191, 36, 0.09)');
+  grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
+  g.fillStyle = grad;
+  g.fillRect(-S, -S, S * 2, S * 2);
+  g.restore();
+
+  // 1) 吸积盘画进独立层（便于前后半分层遮挡），内缘从 1.45R 开始（留出黑洞阴影）
+  // 注意：盘环外径与束流必须完整收进画布（< S/2），否则辉光会被画布边缘硬切断
+  const ringC = makeSpriteCanvas(S);
+  const rg = ringC.getContext('2d');
+  rg.save();
+  rg.translate(C, C);
+  rg.scale(1, 0.26); // 盘面近乎侧视
+  grad = rg.createRadialGradient(0, 0, R * 1.45, 0, 0, R * 3.3);
+  grad.addColorStop(0, 'rgba(255, 252, 240, 1)');       // 内缘白热（ISCO）
+  grad.addColorStop(0.14, 'rgba(255, 244, 214, 0.95)');
+  grad.addColorStop(0.34, 'rgba(253, 211, 106, 0.85)');
+  grad.addColorStop(0.58, 'rgba(245, 158, 11, 0.48)');
+  grad.addColorStop(0.82, 'rgba(180, 83, 9, 0.18)');
+  grad.addColorStop(1, 'rgba(120, 53, 15, 0)');
+  rg.fillStyle = grad;
+  rg.beginPath();
+  rg.arc(0, 0, R * 3.3, 0, Math.PI * 2);
+  rg.fill();
+  // 多普勒束流：左侧（朝向我们运动的一侧）显著增亮
+  grad = rg.createRadialGradient(-R * 1.8, 0, 0, -R * 1.8, 0, R * 1.55);
+  grad.addColorStop(0, 'rgba(255, 255, 250, 0.9)');
+  grad.addColorStop(1, 'rgba(255, 255, 250, 0)');
+  rg.fillStyle = grad;
+  rg.beginPath();
+  rg.arc(-R * 1.8, 0, R * 1.55, 0, Math.PI * 2);
+  rg.fill();
+  rg.restore();
+
+  // 2) 盘远侧（上半，被视界遮挡）
+  g.drawImage(ringC, 0, 0, S, S / 2, 0, 0, S, S / 2);
+
+  // 3) 黑洞阴影：视界与盘内缘之间的黑暗间隙（~1.1R–1.7R）
+  grad = g.createRadialGradient(C, C, R * 0.9, C, C, R * 1.75);
+  grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  grad.addColorStop(0.38, 'rgba(0, 0, 0, 0.55)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, S, S);
+
+  // 4) 引力透镜弧：远侧盘的光被弯到视界上下，亮度随角度变化（与束流一致，左侧最亮）
+  const lensR = R * 1.42;
+  let lensStyle = 'rgba(255, 244, 220, 0.55)';
+  if (typeof g.createConicGradient === 'function') {
+    const conic = g.createConicGradient(0, C, C);
+    conic.addColorStop(0, 'rgba(255, 236, 200, 0.28)');
+    conic.addColorStop(0.25, 'rgba(255, 236, 200, 0.16)');
+    conic.addColorStop(0.5, 'rgba(255, 252, 240, 0.9)');
+    conic.addColorStop(0.75, 'rgba(255, 236, 200, 0.16)');
+    conic.addColorStop(1, 'rgba(255, 236, 200, 0.28)');
+    lensStyle = conic;
+  }
+  g.strokeStyle = lensStyle;
+  g.lineWidth = R * 0.22;
+  g.lineCap = 'round';
+  g.beginPath();
+  g.arc(C, C, lensR, Math.PI * 1.06, Math.PI * 1.94);
+  g.stroke();
+  g.beginPath();
+  g.arc(C, C, lensR, Math.PI * 0.06, Math.PI * 0.94);
+  g.stroke();
+
+  // 5) 光子环：紧贴视界的白热细环（柔光收敛，不再向外泛滥）
+  g.beginPath();
+  g.arc(C, C, R * 1.08, 0, Math.PI * 2);
+  g.strokeStyle = 'rgba(255, 253, 245, 0.95)';
+  g.lineWidth = R * 0.08;
+  g.stroke();
+  g.strokeStyle = 'rgba(253, 224, 171, 0.16)';
+  g.lineWidth = R * 0.22;
+  g.stroke();
+
+  // 6) 事件视界：纯黑
+  g.beginPath();
+  g.arc(C, C, R, 0, Math.PI * 2);
+  g.fillStyle = '#000000';
+  g.fill();
+
+  // 7) 盘近侧（下半，压到视界前方）
+  g.drawImage(ringC, 0, S / 2, S, S / 2, 0, S / 2, S, S / 2);
+
+  return blackHoleCanvas;
+}
+
+// 银心迷你黑洞：绘制预渲染精灵 + 盘面旋转亮斑（仅近侧）
+function drawBlackHole(p, r, alpha) {
+  const horizon = r * 1.05;
+  const size = (horizon / 0.145) * 1.0; // 精灵中 R = 0.145·S
+  const rx = size * 0.33;               // 旋斑轨道半径（盘内中部）
+  const ry = rx * 0.26;
+  const pulse = 1 + Math.sin(time * 0.8) * 0.02;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(blackHoleSprite(), p.x - size * pulse / 2, p.y - size * pulse / 2, size * pulse, size * pulse);
+
+  // 盘面旋转亮斑，暗示吸积物质绕转
+  const streakGlow = haloSpriteFor('#fde68a');
+  for (let i = 0; i < 2; i += 1) {
+    const a = time * 1.1 + i * Math.PI;
+    if (Math.sin(a) <= 0) continue; // 远侧旋斑被视界遮挡
+    const sx = p.x + Math.cos(a) * rx;
+    const sy = p.y + Math.sin(a) * ry;
+    const s = r * 0.8;
+    ctx.globalAlpha = alpha * 0.7 * Math.sin(a);
+    ctx.drawImage(streakGlow, sx - s, sy - s, s * 2, s * 2);
+  }
+
+  ctx.restore();
+}
+
+// 引力透镜：把黑洞周围环形区域的背景光复制后放大重绘（径向位移 + 软环遮罩），
+// 模拟光线被弯折产生的 Einstein 环式空间扭曲。固定 256px 缓冲，每帧 4 次 drawImage。
+const LENS_RES = 256;
+function applyBlackHoleLensing() {
+  const root = nodeById.get('__root__');
+  if (!root || !root.screen) return;
+  const p = root.screen;
+  const r = clamp(root.radius * p.scale * root.scale, 5.4, 30);
+  const horizon = r * 1.05;
+  const L = horizon * 3.4; // 透镜影响半径
+  if (L < 10) return;
+
+  if (!lensCanvas) {
+    lensCanvas = document.createElement('canvas');
+    lensCanvas.width = LENS_RES;
+    lensCanvas.height = LENS_RES;
+    lensCtx = lensCanvas.getContext('2d');
+    lensMixCanvas = document.createElement('canvas');
+    lensMixCanvas.width = LENS_RES;
+    lensMixCanvas.height = LENS_RES;
+    lensMixCtx = lensMixCanvas.getContext('2d');
+    lensMaskCanvas = document.createElement('canvas');
+    lensMaskCanvas.width = LENS_RES;
+    lensMaskCanvas.height = LENS_RES;
+    const mg = lensMaskCanvas.getContext('2d');
+    // 软环遮罩：光子环外渐显，外缘柔和消失（内径比例与 L = 3.4·horizon 固定对应）
+    const half = LENS_RES / 2;
+    const grad = mg.createRadialGradient(half, half, 0, half, half, half);
+    grad.addColorStop(0.30, 'rgba(0, 0, 0, 0)');
+    grad.addColorStop(0.42, 'rgba(0, 0, 0, 0.9)');
+    grad.addColorStop(0.75, 'rgba(0, 0, 0, 0.55)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    mg.fillStyle = grad;
+    mg.fillRect(0, 0, LENS_RES, LENS_RES);
+  }
+
+  // 1) 复制黑洞周围已渲染的背景（源区域为设备像素，需乘 dpr）
+  const dprScale = canvas.width / width;
+  lensCtx.clearRect(0, 0, LENS_RES, LENS_RES);
+  lensCtx.drawImage(
+    canvas,
+    (p.x - L) * dprScale, (p.y - L) * dprScale, L * 2 * dprScale, L * 2 * dprScale,
+    0, 0, LENS_RES, LENS_RES
+  );
+
+  // 2) 放大重绘（光线向黑洞弯折 → 背景被放大），再用软环遮罩裁出环形
+  const mag = 1.28;
+  const half = LENS_RES / 2;
+  lensMixCtx.clearRect(0, 0, LENS_RES, LENS_RES);
+  lensMixCtx.drawImage(
+    lensCanvas,
+    half - half * mag, half - half * mag, LENS_RES * mag, LENS_RES * mag
+  );
+  lensMixCtx.globalCompositeOperation = 'destination-in';
+  lensMixCtx.drawImage(lensMaskCanvas, 0, 0);
+  lensMixCtx.globalCompositeOperation = 'source-over';
+
+  // 3) 贴回主画面（扭曲后的环形背景叠加在原背景上）
+  ctx.save();
+  ctx.drawImage(lensMixCanvas, p.x - L, p.y - L, L * 2, L * 2);
+  ctx.restore();
+}
+
+// 深度雾：z 为相机空间深度（越大越远），返回远→近的亮度系数 0.58~1
+function depthFade(z) {
+  const t = clamp((z / (camera.distance * 0.95)) * 0.5 + 0.5, 0, 1);
+  return 1 - t * 0.42;
+}
+
 function branchIdFor(node) {
   if (!node || node.id === '__root__') return '__root__';
   return String(node.id).split('/')[0] || String(node.id);
@@ -726,7 +1196,7 @@ function baseColorForSecondaryBranch(node) {
   if (SECONDARY_CONSTELLATION_COLORS[secondaryId]) return SECONDARY_CONSTELLATION_COLORS[secondaryId];
 
   const base = baseColorForBranch(branchId);
-  const driftPalette = ['#38bdf8', '#2563eb', '#0f766e', '#4338ca', '#0369a1', '#1e40af'];
+  const driftPalette = ['#38bdf8', '#60a5fa', '#2dd4bf', '#818cf8', '#7dd3fc', '#93c5fd'];
   const drift = driftPalette[Math.floor(hashUnit(secondaryId, 91) * driftPalette.length) % driftPalette.length];
   return mixHex(base, drift, 0.36);
 }
@@ -740,7 +1210,7 @@ function colorForNode(node) {
   if (node.type === 'subcategory') {
     const darkAmount = node.depth <= 1
       ? 0.04
-      : clamp(0.08 + Math.max(0, node.depth - 1) * 0.04, 0.10, 0.24);
+      : clamp(0.06 + Math.max(0, node.depth - 1) * 0.03, 0.08, 0.16);
     return mixHex(base, '#0f172a', darkAmount);
   }
   const lightAmount = node.format === 'jupyter'
@@ -889,8 +1359,8 @@ function createGraphLabels() {
 function seedConstellation() {
   const root = nodeById.get('__root__');
   const categories = orderedChildren('__root__');
-  const baseRadius = 320;
-  const orbitScaleZ = 0.72;
+  const orbitScaleZ = 0.72; // 银盘在 z 方向压扁
+  const DISC_FLATTEN_Y = 0.45; // 星团云在盘面法线方向压扁
 
   if (root) {
     root.tx = 0;
@@ -899,82 +1369,104 @@ function seedConstellation() {
     root.branchAngle = 0;
   }
 
-  function placeChildren(parent, angle, level) {
+  // 以节点 id + layoutSeed 为种子的近似高斯（Box-Muller），保证布局可复现
+  function gaussish(value, salt) {
+    const u = Math.max(1e-6, hashUnit(value, salt + layoutSeed * 131));
+    const v = hashUnit(value, salt + 101 + layoutSeed * 131);
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(Math.PI * 2 * v);
+  }
+
+  // 均匀球面方向（由哈希驱动）
+  function sphereDir(value, salt) {
+    const phi = hashUnit(value, salt + layoutSeed * 131) * Math.PI * 2;
+    const cosT = hashUnit(value, salt + 57 + layoutSeed * 131) * 2 - 1;
+    const sinT = Math.sqrt(Math.max(0, 1 - cosT * cosT));
+    return { x: sinT * Math.cos(phi), y: cosT, z: sinT * Math.sin(phi) };
+  }
+
+  function subtreeWeight(node) {
+    let weight = 0;
+    const stack = [...(childrenById.get(node.id) || [])];
+    while (stack.length) {
+      const current = stack.pop();
+      weight += current.type === 'note' ? 1 : 2;
+      stack.push(...(childrenById.get(current.id) || []));
+    }
+    return weight;
+  }
+
+  // 子级星团云：以父节点为引力中心的三维散布，无整体朝向（消灭漏斗）
+  function placeCluster(parent) {
     const children = orderedChildren(parent.id);
     if (!children.length) return;
 
     const count = children.length;
-    const parentIsCategory = parent.type === 'category';
-    const tangentSpan = clamp(
-      (parentIsCategory ? 110 : 72) + count * (parentIsCategory ? 38 : 22),
-      parentIsCategory ? 200 : 100,
-      parentIsCategory ? 400 : 240
-    );
-    const verticalSpan = clamp(
-      (parentIsCategory ? 52 : 36) + count * (parentIsCategory ? 20 : 12),
-      parentIsCategory ? 110 : 60,
-      parentIsCategory ? 260 : 140
-    );
-    const verticalAmplitude = clamp(
-      (parentIsCategory ? 100 : 70) + count * (parentIsCategory ? 18 : 11),
-      parentIsCategory ? 140 : 90,
-      parentIsCategory ? 280 : 170
-    );
-    const depthAmplitude = clamp(
-      (parentIsCategory ? 64 : 44) + count * (parentIsCategory ? 12 : 7),
-      parentIsCategory ? 88 : 58,
-      parentIsCategory ? 180 : 108
-    );
-    const radialGap = clamp(parentIsCategory ? 145 : 102 - level * 4, 72, 148);
-    const noteRadialGap = clamp(radialGap * 0.85, 62, 96);
-    const normal = {
-      x: Math.cos(angle),
-      z: Math.sin(angle) * orbitScaleZ,
-    };
-    const tangent = {
-      x: -Math.sin(angle),
-      z: Math.cos(angle) * orbitScaleZ,
-    };
+    // 大分支更"致密"而非更"庞大"：云半径按平方根亚线性增长，
+    // 避免节点多的一级目录（如 llm）占据过多空间、拉偏星图重心
+    const cloudRadius = parent.type === 'category'
+      ? clamp(95 + Math.sqrt(count) * 30 + Math.sqrt(subtreeWeight(parent)) * 16, 130, 235)
+      : clamp(70 + Math.sqrt(count) * 26, 100, 190);
 
-    children.forEach((child, index) => {
-      const ratio = count === 1 ? 0 : index / (count - 1) - 0.5;
-      const ringOffset = ((index % 3) - 1) * (child.type === 'note' ? 8 : 12);
-      const orbitOffset = ratio * tangentSpan + ringOffset;
-      const depthBias = Math.max(0, level) * 7;
-      const childRadial = child.type === 'note' ? noteRadialGap : radialGap;
-      const microWave = Math.sin((index + 1) * 1.618 + level) * (child.type === 'note' ? 7 : 10);
-      const childAngle = angle + ratio * (parentIsCategory ? 0.36 : 0.24);
-      const shellAngle = (index + 1) * 2.399963 + level * 0.83 + hashUnit(parent.id, 17) * Math.PI;
-      const verticalLift =
-        Math.sin(shellAngle) * verticalAmplitude +
-        ratio * verticalSpan * 0.42 +
-        signedHash(child.id, 31) * (parentIsCategory ? 18 : 12);
-      const depthLift =
-        Math.cos(shellAngle * 1.13) * depthAmplitude +
-        signedHash(child.id, 47) * (parentIsCategory ? 28 : 18);
+    for (const child of children) {
+      const isCore = child.type !== 'note';
+      // 星团核（子目录）分布在 0.35~1.0 壳层，笔记向核心聚集（幂律密度轮廓）
+      const u = hashUnit(child.id, 13 + layoutSeed * 131);
+      const shell = isCore ? 0.35 + u * 0.65 : Math.pow(u, 0.9);
+      const dir = sphereDir(child.id, 29);
+      const dist = shell * cloudRadius * (isCore ? 1 : 0.82);
 
-      child.branchAngle = childAngle;
-      child.tx = parent.tx + normal.x * (childRadial + depthLift * 0.22) + tangent.x * (orbitOffset + microWave);
-      child.tz = parent.tz + normal.z * (childRadial + depthLift * 0.34) + tangent.z * (orbitOffset + microWave) + depthLift * 0.58;
-      child.ty = parent.ty + verticalLift + depthBias + (child.type === 'note' ? 5 : -4);
+      child.branchAngle = parent.branchAngle;
+      child.tx = parent.tx + dir.x * dist;
+      child.ty = parent.ty + dir.y * dist * DISC_FLATTEN_Y;
+      child.tz = parent.tz + dir.z * dist * orbitScaleZ;
 
-      if (orderedChildren(child.id).length) {
-        placeChildren(child, childAngle, level + 1);
-      }
-    });
+      if (orderedChildren(child.id).length) placeCluster(child);
+    }
   }
 
+  // 顶层：一级目录分布在 2~3 条对数螺旋臂上（r = r0·e^(bθ)）
+  const ARM_COUNT = categories.length <= 3 ? 2 : 3;
+  const ARM_B = 0.22;
+  const perArm = Math.ceil(categories.length / ARM_COUNT);
   categories.forEach((node, index) => {
-    const angle = -Math.PI / 2 + (index / Math.max(1, categories.length)) * Math.PI * 2;
-    const children = orderedChildren(node.id);
-    const branchRadius = baseRadius + Math.min(32, children.length * 3.2);
-    const wave = Math.sin(angle * 1.7 + node.depth) * 24;
-    node.branchAngle = angle;
-    node.tx = Math.cos(angle) * branchRadius;
-    node.tz = Math.sin(angle) * branchRadius * orbitScaleZ;
-    node.ty = (index - (categories.length - 1) / 2) * 40 + wave;
-    placeChildren(node, angle, 0);
+    const arm = index % ARM_COUNT;
+    const armIndex = Math.floor(index / ARM_COUNT);
+    const t = perArm <= 1 ? 0.5 : armIndex / (perArm - 1);
+    const armPhase = (arm / ARM_COUNT) * Math.PI * 2 + hashUnit(`arm:${arm}`, 5 + layoutSeed * 131) * 0.25;
+    const sweep = 1.0 + t * 1.5;
+    const theta = armPhase + sweep;
+    const radius = 170 * Math.exp(ARM_B * sweep) + Math.min(48, subtreeWeight(node) * 3);
+    // 银盘厚度随半径略增
+    const thickness = 20 + radius * 0.05;
+
+    node.branchAngle = theta;
+    node.tx = Math.cos(theta) * radius;
+    node.tz = Math.sin(theta) * radius * orbitScaleZ;
+    node.ty = gaussish(node.id, 41) * thickness * 0.4;
   });
+
+  // 一级目录核心之间的排斥：保证各星系彼此分得开（在铺开星团云之前只动核心）
+  const MIN_CATEGORY_DIST = 280;
+  for (let iter = 0; iter < 50; iter++) {
+    for (let i = 0; i < categories.length; i++) {
+      for (let j = i + 1; j < categories.length; j++) {
+        const a = categories[i];
+        const b = categories[j];
+        const dx = b.tx - a.tx;
+        const dy = b.ty - a.ty;
+        const dz = b.tz - a.tz;
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 < MIN_CATEGORY_DIST * MIN_CATEGORY_DIST) {
+          const d = Math.sqrt(d2) || 0.001;
+          const push = ((MIN_CATEGORY_DIST - d) / d) * 0.25;
+          a.tx -= dx * push; a.ty -= dy * push; a.tz -= dz * push;
+          b.tx += dx * push; b.ty += dy * push; b.tz += dz * push;
+        }
+      }
+    }
+  }
+
+  for (const node of categories) placeCluster(node);
 
   // 排斥力后处理：推开初始坐标过近的节点，再加 jitter
   applyRepulsion();
@@ -1047,19 +1539,123 @@ function applyRepulsion() {
 
 function createBackgroundStars() {
   stars = [];
-  const count = Math.round(clamp((width * height) / 9000, 70, 150));
+  const count = Math.round(clamp((width * height) / 5500, 110, 260));
   for (let i = 0; i < count; i += 1) {
+    const layer = Math.random() < 0.72 ? 0 : 1; // 0 远层 / 1 近层
+    const tintRoll = Math.random();
     stars.push({
       x: Math.random() * width,
       y: Math.random() * height,
-      r: 0.45 + Math.random() * 1.25,
-      a: 0.16 + Math.random() * 0.28,
+      r: layer === 0 ? 0.4 + Math.random() * 0.8 : 0.8 + Math.random() * 1.4,
+      a: layer === 0 ? 0.16 + Math.random() * 0.24 : 0.30 + Math.random() * 0.36,
       p: Math.random() * Math.PI * 2,
+      tw: 0.5 + Math.random() * 1.3,
+      layer,
+      // 真实星色分布：白 / 蓝白为主，少量暖黄与橙
+      rgb: tintRoll < 0.55 ? '226, 232, 240' : tintRoll < 0.80 ? '191, 219, 254' : tintRoll < 0.93 ? '253, 230, 138' : '251, 146, 60',
+      bright: Math.random() < 0.06,
     });
+  }
+  renderMilkyWayCanvas();
+  renderNebulaCanvas();
+  renderVignetteCanvas();
+  createDustParticles();
+}
+
+// 漂浮微尘：细小介质粒子，缓慢漂移 + 闪烁，近层带视差
+function createDustParticles() {
+  dustParticles = [];
+  const count = Math.round(clamp((width * height) / 22000, 40, 80));
+  for (let i = 0; i < count; i += 1) {
+    const layer = Math.random() < 0.6 ? 0 : 1;
+    dustParticles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: 0.5 + Math.random() * 1.1,
+      a: 0.05 + Math.random() * 0.12,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 4,
+      p: Math.random() * Math.PI * 2,
+      tw: 0.4 + Math.random() * 0.9,
+      layer,
+    });
+  }
+  meteors = [];
+  nextMeteorAt = time + 6 + Math.random() * 4;
+}
+
+function updateDust(dt) {
+  const step = dt * 0.001;
+  for (const d of dustParticles) {
+    d.x += d.vx * step;
+    d.y += d.vy * step;
+    if (d.x < -8) d.x = width + 8; else if (d.x > width + 8) d.x = -8;
+    if (d.y < -8) d.y = height + 8; else if (d.y > height + 8) d.y = -8;
+  }
+}
+
+function drawDustParticles() {
+  for (const d of dustParticles) {
+    const parallax = d.layer === 0 ? 4 : 10;
+    const ox = camera.rotY * parallax;
+    const oy = (camera.rotX - 1.18) * parallax * 0.7;
+    const pulse = 0.6 + Math.sin(time * d.tw + d.p) * 0.4;
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(191, 219, 254, ${d.a * pulse})`;
+    ctx.arc(d.x + ox, d.y + oy, d.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// 偶发流星：短促的渐变尾迹，6~11 秒一颗
+function updateMeteors(dt) {
+  const step = dt * 0.001;
+  if (time >= nextMeteorAt) {
+    nextMeteorAt = time + 6 + Math.random() * 5;
+    meteors.push({
+      x: Math.random() * width * 0.7,
+      y: Math.random() * height * 0.3 - 20,
+      vx: (Math.random() < 0.5 ? 1 : -1) * (320 + Math.random() * 220),
+      vy: 120 + Math.random() * 90,
+      life: 0,
+      maxLife: 0.7 + Math.random() * 0.5,
+    });
+  }
+  for (const m of meteors) {
+    m.life += step;
+    m.x += m.vx * step;
+    m.y += m.vy * step;
+  }
+  meteors = meteors.filter(m =>
+    m.life < m.maxLife && m.x > -140 && m.x < width + 140 && m.y < height + 140);
+}
+
+function drawMeteors() {
+  for (const m of meteors) {
+    const envelope = Math.sin(Math.min(1, m.life / m.maxLife) * Math.PI);
+    const tailX = m.x - m.vx * 0.09;
+    const tailY = m.y - m.vy * 0.09;
+    const grad = ctx.createLinearGradient(tailX, tailY, m.x, m.y);
+    grad.addColorStop(0, 'rgba(191, 219, 254, 0)');
+    grad.addColorStop(1, `rgba(226, 232, 240, ${0.75 * envelope})`);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(tailX, tailY);
+    ctx.lineTo(m.x, m.y);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.9 * envelope})`;
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, 1.4, 0, Math.PI * 2);
+    ctx.fill();
   }
 }
 
 function projectPoint(x, y, z) {
+  // 平移坐标系：以 viewCenter 为旋转中心（固定节点后该节点即位于屏幕中心）
+  x -= viewCenter.x;
+  y -= viewCenter.y;
+  z -= viewCenter.z;
   const cosConstellation = Math.cos(constellationRotation);
   const sinConstellation = Math.sin(constellationRotation);
   const rx = x * cosConstellation - z * sinConstellation;
@@ -1092,6 +1688,8 @@ function updateProjection() {
 function targetScale(node) {
   if (focusNode) {
     if (node.id === focusNode.id) return 1.62;
+    // 固定状态下悬停其他节点：放大预览，提示"点击可固定到这里"
+    if (pinnedNode && hoveredNode && node.id === hoveredNode.id) return 1.48;
     if (focusIds.has(node.id)) return 1.17;
     return 0.86;
   }
@@ -1116,8 +1714,10 @@ function animate(now) {
   lastTime = now;
   if (!paused) {
     time += dt * 0.001;
-    if (!dragState && !isHoveringNode) constellationRotation += dt * 0.000038;
+    if (!dragState && !isHoveringNode && !pinnedNode) constellationRotation += dt * 0.000038;
     easeNodes(dt);
+    updateDust(dt);
+    updateMeteors(dt);
   }
   updateProjection();
   drawScene();
@@ -1133,26 +1733,53 @@ function easeNodes(dt) {
     node.z += (node.tz - node.z) * ease * 0.82;
     node.scale += (targetScale(node) - node.scale) * 0.18;
   }
+  // 视角旋转中心平滑追踪固定节点的当前位置（节点自身也在缓动，逐帧跟随）；
+  // 取消固定后平滑回到银心原点
+  const centerEase = ease * 0.55;
+  const cx = pinnedNode ? pinnedNode.x : 0;
+  const cy = pinnedNode ? pinnedNode.y : 0;
+  const cz = pinnedNode ? pinnedNode.z : 0;
+  viewCenter.x += (cx - viewCenter.x) * centerEase;
+  viewCenter.y += (cy - viewCenter.y) * centerEase;
+  viewCenter.z += (cz - viewCenter.z) * centerEase;
 }
 
 function drawScene() {
   ctx.clearRect(0, 0, width, height);
   drawBackgroundStars();
+  drawDustParticles();
+  drawMeteors();
+  applyBlackHoleLensing();
   drawLinks();
   drawNodes();
+  applyBloomPass();
+  applyVignettePass();
   updateLabels();
 }
 
 function drawBackgroundStars() {
-  ctx.save();
+  if (milkyWayCanvas) ctx.drawImage(milkyWayCanvas, 0, 0, width, height);
+  if (nebulaCanvas) ctx.drawImage(nebulaCanvas, 0, 0, width, height);
+  const brightSprite = starSpriteFor('#bfdbfe');
   for (const star of stars) {
-    const pulse = 0.72 + Math.sin(time * 0.8 + star.p) * 0.28;
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(59, 130, 246, ${star.a * pulse})`;
-    ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
-    ctx.fill();
+    // 视差：远近两层随相机旋转产生不同幅度的漂移，营造景深
+    const parallax = star.layer === 0 ? 6 : 16;
+    const ox = camera.rotY * parallax;
+    const oy = (camera.rotX - 1.18) * parallax * 0.7;
+    const pulse = 0.68 + Math.sin(time * star.tw + star.p) * 0.32;
+    if (star.bright) {
+      const size = star.r * 7 * (0.9 + pulse * 0.2);
+      ctx.globalAlpha = clamp(star.a * pulse * 1.6, 0, 1);
+      ctx.drawImage(brightSprite, star.x + ox - size / 2, star.y + oy - size / 2, size, size);
+    } else {
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${star.rgb}, ${star.a * pulse})`;
+      ctx.arc(star.x + ox, star.y + oy, star.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
-  ctx.restore();
+  ctx.globalAlpha = 1;
 }
 
 function drawLinks() {
@@ -1169,20 +1796,52 @@ function drawLinks() {
     const color = reference
       ? mixHex(link.source.color || colorForNode(link.source), link.target.color || colorForNode(link.target), 0.5)
       : (link.source.color || colorForNode(link.source));
-    const alpha = muted ? 0.055 : active ? 0.78 : reference ? 0.28 : 0.24;
+    const fade = depthFade((source.z + target.z) / 2);
+    const alpha = (muted ? 0.055 : active ? 0.78 : reference ? 0.28 : 0.24) * fade;
 
     ctx.save();
+    if (reference) ctx.setLineDash([5, 7]);
+    // 底层柔光（星座线的晕）
     ctx.beginPath();
     ctx.moveTo(source.x, source.y);
     ctx.lineTo(target.x, target.y);
-    ctx.lineWidth = active ? 2.2 : 1.05;
-    ctx.strokeStyle = reference ? rgba(color, alpha) : rgba(color, alpha);
-    ctx.shadowColor = rgba(color, active ? 0.28 : 0.08);
-    ctx.shadowBlur = active ? 12 : 4;
-    if (reference) ctx.setLineDash([5, 7]);
+    ctx.lineWidth = active ? 5.5 : 3;
+    ctx.strokeStyle = rgba(color, alpha * 0.26);
+    ctx.stroke();
+    // 亮芯
+    ctx.beginPath();
+    ctx.moveTo(source.x, source.y);
+    ctx.lineTo(target.x, target.y);
+    ctx.lineWidth = active ? 2 : 1;
+    ctx.strokeStyle = rgba(color, Math.min(1, alpha * 1.15));
     ctx.stroke();
     ctx.restore();
+
+    if (active) drawLinkLightFlow(source, target, color);
   }
+}
+
+// 聚焦时沿激活连线流动的光点（仅聚焦状态下计算，常态零开销）
+function drawLinkLightFlow(source, target, color) {
+  const dx = target.x - source.x;
+  const dy = target.y - source.y;
+  const halo = haloSpriteFor(color);
+  ctx.save();
+  for (let i = 0; i < 2; i += 1) {
+    const t = (time * 0.45 + i * 0.5) % 1;
+    const envelope = Math.sin(t * Math.PI);
+    const x = source.x + dx * t;
+    const y = source.y + dy * t;
+    const size = 14 + envelope * 6;
+    ctx.globalAlpha = 0.65 * envelope;
+    ctx.drawImage(halo, x - size / 2, y - size / 2, size, size);
+    ctx.globalAlpha = 0.9 * envelope;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(x, y, 1.7, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
 }
 
 function drawNodes() {
@@ -1191,48 +1850,40 @@ function drawNodes() {
     const p = node.screen;
     if (!p) continue;
     const active = focusNode && focusIds.has(node.id);
-    const muted = focusNode && !active;
+    // 固定状态下悬停预览的节点：即便不在高亮组内也按激活态提亮
+    const hoverPreview = !!(pinnedNode && hoveredNode && node.id === hoveredNode.id && node.id !== pinnedNode.id);
+    const muted = focusNode && !active && !hoverPreview;
     const matched = searchMatches.has(node.id);
     const baseRadius = node.radius * p.scale * node.scale;
     const r = clamp(baseRadius, node.type === 'note' ? 3.2 : 5.4, node.type === 'root' ? 30 : 22);
     node.hitRadius = Math.max(9, r + (node.type === 'note' ? 7 : 5));
 
-    const glowPulse = 0.92 + Math.sin(time * 0.9 + node.pulse) * 0.08;
-    const alpha = muted ? 0.20 : 1;
+    // 恒星闪烁：每颗星独立的相位与频率
+    const twinkle = 0.88 + Math.sin(time * 1.1 + node.pulse) * 0.12;
+    const fade = depthFade(p.z);
+    // 景深：远处恒星逐渐失焦 —— 切换虚焦精灵、放大光斑、压低亮度
+    const blur = clamp((((p.z / (camera.distance * 0.95)) * 0.5 + 0.5) - 0.58) / 0.42, 0, 1);
+    const alpha = (muted ? 0.18 : 1) * fade * (1 - blur * 0.25);
     const color = node.color;
 
     ctx.save();
-    ctx.globalAlpha = alpha;
 
-    const halo = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * (active ? 3.8 : 2.9));
-    halo.addColorStop(0, rgba(color, (active ? 0.30 : 0.20) * glowPulse));
-    halo.addColorStop(1, rgba(color, 0));
-    ctx.fillStyle = halo;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, r * (active ? 3.8 : 2.9), 0, Math.PI * 2);
-    ctx.fill();
-
-    if (node.type !== 'note' || active || matched) {
-      ctx.strokeStyle = rgba(color, active ? 0.42 : 0.22);
-      ctx.lineWidth = active ? 1.6 : 1;
-      ctx.beginPath();
-      ctx.moveTo(p.x - r * 2.1, p.y);
-      ctx.lineTo(p.x + r * 2.1, p.y);
-      ctx.moveTo(p.x, p.y - r * 2.1);
-      ctx.lineTo(p.x, p.y + r * 2.1);
-      ctx.stroke();
+    // 银心：根节点渲染为迷你黑洞；其余节点为恒星
+    if (node.type === 'root') {
+      drawBlackHole(p, r, alpha);
+    } else {
+      // 恒星本体：艾里斑核 + 幂律冕光 + 衍射星芒（预渲染精灵），远处换虚焦软光斑
+      const coronaFactor =
+        node.type === 'category' ? 7.5 :
+        node.type === 'subcategory' ? 6.5 :
+        5;
+      const size = r * 2 * coronaFactor * (active || hoverPreview ? 1.35 : 1) * twinkle * (1 + blur * 0.85);
+      const sprite = blur > 0.45 ? starSoftSpriteFor(color) : starSpriteFor(color);
+      ctx.globalAlpha = clamp(alpha * (active ? 1 : 0.94), 0, 1);
+      ctx.drawImage(sprite, p.x - size / 2, p.y - size / 2, size, size);
     }
 
-    ctx.beginPath();
-    ctx.fillStyle = color;
-    ctx.shadowColor = rgba(color, active ? 0.50 : 0.24);
-    ctx.shadowBlur = active ? 18 : 9;
-    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.lineWidth = active ? 2.7 : 1.7;
-    ctx.strokeStyle = '#ffffff';
-    ctx.stroke();
+    ctx.globalAlpha = alpha;
 
     if (node.format === 'jupyter') {
       ctx.beginPath();
@@ -1240,6 +1891,27 @@ function drawNodes() {
       ctx.arc(p.x, p.y, r + 5, 0, Math.PI * 2);
       ctx.strokeStyle = rgba(color, active ? 0.78 : 0.48);
       ctx.lineWidth = active ? 2.1 : 1.4;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // 悬停预览标记：固定状态下鼠标悬停的节点，外圈亮色细环提示可点击
+    if (hoverPreview) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 6.5, 0, Math.PI * 2);
+      ctx.strokeStyle = rgba(mixHex(color, '#ffffff', 0.55), 0.8);
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+    }
+
+    // 固定标记：被点击锁定的焦点星外圈绘制缓慢旋转的虚线环
+    if (pinnedNode && node.id === pinnedNode.id) {
+      ctx.beginPath();
+      ctx.setLineDash([7, 6]);
+      ctx.lineDashOffset = -time * 16;
+      ctx.arc(p.x, p.y, r + 9.5, 0, Math.PI * 2);
+      ctx.strokeStyle = rgba('#93c5fd', 0.9);
+      ctx.lineWidth = 1.8;
       ctx.stroke();
       ctx.setLineDash([]);
     }
@@ -1274,9 +1946,9 @@ function labelBaseSize(node) {
 }
 
 function labelColorFor(node) {
-  if (node.type === 'root' || node.type === 'category') return '#0f172a';
-  if (node.type === 'subcategory') return '#475569';
-  return '#64748b';
+  if (node.type === 'root' || node.type === 'category') return '#f8fafc';
+  if (node.type === 'subcategory') return '#cbd5e1';
+  return '#94a3b8';
 }
 
 function labelZoomClarity() {
@@ -1302,6 +1974,8 @@ function labelAlphaFor(node) {
     else if (focusIds.has(node.id)) alpha = Math.max(alpha, 0.72);
     else alpha *= 0.42;
   }
+  // 固定状态下悬停预览的节点：标签增亮
+  if (pinnedNode && hoveredNode && hoveredNode.id === node.id) alpha = Math.max(alpha, 0.95);
   if (searchMatches.has(node.id)) alpha = 1;
 
   return clamp(alpha, node.type === 'note' ? 0.24 : 0.34, 1);
@@ -1361,9 +2035,9 @@ function updateLabels() {
     const isPrimaryFocus = focusNode && focusNode.id === node.id;
     const isFocusChild = focusNode && focusLabelIds.has(node.id) && !isPrimaryFocus;
     label.style.textShadow = isPrimaryFocus
-      ? '0 1px 0 rgba(255, 255, 255, 0.96), 0 -1px 0 rgba(255, 255, 255, 0.92), 1px 0 0 rgba(255, 255, 255, 0.92), -1px 0 0 rgba(255, 255, 255, 0.92), 0 10px 24px rgba(59, 130, 246, 0.30)'
+      ? '0 0 16px rgba(147, 197, 253, 0.60), 0 1px 0 rgba(2, 6, 23, 0.95), 0 -1px 0 rgba(2, 6, 23, 0.90), 1px 0 0 rgba(2, 6, 23, 0.90), -1px 0 0 rgba(2, 6, 23, 0.90)'
       : isFocusChild
-        ? '0 1px 0 rgba(255, 255, 255, 0.95), 0 -1px 0 rgba(255, 255, 255, 0.90), 1px 0 0 rgba(255, 255, 255, 0.90), -1px 0 0 rgba(255, 255, 255, 0.90), 0 8px 20px rgba(59, 130, 246, 0.20)'
+        ? '0 0 12px rgba(147, 197, 253, 0.38), 0 1px 0 rgba(2, 6, 23, 0.92), 0 -1px 0 rgba(2, 6, 23, 0.88), 1px 0 0 rgba(2, 6, 23, 0.88), -1px 0 0 rgba(2, 6, 23, 0.88)'
         : '';
     label.style.zIndex = String(10 + labelPriority(node));
     label.style.transform = `translate3d(${node.labelX.toFixed(2)}px, ${node.labelY.toFixed(2)}px, 0) translateX(-50%)`;
@@ -1402,6 +2076,7 @@ function setFocus(node, fromPointer = false) {
 }
 
 function clearFocus() {
+  pinnedNode = null;
   focusNode = null;
   hoveredNode = null;
   isHoveringNode = false;
@@ -1411,6 +2086,13 @@ function clearFocus() {
     ? new Set(nodes.filter(node => searchable(node).includes(searchQuery)).map(node => node.id))
     : new Set();
   hideTooltip();
+}
+
+// 点击节点：把当前高亮"钉"在该节点上，鼠标移开也不会丢失，
+// 方便继续点选它的子节点；点击其他节点则切换固定对象。
+function pinNode(node) {
+  pinnedNode = node;
+  setFocus(node, false);
 }
 
 function searchable(node) {
@@ -1494,11 +2176,15 @@ function renderSearchResultsPanel(results) {
 function showTooltip(node) {
   const color = node.color || colorForNode(node);
   const typeLabel = node.format === 'jupyter' ? 'JUPYTER' : (TYPE_LABEL[node.type] || node.type);
+  const isPinned = pinnedNode && pinnedNode.id === node.id;
+  const hint = isPinned
+    ? '已固定 · 点击子节点继续固定 · 点击空白处取消 · 双击跳转'
+    : `点击固定高亮 · 双击跳转到对应${node.type === 'note' ? '笔记' : '章节'}`;
   tooltip.innerHTML = `
-    <div class="tip-type" style="background:${color}18;color:${color}">${typeLabel}</div>
+    <div class="tip-type" style="background:${color}2e;color:${color}">${typeLabel}</div>
     <div class="tip-title">${escapeHtml(node.name)}</div>
     <div class="tip-path">/${escapeHtml(node.id)}</div>
-    <div class="tip-hint">点击跳转到对应${node.type === 'note' ? '笔记' : '章节'}</div>
+    <div class="tip-hint">${hint}</div>
   `;
   tooltip.classList.add('visible');
   placeTooltipSmart(node);
@@ -1654,11 +2340,15 @@ function resetView() {
   constellationRotation = 0;
   camera.panX = 0;
   camera.panY = 14;
-  const maxR = Math.max(520, ...nodes.map(node => Math.hypot(node.tx, node.ty, node.tz)));
-  camera.zoom = clamp(Math.min(width, height) / (maxR * 1.95), 0.56, 1.08);
+  // 用 92 分位半径取景，避免个别大分支的边缘星把整体缩放逐小
+  const radii = nodes.map(node => Math.hypot(node.tx, node.ty, node.tz)).sort((a, b) => a - b);
+  const percentileR = radii.length ? radii[Math.floor(0.92 * (radii.length - 1))] : 520;
+  const maxR = Math.max(520, percentileR);
+  camera.zoom = clamp(Math.min(width, height) / (maxR * 1.8), 0.56, 1.08);
 }
 
 function relayout() {
+  layoutSeed += 1; // 每次重排生成一个全新的星系
   seedConstellation();
   createBackgroundStars();
   resetView();
@@ -1711,6 +2401,15 @@ canvas.addEventListener('pointermove', event => {
 
   const node = hitTest(event.clientX, event.clientY);
   canvas.style.cursor = node ? 'pointer' : 'grab';
+
+  // 固定状态下：高亮锁定在 pinnedNode 上，鼠标移动不再改变焦点，
+  // 仅记录悬停目标，供点击（切换固定对象）与双击（跳转）使用
+  if (pinnedNode) {
+    hoveredNode = node;
+    isHoveringNode = !!node;
+    return;
+  }
+
   if (node !== hoveredNode) {
     if (node) {
       setFocus(node, true);
@@ -1725,7 +2424,15 @@ canvas.addEventListener('pointermove', event => {
 function endPointer(event) {
   canvas.releasePointerCapture?.(event.pointerId);
   canvas.classList.remove('is-dragging');
-  if (dragState && dragState.mode === 'rotate' && !dragState.moved && pressedNode) openNode(pressedNode);
+  if (dragState && dragState.mode === 'rotate' && !dragState.moved) {
+    if (pressedNode) {
+      // 单击节点：固定当前高亮（点击其他节点则切换固定对象），不再跳转页面
+      pinNode(pressedNode);
+    } else if (pinnedNode) {
+      // 单击星空空白处：取消固定，恢复悬停跟随的原始样式
+      clearFocus();
+    }
+  }
   dragState = null;
   pressedNode = null;
 }
@@ -1733,10 +2440,15 @@ function endPointer(event) {
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
 canvas.addEventListener('contextmenu', event => event.preventDefault());
+canvas.addEventListener('dblclick', event => {
+  // 双击节点：跳转到对应笔记 / 章节（单击已改为固定高亮）
+  const node = hitTest(event.clientX, event.clientY);
+  if (node) openNode(node);
+});
 canvas.addEventListener('mouseleave', () => {
   hoveredNode = null;
   isHoveringNode = false;
-  if (!dragState && !searchQuery) clearFocus();
+  if (!dragState && !searchQuery && !pinnedNode) clearFocus();
 });
 
 canvas.addEventListener('wheel', event => {
@@ -1747,6 +2459,7 @@ canvas.addEventListener('wheel', event => {
 }, { passive: false });
 
 searchInput.addEventListener('input', event => {
+  pinnedNode = null; // 搜索接管焦点，取消固定状态
   searchQuery = event.target.value.trim().toLowerCase();
   const matchedNodes = searchQuery
     ? nodes.filter(node => searchable(node).includes(searchQuery))
@@ -1851,30 +2564,30 @@ document.addEventListener('DOMContentLoaded', () => {
           transform: translateX(-50%) !important;
           z-index: 10000 !important;
           width: min(420px, calc(100vw - 32px)) !important;
-          background: rgba(255, 255, 255, 0.94) !important;
-          backdrop-filter: blur(12px) !important;
-          -webkit-backdrop-filter: blur(12px) !important;
+          background: rgba(10, 16, 32, 0.82) !important;
+          backdrop-filter: blur(14px) saturate(140%) !important;
+          -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
           border-radius: 999px !important;
-          border: 1px solid rgba(203, 213, 225, 0.95) !important;
-          box-shadow: 0 12px 28px -10px rgba(15,23,42,0.22), 0 4px 10px -6px rgba(15,23,42,0.16) !important;
+          border: 1px solid rgba(148, 163, 184, 0.25) !important;
+          box-shadow: 0 12px 28px -10px rgba(0,0,0,0.55), 0 4px 10px -6px rgba(0,0,0,0.4) !important;
           display: flex !important;
           align-items: center !important;
           gap: 12px !important;
           padding: 10px 18px !important;
           height: 48px !important;
         }
-        .kg-docked-search svg { width: 18px !important; height: 18px !important; color: #475569 !important; flex: 0 0 auto !important; }
+        .kg-docked-search svg { width: 18px !important; height: 18px !important; color: #94a3b8 !important; flex: 0 0 auto !important; }
         .kg-docked-search input {
           flex: 1 !important;
           border: none !important;
           outline: none !important;
           background: transparent !important;
           font-size: 14px !important;
-          color: #0f172a !important;
+          color: #f1f5f9 !important;
           font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif !important;
           width: 100% !important;
         }
-        .kg-docked-search input::placeholder { color: #94a3b8 !important; }
+        .kg-docked-search input::placeholder { color: #5b6b84 !important; }
 
         .kg-docked-results {
           position: fixed !important;
@@ -1885,12 +2598,12 @@ document.addEventListener('DOMContentLoaded', () => {
           transform: translateX(-50%) !important;
           z-index: 10000 !important;
           width: min(420px, calc(100vw - 32px)) !important;
-          background: rgba(255, 255, 255, 0.96) !important;
-          backdrop-filter: blur(10px) !important;
-          -webkit-backdrop-filter: blur(10px) !important;
+          background: rgba(10, 16, 32, 0.88) !important;
+          backdrop-filter: blur(12px) saturate(140%) !important;
+          -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
           border-radius: 12px !important;
-          border: 1px solid #cbd5e1 !important;
-          box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1) !important;
+          border: 1px solid rgba(148, 163, 184, 0.2) !important;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55) !important;
           max-height: 320px !important;
           overflow-y: auto !important;
           display: flex !important;
@@ -1912,11 +2625,11 @@ document.addEventListener('DOMContentLoaded', () => {
           display: block !important;
         }
         .kg-docked-results .search-result-item:hover,
-        .kg-docked-results .search-result-item.is-active { background: #eff6ff !important; }
+        .kg-docked-results .search-result-item.is-active { background: rgba(59, 130, 246, 0.18) !important; }
         .kg-docked-results .search-result-head { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; }
-        .kg-docked-results .search-result-name { font-size: 13px !important; font-weight: 700 !important; color: #0f172a !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
-        .kg-docked-results .search-result-meta { margin-top: 4px !important; font-size: 11px !important; color: #64748b !important; }
-        .kg-docked-results .search-result-badge { flex: 0 0 auto !important; height: 18px !important; border-radius: 999px !important; padding: 0 7px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 10px !important; font-weight: 700 !important; color: #1e40af !important; background: #dbeafe !important; }
+        .kg-docked-results .search-result-name { font-size: 13px !important; font-weight: 700 !important; color: #f1f5f9 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+        .kg-docked-results .search-result-meta { margin-top: 4px !important; font-size: 11px !important; color: #7d8ca3 !important; }
+        .kg-docked-results .search-result-badge { flex: 0 0 auto !important; height: 18px !important; border-radius: 999px !important; padding: 0 7px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 10px !important; font-weight: 700 !important; color: #bfdbfe !important; background: rgba(59, 130, 246, 0.25) !important; }
         .kg-docked-results .search-result-type { display: none !important; } /* 精简Dock栏模式下的显示 */
       `;
       parentDoc.head.appendChild(dockStyle);

@@ -172,6 +172,7 @@ hide:
 #### Agent
 
 - [harness+agent引入](llm应用开发/Agent/harness+agent引入.md)
+- [skill意义探讨](llm应用开发/Agent/skill意义探讨.md)
 
 <span id="kg-cv"></span>
 
@@ -209,10 +210,12 @@ hide:
 
 ### 💻 代码实践
 
+- [esft](code_practice/esft.ipynb)
 - [gpt](code_practice/gpt.ipynb)
 - [gqa](code_practice/gqa.ipynb)
 - [mHC](code_practice/mhc.ipynb)
 - [moe](code_practice/moe.ipynb)
+- [open mythos](code_practice/open_mythos.ipynb)
 - [vit](code_practice/vit.ipynb)
 
 <span id="kg-other"></span>
