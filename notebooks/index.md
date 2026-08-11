@@ -142,7 +142,6 @@ hide:
 - [ClipPPO原理](llm/模型训练/强化学习/ClipPPO原理.md)
 - [DPO](llm/模型训练/强化学习/DPO.md)
 - [GSPO](llm/模型训练/强化学习/GSPO.md)
-- [PPO](llm/模型训练/强化学习/PPO.md)
 - [RL知识图谱](llm/模型训练/强化学习/RL知识图谱.md)
 - [李宏毅DRL笔记](llm/模型训练/强化学习/李宏毅DRL笔记.md)
 
@@ -172,7 +171,7 @@ hide:
 #### Agent
 
 - [harness+agent引入](llm应用开发/Agent/harness+agent引入.md)
-- [skill意义探讨](llm应用开发/Agent/skill意义探讨.md)
+- [Skill意义探讨](llm应用开发/Agent/Skill意义探讨.md)
 
 <span id="kg-cv"></span>
 

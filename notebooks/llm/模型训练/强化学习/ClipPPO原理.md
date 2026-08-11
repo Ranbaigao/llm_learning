@@ -9,10 +9,25 @@ PPO (Proximal Policy Optimization) 中的 Clip 机制是强化学习中非常经
 
 $$r_t(\theta) = \frac{p_{\theta}(a_t | s_t)}{p_{\theta^k}(a_t | s_t)}$$
 
+其中各符号的含义如下：
+
+* $\theta$：当前正在优化的**新策略**参数。
+* $\theta^k$：第 $k$ 轮迭代时的**旧策略**参数，训练数据 $(s_t, a_t)$ 正是由它与环境交互采样得到的。
+* $s_t$、$a_t$：时间步 $t$ 的状态与动作（来自旧策略的采样数据）。
+* $p_{\theta}(a_t | s_t)$、$p_{\theta^k}(a_t | s_t)$：新、旧策略在同一个状态 $s_t$ 下选择动作 $a_t$ 的概率。
+* 因此 $r_t(\theta) = 1$ 表示新旧策略在该动作上完全一致；偏离 $1$ 越远，说明策略更新幅度越大。
+
 那么你的目标函数可以简写为：
 
 
 $$J(\theta) = \min \left( r_t(\theta) A_t, \, \text{clip} (r_t(\theta), 1-\epsilon, 1+\epsilon) A_t \right)$$
+
+式中新出现的符号含义如下：
+
+* $J(\theta)$：PPO 的替代目标函数（Surrogate Objective），这里写出的是单个样本 $(s_t, a_t)$ 上的形式。
+* $A_t$：优势函数（Advantage Function）的估计值，衡量"在状态 $s_t$ 下采取动作 $a_t$，比该状态下的平均表现好多少"（$A_t > 0$ 表示好于平均，$A_t < 0$ 表示差于平均）。
+* $\epsilon$：截断超参数，通常取 $0.1 \sim 0.2$，用于划定概率比率的"安全范围" $[1-\epsilon, 1+\epsilon]$。
+* $\text{clip}(x, l, u)$：截断函数，当 $x < l$ 时返回 $l$，当 $x > u$ 时返回 $u$，否则返回 $x$——即把 $x$ 强行限制在区间 $[l, u]$ 内。
 
 我们的横轴就是 $r_t(\theta)$，纵轴是目标函数收益 $J$。因为我们在做梯度上升，所以优化器总是倾向于**让纵轴 $J$ 的值越大越好**。
 

@@ -170,6 +170,14 @@ $$\begin{align*}
 
 $$J^{\theta'}(\theta) = \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta'}} \left[ \frac{p_{\theta}(a_t | s_t)}{p_{\theta'}(a_t | s_t)} A^{\theta'}(s_t, a_t) \right] $$
 
+> **关键强调：目标函数中的 $(s_t, a_t)$ 是由旧策略 $\theta'$ 采样出来的，而非当前策略 $\theta$**
+> 
+> 期望下标 $(s_t, a_t) \sim \pi_{\theta'}$ 极易被一眼带过，但它是理解 PPO Off-policy 本质的关键：**采样工作全部由参数为 $\theta'$ 的旧 Actor 完成**。$a_t$ 是旧策略在状态 $s_t$ 下实际采取的动作；$s_t$ 虽是环境状态转移的产物，但它的出现频率（状态访问分布）同样由旧策略与环境的交互决定。被优化的当前策略 $\theta$ **不参与任何采样**，它只负责在旧数据上评估动作概率 $p_{\theta}(a_t | s_t)$。
+> 
+> 这一事实带来两个直接推论：
+> * **求导视角**：对 $\theta$ 求导时，$(s_t, a_t)$ 是已经固定的观测数据（常量），梯度不会流经它们，只作用于 $p_{\theta}(a_t | s_t)$。
+> * **数据复用视角**：正因为数据来自旧策略，才需要重要性采样来修正分布偏差；修正后这批旧数据便能被重复用于多轮梯度更新——这也正是后文需要 KL 惩罚或 Clip 机制来约束新旧策略偏差的原因。
+
 如果把这个目标函数对 $\theta$ 求导，就会回到上面的梯度形式。因为 $p_{\theta'}(a_t | s_t)$ 和 $A^{\theta'}(s_t, a_t)$ 都是由旧策略采样得到的常量，所以求导只作用在 $p_{\theta}(a_t | s_t)$ 上；再用 Log-Derivative Trick，$\nabla_{\theta} p_{\theta}(a_t | s_t) = p_{\theta}(a_t | s_t) \nabla_{\theta} \log p_{\theta}(a_t | s_t)$，就能重新得到
 
 
