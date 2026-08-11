@@ -134,6 +134,7 @@ hide:
 ##### SFT
 
 - [LoRA](llm/模型训练/SFT/LoRA.md)
+- [SFT不完整学习现象ILP](llm/模型训练/SFT/SFT不完整学习现象ILP.md)
 
 <span id="kg-llm-training-rl"></span>
 
@@ -170,7 +171,8 @@ hide:
 
 #### Agent
 
-- [harness+agent引入](llm应用开发/Agent/harness+agent引入.md)
+- [Harness+Agent引入](llm应用开发/Agent/Harness+Agent引入.md)
+- [Hermes Agent单个会话的记忆管理](llm应用开发/Agent/Hermes%20Agent单个会话的记忆管理.md)
 - [Skill意义探讨](llm应用开发/Agent/Skill意义探讨.md)
 
 <span id="kg-cv"></span>
