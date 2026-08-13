@@ -106,6 +106,7 @@
     transform: translate3d(-999px, -999px, 0) translateX(-50%);
     transform-origin: 50% 0;
     will-change: transform, opacity;
+    transition: opacity 240ms ease;
   }
 
   .graph-label--note { font-weight: 500; }
@@ -246,6 +247,175 @@
     height: 17px;
     stroke-width: 2.1;
   }
+
+  .icon-button.is-active {
+    background: var(--accent-light);
+    color: var(--accent-text);
+    border-color: rgba(96, 165, 250, 0.42);
+  }
+
+  /* 笔记目录侧边栏：折叠时树形列表从下往上卷起，顶部标题栏原样保留
+     并充当展开把手；宽度与搜索框对齐；
+     top 过渡用于搜索候选列表弹出时动态下移让位 */
+  .sidebar {
+    top: 78px;
+    left: 18px;
+    bottom: 74px;
+    width: min(310px, calc(100vw - 112px));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    clip-path: inset(0 0 0 0 round 12px);
+    transition:
+      clip-path 320ms cubic-bezier(0.4, 0, 0.2, 1),
+      top 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar.is-collapsed {
+    /* 只保留 44px 标题栏，其余部分卷起隐藏 */
+    clip-path: inset(0 0 calc(100% - 44px) 0 round 12px);
+    pointer-events: none;
+  }
+
+  .sidebar.is-collapsed .sidebar-header {
+    pointer-events: auto;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 10px 0 14px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    flex: 0 0 auto;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .sidebar-title {
+    color: var(--title-color);
+    font-size: 12.5px;
+    font-weight: 750;
+    letter-spacing: 0.04em;
+  }
+
+  .sidebar-count {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+
+  /* 侧边栏头部的收起按钮 */
+  .sidebar-collapse {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+  }
+
+  .sidebar-collapse:hover {
+    background: rgba(148, 163, 184, 0.16);
+    color: var(--title-color);
+  }
+
+  .sidebar-collapse svg { width: 14px; height: 14px; stroke-width: 2.4; }
+
+  .sidebar-tree {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  }
+
+  .sidebar-tree::-webkit-scrollbar { width: 6px; }
+  .sidebar-tree::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.28); border-radius: 999px; }
+
+  .tree-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    padding: 4px 7px 4px 4px;
+    font: inherit;
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background 140ms ease, color 140ms ease;
+  }
+
+  .tree-row:hover { background: rgba(148, 163, 184, 0.10); }
+
+  .tree-row.is-active { background: rgba(59, 130, 246, 0.18); }
+
+  .tree-chevron {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    border-radius: 4px;
+    transition: transform 180ms ease, background 140ms ease;
+  }
+
+  .tree-chevron:hover { background: rgba(148, 163, 184, 0.16); color: var(--title-color); }
+
+  .tree-chevron svg { width: 11px; height: 11px; stroke-width: 2.4; }
+
+  .tree-item.is-expanded > .tree-row .tree-chevron { transform: rotate(90deg); }
+
+  .tree-dot {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    margin: 0 4.5px;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  .tree-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tree-row.is-dir .tree-name { font-weight: 650; color: var(--title-color); }
+
+  .tree-row.is-active .tree-name { color: #dbeafe; }
+
+  .tree-count {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-size: 10px;
+  }
+
+  .tree-children {
+    margin-left: 11px;
+    padding-left: 7px;
+    border-left: 1px solid rgba(148, 163, 184, 0.12);
+    display: none;
+  }
+
+  .tree-item.is-expanded > .tree-children { display: block; }
 
   /* 搜索面板 - 调整到左上方位置互换 */
   .search-panel {
@@ -492,6 +662,13 @@
       max-height: min(330px, calc(100vh - 170px));
     }
 
+    .sidebar {
+      top: 64px;
+      left: 10px;
+      bottom: 60px;
+      width: min(240px, calc(100vw - 66px));
+    }
+
     .metric-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 </style>
@@ -522,6 +699,9 @@
   </aside>
 
   <div class="panel toolbar" aria-label="图谱工具">
+    <button class="icon-button is-active" id="sidebar-toggle" type="button" title="展开/收起笔记目录" aria-label="展开或收起笔记目录">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg>
+    </button>
     <button class="icon-button" id="fit-button" type="button" title="重置视角" aria-label="重置视角">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
     </button>
@@ -541,6 +721,17 @@
     <input id="search-input" type="search" placeholder="搜索笔记或目录" autocomplete="off" />
   </label>
   <section id="search-results" class="panel search-results" aria-label="搜索结果" hidden></section>
+
+  <aside class="panel sidebar" id="sidebar" aria-label="笔记目录">
+    <div class="sidebar-header" id="sidebar-header" role="button" aria-expanded="true" title="收起/展开笔记目录">
+      <span class="sidebar-title">笔记目录</span>
+      <span class="sidebar-count" id="sidebar-count"></span>
+      <button class="sidebar-collapse" id="sidebar-collapse" type="button" title="收起笔记目录" aria-label="收起笔记目录">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m18 15-6-6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-tree" id="sidebar-tree" role="tree"></div>
+  </aside>
 
   <div id="tooltip" role="status" aria-live="polite"></div>
   <div id="loading"><span class="spinner"></span><span>加载知识星图</span></div>
@@ -583,25 +774,6 @@ const FALLBACK_CONSTELLATION_COLORS = [
   '#22d3ee',
   '#f472b6',
 ];
-const INDEX_CHAPTER_ANCHORS = {
-  '__root__': 'kg-home',
-  'llm': 'kg-llm',
-  'llm/llm技术报告': 'kg-llm-reports',
-  'llm/模型架构': 'kg-llm-architecture',
-  'llm/模型架构/优化器': 'kg-llm-architecture',
-  'llm/模型架构/位置编码': 'kg-llm-architecture',
-  'llm/模型架构/归一化': 'kg-llm-architecture',
-  'llm/模型架构/注意力机制': 'kg-llm-architecture',
-  'llm/模型训练': 'kg-llm-training',
-  'llm/模型训练/SFT': 'kg-llm-training',
-  'llm/模型训练/强化学习': 'kg-llm-training',
-  'llm/源码解读': 'kg-llm-source',
-  'llm应用开发': 'kg-llm-app',
-  'computer_vision': 'kg-cv',
-  'computer_vision/基础': 'kg-cv-basic',
-  'computer_vision/模型架构': 'kg-cv-architecture',
-  '性能优化': 'kg-performance',
-};
 
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d', { alpha: true });
@@ -611,6 +783,10 @@ const loading = document.getElementById('loading');
 const errorBox = document.getElementById('error');
 const searchInput = document.getElementById('search-input');
 const searchResultsPanel = document.getElementById('search-results');
+const sidebar = document.getElementById('sidebar');
+const sidebarTree = document.getElementById('sidebar-tree');
+const sidebarCount = document.getElementById('sidebar-count');
+const sidebarRowById = new Map();
 
 let width = 0;
 let height = 0;
@@ -627,7 +803,9 @@ let childrenById = new Map();
 let parentById = new Map();
 let focusNode = null;
 let focusIds = new Set();
-let focusLabelIds = new Set();
+// 焦点来源：'pointer'（悬停，仅高亮不显文字）/ 'pin'（星图或侧边栏选中）/ 'search'（搜索选中）
+// 文字标签只在锁定选中（pin / search）时浮现，默认状态下星图无文字
+let focusSource = null;
 let searchMatches = new Set();
 let searchQuery = '';
 let searchResultNodes = [];
@@ -642,12 +820,19 @@ let frameHandle = 0;
 let lastTime = 0;
 let time = 0;
 let constellationRotation = 0;
-// 视角旋转中心（世界坐标）：默认银心原点，固定节点后平滑移动到该节点
+// 视角旋转中心（世界坐标）：默认整个星图的重心，固定节点后平滑移动到该节点
 let viewCenter = { x: 0, y: 0, z: 0 };
+// 星图重心：布局完成后由全部节点位置平均得到，作为默认旋转中心
+let graphCenter = { x: 0, y: 0, z: 0 };
+// 默认俯仰角：饼状盘面接近水平的正侧方视角（1.18 偏俯视，此处压低到近水平）
+const DEFAULT_ROT_X = 0.2;
+const DEFAULT_ROT_Y = -0.28;
+// 初始取景比适距更近一档，约等于滚轮向前滚动三次（deltaY=100 时单次 ≈ ×1.116）
+const INITIAL_ZOOM_FACTOR = 2.4;
 let layoutSeed = 0;
 let camera = {
-  rotX: 1.18,
-  rotY: -0.28,
+  rotX: DEFAULT_ROT_X,
+  rotY: DEFAULT_ROT_Y,
   zoom: 1,
   panX: 0,
   panY: 14,
@@ -713,7 +898,6 @@ const STAR_SPRITE_RES = 256;
 const starSpriteCache = new Map();
 const starSoftSpriteCache = new Map();
 const haloSpriteCache = new Map();
-let blackHoleCanvas = null;   // 银心黑洞精灵（预渲染一次）
 let milkyWayCanvas = null;    // 静态银河带（resize / relayout 时重绘）
 let nebulaCanvas = null;      // 静态星云层（resize / relayout 时重绘）
 let vignetteCanvas = null;    // 暗角后期层
@@ -721,11 +905,6 @@ let bloomCanvas = null;       // 泛光后期用的低分辨率缓冲（1/8）
 let bloomCtx = null;
 let bloom2Canvas = null;      // 宽裙边泛光缓冲（1/16）
 let bloom2Ctx = null;
-let lensCanvas = null;        // 引力透镜：背景复制缓冲（固定 256px）
-let lensCtx = null;
-let lensMaskCanvas = null;    // 透镜软环遮罩
-let lensMixCanvas = null;     // 透镜合成缓冲
-let lensMixCtx = null;
 
 function makeSpriteCanvas(res) {
   const sprite = document.createElement('canvas');
@@ -964,202 +1143,6 @@ function applyVignettePass() {
   ctx.restore();
 }
 
-// 银心黑洞精灵（1024px 超采样烘焙，显示时降采样获得平滑边缘）：
-// 盘面状环境辉光（压扁，非球形）+ 内缘白热的吸积盘（近侧压到视界前方）
-// + 多普勒束流 + 黑洞阴影环（视界与盘内缘的黑暗间隙）+ 引力透镜弧 + 光子环
-function blackHoleSprite() {
-  if (blackHoleCanvas) return blackHoleCanvas;
-  const S = 1024;
-  const C = S / 2;
-  const R = S * 0.145; // 事件视界半径
-  blackHoleCanvas = makeSpriteCanvas(S);
-  const g = blackHoleCanvas.getContext('2d');
-
-  // 0) 环境辉光：压扁到吸积盘平面（物理上光来自盘而非球对称晕）
-  g.save();
-  g.translate(C, C);
-  g.scale(1, 0.34);
-  let grad = g.createRadialGradient(0, 0, 0, 0, 0, S * 0.5);
-  grad.addColorStop(0, 'rgba(253, 224, 171, 0.22)');
-  grad.addColorStop(0.4, 'rgba(251, 191, 36, 0.09)');
-  grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
-  g.fillStyle = grad;
-  g.fillRect(-S, -S, S * 2, S * 2);
-  g.restore();
-
-  // 1) 吸积盘画进独立层（便于前后半分层遮挡），内缘从 1.45R 开始（留出黑洞阴影）
-  // 注意：盘环外径与束流必须完整收进画布（< S/2），否则辉光会被画布边缘硬切断
-  const ringC = makeSpriteCanvas(S);
-  const rg = ringC.getContext('2d');
-  rg.save();
-  rg.translate(C, C);
-  rg.scale(1, 0.26); // 盘面近乎侧视
-  grad = rg.createRadialGradient(0, 0, R * 1.45, 0, 0, R * 3.3);
-  grad.addColorStop(0, 'rgba(255, 252, 240, 1)');       // 内缘白热（ISCO）
-  grad.addColorStop(0.14, 'rgba(255, 244, 214, 0.95)');
-  grad.addColorStop(0.34, 'rgba(253, 211, 106, 0.85)');
-  grad.addColorStop(0.58, 'rgba(245, 158, 11, 0.48)');
-  grad.addColorStop(0.82, 'rgba(180, 83, 9, 0.18)');
-  grad.addColorStop(1, 'rgba(120, 53, 15, 0)');
-  rg.fillStyle = grad;
-  rg.beginPath();
-  rg.arc(0, 0, R * 3.3, 0, Math.PI * 2);
-  rg.fill();
-  // 多普勒束流：左侧（朝向我们运动的一侧）显著增亮
-  grad = rg.createRadialGradient(-R * 1.8, 0, 0, -R * 1.8, 0, R * 1.55);
-  grad.addColorStop(0, 'rgba(255, 255, 250, 0.9)');
-  grad.addColorStop(1, 'rgba(255, 255, 250, 0)');
-  rg.fillStyle = grad;
-  rg.beginPath();
-  rg.arc(-R * 1.8, 0, R * 1.55, 0, Math.PI * 2);
-  rg.fill();
-  rg.restore();
-
-  // 2) 盘远侧（上半，被视界遮挡）
-  g.drawImage(ringC, 0, 0, S, S / 2, 0, 0, S, S / 2);
-
-  // 3) 黑洞阴影：视界与盘内缘之间的黑暗间隙（~1.1R–1.7R）
-  grad = g.createRadialGradient(C, C, R * 0.9, C, C, R * 1.75);
-  grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-  grad.addColorStop(0.38, 'rgba(0, 0, 0, 0.55)');
-  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, S, S);
-
-  // 4) 引力透镜弧：远侧盘的光被弯到视界上下，亮度随角度变化（与束流一致，左侧最亮）
-  const lensR = R * 1.42;
-  let lensStyle = 'rgba(255, 244, 220, 0.55)';
-  if (typeof g.createConicGradient === 'function') {
-    const conic = g.createConicGradient(0, C, C);
-    conic.addColorStop(0, 'rgba(255, 236, 200, 0.28)');
-    conic.addColorStop(0.25, 'rgba(255, 236, 200, 0.16)');
-    conic.addColorStop(0.5, 'rgba(255, 252, 240, 0.9)');
-    conic.addColorStop(0.75, 'rgba(255, 236, 200, 0.16)');
-    conic.addColorStop(1, 'rgba(255, 236, 200, 0.28)');
-    lensStyle = conic;
-  }
-  g.strokeStyle = lensStyle;
-  g.lineWidth = R * 0.22;
-  g.lineCap = 'round';
-  g.beginPath();
-  g.arc(C, C, lensR, Math.PI * 1.06, Math.PI * 1.94);
-  g.stroke();
-  g.beginPath();
-  g.arc(C, C, lensR, Math.PI * 0.06, Math.PI * 0.94);
-  g.stroke();
-
-  // 5) 光子环：紧贴视界的白热细环（柔光收敛，不再向外泛滥）
-  g.beginPath();
-  g.arc(C, C, R * 1.08, 0, Math.PI * 2);
-  g.strokeStyle = 'rgba(255, 253, 245, 0.95)';
-  g.lineWidth = R * 0.08;
-  g.stroke();
-  g.strokeStyle = 'rgba(253, 224, 171, 0.16)';
-  g.lineWidth = R * 0.22;
-  g.stroke();
-
-  // 6) 事件视界：纯黑
-  g.beginPath();
-  g.arc(C, C, R, 0, Math.PI * 2);
-  g.fillStyle = '#000000';
-  g.fill();
-
-  // 7) 盘近侧（下半，压到视界前方）
-  g.drawImage(ringC, 0, S / 2, S, S / 2, 0, S / 2, S, S / 2);
-
-  return blackHoleCanvas;
-}
-
-// 银心迷你黑洞：绘制预渲染精灵 + 盘面旋转亮斑（仅近侧）
-function drawBlackHole(p, r, alpha) {
-  const horizon = r * 1.05;
-  const size = (horizon / 0.145) * 1.0; // 精灵中 R = 0.145·S
-  const rx = size * 0.33;               // 旋斑轨道半径（盘内中部）
-  const ry = rx * 0.26;
-  const pulse = 1 + Math.sin(time * 0.8) * 0.02;
-
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  ctx.drawImage(blackHoleSprite(), p.x - size * pulse / 2, p.y - size * pulse / 2, size * pulse, size * pulse);
-
-  // 盘面旋转亮斑，暗示吸积物质绕转
-  const streakGlow = haloSpriteFor('#fde68a');
-  for (let i = 0; i < 2; i += 1) {
-    const a = time * 1.1 + i * Math.PI;
-    if (Math.sin(a) <= 0) continue; // 远侧旋斑被视界遮挡
-    const sx = p.x + Math.cos(a) * rx;
-    const sy = p.y + Math.sin(a) * ry;
-    const s = r * 0.8;
-    ctx.globalAlpha = alpha * 0.7 * Math.sin(a);
-    ctx.drawImage(streakGlow, sx - s, sy - s, s * 2, s * 2);
-  }
-
-  ctx.restore();
-}
-
-// 引力透镜：把黑洞周围环形区域的背景光复制后放大重绘（径向位移 + 软环遮罩），
-// 模拟光线被弯折产生的 Einstein 环式空间扭曲。固定 256px 缓冲，每帧 4 次 drawImage。
-const LENS_RES = 256;
-function applyBlackHoleLensing() {
-  const root = nodeById.get('__root__');
-  if (!root || !root.screen) return;
-  const p = root.screen;
-  const r = clamp(root.radius * p.scale * root.scale, 5.4, 30);
-  const horizon = r * 1.05;
-  const L = horizon * 3.4; // 透镜影响半径
-  if (L < 10) return;
-
-  if (!lensCanvas) {
-    lensCanvas = document.createElement('canvas');
-    lensCanvas.width = LENS_RES;
-    lensCanvas.height = LENS_RES;
-    lensCtx = lensCanvas.getContext('2d');
-    lensMixCanvas = document.createElement('canvas');
-    lensMixCanvas.width = LENS_RES;
-    lensMixCanvas.height = LENS_RES;
-    lensMixCtx = lensMixCanvas.getContext('2d');
-    lensMaskCanvas = document.createElement('canvas');
-    lensMaskCanvas.width = LENS_RES;
-    lensMaskCanvas.height = LENS_RES;
-    const mg = lensMaskCanvas.getContext('2d');
-    // 软环遮罩：光子环外渐显，外缘柔和消失（内径比例与 L = 3.4·horizon 固定对应）
-    const half = LENS_RES / 2;
-    const grad = mg.createRadialGradient(half, half, 0, half, half, half);
-    grad.addColorStop(0.30, 'rgba(0, 0, 0, 0)');
-    grad.addColorStop(0.42, 'rgba(0, 0, 0, 0.9)');
-    grad.addColorStop(0.75, 'rgba(0, 0, 0, 0.55)');
-    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    mg.fillStyle = grad;
-    mg.fillRect(0, 0, LENS_RES, LENS_RES);
-  }
-
-  // 1) 复制黑洞周围已渲染的背景（源区域为设备像素，需乘 dpr）
-  const dprScale = canvas.width / width;
-  lensCtx.clearRect(0, 0, LENS_RES, LENS_RES);
-  lensCtx.drawImage(
-    canvas,
-    (p.x - L) * dprScale, (p.y - L) * dprScale, L * 2 * dprScale, L * 2 * dprScale,
-    0, 0, LENS_RES, LENS_RES
-  );
-
-  // 2) 放大重绘（光线向黑洞弯折 → 背景被放大），再用软环遮罩裁出环形
-  const mag = 1.28;
-  const half = LENS_RES / 2;
-  lensMixCtx.clearRect(0, 0, LENS_RES, LENS_RES);
-  lensMixCtx.drawImage(
-    lensCanvas,
-    half - half * mag, half - half * mag, LENS_RES * mag, LENS_RES * mag
-  );
-  lensMixCtx.globalCompositeOperation = 'destination-in';
-  lensMixCtx.drawImage(lensMaskCanvas, 0, 0);
-  lensMixCtx.globalCompositeOperation = 'source-over';
-
-  // 3) 贴回主画面（扭曲后的环形背景叠加在原背景上）
-  ctx.save();
-  ctx.drawImage(lensMixCanvas, p.x - L, p.y - L, L * 2, L * 2);
-  ctx.restore();
-}
-
 // 深度雾：z 为相机空间深度（越大越远），返回远→近的亮度系数 0.58~1
 function depthFade(z) {
   const t = clamp((z / (camera.distance * 0.95)) * 0.5 + 0.5, 0, 1);
@@ -1327,6 +1310,7 @@ function buildGraph(data) {
   }
 
   createGraphLabels();
+  buildSidebar();
   seedConstellation();
   createBackgroundStars();
   updateStats(data.stats || {});
@@ -1482,6 +1466,21 @@ function seedConstellation() {
     node.y = node.ty + Math.sin(phase) * jitter * 0.8;
     node.z = node.tz + Math.sin(phase * 0.7) * jitter;
   });
+
+  // 星图重心：全部节点位置的均值，作为默认旋转中心（而非根节点所在的银心原点）
+  const center = { x: 0, y: 0, z: 0 };
+  for (const node of nodes) {
+    center.x += node.tx;
+    center.y += node.ty;
+    center.z += node.tz;
+  }
+  if (nodes.length) {
+    center.x /= nodes.length;
+    center.y /= nodes.length;
+    center.z /= nodes.length;
+  }
+  graphCenter = center;
+  viewCenter = { ...center };
 }
 
 /**
@@ -1598,7 +1597,7 @@ function drawDustParticles() {
   for (const d of dustParticles) {
     const parallax = d.layer === 0 ? 4 : 10;
     const ox = camera.rotY * parallax;
-    const oy = (camera.rotX - 1.18) * parallax * 0.7;
+    const oy = (camera.rotX - DEFAULT_ROT_X) * parallax * 0.7;
     const pulse = 0.6 + Math.sin(time * d.tw + d.p) * 0.4;
     ctx.beginPath();
     ctx.fillStyle = `rgba(191, 219, 254, ${d.a * pulse})`;
@@ -1696,19 +1695,6 @@ function targetScale(node) {
   return searchMatches.has(node.id) ? 1.32 : 1;
 }
 
-function collectDescendantIds(nodeId) {
-  const descendants = new Set();
-  const stack = [...(childrenById.get(nodeId) || [])];
-  while (stack.length) {
-    const current = stack.pop();
-    if (!current || descendants.has(current.id)) continue;
-    descendants.add(current.id);
-    const children = childrenById.get(current.id) || [];
-    for (const child of children) stack.push(child);
-  }
-  return descendants;
-}
-
 function animate(now) {
   const dt = Math.min(48, now - lastTime || 16);
   lastTime = now;
@@ -1734,11 +1720,11 @@ function easeNodes(dt) {
     node.scale += (targetScale(node) - node.scale) * 0.18;
   }
   // 视角旋转中心平滑追踪固定节点的当前位置（节点自身也在缓动，逐帧跟随）；
-  // 取消固定后平滑回到银心原点
+  // 取消固定后平滑回到星图重心
   const centerEase = ease * 0.55;
-  const cx = pinnedNode ? pinnedNode.x : 0;
-  const cy = pinnedNode ? pinnedNode.y : 0;
-  const cz = pinnedNode ? pinnedNode.z : 0;
+  const cx = pinnedNode ? pinnedNode.x : graphCenter.x;
+  const cy = pinnedNode ? pinnedNode.y : graphCenter.y;
+  const cz = pinnedNode ? pinnedNode.z : graphCenter.z;
   viewCenter.x += (cx - viewCenter.x) * centerEase;
   viewCenter.y += (cy - viewCenter.y) * centerEase;
   viewCenter.z += (cz - viewCenter.z) * centerEase;
@@ -1749,7 +1735,6 @@ function drawScene() {
   drawBackgroundStars();
   drawDustParticles();
   drawMeteors();
-  applyBlackHoleLensing();
   drawLinks();
   drawNodes();
   applyBloomPass();
@@ -1797,7 +1782,8 @@ function drawLinks() {
       ? mixHex(link.source.color || colorForNode(link.source), link.target.color || colorForNode(link.target), 0.5)
       : (link.source.color || colorForNode(link.source));
     const fade = depthFade((source.z + target.z) / 2);
-    const alpha = (muted ? 0.055 : active ? 0.78 : reference ? 0.28 : 0.24) * fade;
+    // 常态连线刻意压低透明度，让星空背景更干净；仅激活（聚焦相关）连线保持明亮
+    const alpha = (muted ? 0.04 : active ? 0.72 : reference ? 0.15 : 0.12) * fade;
 
     ctx.save();
     if (reference) ctx.setLineDash([5, 7]);
@@ -1868,12 +1854,10 @@ function drawNodes() {
 
     ctx.save();
 
-    // 银心：根节点渲染为迷你黑洞；其余节点为恒星
-    if (node.type === 'root') {
-      drawBlackHole(p, r, alpha);
-    } else {
-      // 恒星本体：艾里斑核 + 幂律冕光 + 衍射星芒（预渲染精灵），远处换虚焦软光斑
+    // 所有节点统一渲染为恒星：艾里斑核 + 幂律冕光 + 衍射星芒（预渲染精灵），远处换虚焦软光斑
+    {
       const coronaFactor =
+        node.type === 'root' ? 8.5 :
         node.type === 'category' ? 7.5 :
         node.type === 'subcategory' ? 6.5 :
         5;
@@ -1930,7 +1914,7 @@ function drawNodes() {
 
 function labelPriority(node) {
   if (focusNode && node.id === focusNode.id) return 6;
-  if (focusLabelIds.has(node.id)) return 5;
+  if (focusIds.has(node.id)) return 5;
   if (searchMatches.has(node.id)) return 5;
   if (node.type === 'root') return 4;
   if (node.type === 'category') return 3;
@@ -1951,42 +1935,28 @@ function labelColorFor(node) {
   return '#94a3b8';
 }
 
-function labelZoomClarity() {
-  return clamp((camera.zoom - 0.48) / 1.08, 0, 1);
-}
-
 function labelZoomBoost() {
   return clamp(0.72 + camera.zoom * 0.42, 0.82, 1.55);
 }
 
+// 文字标签只在"锁定选中"时浮现：侧边栏/星图点击固定（pin）或搜索框选中（search）。
+// 悬停只高亮节点与连线，不显示文字；默认状态下星图完全无文字标识。
+function labelsLocked() {
+  return !!focusNode && (!!pinnedNode || focusSource === 'search');
+}
+
 function labelAlphaFor(node) {
-  const zoomClarity = labelZoomClarity();
-  let alpha =
-    node.type === 'root' ? 1 :
-    node.type === 'category' ? 0.94 :
-    node.type === 'subcategory' ? 0.46 + zoomClarity * 0.28 :
-    0.30 + zoomClarity * 0.36;
-
-  if (node.format === 'jupyter') alpha += 0.08;
-  if (focusNode) {
-    if (focusNode.id === node.id) alpha = Math.max(alpha, 1);
-    else if (focusLabelIds.has(node.id)) alpha = Math.max(alpha, 0.95);
-    else if (focusIds.has(node.id)) alpha = Math.max(alpha, 0.72);
-    else alpha *= 0.42;
-  }
-  // 固定状态下悬停预览的节点：标签增亮
-  if (pinnedNode && hoveredNode && hoveredNode.id === node.id) alpha = Math.max(alpha, 0.95);
-  if (searchMatches.has(node.id)) alpha = 1;
-
-  return clamp(alpha, node.type === 'note' ? 0.24 : 0.34, 1);
+  if (!labelsLocked()) return 0;
+  if (node.id === focusNode.id) return 1;
+  if (focusIds.has(node.id)) return 0.92;
+  return 0;
 }
 
 function labelFontSizeFor(node) {
   const depthPenalty = Math.max(0, node.depth - 1) * 0.34;
   const focusBoost =
     focusNode && focusNode.id === node.id ? 1.32 :
-    focusNode && focusLabelIds.has(node.id) ? 1.22 :
-    focusNode && focusIds.has(node.id) ? 1.08 :
+    focusNode && focusIds.has(node.id) ? 1.12 :
     1;
   const size = (labelBaseSize(node) - depthPenalty) * labelZoomBoost() * focusBoost;
   if (node.type === 'root') return clamp(size, 12, 20);
@@ -1998,8 +1968,7 @@ function labelFontSizeFor(node) {
 function labelOffsetFor(node) {
   const focusBoost =
     focusNode && focusNode.id === node.id ? 1.28 :
-    focusNode && focusLabelIds.has(node.id) ? 1.18 :
-    focusNode && focusIds.has(node.id) ? 1.08 :
+    focusNode && focusIds.has(node.id) ? 1.12 :
     1;
   const offset = node.radius * labelZoomBoost() * focusBoost + 8;
   return clamp(offset, node.type === 'note' ? 9 : 13, node.type === 'root' ? 34 : 26);
@@ -2033,7 +2002,7 @@ function updateLabels() {
     label.style.fontWeight = node.type === 'note' ? '500' : '700';
     label.style.opacity = labelAlphaFor(node).toFixed(3);
     const isPrimaryFocus = focusNode && focusNode.id === node.id;
-    const isFocusChild = focusNode && focusLabelIds.has(node.id) && !isPrimaryFocus;
+    const isFocusChild = focusNode && focusIds.has(node.id) && !isPrimaryFocus;
     label.style.textShadow = isPrimaryFocus
       ? '0 0 16px rgba(147, 197, 253, 0.60), 0 1px 0 rgba(2, 6, 23, 0.95), 0 -1px 0 rgba(2, 6, 23, 0.90), 1px 0 0 rgba(2, 6, 23, 0.90), -1px 0 0 rgba(2, 6, 23, 0.90)'
       : isFocusChild
@@ -2058,8 +2027,9 @@ function hitTest(clientX, clientY) {
   return null;
 }
 
-function setFocus(node, fromPointer = false) {
+function setFocus(node, fromPointer = false, source = null) {
   focusNode = node;
+  focusSource = source || (fromPointer ? 'pointer' : 'pin');
   if (fromPointer) {
     hoveredNode = node;
     isHoveringNode = true;
@@ -2070,29 +2040,162 @@ function setFocus(node, fromPointer = false) {
   const parent = parentById.get(node.id);
   if (parent) ids.add(parent.id);
   focusIds = ids;
-  focusLabelIds = collectDescendantIds(node.id);
-  focusLabelIds.add(node.id);
   showTooltip(node);
 }
 
 function clearFocus() {
   pinnedNode = null;
   focusNode = null;
+  focusSource = null;
   hoveredNode = null;
   isHoveringNode = false;
   focusIds = new Set();
-  focusLabelIds = new Set();
   searchMatches = searchQuery
     ? new Set(nodes.filter(node => searchable(node).includes(searchQuery)).map(node => node.id))
     : new Set();
   hideTooltip();
+  syncSidebarActive(null);
+}
+
+// 完全复位：清空搜索词、候选列表、搜索匹配与焦点/固定状态，
+// 回到所有节点均未选中的初始状态（点击星图空白处时调用）
+function resetAllSelection() {
+  pinnedNode = null;
+  searchInput.value = '';
+  searchQuery = '';
+  searchMatches = new Set();
+  clearSearchResults();
+  clearFocus();
 }
 
 // 点击节点：把当前高亮"钉"在该节点上，鼠标移开也不会丢失，
 // 方便继续点选它的子节点；点击其他节点则切换固定对象。
 function pinNode(node) {
   pinnedNode = node;
-  setFocus(node, false);
+  setFocus(node, false, 'pin');
+  syncSidebarActive(node.id);
+}
+
+// ======= 笔记目录侧边栏 =======
+// 目录树直接由图谱数据（childrenById / parentById）生成，与星图节点一一对应。
+// 单击目录名 / 笔记名：在星图中固定选中该节点（视角平滑移入、文字标签浮现）；
+// 目录箭头：仅展开/收起；双击笔记：直接打开对应笔记页。
+function buildSidebar() {
+  sidebarTree.replaceChildren();
+  sidebarRowById.clear();
+  const frag = document.createDocumentFragment();
+  for (const child of orderedChildren('__root__')) {
+    frag.appendChild(buildSidebarItem(child, 0));
+  }
+  sidebarTree.appendChild(frag);
+  sidebarCount.textContent = `${nodes.filter(node => node.type === 'note').length} 篇笔记`;
+}
+
+function buildSidebarItem(node, depth) {
+  const children = orderedChildren(node.id);
+  const isDir = children.length > 0;
+  const item = document.createElement('div');
+  item.className = 'tree-item';
+  if (isDir && depth === 0) item.classList.add('is-expanded'); // 顶层目录默认展开
+
+  const row = document.createElement('button');
+  row.type = 'button';
+  row.className = `tree-row ${isDir ? 'is-dir' : 'is-note'}`;
+  row.dataset.id = node.id;
+  row.title = node.type === 'note'
+    ? '单击在星图中定位 · 双击打开笔记'
+    : '单击定位并展开/收起';
+
+  if (isDir) {
+    const chevron = document.createElement('span');
+    chevron.className = 'tree-chevron';
+    chevron.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 5 7 7-7 7"/></svg>';
+    // 箭头只负责展开/收起，不触发星图定位
+    chevron.addEventListener('click', event => {
+      event.stopPropagation();
+      item.classList.toggle('is-expanded');
+    });
+    row.appendChild(chevron);
+  } else {
+    const dot = document.createElement('span');
+    dot.className = 'tree-dot';
+    dot.style.background = node.color;
+    dot.style.color = node.color;
+    row.appendChild(dot);
+  }
+
+  const name = document.createElement('span');
+  name.className = 'tree-name';
+  name.textContent = node.name;
+  row.appendChild(name);
+
+  if (isDir) {
+    const count = document.createElement('span');
+    count.className = 'tree-count';
+    count.textContent = node.note_count || '';
+    row.appendChild(count);
+  }
+
+  row.addEventListener('click', () => {
+    if (isDir) item.classList.toggle('is-expanded'); // 整行点击均可展开/收起
+    selectFromSidebar(node);
+  });
+  row.addEventListener('dblclick', () => {
+    if (node.type === 'note') openNode(node);
+  });
+
+  item.appendChild(row);
+  sidebarRowById.set(node.id, row);
+
+  if (isDir) {
+    const box = document.createElement('div');
+    box.className = 'tree-children';
+    for (const child of children) box.appendChild(buildSidebarItem(child, depth + 1));
+    item.appendChild(box);
+  }
+  return item;
+}
+
+function selectFromSidebar(node) {
+  // 侧边栏选中接管焦点：清空搜索态，固定高亮并让视角平滑移向该节点
+  if (searchQuery) {
+    searchInput.value = '';
+    searchQuery = '';
+    searchMatches = new Set();
+  }
+  clearSearchResults();
+  pinNode(node);
+}
+
+// 星图选中状态同步到侧边栏：高亮对应行、展开祖先目录并滚动到可见位置
+function syncSidebarActive(id) {
+  const prev = sidebarTree.querySelector('.tree-row.is-active');
+  if (prev) prev.classList.remove('is-active');
+  if (!id) return;
+  const row = sidebarRowById.get(id);
+  if (!row) return;
+  row.classList.add('is-active');
+  let parent = parentById.get(id);
+  while (parent) {
+    const parentRow = sidebarRowById.get(parent.id);
+    if (parentRow) parentRow.closest('.tree-item')?.classList.add('is-expanded');
+    parent = parentById.get(parent.id);
+  }
+  row.scrollIntoView({ block: 'nearest' });
+}
+
+function setSidebarCollapsed(collapsed) {
+  sidebar.classList.toggle('is-collapsed', collapsed);
+  document.getElementById('sidebar-toggle').classList.toggle('is-active', !collapsed);
+  const header = document.getElementById('sidebar-header');
+  header.setAttribute('aria-expanded', String(!collapsed));
+  const btn = document.getElementById('sidebar-collapse');
+  btn.title = collapsed ? '展开笔记目录' : '收起笔记目录';
+  btn.setAttribute('aria-label', btn.title);
+  // 展开状态显示上箭头（收起），折叠状态显示下箭头（展开）
+  btn.innerHTML = collapsed
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m18 15-6-6-6 6"/></svg>';
 }
 
 function searchable(node) {
@@ -2105,6 +2208,18 @@ function clearSearchResults() {
   searchResultsPanel.replaceChildren();
   searchResultsPanel.hidden = true;
   searchInput.setAttribute('aria-expanded', 'false');
+  layoutSidebarForSearch();
+}
+
+// 搜索候选列表弹出/收起时，动态调整笔记目录的顶边位置：
+// 候选列表展开 → 侧边栏平滑下移到列表下方，避免被遮挡；收起 → 回到原位
+function layoutSidebarForSearch() {
+  if (!searchResultsPanel.hidden && searchResultNodes.length) {
+    const resultsBottom = searchResultsPanel.getBoundingClientRect().bottom;
+    sidebar.style.top = `${Math.round(resultsBottom + 10)}px`;
+  } else {
+    sidebar.style.top = '';
+  }
 }
 
 function setActiveSearchResult(index, syncFocus = true) {
@@ -2115,7 +2230,7 @@ function setActiveSearchResult(index, syncFocus = true) {
   items.forEach((item, itemIndex) => {
     item.classList.toggle('is-active', itemIndex === nextIndex);
   });
-  if (syncFocus) setFocus(searchResultNodes[nextIndex], false);
+  if (syncFocus) setFocus(searchResultNodes[nextIndex], false, 'search');
 }
 
 function selectSearchResult(index, openAfterSelect = false) {
@@ -2171,15 +2286,18 @@ function renderSearchResultsPanel(results) {
   searchResultsPanel.hidden = false;
   searchInput.setAttribute('aria-expanded', 'true');
   setActiveSearchResult(0, false);
+  // 等候选列表完成布局后测量其实际高度，驱动侧边栏下移
+  requestAnimationFrame(layoutSidebarForSearch);
 }
 
 function showTooltip(node) {
   const color = node.color || colorForNode(node);
   const typeLabel = node.format === 'jupyter' ? 'JUPYTER' : (TYPE_LABEL[node.type] || node.type);
   const isPinned = pinnedNode && pinnedNode.id === node.id;
+  const openHint = node.type === 'note' ? ' · 双击跳转笔记' : '';
   const hint = isPinned
-    ? '已固定 · 点击子节点继续固定 · 点击空白处取消 · 双击跳转'
-    : `点击固定高亮 · 双击跳转到对应${node.type === 'note' ? '笔记' : '章节'}`;
+    ? `已固定 · 点击子节点继续固定 · 点击空白处取消${openHint}`
+    : `点击固定高亮${openHint}`;
   tooltip.innerHTML = `
     <div class="tip-type" style="background:${color}2e;color:${color}">${typeLabel}</div>
     <div class="tip-title">${escapeHtml(node.name)}</div>
@@ -2298,30 +2416,10 @@ function placeTooltipSmart(node) {
   tooltip.style.top = `${Math.round(rect.top)}px`;
 }
 
-function chapterAnchorFor(node) {
-  if (!node) return 'llm';
-  let id = node.id;
-  if (INDEX_CHAPTER_ANCHORS[id]) return INDEX_CHAPTER_ANCHORS[id];
-  if (node.type !== 'note' && id && id !== '__root__') {
-    const slug = String(id).toLowerCase().replace(/[^\w\u4e00-\u9fff]+/g, '-').replace(/^-+|-+$/g, '');
-    if (slug) return `kg-${slug}`;
-  }
-  while (id) {
-    if (INDEX_CHAPTER_ANCHORS[id]) return INDEX_CHAPTER_ANCHORS[id];
-    const slash = id.lastIndexOf('/');
-    if (slash < 0) break;
-    id = id.slice(0, slash);
-  }
-  return 'kg-nav';
-}
-
 function targetUrlForNode(node) {
-  if (!node) return null;
-  if (node.type === 'note' && node.url) {
-    return new URL(`../${node.url}`, window.location.href);
-  }
-  const anchor = chapterAnchorFor(node);
-  return new URL(`../#${anchor}`, window.location.href);
+  // \u53ea\u6709\u7b14\u8bb0\u8282\u70b9\u53ef\u8df3\u8f6c\uff1b\u76ee\u5f55\u8282\u70b9\u5728\u661f\u56fe/\u4fa7\u8fb9\u680f\u4e2d\u5b9a\u4f4d\uff08\u9996\u9875\u7ae0\u8282\u76ee\u5f55\u5df2\u8fc1\u79fb\u5230\u4fa7\u8fb9\u680f\uff09
+  if (!node || node.type !== 'note' || !node.url) return null;
+  return new URL(`../${node.url}`, window.location.href);
 }
 
 function openNode(node) {
@@ -2335,16 +2433,21 @@ function openNode(node) {
 }
 
 function resetView() {
-  camera.rotX = 1.18;
-  camera.rotY = -0.28;
+  camera.rotX = DEFAULT_ROT_X;
+  camera.rotY = DEFAULT_ROT_Y;
   constellationRotation = 0;
   camera.panX = 0;
   camera.panY = 14;
-  // 用 92 分位半径取景，避免个别大分支的边缘星把整体缩放逐小
-  const radii = nodes.map(node => Math.hypot(node.tx, node.ty, node.tz)).sort((a, b) => a - b);
+  // 用 92 分位半径取景（相对星图重心），避免个别大分支的边缘星把整体缩放逐小；
+  // 再乘 INITIAL_ZOOM_FACTOR 拉近到"滚轮前滚三次"的初始距离
+  const radii = nodes.map(node => Math.hypot(
+    node.tx - graphCenter.x,
+    node.ty - graphCenter.y,
+    node.tz - graphCenter.z,
+  )).sort((a, b) => a - b);
   const percentileR = radii.length ? radii[Math.floor(0.92 * (radii.length - 1))] : 520;
   const maxR = Math.max(520, percentileR);
-  camera.zoom = clamp(Math.min(width, height) / (maxR * 1.8), 0.56, 1.08);
+  camera.zoom = clamp(Math.min(width, height) / (maxR * 1.8) * INITIAL_ZOOM_FACTOR, 0.56, 2.0);
 }
 
 function relayout() {
@@ -2410,6 +2513,14 @@ canvas.addEventListener('pointermove', event => {
     return;
   }
 
+  // 搜索选中状态下：焦点锁定在搜索结果上，悬停仅作预览，不接管焦点，
+  // 避免已浮现的文字标签因鼠标滑过而消失
+  if (searchQuery) {
+    hoveredNode = node;
+    isHoveringNode = !!node;
+    return;
+  }
+
   if (node !== hoveredNode) {
     if (node) {
       setFocus(node, true);
@@ -2428,9 +2539,9 @@ function endPointer(event) {
     if (pressedNode) {
       // 单击节点：固定当前高亮（点击其他节点则切换固定对象），不再跳转页面
       pinNode(pressedNode);
-    } else if (pinnedNode) {
-      // 单击星空空白处：取消固定，恢复悬停跟随的原始样式
-      clearFocus();
+    } else if (pinnedNode || focusNode || searchQuery) {
+      // 单击星空空白处：完全复位（取消固定、清空搜索与焦点），恢复所有节点未选中状态
+      resetAllSelection();
     }
   }
   dragState = null;
@@ -2482,15 +2593,15 @@ searchInput.addEventListener('input', event => {
     });
 
   if (rankedResults.length) {
-    setFocus(rankedResults[0], false);
+    setFocus(rankedResults[0], false, 'search');
     renderSearchResultsPanel(rankedResults);
   }
   else {
     clearSearchResults();
     focusNode = null;
+    focusSource = null;
     hoveredNode = null;
     focusIds = new Set();
-    focusLabelIds = new Set();
     hideTooltip();
   }
 });
@@ -2535,150 +2646,24 @@ document.getElementById('fit-button').addEventListener('click', resetView);
 document.getElementById('relayout-button').addEventListener('click', relayout);
 document.getElementById('pause-button').addEventListener('click', () => setPaused(!paused));
 document.getElementById('refresh-button').addEventListener('click', loadGraph);
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+  setSidebarCollapsed(!sidebar.classList.contains('is-collapsed'));
+});
+// 标题栏整行点击均可收起/展开（内部箭头按钮的点击会冒泡到这里）
+document.getElementById('sidebar-header').addEventListener('click', () => {
+  setSidebarCollapsed(!sidebar.classList.contains('is-collapsed'));
+});
 
 window.addEventListener('resize', () => {
   measure();
   createBackgroundStars();
   resetView();
+  layoutSidebarForSearch();
 });
 
 measure();
+setSidebarCollapsed(window.innerWidth < 760); // 小屏默认收起侧边栏
 loadGraph();
-
-// ======= 【魔法注入：DOM 穿越充当悬浮 dock】 =======
-document.addEventListener('DOMContentLoaded', () => {
-  // 如果页面存在于 iframe 中并且允许同源跨域操作
-  if (window.parent && window.parent !== window) {
-    try {
-      const parentDoc = window.parent.document;
-      
-      // 在外部父容器注入 dock 栏所需样式
-      const dockStyle = parentDoc.createElement('style');
-      dockStyle.textContent = `
-        .kg-docked-search {
-          position: fixed !important;
-          left: 50% !important;
-          bottom: calc(24px + env(safe-area-inset-bottom)) !important;
-          top: auto !important;
-          right: auto !important;
-          transform: translateX(-50%) !important;
-          z-index: 10000 !important;
-          width: min(420px, calc(100vw - 32px)) !important;
-          background: rgba(10, 16, 32, 0.82) !important;
-          backdrop-filter: blur(14px) saturate(140%) !important;
-          -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
-          border-radius: 999px !important;
-          border: 1px solid rgba(148, 163, 184, 0.25) !important;
-          box-shadow: 0 12px 28px -10px rgba(0,0,0,0.55), 0 4px 10px -6px rgba(0,0,0,0.4) !important;
-          display: flex !important;
-          align-items: center !important;
-          gap: 12px !important;
-          padding: 10px 18px !important;
-          height: 48px !important;
-        }
-        .kg-docked-search svg { width: 18px !important; height: 18px !important; color: #94a3b8 !important; flex: 0 0 auto !important; }
-        .kg-docked-search input {
-          flex: 1 !important;
-          border: none !important;
-          outline: none !important;
-          background: transparent !important;
-          font-size: 14px !important;
-          color: #f1f5f9 !important;
-          font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif !important;
-          width: 100% !important;
-        }
-        .kg-docked-search input::placeholder { color: #5b6b84 !important; }
-
-        .kg-docked-results {
-          position: fixed !important;
-          left: 50% !important;
-          bottom: calc(84px + env(safe-area-inset-bottom)) !important; /* 从 dock 栏上方弹起 */
-          top: auto !important;
-          right: auto !important;
-          transform: translateX(-50%) !important;
-          z-index: 10000 !important;
-          width: min(420px, calc(100vw - 32px)) !important;
-          background: rgba(10, 16, 32, 0.88) !important;
-          backdrop-filter: blur(12px) saturate(140%) !important;
-          -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
-          border-radius: 12px !important;
-          border: 1px solid rgba(148, 163, 184, 0.2) !important;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55) !important;
-          max-height: 320px !important;
-          overflow-y: auto !important;
-          display: flex !important;
-          flex-direction: column !important;
-          padding: 8px !important;
-          gap: 4px !important;
-        }
-        .kg-docked-results[hidden] { display: none !important; }
-        .kg-docked-results .search-result-item {
-          width: 100% !important;
-          border: 1px solid transparent !important;
-          border-radius: 8px !important;
-          background: transparent !important;
-          padding: 10px 12px !important;
-          text-align: left !important;
-          cursor: pointer !important;
-          transition: background 0.15s ease !important;
-          font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif !important;
-          display: block !important;
-        }
-        .kg-docked-results .search-result-item:hover,
-        .kg-docked-results .search-result-item.is-active { background: rgba(59, 130, 246, 0.18) !important; }
-        .kg-docked-results .search-result-head { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; }
-        .kg-docked-results .search-result-name { font-size: 13px !important; font-weight: 700 !important; color: #f1f5f9 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
-        .kg-docked-results .search-result-meta { margin-top: 4px !important; font-size: 11px !important; color: #7d8ca3 !important; }
-        .kg-docked-results .search-result-badge { flex: 0 0 auto !important; height: 18px !important; border-radius: 999px !important; padding: 0 7px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 10px !important; font-weight: 700 !important; color: #bfdbfe !important; background: rgba(59, 130, 246, 0.25) !important; }
-        .kg-docked-results .search-result-type { display: none !important; } /* 精简Dock栏模式下的显示 */
-      `;
-      parentDoc.head.appendChild(dockStyle);
-
-      const searchPanel = document.querySelector('.search-panel');
-      const searchResults = document.querySelector('.search-results');
-      let isDocked = false;
-
-      const toggleDock = () => {
-        const iframe = parentDoc.querySelector('.knowledge-graph-frame');
-        if (!iframe) return;
-        const rect = iframe.getBoundingClientRect();
-        // 核心：当页面滚动到 星图 iframe 几乎离开可视区域时（底部只剩 150px）
-        const shouldDock = rect.bottom < 150;
-
-        if (shouldDock && !isDocked) {
-          isDocked = true;
-          searchPanel.classList.add('kg-docked-search');
-          searchResults.classList.add('kg-docked-results');
-          // 将搜索框和结果直接穿越附加到 index.md 的 body 中，作为真正的全局 Dock
-          parentDoc.body.appendChild(searchPanel);
-          parentDoc.body.appendChild(searchResults);
-        } else if (!shouldDock && isDocked) {
-          isDocked = false;
-          searchPanel.classList.remove('kg-docked-search');
-          searchResults.classList.remove('kg-docked-results');
-          // 滚回到视口中时，搜索框回归 iframe 内部
-          document.body.appendChild(searchPanel);
-          document.body.appendChild(searchResults);
-        }
-      };
-
-      // 监听外部滚动以及重置大小
-      parentDoc.defaultView.addEventListener('scroll', toggleDock, { passive: true });
-      window.addEventListener('resize', toggleDock, { passive: true });
-
-      // 在 docked 状态时，点击外侧需要关闭结果列表，绑定在父文档上
-      parentDoc.addEventListener('pointerdown', event => {
-        const target = event.target;
-        if (!(target instanceof Element)) return;
-        const inSearch = !!target.closest('.search-panel');
-        const inResults = !!target.closest('.search-results');
-        if (!inSearch && !inResults) clearSearchResults();
-      });
-    } catch(e) {
-      console.warn("DOM穿越受同源策略限制，退化为仅星图内展示:", e);
-    }
-  }
-});
 </script>
 </body>
 </html>
