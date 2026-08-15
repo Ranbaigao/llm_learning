@@ -46,11 +46,11 @@
     width: 100vw;
     height: 100vh;
     background:
-      radial-gradient(circle at 24% 16%, rgba(37, 60, 120, 0.30) 0, transparent 46%),
-      radial-gradient(circle at 80% 22%, rgba(88, 40, 140, 0.24) 0, transparent 48%),
-      radial-gradient(circle at 56% 88%, rgba(10, 50, 78, 0.34) 0, transparent 55%),
-      radial-gradient(circle at 8% 78%, rgba(64, 30, 90, 0.22) 0, transparent 42%),
-      linear-gradient(160deg, #030712 0%, #070d1f 48%, #0a1226 100%);
+      radial-gradient(circle at 24% 16%, rgba(28, 50, 105, 0.14) 0, transparent 46%),
+      radial-gradient(circle at 80% 22%, rgba(48, 24, 88, 0.10) 0, transparent 48%),
+      radial-gradient(circle at 56% 88%, rgba(7, 30, 52, 0.16) 0, transparent 55%),
+      radial-gradient(circle at 8% 78%, rgba(40, 20, 66, 0.10) 0, transparent 42%),
+      linear-gradient(160deg, #01020a 0%, #020410 48%, #03061a 100%);
   }
 
   .app::after {
@@ -59,8 +59,8 @@
     inset: 0;
     pointer-events: none;
     background:
-      repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.05) 0 1px, transparent 1px 40px),
-      repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.045) 0 1px, transparent 1px 40px);
+      repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.028) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.024) 0 1px, transparent 1px 40px);
     mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
     -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
   }
@@ -95,6 +95,7 @@
     color: var(--label-color, #cbd5e1);
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
     line-height: 1.16;
+    letter-spacing: 0.05em;
     text-align: center;
     white-space: nowrap;
     text-shadow:
@@ -751,20 +752,15 @@ const TYPE_LABEL = {
 const TYPE_COLOR = {
   root: cssVar('--root-color'),
 };
-const CONSTELLATION_COLORS = {
-  llm: cssVar('--llm-color'),
-  computer_vision: cssVar('--cv-color'),
-  性能优化: cssVar('--performance-color'),
-  llm应用开发: cssVar('--app-color'),
-  code_practice: cssVar('--practice-color'),
-};
-const SECONDARY_CONSTELLATION_COLORS = {
-  'llm/llm技术报告': '#93c5fd',
-  'llm/模型架构': '#38bdf8',
-  'llm/模型训练': '#60a5fa',
-  'llm/源码解读': '#818cf8',
-  'computer_vision/基础': '#5eead4',
-  'computer_vision/模型架构': '#2dd4bf',
+// 星座色族：每个星座是一对相近色相（base → shift，色相差很小）。
+// 簇内节点颜色按空间方位角在两色之间平滑插值——同一星团内颜色连续渐变，
+// 不会出现相邻节点色相突变（参考真实星系：同一区域内恒星颜色平滑过渡）
+const CONSTELLATION_FAMILIES = {
+  llm: { base: '#60a5fa', shift: '#38bdf8' },
+  computer_vision: { base: '#2dd4bf', shift: '#5eead4' },
+  性能优化: { base: '#fbbf24', shift: '#fcd34d' },
+  llm应用开发: { base: '#a78bfa', shift: '#c4b5fd' },
+  code_practice: { base: '#22d3ee', shift: '#67e8f9' },
 };
 const FALLBACK_CONSTELLATION_COLORS = [
   '#60a5fa',
@@ -892,19 +888,13 @@ function rgba(color, alpha) {
 }
 
 // ======= 星空精灵图缓存 =======
-// 恒星星芒 / 虚焦恒星 / 光晕 / 星云 / 暗角均为预渲染的离屏 canvas，绘制时只 drawImage，
+// 光晕 / 星云 / 暗角均为预渲染的离屏 canvas，绘制时只 drawImage，
 // 避免每帧 createRadialGradient 与 shadowBlur 带来的性能开销。
 const STAR_SPRITE_RES = 256;
-const starSpriteCache = new Map();
-const starSoftSpriteCache = new Map();
 const haloSpriteCache = new Map();
 let milkyWayCanvas = null;    // 静态银河带（resize / relayout 时重绘）
 let nebulaCanvas = null;      // 静态星云层（resize / relayout 时重绘）
 let vignetteCanvas = null;    // 暗角后期层
-let bloomCanvas = null;       // 泛光后期用的低分辨率缓冲（1/8）
-let bloomCtx = null;
-let bloom2Canvas = null;      // 宽裙边泛光缓冲（1/16）
-let bloom2Ctx = null;
 
 function makeSpriteCanvas(res) {
   const sprite = document.createElement('canvas');
@@ -913,75 +903,7 @@ function makeSpriteCanvas(res) {
   return sprite;
 }
 
-// 恒星精灵（物理化）：艾里斑式极亮小核 + 幂律衰减冕光 + 色温偏移 + 衍射星芒
-function starSpriteFor(color) {
-  let sprite = starSpriteCache.get(color);
-  if (sprite) return sprite;
-  sprite = makeSpriteCanvas(STAR_SPRITE_RES);
-  const g = sprite.getContext('2d');
-  const half = STAR_SPRITE_RES / 2;
-  // 色温：星核不是纯白，向星座色轻微偏移（蓝星偏蓝白、橙星偏暖白）
-  const coreTint = mixHex(color, '#ffffff', 0.82);
-  const midTint = mixHex(color, '#ffffff', 0.45);
-
-  // 衍射星芒（先画，压在冕光下面）：主芒正交两条，副芒 45° 两条更细更淡
-  const spikes = [
-    { angle: 0, alpha: 0.85, width: 0.016 },
-    { angle: Math.PI / 2, alpha: 0.85, width: 0.016 },
-    { angle: Math.PI / 4, alpha: 0.28, width: 0.009 },
-    { angle: -Math.PI / 4, alpha: 0.28, width: 0.009 },
-  ];
-  for (const { angle, alpha, width } of spikes) {
-    g.save();
-    g.translate(half, half);
-    g.rotate(angle);
-    const spike = g.createLinearGradient(-half, 0, half, 0);
-    spike.addColorStop(0, rgba(color, 0));
-    spike.addColorStop(0.30, rgba(color, 0.08 * alpha));
-    spike.addColorStop(0.5, rgba(coreTint, 0.85 * alpha));
-    spike.addColorStop(0.70, rgba(color, 0.08 * alpha));
-    spike.addColorStop(1, rgba(color, 0));
-    g.fillStyle = spike;
-    g.fillRect(-half, -STAR_SPRITE_RES * width / 2, STAR_SPRITE_RES, STAR_SPRITE_RES * width);
-    g.restore();
-  }
-
-  // 冕光：艾里斑形态 —— 极亮小核快速收敛，裙边按幂律 (1-t)^2.2 衰减（近似 1/d² 照度）
-  const corona = g.createRadialGradient(half, half, 0, half, half, half);
-  corona.addColorStop(0, rgba(coreTint, 1));
-  corona.addColorStop(0.045, rgba(coreTint, 0.96));
-  corona.addColorStop(0.10, rgba(midTint, 0.66));
-  corona.addColorStop(0.20, rgba(color, 0.36));
-  corona.addColorStop(0.36, rgba(color, 0.15));
-  corona.addColorStop(0.58, rgba(color, 0.05));
-  corona.addColorStop(0.82, rgba(color, 0.012));
-  corona.addColorStop(1, rgba(color, 0));
-  g.fillStyle = corona;
-  g.fillRect(0, 0, STAR_SPRITE_RES, STAR_SPRITE_RES);
-
-  starSpriteCache.set(color, sprite);
-  return sprite;
-}
-
-// 虚焦恒星精灵：景深远处使用 —— 无星芒、更大更柔的低对比光斑（bokeh）
-function starSoftSpriteFor(color) {
-  let sprite = starSoftSpriteCache.get(color);
-  if (sprite) return sprite;
-  sprite = makeSpriteCanvas(STAR_SPRITE_RES);
-  const g = sprite.getContext('2d');
-  const half = STAR_SPRITE_RES / 2;
-  const grad = g.createRadialGradient(half, half, 0, half, half, half * 0.62);
-  grad.addColorStop(0, rgba(mixHex(color, '#ffffff', 0.5), 0.55));
-  grad.addColorStop(0.35, rgba(color, 0.28));
-  grad.addColorStop(0.7, rgba(color, 0.08));
-  grad.addColorStop(1, rgba(color, 0));
-  g.fillStyle = grad;
-  g.fillRect(0, 0, STAR_SPRITE_RES, STAR_SPRITE_RES);
-  starSoftSpriteCache.set(color, sprite);
-  return sprite;
-}
-
-// 柔和光晕精灵（供连线光流使用）
+// 紧致光晕精灵（节点微光与连线光流使用）：衰减很快，只为亮核提供一圈贴身辉光
 function haloSpriteFor(color) {
   let sprite = haloSpriteCache.get(color);
   if (sprite) return sprite;
@@ -1011,12 +933,12 @@ function renderMilkyWayCanvas() {
   g.translate(width / 2, height / 2);
   g.rotate(-0.46);
 
-  // 弥散辉光（沿带轴垂直方向衰减，中心略偏蓝白）
+  // 弥散辉光（沿带轴垂直方向衰减，中心略偏蓝白）——压得很淡，保持背景深邃
   const glow = g.createLinearGradient(0, -bandHeight / 2, 0, bandHeight / 2);
   glow.addColorStop(0, 'rgba(147, 197, 253, 0)');
-  glow.addColorStop(0.30, 'rgba(147, 197, 253, 0.045)');
-  glow.addColorStop(0.50, 'rgba(226, 232, 240, 0.10)');
-  glow.addColorStop(0.70, 'rgba(191, 219, 254, 0.045)');
+  glow.addColorStop(0.30, 'rgba(147, 197, 253, 0.02)');
+  glow.addColorStop(0.50, 'rgba(226, 232, 240, 0.042)');
+  glow.addColorStop(0.70, 'rgba(191, 219, 254, 0.02)');
   glow.addColorStop(1, 'rgba(147, 197, 253, 0)');
   g.fillStyle = glow;
   g.fillRect(-diag, -bandHeight / 2, diag * 2, bandHeight);
@@ -1030,7 +952,7 @@ function renderMilkyWayCanvas() {
     const edgeFade = 1 - Math.min(1, Math.abs(x) / (diag * 0.62));
     const roll = Math.random();
     const rgb = roll < 0.6 ? '226, 232, 240' : roll < 0.85 ? '191, 219, 254' : '253, 230, 138';
-    g.fillStyle = `rgba(${rgb}, ${(0.10 + Math.random() * 0.42) * edgeFade})`;
+    g.fillStyle = `rgba(${rgb}, ${(0.05 + Math.random() * 0.2) * edgeFade})`;
     g.beginPath();
     g.arc(x, y, 0.3 + Math.random() * 0.8, 0, Math.PI * 2);
     g.fill();
@@ -1071,8 +993,8 @@ function renderNebulaCanvas() {
     const r = 140 + hashUnit(i, 29) * Math.min(width, height) * 0.32;
     const tint = tints[i % tints.length];
     const grad = g.createRadialGradient(x, y, 0, x, y, r);
-    grad.addColorStop(0, rgba(tint, 0.22 + hashUnit(i, 41) * 0.14));
-    grad.addColorStop(0.55, rgba(tint, 0.09));
+    grad.addColorStop(0, rgba(tint, 0.07 + hashUnit(i, 41) * 0.05));
+    grad.addColorStop(0.55, rgba(tint, 0.028));
     grad.addColorStop(1, rgba(tint, 0));
     g.fillStyle = grad;
     g.fillRect(x - r, y - r, r * 2, r * 2);
@@ -1083,7 +1005,7 @@ function renderNebulaCanvas() {
     const y = hashUnit(i, 97) * height;
     const r = 120 + hashUnit(i, 53) * Math.min(width, height) * 0.22;
     const grad = g.createRadialGradient(x, y, 0, x, y, r);
-    grad.addColorStop(0, 'rgba(2, 6, 23, 0.30)');
+    grad.addColorStop(0, 'rgba(1, 3, 10, 0.36)');
     grad.addColorStop(1, 'rgba(2, 6, 23, 0)');
     g.fillStyle = grad;
     g.fillRect(x - r, y - r, r * 2, r * 2);
@@ -1101,39 +1023,9 @@ function renderVignetteCanvas() {
   const outer = Math.hypot(cx, cy);
   const grad = g.createRadialGradient(cx, cy, outer * 0.42, cx, cy, outer);
   grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-  grad.addColorStop(1, 'rgba(0, 0, 0, 0.42)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0.52)');
   g.fillStyle = grad;
   g.fillRect(0, 0, width, height);
-}
-
-// 泛光后期（双尺度）：1/8 窄裙边 + 1/16 宽裙边叠加，'screen' 混合逼近物理镜头泛光
-function applyBloomPass() {
-  const bw = Math.max(1, Math.floor(width / 8));
-  const bh = Math.max(1, Math.floor(height / 8));
-  if (!bloomCanvas || bloomCanvas.width !== bw || bloomCanvas.height !== bh) {
-    bloomCanvas = document.createElement('canvas');
-    bloomCanvas.width = bw;
-    bloomCanvas.height = bh;
-    bloomCtx = bloomCanvas.getContext('2d');
-    bloom2Canvas = document.createElement('canvas');
-    bloom2Canvas.width = Math.max(1, Math.floor(bw / 2));
-    bloom2Canvas.height = Math.max(1, Math.floor(bh / 2));
-    bloom2Ctx = bloom2Canvas.getContext('2d');
-  }
-  bloomCtx.clearRect(0, 0, bw, bh);
-  bloomCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, bw, bh);
-  const b2w = bloom2Canvas.width;
-  const b2h = bloom2Canvas.height;
-  bloom2Ctx.clearRect(0, 0, b2w, b2h);
-  bloom2Ctx.drawImage(bloomCanvas, 0, 0, bw, bh, 0, 0, b2w, b2h);
-  ctx.save();
-  ctx.globalCompositeOperation = 'screen';
-  ctx.imageSmoothingEnabled = true;
-  ctx.globalAlpha = 0.30;
-  ctx.drawImage(bloomCanvas, 0, 0, bw, bh, 0, 0, width, height);
-  ctx.globalAlpha = 0.26;
-  ctx.drawImage(bloom2Canvas, 0, 0, b2w, b2h, 0, 0, width, height);
-  ctx.restore();
 }
 
 function applyVignettePass() {
@@ -1154,12 +1046,6 @@ function branchIdFor(node) {
   return String(node.id).split('/')[0] || String(node.id);
 }
 
-function secondaryBranchIdFor(node) {
-  if (!node || node.id === '__root__') return '__root__';
-  const parts = String(node.id).split('/');
-  return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : parts[0];
-}
-
 function fallbackConstellationColor(branchId) {
   let hash = 0;
   for (const char of String(branchId)) {
@@ -1168,45 +1054,56 @@ function fallbackConstellationColor(branchId) {
   return FALLBACK_CONSTELLATION_COLORS[hash % FALLBACK_CONSTELLATION_COLORS.length];
 }
 
-function baseColorForBranch(branchId) {
-  return CONSTELLATION_COLORS[branchId] || fallbackConstellationColor(branchId);
+// 星座色族查询：未知分支回退到调色板取 base，shift 由 base 混白推导（保持同族相近色相）
+function familyFor(branchId) {
+  if (CONSTELLATION_FAMILIES[branchId]) return CONSTELLATION_FAMILIES[branchId];
+  const base = fallbackConstellationColor(branchId);
+  return { base, shift: mixHex(base, '#ffffff', 0.22) };
 }
 
-function baseColorForSecondaryBranch(node) {
-  const branchId = branchIdFor(node);
-  const secondaryId = secondaryBranchIdFor(node);
-  if (!secondaryId || secondaryId === branchId) return baseColorForBranch(branchId);
-  if (SECONDARY_CONSTELLATION_COLORS[secondaryId]) return SECONDARY_CONSTELLATION_COLORS[secondaryId];
-
-  const base = baseColorForBranch(branchId);
-  const driftPalette = ['#38bdf8', '#60a5fa', '#2dd4bf', '#818cf8', '#7dd3fc', '#93c5fd'];
-  const drift = driftPalette[Math.floor(hashUnit(secondaryId, 91) * driftPalette.length) % driftPalette.length];
-  return mixHex(base, drift, 0.36);
-}
-
+// 布局前的初始配色；布局完成后由 applyClusterColors() 按空间位置重算
 function colorForNode(node) {
   if (!node || node.type === 'root') return TYPE_COLOR.root;
-  const base = node.type === 'category'
-    ? baseColorForBranch(branchIdFor(node))
-    : baseColorForSecondaryBranch(node);
-  if (node.type === 'category') return base;
-  if (node.type === 'subcategory') {
-    const darkAmount = node.depth <= 1
-      ? 0.04
-      : clamp(0.06 + Math.max(0, node.depth - 1) * 0.03, 0.08, 0.16);
-    return mixHex(base, '#0f172a', darkAmount);
+  const family = familyFor(branchIdFor(node));
+  if (node.type === 'category') return mixHex(family.base, '#ffffff', 0.34);
+  if (node.type === 'subcategory') return mixHex(mixHex(family.base, family.shift, 0.4), '#ffffff', 0.18);
+  return mixHex(family.base, '#ffffff', 0.6);
+}
+
+// 簇内配色（核心）：以节点相对星团中心的方位角的正弦为平滑参数 t 在色族内插值。
+// sin(angle) 绕簇一周处处连续（无接缝），空间上相邻的节点 t 必然接近 →
+// 颜色沿星团平滑渐变，彻底消除"红突变蓝"；笔记再向白色靠拢
+// （真实恒星以白/蓝白为主，仅带星座色微染），混白量同样随方位角平滑变化。
+function applyClusterColors() {
+  for (const cat of orderedChildren('__root__')) {
+    const family = familyFor(cat.branchId);
+    // 类目节点也不使用纯色：混白降饱和，保留色相身份（真实星团"代表星"也是白底染色，
+    // 避免相邻星团的纯色节点直接相撞，如青色旁边跳出一个纯黄）
+    cat.color = mixHex(family.base, '#ffffff', 0.34);
+    const stack = [...(childrenById.get(cat.id) || [])];
+    while (stack.length) {
+      const node = stack.pop();
+      const angle = Math.atan2(node.tz - cat.tz, node.tx - cat.tx);
+      const t = 0.5 + 0.5 * Math.sin(angle);
+      const clusterColor = mixHex(family.base, family.shift, t);
+      if (node.type === 'subcategory') {
+        // 子目录同样先混白降饱和，再随深度轻微压暗保持层次
+        const dark = clamp(0.04 + Math.max(0, node.depth - 1) * 0.02, 0.04, 0.12);
+        node.color = mixHex(mixHex(clusterColor, '#ffffff', 0.18), '#0f172a', dark);
+      } else {
+        const white = 0.55 + 0.15 * Math.sin(angle * 2 + 1);
+        node.color = mixHex(clusterColor, '#ffffff', white);
+      }
+      stack.push(...(childrenById.get(node.id) || []));
+    }
   }
-  const lightAmount = node.format === 'jupyter'
-    ? clamp(0.08 + Math.max(0, node.depth) * 0.025, 0.10, 0.22)
-    : clamp(0.20 + Math.max(0, node.depth) * 0.035, 0.22, 0.38);
-  return mixHex(base, '#ffffff', lightAmount);
 }
 
 function radiusFor(node) {
-  if (node.type === 'root') return 15;
-  if (node.type === 'category') return Math.max(11, Math.min(16, node.size * 0.62 || 12));
-  if (node.type === 'subcategory') return Math.max(8, Math.min(12, node.size * 0.58 || 9));
-  return Math.max(4.5, Math.min(6.2, node.size * 0.72 || 5));
+  if (node.type === 'root') return 11;
+  if (node.type === 'category') return Math.max(8, Math.min(12, node.size * 0.5 || 9));
+  if (node.type === 'subcategory') return Math.max(6, Math.min(9, node.size * 0.44 || 7));
+  return Math.max(3.2, Math.min(4.6, node.size * 0.52 || 3.8));
 }
 
 function measure() {
@@ -1481,6 +1378,9 @@ function seedConstellation() {
   }
   graphCenter = center;
   viewCenter = { ...center };
+
+  // 布局完成：按空间方位角为簇内节点重新配色（颜色随布局平滑分布）
+  applyClusterColors();
 }
 
 /**
@@ -1546,7 +1446,7 @@ function createBackgroundStars() {
       x: Math.random() * width,
       y: Math.random() * height,
       r: layer === 0 ? 0.4 + Math.random() * 0.8 : 0.8 + Math.random() * 1.4,
-      a: layer === 0 ? 0.16 + Math.random() * 0.24 : 0.30 + Math.random() * 0.36,
+      a: layer === 0 ? 0.13 + Math.random() * 0.2 : 0.24 + Math.random() * 0.3,
       p: Math.random() * Math.PI * 2,
       tw: 0.5 + Math.random() * 1.3,
       layer,
@@ -1737,7 +1637,6 @@ function drawScene() {
   drawMeteors();
   drawLinks();
   drawNodes();
-  applyBloomPass();
   applyVignettePass();
   updateLabels();
 }
@@ -1745,17 +1644,22 @@ function drawScene() {
 function drawBackgroundStars() {
   if (milkyWayCanvas) ctx.drawImage(milkyWayCanvas, 0, 0, width, height);
   if (nebulaCanvas) ctx.drawImage(nebulaCanvas, 0, 0, width, height);
-  const brightSprite = starSpriteFor('#bfdbfe');
+  const brightHalo = haloSpriteFor('#93c5fd');
   for (const star of stars) {
     // 视差：远近两层随相机旋转产生不同幅度的漂移，营造景深
     const parallax = star.layer === 0 ? 6 : 16;
     const ox = camera.rotY * parallax;
-    const oy = (camera.rotX - 1.18) * parallax * 0.7;
+    const oy = (camera.rotX - DEFAULT_ROT_X) * parallax * 0.7;
     const pulse = 0.68 + Math.sin(time * star.tw + star.p) * 0.32;
     if (star.bright) {
-      const size = star.r * 7 * (0.9 + pulse * 0.2);
-      ctx.globalAlpha = clamp(star.a * pulse * 1.6, 0, 1);
-      ctx.drawImage(brightSprite, star.x + ox - size / 2, star.y + oy - size / 2, size, size);
+      // 亮星：紧致微光 + 脆亮小核（无星芒），与节点的新科技感样式一致
+      const half = star.r * 3.2 * (0.9 + pulse * 0.2);
+      ctx.globalAlpha = clamp(star.a * pulse * 0.9, 0, 1);
+      ctx.drawImage(brightHalo, star.x + ox - half, star.y + oy - half, half * 2, half * 2);
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(241, 245, 249, ${clamp(star.a * pulse * 1.5, 0, 1)})`;
+      ctx.arc(star.x + ox, star.y + oy, star.r * 0.9, 0, Math.PI * 2);
+      ctx.fill();
     } else {
       ctx.globalAlpha = 1;
       ctx.beginPath();
@@ -1783,23 +1687,26 @@ function drawLinks() {
       : (link.source.color || colorForNode(link.source));
     const fade = depthFade((source.z + target.z) / 2);
     // 常态连线刻意压低透明度，让星空背景更干净；仅激活（聚焦相关）连线保持明亮
-    const alpha = (muted ? 0.04 : active ? 0.72 : reference ? 0.15 : 0.12) * fade;
+    const alpha = (muted ? 0.045 : active ? 0.82 : reference ? 0.21 : 0.19) * fade;
 
     ctx.save();
+    // 底层细实线：把珠点连成一条隐约可见的通路
+    ctx.beginPath();
+    ctx.moveTo(source.x, source.y);
+    ctx.lineTo(target.x, target.y);
+    ctx.lineWidth = active ? 1.2 : 0.6;
     if (reference) ctx.setLineDash([5, 7]);
-    // 底层柔光（星座线的晕）
-    ctx.beginPath();
-    ctx.moveTo(source.x, source.y);
-    ctx.lineTo(target.x, target.y);
-    ctx.lineWidth = active ? 5.5 : 3;
-    ctx.strokeStyle = rgba(color, alpha * 0.26);
+    ctx.strokeStyle = rgba(color, alpha * 0.5);
     ctx.stroke();
-    // 亮芯
+    ctx.setLineDash([]);
+    // 珠链：圆头零长虚线形成等距能量珠点（未来科技感的点状航线）
     ctx.beginPath();
     ctx.moveTo(source.x, source.y);
     ctx.lineTo(target.x, target.y);
-    ctx.lineWidth = active ? 2 : 1;
-    ctx.strokeStyle = rgba(color, Math.min(1, alpha * 1.15));
+    ctx.setLineDash([0.1, 13]);
+    ctx.lineCap = 'round';
+    ctx.lineWidth = active ? 3.2 : 2.1;
+    ctx.strokeStyle = rgba(color, Math.min(1, alpha * (reference ? 0.9 : 1.1)));
     ctx.stroke();
     ctx.restore();
 
@@ -1841,30 +1748,56 @@ function drawNodes() {
     const muted = focusNode && !active && !hoverPreview;
     const matched = searchMatches.has(node.id);
     const baseRadius = node.radius * p.scale * node.scale;
-    const r = clamp(baseRadius, node.type === 'note' ? 3.2 : 5.4, node.type === 'root' ? 30 : 22);
+    const r = clamp(baseRadius, node.type === 'note' ? 2.4 : 4, node.type === 'root' ? 22 : 16);
     node.hitRadius = Math.max(9, r + (node.type === 'note' ? 7 : 5));
 
-    // 恒星闪烁：每颗星独立的相位与频率
-    const twinkle = 0.88 + Math.sin(time * 1.1 + node.pulse) * 0.12;
     const fade = depthFade(p.z);
-    // 景深：远处恒星逐渐失焦 —— 切换虚焦精灵、放大光斑、压低亮度
-    const blur = clamp((((p.z / (camera.distance * 0.95)) * 0.5 + 0.5) - 0.58) / 0.42, 0, 1);
-    const alpha = (muted ? 0.18 : 1) * fade * (1 - blur * 0.25);
+    const alpha = (muted ? 0.18 : 1) * fade;
     const color = node.color;
+    const highlighted = active || hoverPreview;
 
     ctx.save();
 
-    // 所有节点统一渲染为恒星：艾里斑核 + 幂律冕光 + 衍射星芒（预渲染精灵），远处换虚焦软光斑
-    {
-      const coronaFactor =
-        node.type === 'root' ? 8.5 :
-        node.type === 'category' ? 7.5 :
-        node.type === 'subcategory' ? 6.5 :
-        5;
-      const size = r * 2 * coronaFactor * (active || hoverPreview ? 1.35 : 1) * twinkle * (1 + blur * 0.85);
-      const sprite = blur > 0.45 ? starSoftSpriteFor(color) : starSpriteFor(color);
-      ctx.globalAlpha = clamp(alpha * (active ? 1 : 0.94), 0, 1);
-      ctx.drawImage(sprite, p.x - size / 2, p.y - size / 2, size, size);
+    // ===== 科技感节点标记：亮核为主，线条装饰只给重要节点 =====
+    // 笔记 = 纯粹亮点（无环无光晕，避免密集圆圈）；子目录 = 亮核 + 贴身微光；
+    // 目录/根节点 = 亮核 + 微光 + 细线圆环 + 缓转刻度弧
+    const isMajor = node.type !== 'note';
+
+    // 1) 贴身微光：范围很小、衰减很快，只为亮核提一抹辉光
+    if (isMajor) {
+      const halo = haloSpriteFor(color);
+      const haloHalf = r * 2.1 * (highlighted ? 1.6 : 1);
+      ctx.globalAlpha = clamp(alpha * (highlighted ? 0.55 : 0.3), 0, 1);
+      ctx.drawImage(halo, p.x - haloHalf, p.y - haloHalf, haloHalf * 2, haloHalf * 2);
+    }
+
+    // 2) 亮核：偏白的实心小圆点
+    ctx.globalAlpha = clamp(alpha, 0, 1);
+    ctx.fillStyle = mixHex(color, '#ffffff', 0.58);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, Math.max(1.2, r * 0.4), 0, Math.PI * 2);
+    ctx.fill();
+
+    // 3) 主圆环：仅目录/根节点的细线轨道环
+    if (isMajor) {
+      ctx.globalAlpha = clamp(alpha * (highlighted ? 0.95 : 0.68), 0, 1);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = highlighted ? 1.4 : 1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 2.8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // 4) 刻度弧：仅根节点/一级目录外圈缓慢旋转的断续弧，交替旋向
+    if (node.type === 'root' || node.type === 'category') {
+      ctx.globalAlpha = clamp(alpha * 0.42, 0, 1);
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2.5, 6]);
+      ctx.lineDashOffset = -time * 7 * (node.index % 2 === 0 ? 1 : -1);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 6.5, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
 
     ctx.globalAlpha = alpha;
@@ -1872,7 +1805,7 @@ function drawNodes() {
     if (node.format === 'jupyter') {
       ctx.beginPath();
       ctx.setLineDash([3, 3]);
-      ctx.arc(p.x, p.y, r + 5, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, r + 5.5, 0, Math.PI * 2);
       ctx.strokeStyle = rgba(color, active ? 0.78 : 0.48);
       ctx.lineWidth = active ? 2.1 : 1.4;
       ctx.stroke();
