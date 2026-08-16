@@ -1608,7 +1608,8 @@ function animate(now) {
   lastTime = now;
   if (!paused) {
     time += dt * 0.001;
-    if (!dragState && !isHoveringNode && !pinnedNode) constellationRotation += dt * 0.000038;
+    // 自动旋转：约 6 分钟一圈（0.000016 rad/ms），缓慢漂移不抢眼
+    if (!dragState && !isHoveringNode && !pinnedNode) constellationRotation += dt * 0.000016;
     easeNodes(dt);
     updateDust(dt);
     updateMeteors(dt);
