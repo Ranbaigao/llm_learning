@@ -1482,6 +1482,9 @@ RL
 这一点其实非常适合进一步映射到你前面讨论的 **政务 MoE / ESFT / 通用 replay / Function Calling / GRPO** 方案里：K3 的做法能给出一个比“所有能力都在一个 SFT + 一个 GRPO 阶段混训”更清晰的训练分工。
 
 ## 参考文献
+
+- [1] [Kimi K3: Open Frontier Intelligence][1] —— 官方技术报告，正文各处标注 `([arXiv][1])` 均出自此处
+- [2] [Attention Residuals](../模型架构/残差连接/Attention%20Residuals.md) —— 本仓库笔记，配合第 3 节 AttnRes 部分阅读
+- [3] [GLM-5.3 解读](GLM-5.3解读.md) —— 对比阅读：另一条 frontier scaling 路线
+
 [1]: https://arxiv.org/html/2607.24653v2 "Kimi K3: Open Frontier Intelligence"
-[2]: [Attention Residuals](../模型架构/残差连接/Attention Residuals.md)
-[3]: [GLM-5.3 解读](GLM-5.3解读.md)
