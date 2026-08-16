@@ -73,25 +73,22 @@ Deliver
 
 **以前：**
 
-[
-\text{training sample}= (x,y)
-]
+$$
+\text{training sample} = (x, y)
+$$
 
 **现在更接近：**
 
-[
-\text{training sample}
-======================
-
-(E, G, \tau, V)
-]
+$$
+\text{training sample} = (E, G, \tau, V)
+$$
 
 其中：
 
-* (E)：Environment
-* (G)：Goal
-* (\tau)：几百甚至几千步的 Agent trajectory
-* (V)：Verifier
+* $E$：Environment
+* $G$：Goal
+* $\tau$：几百甚至几千步的 Agent trajectory
+* $V$：Verifier
 
 这就是我认为 5.3 最核心的思想：
 
@@ -137,6 +134,8 @@ GLM-5.3 在这里给出了一个很值得关注的 pipeline。
             ↓
          Agent RL
 ```
+
+([检验Agent的coding实现][5])
 
 其中官方特别提到：
 
@@ -472,11 +471,9 @@ GLM-5.3 并不能简单总结成：
 
 即：
 
-[
-\pi_{\text{base}}
-\rightarrow
-\pi_{\text{SFT}}
-]
+$$
+\pi_{\text{base}} \rightarrow \pi_{\text{SFT}}
+$$
 
 让模型首先进入一个合理的 behavior manifold。
 
@@ -520,18 +517,15 @@ B trajectory = 错误
 
 这天然就是：
 
-[
-\max_\pi
-E_{\tau\sim \pi}
-[R(E,\tau)]
-]
+$$
+\max_\pi \; \mathbb{E}_{\tau \sim \pi} \left[ R(E, \tau) \right]
+$$
 
 而不是：
 
-[
-\max_\theta
-\log P_\theta(y^*|x)
-]
+$$
+\max_\theta \; \log P_\theta(y^* \mid x)
+$$
 
 所以 GLM-5.3 其实很好地展示了：
 
@@ -630,7 +624,15 @@ Environment Scaling
 而这恰好也会改变 SFT / GRPO 的设计思路：以后真正困难的可能不是“GRPO loss 怎么写”，而是**如何批量生产几十万/几百万个 executable + verifiable + non-hackable 的长程任务环境**。这才可能是下一阶段 Agent 后训练最贵的数据资产。
 
 ## 参考文献
+
+1. [GLM-5.3 - Overview - Z.AI DEVELOPER DOCUMENT][1]
+2. [GLM-5.3: Frontier Coding with Emergent Cyber Capabilities][2]
+3. [GLM-5: from Vibe Coding to Agentic Engineering][3]
+4. [GLM-5.2: Built for Long-Horizon Tasks][4]
+5. [检验Agent的coding实现][5]
+
 [1]: https://docs.z.ai/guides/llm/glm-5.3 "GLM-5.3 - Overview - Z.AI DEVELOPER DOCUMENT"
 [2]: https://z.ai/blog/glm-5.3?utm_source=chatgpt.com "GLM-5.3: Frontier Coding with Emergent Cyber Capabilities"
 [3]: https://arxiv.org/abs/2602.15763?utm_source=chatgpt.com "GLM-5: from Vibe Coding to Agentic Engineering"
 [4]: https://z.ai/blog/glm-5.2?utm_source=chatgpt.com "GLM-5.2: Built for Long-Horizon Tasks"
+[5]: ../模型训练/强化学习/Agent%20RL/检验Agent的coding实现.md "检验Agent的coding实现"

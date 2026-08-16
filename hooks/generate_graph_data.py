@@ -49,6 +49,12 @@ EXCLUDE_HIDDEN = True
 NOTEBOOK_SUFFIXES = {".md", ".ipynb"}
 MARKDOWN_LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 WIKI_LINK_RE = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]")
+# 引用式链接定义, 例如: [5]: ../path/note.md "标题" 或 [5]: <../path with space/note.md>
+REF_LINK_DEF_RE = re.compile(
+    r"(?m)^[ \t]{0,3}\[([^\]]+)\]:[ \t]*(?:<([^>]+)>|(\S+))"
+)
+# 引用式链接使用, 例如: [文字][5] 或折叠形式 [5][]
+REF_LINK_USE_RE = re.compile(r"(?<!!)\[([^\]]+)\]\[([^\]]*)\]")
 TOP_LEVEL_LABELS = {}
 INDEX_PATH = NOTEBOOKS_DIR / "index.md"
 NAV_START_MARKER = "<!-- AUTO-GENERATED-NOTE-NAV:START -->"
@@ -239,6 +245,20 @@ def _reference_links(note_files: list[Path]) -> list[dict[str, str]]:
 
         raw_targets = [match.group(1) for match in MARKDOWN_LINK_RE.finditer(text)]
         raw_targets.extend(match.group(1) for match in WIKI_LINK_RE.finditer(text))
+
+        # 引用式链接: 先收集文末的 [label]: target 定义, 再解析 [文字][label] 使用
+        ref_defs: dict[str, str] = {}
+        for def_match in REF_LINK_DEF_RE.finditer(text):
+            label = def_match.group(1).strip().casefold()
+            target = def_match.group(2) or def_match.group(3)
+            if label and target:
+                ref_defs[label] = target
+        if ref_defs:
+            for use_match in REF_LINK_USE_RE.finditer(text):
+                label = (use_match.group(2) or use_match.group(1)).strip().casefold()
+                target = ref_defs.get(label)
+                if target:
+                    raw_targets.append(target)
 
         for raw_target in raw_targets:
             target_id = _resolve_markdown_target(source, raw_target)

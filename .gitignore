@@ -9,3 +9,6 @@ ai_docs/
 notebooks/.assets/data/
 feedbacks/
 .agents/
+.claude/
+thinking/
+AGENT.md/
