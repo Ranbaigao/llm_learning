@@ -49,12 +49,7 @@ EXCLUDE_HIDDEN = True
 NOTEBOOK_SUFFIXES = {".md", ".ipynb"}
 MARKDOWN_LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 WIKI_LINK_RE = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]")
-TOP_LEVEL_LABELS = {
-    "llm": "LLM",
-    "computer_vision": "Computer Vision",
-    "llm应用开发": "LLM 应用开发",
-    "code_practice": "代码实践",
-}
+TOP_LEVEL_LABELS = {}
 INDEX_PATH = NOTEBOOKS_DIR / "index.md"
 NAV_START_MARKER = "<!-- AUTO-GENERATED-NOTE-NAV:START -->"
 NAV_END_MARKER = "<!-- AUTO-GENERATED-NOTE-NAV:END -->"

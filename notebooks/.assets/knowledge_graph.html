@@ -693,7 +693,7 @@
   <aside class="panel legend-panel" aria-label="图例">
     <div class="legend-title">Constellation</div>
     <div class="legend-item"><span class="legend-dot" style="background: var(--root-color); color: var(--root-color);"></span><span>根星</span></div>
-    <div class="legend-item"><span class="legend-dot" style="background: var(--llm-color); color: var(--llm-color);"></span><span>LLM 星座</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--llm-color); color: var(--llm-color);"></span><span>NLP 星座</span></div>
     <div class="legend-item"><span class="legend-dot" style="background: var(--cv-color); color: var(--cv-color);"></span><span>CV 星座</span></div>
     <div class="legend-item"><span class="legend-dot" style="background: var(--performance-color); color: var(--performance-color);"></span><span>性能优化</span></div>
     <div class="legend-item"><span class="legend-dot" style="background: var(--practice-color); color: var(--practice-color);"></span><span>代码实践</span></div>
@@ -756,11 +756,10 @@ const TYPE_COLOR = {
 // 簇内节点颜色按空间方位角在两色之间平滑插值——同一星团内颜色连续渐变，
 // 不会出现相邻节点色相突变（参考真实星系：同一区域内恒星颜色平滑过渡）
 const CONSTELLATION_FAMILIES = {
-  llm: { base: '#60a5fa', shift: '#38bdf8' },
-  computer_vision: { base: '#2dd4bf', shift: '#5eead4' },
+  NLP: { base: '#60a5fa', shift: '#38bdf8' },
+  CV: { base: '#2dd4bf', shift: '#5eead4' },
   性能优化: { base: '#fbbf24', shift: '#fcd34d' },
-  llm应用开发: { base: '#a78bfa', shift: '#c4b5fd' },
-  code_practice: { base: '#22d3ee', shift: '#67e8f9' },
+  代码实践: { base: '#22d3ee', shift: '#67e8f9' },
 };
 const FALLBACK_CONSTELLATION_COLORS = [
   '#60a5fa',
@@ -1118,8 +1117,17 @@ function measure() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
+// 顶层目录固定展示顺序（侧边栏与星图布局一致）：NLP → CV → 性能优化 → 代码实践
+const TOP_LEVEL_ORDER = ['NLP', 'CV', '性能优化', '代码实践'];
+
 function orderedChildren(parentId) {
   return [...(childrenById.get(parentId) || [])].sort((a, b) => {
+    if (parentId === '__root__') {
+      const oa = TOP_LEVEL_ORDER.indexOf(a.id);
+      const ob = TOP_LEVEL_ORDER.indexOf(b.id);
+      if (oa !== ob) return (oa === -1 ? TOP_LEVEL_ORDER.length : oa) - (ob === -1 ? TOP_LEVEL_ORDER.length : ob);
+      return a.name.localeCompare(b.name, 'zh-Hans-CN');
+    }
     const rank = { category: 0, subcategory: 1, note: 2 };
     const dr = (rank[a.type] ?? 9) - (rank[b.type] ?? 9);
     if (dr !== 0) return dr;

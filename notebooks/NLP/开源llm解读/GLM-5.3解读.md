@@ -629,6 +629,7 @@ Environment Scaling
 
 而这恰好也会改变 SFT / GRPO 的设计思路：以后真正困难的可能不是“GRPO loss 怎么写”，而是**如何批量生产几十万/几百万个 executable + verifiable + non-hackable 的长程任务环境**。这才可能是下一阶段 Agent 后训练最贵的数据资产。
 
+## 参考文献
 [1]: https://docs.z.ai/guides/llm/glm-5.3 "GLM-5.3 - Overview - Z.AI DEVELOPER DOCUMENT"
 [2]: https://z.ai/blog/glm-5.3?utm_source=chatgpt.com "GLM-5.3: Frontier Coding with Emergent Cyber Capabilities"
 [3]: https://arxiv.org/abs/2602.15763?utm_source=chatgpt.com "GLM-5: from Vibe Coding to Agentic Engineering"
