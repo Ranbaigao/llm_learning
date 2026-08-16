@@ -20,10 +20,14 @@ or serve rebuild.
 from __future__ import annotations
 
 import json
+import os
 import re
+import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
-from urllib.parse import unquote, urlparse
+from urllib.parse import quote, unquote, urlparse
+from urllib.request import Request, urlopen
 
 # ---- 配置 ----------------------------------------------------------------
 # 项目根目录 (相对于 mkdocs.yml)
@@ -59,6 +63,23 @@ TOP_LEVEL_LABELS = {}
 INDEX_PATH = NOTEBOOKS_DIR / "index.md"
 NAV_START_MARKER = "<!-- AUTO-GENERATED-NOTE-NAV:START -->"
 NAV_END_MARKER = "<!-- AUTO-GENERATED-NOTE-NAV:END -->"
+
+# ---- 浏览量烘焙配置 --------------------------------------------------------
+# 构建时通过 Vercount 只读接口抓取各笔记浏览量，烘焙进图谱 JSON，
+# 前端侧边栏渲染时直接显示，访客零网络请求、零延迟。
+# 缓存 6 小时：mkdocs serve 频繁重建不会重复访问网络，也避免 rebuild 循环。
+# 环境变量 KG_PAGEVIEW=off 可完全禁用（离线开发场景）。
+PAGEVIEW_API = "https://events.vercount.one/api/v2/log"
+SITE_BASE_URL = "https://sui-xing.github.io/llm_learning/"
+PAGEVIEW_CACHE_PATH = NOTEBOOKS_DIR / ".assets" / "data" / "pageview_cache.json"
+PAGEVIEW_CACHE_TTL = 6 * 3600
+PAGEVIEW_WORKERS = 8
+PAGEVIEW_TIMEOUT = 10
+# 接口对脚本 UA 有风控，伪装成浏览器
+_BROWSER_UA = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+)
 
 
 def _is_excluded(name: str) -> bool:
@@ -403,9 +424,10 @@ def scan_notebooks() -> dict[str, Any]:
     }
 
 
-def write_graph_data() -> dict[str, Any]:
+def write_graph_data(data: dict[str, Any] | None = None) -> dict[str, Any]:
     """Generate and write graph data only when the content changed."""
-    data = scan_notebooks()
+    if data is None:
+        data = scan_notebooks()
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
@@ -416,25 +438,131 @@ def write_graph_data() -> dict[str, Any]:
     return data
 
 
+# ---- 浏览量烘焙 ------------------------------------------------------------
+
+
+def _pageview_get(url: str) -> dict[str, Any] | None:
+    """GET Vercount 只读计数接口（不增加计数），失败返回 None。"""
+    query = f"{PAGEVIEW_API}?url={quote(url, safe='')}"
+    try:
+        req = Request(query, headers={"User-Agent": _BROWSER_UA})
+        with urlopen(req, timeout=PAGEVIEW_TIMEOUT) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+    if payload.get("status") == "success" and isinstance(payload.get("data"), dict):
+        return payload["data"]
+    return None
+
+
+def _load_pageview_cache() -> dict[str, Any]:
+    try:
+        return json.loads(PAGEVIEW_CACHE_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _write_pageview_cache(cache: dict[str, Any]) -> None:
+    """内容变化才写盘，避免触发 mkdocs serve 的多余 rebuild。"""
+    payload = json.dumps(cache, ensure_ascii=False, indent=2) + "\n"
+    try:
+        current = (
+            PAGEVIEW_CACHE_PATH.read_text(encoding="utf-8")
+            if PAGEVIEW_CACHE_PATH.exists()
+            else ""
+        )
+        if current != payload:
+            PAGEVIEW_CACHE_PATH.write_text(payload, encoding="utf-8")
+    except OSError:
+        pass
+
+
+def bake_pageviews(data: dict[str, Any]) -> str:
+    """
+    把浏览量烘焙进图数据：note 节点加 pv 字段，stats 加 site_pv/site_uv/pv_fetched_at。
+    返回一行日志说明数据来源。环境变量 KG_PAGEVIEW=off 可禁用网络抓取。
+    """
+    if os.environ.get("KG_PAGEVIEW", "").lower() == "off":
+        return "浏览量: 已禁用 (KG_PAGEVIEW=off)"
+
+    cache = _load_pageview_cache()
+    now = int(time.time())
+    fetched_at = int(cache.get("fetched_at", 0))
+    notes: dict[str, int] = cache.get("notes", {})
+    site: dict[str, int] = cache.get("site", {})
+
+    if now - fetched_at >= PAGEVIEW_CACHE_TTL:
+        # 缓存超期，重新抓取（8 线程并发，单请求延迟 ~1.5s，58 条共几秒）
+        note_urls = {
+            node["id"]: SITE_BASE_URL + node["url"]
+            for node in data["nodes"]
+            if node.get("type") == "note" and node.get("url")
+        }
+        with ThreadPoolExecutor(max_workers=PAGEVIEW_WORKERS) as pool:
+            results = list(
+                pool.map(lambda kv: (kv[0], _pageview_get(kv[1])), note_urls.items())
+            )
+        new_notes = {
+            note_id: int(counts.get("page_pv") or 0)
+            for note_id, counts in results
+            if counts is not None
+        }
+        site_counts = _pageview_get(SITE_BASE_URL)
+
+        if new_notes:
+            notes = {**notes, **new_notes}  # 抓取失败的条目沿用上期缓存
+        if site_counts:
+            site = {
+                "site_pv": int(site_counts.get("site_pv") or 0),
+                "site_uv": int(site_counts.get("site_uv") or 0),
+            }
+        if new_notes or site_counts:
+            fetched_at = now
+            _write_pageview_cache({"fetched_at": fetched_at, "notes": notes, "site": site})
+        source = f"已抓取 {len(new_notes)}/{len(note_urls)} 篇"
+    else:
+        source = "命中缓存"
+
+    baked = 0
+    for node in data["nodes"]:
+        pv = notes.get(node["id"])
+        if node.get("type") == "note" and pv is not None:
+            node["pv"] = pv
+            baked += 1
+    if site:
+        data["stats"]["site_pv"] = site.get("site_pv")
+        data["stats"]["site_uv"] = site.get("site_uv")
+    if fetched_at:
+        data["stats"]["pv_fetched_at"] = fetched_at
+    return f"浏览量: {source}, 烘焙 {baked} 篇"
+
+
 def on_pre_build(config, **kwargs):
     """
     MkDocs hook: generate knowledge graph data before building.
     """
     nav_removed = remove_index_navigation()
-    data = write_graph_data()
+    data = scan_notebooks()
+    pv_status = bake_pageviews(data)
+    write_graph_data(data)
 
     # 打印一行日志,方便用户确认数据已更新
     nav_status = ", 首页遗留导航已清理" if nav_removed else ""
     print(
         f"[knowledge-graph] 已生成 {data['stats']['nodes']} 个节点, "
         f"{data['stats']['links']} 条关系 -> {OUTPUT_PATH.relative_to(PROJECT_ROOT)}"
-        f"{nav_status}"
+        f"{nav_status}; {pv_status}"
     )
 
 
 # 支持直接运行测试: python hooks/generate_graph_data.py
 if __name__ == "__main__":
     nav_removed = remove_index_navigation()
-    data = write_graph_data()
+    data = scan_notebooks()
+    started = time.time()
+    pv_status = bake_pageviews(data)
+    elapsed = time.time() - started
+    write_graph_data(data)
     print(json.dumps(data["stats"], ensure_ascii=False, indent=2))
     print(f"legacy_index_navigation_removed={nav_removed}")
+    print(f"pageview: {pv_status} ({elapsed:.1f}s)")

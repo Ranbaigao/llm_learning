@@ -1,534 +1,306 @@
 # 内存压缩机制
 
 > **受众：** Hermes Agent 贡献者、网关开发人员以及调优长时间运行会话的高级用户。
-> **源文件：** `hermes_state.py`、`agent/context_compressor.py`、`agent/conversation_compression.py`、`agent/conversation_loop.py`、`agent/turn_context.py`、`gateway/run.py`、`tools/session_search_tool.py`
 > **最后更新：** 2026-08-16
 
 ## 概述
 
-Hermes Agent 通过**摘要**（压缩）对话记录中间部分而非直接截断，使长时间对话保持可用。本文档端到端地描述其工作原理：磁盘上的表示形式是什么、什么触发压缩、压缩输出是什么样子，以及压缩失败时会发生什么。
+Hermes Agent 通过**摘要**（压缩）对话记录的中间部分而非直接截断，让长时间对话能够继续保持可用。本文档端到端地描述它的工作原理：磁盘上的表示形式是什么、什么会触发压缩、压缩之后消息长什么样、压缩失败时会发生什么。
 
-系统包含三个松散耦合的部分，容易混淆：
+整个系统由三个松散耦合的部分组成，理解它们各自的角色是阅读本文档的前提：
 
-1. **压缩引擎**——`hermes_state.py` 中的 `archive_and_compact()` 以及 `agent/context_compressor.py` 中的 `ContextCompressor`。这部分实际重写对话记录。
-2. **触发系统**——大约十五个调用点，分布在 `agent/conversation_loop.py`、`agent/turn_context.py`、`gateway/run.py` 以及三个手动入口点（CLI、网关、ACP）。这些决定*何时*压缩。
-3. **跨会话回忆层**——`hermes_state_search.py` + `tools/session_search_tool.py`，它是对原始对话记录（而非摘要）进行关键词搜索。它回答的问题是“用户搜索聊天历史时会看到什么？”。
+第一部分是**压缩引擎**，负责真正地重写对话记录。它把过长的中间部分浓缩成一段摘要，保留关键的首尾信息，然后把新的对话记录写回数据库。
 
-这三个部分以令人惊讶的方式交互：压缩**不会**删除旧消息，这意味着即使会话已被压缩，搜索仍基于原始文本工作。这是设计中最重要且非显而易见的特性，本文其余部分将展开说明。
+第二部分是**触发系统**，决定什么时候调用压缩引擎。它有十几种触发方式——基于 token 数量的阈值、基于消息条数的硬上限、长时间空闲后的惰性触发、模型返回错误时的兜底触发，以及用户通过命令手动触发的即时压缩。这些触发分布在对话循环的多个检测点和网关的入口处。
+
+第三部分是**跨会话回忆层**，也就是用户搜索历史对话时实际接触到的功能。它使用 SQLite 的全文检索能力，对数据库里的所有消息文本建立索引，用户输入关键词后返回命中的原文片段。
+
+这三个部分以一种反直觉但又非常关键的方式相互影响：**压缩操作不会真正删除任何旧消息**。也就是说，数据库里同时存在两种内容——摘要之前的原始文本和摘要文本本身。这意味着无论会话被压缩过多少次，用户的关键词搜索永远能命中最初的那句话。这是整个设计的核心特性，也是理解其它细节的前提。
 
 ---
 
 ## 1. 磁盘上的表示
 
-每个已压缩会话在 `messages` 表中包含三种行：
+每条消息在数据库里都有两个标志位：活动状态（是否还参与当前的实时上下文）和压缩状态（是否被摘要过程归档过）。这两个标志的不同组合产生三种行：
 
-| 标志值 | 含义 | 对实时上下文可见？ | 在 FTS 中索引？ |
-|---|---|---|---|
-| `active=1, compacted=0` | 实时消息，原始文本 | 是 | 是 |
-| `active=0, compacted=1` | 被压缩软归档，**原始文本保留** | 否 | 是 |
-| `active=0, compacted=0` | 被用户回退（例如 `/rewind`） | 否 | 否（默认排除） |
+第一种是**实时消息**，活动状态为真、压缩状态为假。这是当前对话上下文里实际使用的消息，原始文本，是压缩引擎的输出目标。
 
-关键点是第二行。`archive_and_compact()` **不会**删除它摘要的行——它将这些行翻转为 `active=0, compacted=1`，并在保留的尾部前插入新的摘要行：
+第二种是**被压缩过程归档的旧消息**，活动状态为假、压缩状态为假。这一点至关重要：原始文本并没有被删除，它仍然完整地保留在数据库里，只是从实时上下文中被移除了。
 
-```python
-# hermes_state.py — archive_and_compact()
-conn.execute(
-    "UPDATE messages SET active = 0, compacted = 1 "
-    "WHERE session_id = ? AND active = 1",
-    (session_id,),
-)
-inserted, tool_calls_total = self._insert_message_rows(
-    conn, session_id, compacted_messages
-)
-```
+第三种是**被用户回退的消息**，活动状态为假、压缩状态为假。这通常是用户主动使用重新生成或撤销功能时产生的。这类行在默认情况下既不参与实时上下文，也不进入搜索索引。
 
-FTS 触发器（`messages_fts`、`messages_fts_trigram`、`messages_fts_cjk`）在 `INSERT` 时索引，在 `DELETE` 时删除，但它们**不**根据 `active`/`compacted` 进行过滤。翻转标志是一个保留内容的 `UPDATE`，因此原始文本仍保留在索引中。这就是为什么即使在压缩之后，跨会话回忆仍能基于原始对话记录工作。
+由于压缩不会删除原始文本，数据库在一段时间后会出现混合状态：少量实时消息、一段摘要消息、大量被归档的旧消息。这就是它在磁盘上的真实样子。
 
 ---
 
-## 2. 跨会话回忆——对原始文本的关键词搜索
+## 2. 跨会话回忆——为什么搜索到的还是原文
 
-回忆层是 **SQLite FTS5**（[hermes_state_search.py](hermes_state_search.py)）。搜索路径中没有 RAG、没有嵌入、没有 LLM。`SessionSearchMixin` 对 `messages_fts`（unicode61 分词器）运行查询，并具有可选的 trigram（`messages_fts_trigram`）和 CJK-二元分词（`messages_fts_cjk`）后备索引。
+回忆层使用 SQLite 自带的全文检索引擎作为索引，它对消息的原始内容字段建立索引。当用户输入关键词时，系统在索引里查找匹配，然后返回原文片段。
 
-`search_messages()` 默认返回压缩前和压缩后的行：
+由于上一节提到的归档行依然保留在数据库里、依然在索引中，用户搜索时不需要关心消息是否已经被压缩。一个可能只出现在第十轮对话中的关键词，几年后（如果会话还活着）依然能够被检索到。
 
-```python
-where_clauses.append("(m.active = 1 OR m.compacted = 1)")
-```
+命中之后，系统返回三个层次的内容：首先是关键词所在行的带高亮的摘录，这就是用户最直观看到的片段；其次是匹配消息加上前后各几条消息形成的窗口，让用户看到上下文；最后是窗口两端的极简书签，帮助用户定位这个消息在整段对话里的大致位置。
 
-因此，即使会话已被压缩，搜索一个只出现在原始对话记录中的短语仍然能找到它。工具层（[tools/session_search_tool.py](tools/session_search_tool.py)）为每个命中返回三样东西：
+整个召回路径没有任何大模型调用，纯靠数据库索引完成。提速方式是多样的：默认使用通用的 Unicode 字符分词器，对英文比较友好；针对中文和日韩文有专门的二元分词后备索引；针对比较模糊的子串匹配（比如用户只记得某几个字母），还有三元组分词索引兜底。
 
-- `snippet`——原始匹配消息的 FTS5 高亮摘录
-- `messages`——匹配消息加上 ±5 条消息的窗口，锚点被标记
-- `bookend_start` / `bookend_end`——周围上下文的简短尾部，用于定位
-
-唯一的后搜索过滤是**压缩摘要消息会从书签中剥离**（以避免将大型摘要负载重新注入新会话），但 FTS 命中本身原样保留。
-
-### 设计说明
-
-> *“任何地方都没有 LLM 调用——每种形式都返回数据库中的实际消息。”*
-> ——`tools/session_search_tool.py` docstring
-
-整个回忆路径是确定性的。摘要与原始消息一起存储在数据库中，但除非关键词恰好出现在摘要文本中，否则摘要**永远不会**是用户从关键词搜索中得到的返回结果。
+需要特别说明的是，摘要消息本身也在索引里。如果用户搜索的关键词恰好出现在摘要文本中，摘要也会被命中。摘要和原始消息在搜索系统里没有身份差异——决定返回谁的是全文检索的相关性打分本身，对它们一视同仁。（摘要和原始消息在搜索系统里没有身份差异，决定返回谁的是相关性打分本身。一般情况下原始消息密度高、关键词具体，会优先返回；只有当关键词只在摘要里、原始消息被删了、或者关键词太宽泛时，摘要才会被命中。）
 
 ---
 
 ## 3. 压缩输出的样子
 
-压缩器将新对话记录组装为**头部 + 1 条摘要消息 + 尾部**——而不是多次重写的“缩小版对话记录”。头部和尾部保持原样。
+压缩不会把整段对话都改写成短消息，它只动中间部分。压缩后的对话记录由三段组成：
 
-```python
-# agent/context_compressor.py — Phase 4: Assemble compressed message list
-compressed = []
-compressed.extend(messages[:compress_start])          # head, unchanged
-compressed.append({                                    # ONE summary message
-    "role": summary_role,                              # user or assistant (alternation-safe)
-    "content": self._with_summary_prefix(summary),
-    COMPRESSED_SUMMARY_METADATA_KEY: True,
-    COMPRESSED_SUMMARY_HAS_USER_TURN_KEY: bool(self._summary_has_user_turn),
-})
-compressed.extend(messages[compress_end:])             # tail, unchanged
-```
+**头部**是开头的一定数量的消息，原始文本完整保留。系统提示词和最初几轮对话都在这里，永远不会被摘要。默认保护三条消息。
 
-默认保护如下：
+**尾部**是最近的一定数量的消息，原始文本完整保留。尾部里至少要有一条真实的用户消息，这是为了让压缩后的对话上下文里仍然包含用户的最近意图。默认保护二十条消息。
 
-| 区域 | 数量 | 来源 |
-|---|---|---|
-| `protect_first_n` | 头部 3 条消息 | `compression.protect_first_n` |
-| `protect_last_n` | 尾部 20 条消息 | `compression.protect_last_n` |
-| `min_tail_user_messages` | 尾部至少 1 条真实用户消息 | `compression.min_tail_user_messages` |
+**中间**才是被压缩的部分。这段原始消息被归档，然后在它原来的位置插入一条新的摘要消息。摘要消息带有特殊的前缀标记和后缀标记，让后续解析时能清楚识别边界。
 
-只有中间部分可被摘要。摘要消息携带 `SUMMARY_PREFIX` 头部和 `_SUMMARY_END_MARKER` 尾部标记，以便后续解析时边界明确。
+最终结果是一条由"原始头部 + 摘要消息 + 原始尾部"拼起来的新对话记录，长度上比压缩前短得多，但前后的关键信息一字不少。
 
 ---
 
 ## 4. 什么触发压缩
 
-大约有**十五个**触发点，分为自动、手动和特殊路径。
+大约有十五种触发方式，分为自动、手动和特殊路径三类。
 
-### 4.1 自动——token 阈值（主路径）
+### 4.1 token 阈值——最常见的自动触发
 
-决策函数是 `ContextCompressor.should_compress_info()`：
+主路径上，每次与模型 API 通信之前和之后，都会检查当前对话的 token 数是否超过阈值。超过则触发压缩。
 
-```python
-# agent/context_compressor.py
-def should_compress_info(self, prompt_tokens=None):
-    tokens = prompt_tokens if prompt_tokens is not None else self.last_prompt_tokens
-    if tokens < self.threshold_tokens:
-        return False, None
-    if self._automatic_compression_blocked():
-        return False, self._compression_block_reason() or "blocked"
-    return True, None
-```
+阈值的默认计算方式是：用模型上下文窗口减去输出预留空间，再乘以一个比例系数，默认是百分之五十。同时有一个下限保护：无论上下文窗口多大或多小，阈值都不会低于六万四千个 token。这个下限是为了避免压缩一个非常小的会话——压缩本身有成本，一次大模型调用、一次提示缓存失效、一次数据库重写，压缩一个只有几千 token 的会话是净亏损。
 
-`threshold_tokens` 由 `_compute_threshold_tokens()` 计算：
+不同模型有不同的阈值覆盖。上下文窗口小于五十一万二的模型把阈值提升到百分之七十五，因为它们的窗口本来就紧凑。某些推理型模型（会在输出前先思考的模型）被进一步提升到百分之八十五。Codex 系列的小窗口模型（gpt-5.3-codex-spark）则降到百分之七十。还有一些特殊的覆盖规则，通过模型名匹配最长的子串来生效。
 
-```python
-effective_window = context_length - (max_tokens or 0)
-pct_value = int(effective_window * threshold_percent)     # default 0.50
-floored = max(pct_value, MINIMUM_CONTEXT_LENGTH)           # 64K floor
-```
+阈值的检查在两个时刻进行：API 调用之前使用请求压力 token 数进行预检，API 调用之后使用模型实际返回的 token 数进行精确检查。
 
-| 模型 / 上下文窗口 | 触发阈值 |
-|---|---|
-| 默认（≥512K 上下文） | `context_length − max_tokens` 的 50%，下限为 **64K** |
-| 上下文 < 512K | 75%（`_SMALL_CTX_THRESHOLD_PERCENT`） |
-| 退化的极小窗口 | 有效窗口的 85%（`_MIN_CTX_TRIGGER_RATIO`） |
-| Arcee Trinity Thinking | 按模型覆盖为 75% |
-| Codex OAuth、gpt-5.4/5.5/5.6 | 85%（由 `compression.codex_gpt55_autoraise` 控制） |
-| Codex、gpt-5.3-codex-spark | 70% |
-| 按模型覆盖 | `compression.model_thresholds`（最长子串匹配胜出） |
-| 硬上限 | `compression.threshold_tokens`（取 `min(ratio, cap)`） |
+### 4.2 消息数量硬限制——死亡螺旋的安全阀
 
-每次 API 往返都会进行检查：
+网关在每一轮用户消息进来时、会话交给代理之前，会做一次轻量级的体检。这次检查完全依赖本地数据，不调用任何外部服务。它统计消息条数，再用本地启发式算法粗略估算 token 数。
 
-- **API 前**在 `agent/conversation_loop.py:2376`——使用 `request_pressure_tokens`
-- **API 后**在 `agent/conversation_loop.py:7025`——使用来自提供商响应的 `_real_tokens`
+如果消息条数达到或者超过五千条，无论 token 估算结果是什么，都强制触发压缩。
 
-### 4.2 自动——消息数量硬限制（网关卫生）
+这个五千条硬上限专门用来应对一种危险场景：当 API 连接断开时，模型实际返回的 token 数就无法获取，token 阈值触发的逻辑完全失效。如果只有这一条触发路径，会话就会在 API 断开期间不断膨胀，每次膨胀又让下一次 API 调用更可能失败，进入一个越膨胀越容易失败的恶性循环。消息条数硬上限完全独立于 API 响应，只要数数据库行就能触发，所以即使整个网络都挂了，只要消息量到了上限，压缩依然能执行。
 
-网关在每一轮代理运行前执行卫生检查。它使用两个独立维度：
+这个设计的语义是双保险：正常情况下 token 阈值工作得很好也很快，消息条数是闲置的；当 API 路径失效时，消息条数是唯一的兜底。
 
-```python
-# gateway/run.py
-_needs_compress = (
-    _approx_tokens >= _compress_token_threshold   # 85% by default
-    or _msg_count >= _HARD_MSG_LIMIT               # 5000 by default
-)
-```
+### 4.3 空闲时间触发——默认关闭
 
-5000 条消息限制是**死亡螺旋安全阀**——见 §6。硬限制可通过 `compression.hygiene_hard_message_limit` 配置。
+如果用户配置了一个非零的空闲秒数，当会话空闲超过这个时长时，系统会检查是否要压缩。
 
-### 4.3 自动——空闲时间（可选启用）
+但仅靠时间是不够的。即便用户设置了一小时，即使会话真的空了一小时，如果当前 token 数还不到阈值下限（六万四千），系统也不会压缩。原因是利用率太低的会话压缩起来性价比很低。时间触发只是"提醒"，真正的决策权在 token 数。
 
-```python
-# agent/turn_context.py
-_idle_after = getattr(agent, "compression_idle_compact_after_seconds", 0)
-if agent.compression_enabled and _idle_after > 0 and messages:
-    _idle_gap = time.time() - getattr(agent, "_last_activity_ts", time.time())
-    if _idle_gap >= _idle_after:
-        if _should_idle_compact(messages, floor_tokens=...):
-            messages, active_system_prompt = agent._compress_context(...)
-```
+### 4.4 错误响应触发——API 报错时的兜底
 
-默认为 `0`（禁用）。该触发经过一个 **token 下限**（§4.4）——即使会话已经空闲了一个小时，如果其 token 数低于下限，也不会被压缩。
+当模型返回特定错误时也会触发压缩。这些错误意味着当前对话已经大到模型无法处理：
 
-### 4.4 token 下限
+第一种是负载过大错误，请求体的总大小超过了 API 限制。第二种是长上下文窗口触发的限流，同时系统还会把上下文窗口声明值降到二十万，强制压缩才能继续。第三种是输出请求过大，比如设置的输出上限和当前对话规模不匹配。第四种是通用的上下文溢出错误。
 
-阈值计算有一个下界：
+这些响应都意味着"不压缩就没法继续"，所以处理逻辑是直接调用压缩，忽略冷却期之类的保护。
 
-```python
-floored = max(pct_value, MINIMUM_CONTEXT_LENGTH)  # 64K
-```
+### 4.5 预检触发——轮次前的多轮循环
 
-这就是空闲路径中“仍受 token 下限限制”的含义：**仅时间是不够的**——在任何基于时间的触发触发之前，会话必须至少有 `min(64K, computed_threshold)` 个 token。原因是压缩并非免费的：它需要一次 LLM 调用、破坏提示缓存并重写数据库行。压缩一个很小的会话是净损失。
+在每一轮对话开始之前，系统会先做一次预检：如果当前对话估算的 token 数已经超过阈值、或者消息数超过可压缩窗口的大小，就进入多轮压缩循环，逐步把会话压缩到目标水位。
 
-### 4.5 自动——错误响应
+此外，插件引擎（比如对话上下文管理插件）可以通过一个专门的接口请求在阈值以下触发压缩，用于实现自定义的压缩策略。
 
-提供商错误也会触发压缩：
+### 4.6 手动触发——用户命令
 
-- **HTTP 413 Payload Too Large**——`agent/conversation_loop.py:5165`
-- **HTTP 429 + long-context-tier**——`agent/conversation_loop.py:4904`（同时将 `context_length` 降至 200K）
-- **输出超过 `max_tokens`**——`agent/conversation_loop.py:5312`
-- **通用上下文溢出**——`agent/conversation_loop.py:5466`
+用户可以通过四种方式手动触发压缩，全部绕过冷却期和防抖动保护：
 
-### 4.6 自动——预检
+命令行版本的全局压缩命令、命令行版本的局部压缩命令（只压缩指定位置附近）、网关通道里的压缩命令、ACP 协议适配器的压缩命令。
 
-多轮循环在轮次前运行：
+手动触发的设计意图是：用户明确知道现在需要压缩，因此即使冷却期还没过、即使系统认为刚压缩过没意义，用户也要能强制执行。
 
-- **轮次序言预检**——`agent/turn_context.py:985`。token 估算值高于阈值**或**消息数量高于 `protect_first_n + protect_last_n + 1`。
-- **引擎驱动预检**——`agent/turn_context.py:1118`。插件引擎（例如 LCM）可以通过 `should_compress_preflight()` 请求低于阈值的压缩。
+### 4.7 特殊路径——绕过主压缩器
 
-### 4.7 手动触发（`force=True`）
+有几种场景下，压缩不由 Hermes 完成，而是由外部系统完成：
 
-| 入口 | 位置 | 绕过冷却/防抖动？ |
-|---|---|---|
-| CLI `/compress` | `cli.py:11845` | 是 |
-| CLI `/compress here [N]` | `cli.py:11807` | 是（部分） |
-| 网关 `/compress` | `gateway/slash_commands.py:4206` | 是 |
-| ACP `/compress` | `acp_adapter/server.py:2353` | 是（同时清除 `_session_db` 以避免 ID 轮换） |
+第一种是 Codex 应用服务器模式。在这种模式下，Codex 自己管理线程的压缩，Hermes 不介入。可以通过配置选择 Codex 原生压缩、让 Hermes 调用 Codex 的压缩接口、或者完全关闭自动压缩。
 
-这四个入口都跳过摘要失败冷却和防抖动保护。
+第二种是 OpenAI 原生服务端压缩。这是一个可选功能，仅限于特定模型系列。OpenAI 的服务端在检测到会话过大时自己会压缩，Hermes 的本地压缩触发被故意压低一些，让服务端永远先触发。
 
-### 4.8 特殊路径（绕过主压缩器）
+第三种是微压缩。这是一个可选的细粒度压缩模式，每一轮对话结束后把最早的一组消息合并进滚动摘要。代价是每一轮都会破坏提示缓存（即让模型提供商为同一段对话预先缓存的内容失效），所以默认关闭。
 
-- **Codex 应用服务器**——当 `agent.api_mode == "codex_app_server"` 时，`compression.codex_app_server_auto` 选择 `"native"`（codex 压缩自己的线程）、`"hermes"`（Hermes 调用 `codex_session.compact_thread()`）或 `"off"`。
-- **OpenAI 原生服务器端压缩**——通过 `compression.codex_responses_native: False` 选择加入。仅限 gpt-5.6，在 `api.openai.com` / ChatGPT Codex 后端。本地触发被钳制在本地压缩器触发阈值以下 **8,192 个 token**，因此服务器总是先触发。
-- **微压缩**——`compression.micro_compact: False`（默认）。每个成功轮次后，一次交换折叠进滚动摘要。代价：每轮一次提示缓存破坏。
-- **主动工具结果修剪**——当主压缩因冷却/防抖动而被**阻止**但 token 仍超过阈值时，在每次工具调用后运行。确定性的，无 LLM，对工具结果进行确定性去重 + 摘要。
+第四种是主动裁剪。在主压缩被冷却期或防抖动挡住、但 token 数已经超阈值时，系统会跳过压缩完整的摘要，转而只对工具调用的返回结果做确定性的去重和裁剪。这个操作不调用大模型，纯本地完成。
 
-### 4.9 总开关
+### 4.8 总开关
 
-`compression.enabled: False` 禁用所有自动路径。手动 `/compress` 仍然有效。
+主开关关闭所有自动触发的路径，但手动触发不受影响——用户随时可以手动压缩。
 
 ---
 
-## 5. 网关卫生检查
+## 5. 网关卫生检查与死亡螺旋
 
-网关卫生检查是“廉价的本地检查”，在每条用户消息时、代理看到会话之前运行。它执行粗略的 token 估算（无 API 调用）并统计消息数量。
+网关是所有外部消息渠道的统一入口。无论用户从 Telegram、Discord、终端界面还是 ACP 协议发来消息，都先经过网关再做处理。
 
-### 5.1 它做什么
+网关卫生检查是每一轮用户消息到来时、会话交给代理之前的一道预检。它做两件事：数消息条数，粗估 token 数。两者任一超过阈值就强制压缩。
 
-```python
-# gateway/run.py:18142-18345
-if history and len(history) >= 4:
-    _msg_count = len(history)
-    _approx_tokens = _rough_token_estimate(history)
-    _compress_token_threshold = int(_hyg_context_length * _hyg_threshold_pct)  # 85% default
-    _HARD_MSG_LIMIT = _hyg_hard_msg_limit  # 5000 default
-    _needs_compress = (
-        _approx_tokens >= _compress_token_threshold
-        or _msg_count >= _HARD_MSG_LIMIT
-    )
-```
+### 5.1 为什么需要这道检查
 
-### 5.2 它防止的死亡螺旋
+token 阈值是更精细的检测点，但它有一条致命的依赖：必须收到模型 API 的响应才能拿到真实的 token 数。如果网络断开、模型服务宕机或者超过超时时间，API 响应就不回来，token 阈值触发逻辑完全失效。
 
-基于 token 的触发是单点故障：它依赖于提供商返回带有 `last_prompt_tokens` 的响应。如果 API 调用失败——网络抖动、提供商中断、超时——响应永远不会到达，触发永远看不到新的 token，压缩也永远不会触发。会话持续增长。
+更糟的是，会话越长，下一次 API 请求的负载就越大，负载越大越容易在网络层面失败。这意味着会话膨胀和 API 失败之间形成正反馈：会话变大 → 下次请求更容易失败 → 拿不到 token 数据 → 不压缩 → 会话继续变大。
 
-这产生了一个正反馈循环：
+如果不加干预，这个循环会一路走下去：会话越来越大，越来越难成功调用 API，最终导致单次启动时间过长、内存溢出或者数据库撑爆。
 
-```
-会话增长 → 下一个负载更大 → 更可能失败
-      ↑                                          ↓
-      └──── 无压缩（无 token 数据） ←────────────┘
-```
+### 5.2 消息条数硬上限如何打破循环
 
-如果没有后备，会话可以无限增长，使每次后续启动变慢，并最终使提示构建器 OOM。5000 条消息硬限制**不依赖提供商响应**——它统计数据库行数，这是一个纯本地查询。因此，当 token 路径失明时，计数路径仍然有效。
+消息条数硬上限完全依赖本地数据：只数数据库里的行数，不调用任何外部服务。这个独立性让它在 API 路径完全失效时依然能工作。
 
-代码注释直接写道：
+当消息条数达到五千时，无论网络是否可用、模型是否可达、token 数据是否新鲜，压缩都会被强制执行。即使整个外网都断了，压缩也能照常运行。
 
-> *“硬安全阀：当消息数量极端时强制压缩……防止 API 断开导致 token 数据收集缺失的死亡螺旋。”*
-
-### 5.3 “网关轮次”的含义
-
-“网关轮次”是一个完整的用户消息 → 代理响应 → 用户消息循环。网关是 Telegram、Discord、TUI、ACP 等的统一入口点。卫生检查在代理加载会话**之前**运行——因此代理永远不必处理已经危险地过大的会话。
-
-| 触发 | 位置 | 节奏 | 依赖 |
-|---|---|---|---|
-| API 前压力检查 | `conversation_loop.py` | 每次 API 往返 | 提供商响应 |
-| API 后真实 token 检查 | `conversation_loop.py` | 每次 API 往返 | 提供商响应 |
-| **网关卫生** | `gateway/run.py` | **每一轮** | **无**（仅本地） |
-| 手动 `/compress` | CLI / 网关 / ACP | 用户发起 | 无 |
-
-卫生检查是最粗的筛子——它运行频率最低，但依赖最少。
+这就是设计文档里所说的"安全阀"——主路径精细但脆弱，安全阀粗糙但顽强。两者组合起来，既能在正常情况下精细控制压缩时机，又能在异常情况下避免会话陷入死循环。
 
 ---
 
 ## 6. 压缩输出的长度限制
 
-摘要消息有一个 **[2,000, 10,000] 个 token** 的软预算，仅通过提示指导来执行。
+压缩生成的摘要消息在长度上是有约束的，但约束方式很反直觉。
 
-### 6.1 预算计算
+### 6.1 软预算区间
 
-```python
-# agent/context_compressor.py
-_MIN_SUMMARY_TOKENS = 2_000
-_SUMMARY_RATIO = 0.20
-_SUMMARY_TOKENS_CEILING = 10_000
+摘要的预算主要取决于被压缩内容的多少：先按被压缩内容的百分之二十估算，再设下限为两千个 token、上限为一万个 token。无论被压缩的内容有多小，摘要都不会少于两千个 token；无论被压缩的内容有多大，摘要都不会超过一万个 token。
 
-def _compute_summary_budget(self, turns_to_summarize):
-    content_tokens = estimate_messages_tokens_rough(turns_to_summarize)
-    budget = int(content_tokens * _SUMMARY_RATIO)
-    return max(_MIN_SUMMARY_TOKENS, min(budget, self.max_summary_tokens))
+这个区间是有意为之的。小于两千 token 的摘要信息密度太低，丢三落四的；超过一万 token 的摘要本身又成了新的上下文负担，反而让压缩失去意义。
 
-@property
-def max_summary_tokens(self) -> int:
-    if self._max_summary_tokens is None:
-        self._max_summary_tokens = min(
-            int(self.context_length * 0.05), _SUMMARY_TOKENS_CEILING,
-        )
-    return self._max_summary_tokens
-```
+### 6.2 为什么不在 API 层硬性截断
 
-因此有效预算为：
+按照通常的做法，调用大模型生成摘要时应该设置输出上限，防止模型说得太多浪费 token。但这里**故意不传**这个上限。
 
-```
-max(2000, min(被压缩内容 × 0.20, min(上下文 × 0.05, 10000)))
-```
+原因是某些模型（尤其是带推理能力的模型）会先在内部思考。如果设了输出上限，模型可能把整个预算都花在思考上，留给实际输出的 token 几乎为零，结果返回的是"只有思考没有正文"的废摘要。历史上确实发生过这种情况：摘要被截断在中间，产生了不完整的摘要，进而触发再次压缩，再次触发同样的问题，陷入循环。
 
-### 6.2 为什么 `max_tokens` 故意不发送给 API
+所以这里的设计是：不设上限，让模型自己决定输出长度，但通过提示词明确告诉它"目标在两万到十万 token 之间"。模型听话就老老实实写那么多，不听话就真的没办法——但这种风险比上面那种截断崩盘的风险小得多。
 
-```python
-# agent/context_compressor.py:4183-4204
-call_kwargs = {
-    "task": "compression",
-    "messages": [{"role": "user", "content": prompt}],
-    # NO max_tokens: the output cap must never truncate a summary.
-    # ``summary_budget`` is prompt-level guidance only ("Target ~N tokens" above).
-    # Most OpenAI-compatible wires already omit the param (see _build_call_kwargs),
-    # but the Anthropic Messages wire and NVIDIA NIM forward it — a hard cap
-    # there cut summaries mid-section (thinking models burn the cap on
-    # reasoning first), producing truncated/thinking-only summaries and
-    # compaction loops. Omitting lets the adapter fall back to the model's
-    # native output ceiling.
-}
-```
+### 6.3 输入侧的限制
 
-压缩器明确从线路调用中省略 `max_tokens`。历史证明，在此处设置硬上限会导致具备思考能力的模型将整个输出预算花在推理上，然后返回空/完全截断——这产生了不完整的摘要和重复压缩循环。让适配器回退到模型的原生输出上限是更安全的选择。
+喂给摘要模型的输入也有限制。每条消息的内容最多六千字符（截断时保留头部四千字符和尾部一千五百字符）；整个摘要提示词最多十六万字符（约四万 token）。
 
-### 6.3 输入侧限制
+如果输入超过十六万字符，系统会保留头部的百分之四十五和尾部的百分之五十五，中间部分丢弃，并明确标注"输入已截断"。这保证了大会话也能被处理，只是摘要会丢失一些中间细节。
 
-提供给摘要器的提示也是有限的：
+### 6.4 失败时的兜底
 
-| 常量 | 值 | 用途 |
-|---|---|---|
-| `_SUMMARY_INPUT_MAX_CHARS` | 160,000 字符（约 40K token） | 整个提示的上限 |
-| `_CONTENT_MAX` | 6,000 字符 | 每条消息正文的上限 |
-| `_CONTENT_HEAD` | 4,000 字符 | 截断时从开头保留的部分 |
-| `_CONTENT_TAIL` | 1,500 字符 | 截断时从结尾保留的部分 |
-| `_TOOL_ARGS_MAX` | 1,500 字符 | 工具调用参数的上限 |
+如果摘要本身的大模型调用失败（限流、超时、网络断），系统不会让会话就此卡住。它会使用一个本地代码生成的"占位摘要"：把被压缩的内容拼接成可读文本，超过八千字符就截断。这条路径完全本地，完全确定，不依赖任何外部服务。
 
-当输入超过 160K 字符时，`_bound_summary_input()` 保留头部 45% + 尾部 55%，并带有明确的 `[summary input truncated: omitted N chars from the middle to keep compression prompt bounded]` 标记。
-
-### 6.4 为什么没有调用后截断
-
-压缩器在成功 LLM 调用后**不会**检查 `finish_reason` 或摘要长度。如果模型返回 15K token 的摘要，则原样存储。如果模型达到其原生输出上限并返回 `finish_reason="length"`，该截断响应也会被原样存储。这是一个有意的权衡——另一种选择是损坏的摘要。
-
-这种权衡的代价是，某些会话会积累很大的摘要。下一次压缩会将那个大摘要视为 `_previous_summary` 并重新摘要，最终收敛。
-
-### 6.5 回退（LLM 调用失败）
-
-当 LLM 调用失败（429、超时、网络）时，压缩器回退到本地生成的确定性存根：
-
-```python
-_FALLBACK_SUMMARY_MAX_CHARS = 8_000         # 8K chars
-_FALLBACK_PREVIOUS_SUMMARY_MAX_CHARS = 3_000  # 3K chars
-```
-
-回退在 8K 字符处**截断**，并带有 `\n...[fallback summary truncated]`。与 LLM 生成的摘要不同，回退确实有一个硬上限。
-
-### 6.6 摘要预算总结
-
-| 方面 | 值 | 执行位置 |
-|---|---|---|
-| 线路上的 `max_tokens` | **未设置** | 故意省略 |
-| 软预算（仅提示） | 2,000 – 10,000 个 token | 提示文本 |
-| 每条消息输入上限 | 6,000 字符（4K 头部 + 1.5K 尾部） | 输入序列化器 |
-| 整个提示输入上限 | 160,000 字符 | 输入序列化器 |
-| LLM 成功时的输出截断 | **无** | 压缩器不检查 `finish_reason` |
-| LLM 失败时的输出截断 | 8,000 字符（前一个为 3,000） | 回退构建器 |
+注意：本地兜底的最大长度是八千字符，而大模型输出的摘要上限是一万个 token。两者度量不同，但精神一致——保持在一个可接受的范围内。
 
 ---
 
-## 7. 失败处理——三层防御
+## 7. 压缩失败时的三层兜底
 
-当压缩失败（摘要 LLM 不可达、429、瞬时错误）时，三层防御保护会话免于失控循环。
+压缩不可能永远成功。当摘要调用失败时，系统有三种保护机制防止会话陷入更糟糕的状态。
 
-### 7.1 第一层——冷却
+### 7.1 冷却期
 
-```python
-# agent/context_compressor.py:2955
-_cooldown_remaining = self._summary_failure_cooldown_until - time.monotonic()
-if _cooldown_remaining > 0:
-    return f"cooldown:{_cooldown_remaining:.0f}s"
-```
+每次摘要失败后，系统记录一个冷却时间戳。在这个时间戳之前，所有自动触发的压缩都会被跳过。这个冷却状态被持久化到数据库，所以即使进程重启、新启动的代理也会尊重这个冷却。
 
-在 429 / 瞬时 aux-LLM 失败之后，`_summary_failure_cooldown_until` 阻止进一步自动压缩 600 秒（`_SUMMARY_FAILURE_COOLDOWN_SECONDS = 600`）。冷却**持久化到数据库**，因此同一会话上的兄弟代理也遵守它。原始 bug (#11529) 是每个后续轮次都重新触发无操作，使 CLI 看起来像冻结了。
+冷却期的默认时长是六百秒，即十分钟。设计的初衷是：摘要失败如果是因为限流，那短期重试大概率会再次失败，不如等一会儿再说。
 
-### 7.2 第二层——防抖动
+### 7.2 防抖动保护
 
-```python
-# agent/context_compressor.py:3015
-_ANTI_THRASH_RECOVERY_SECONDS = 300.0  # 5 minutes
-if self._ineffective_compression_count >= 2 or self._fallback_compression_streak >= 2:
-    if _now >= self._anti_thrash_recovery_deadline:
-        # probation probe
-```
+如果连续两次压缩的节省效果都低于百分之十（即每次压缩几乎没把会话缩短多少），系统会进入防抖动状态：接下来的五分钟内不再触发压缩，除非是一次试探性触发。
 
-如果最近两次压缩每次节省的不足 10%，则退避 5 分钟。连续阻塞 5 分钟后，允许一次试探——如果试探也没有用，则重新触发。该状态通过持久化行保存，因此重启不会解除它 (#54923)。
+试探性触发的目的是检测"是否真的没东西可压了"。如果试探性压缩仍然效果很差，就重新进入防抖动；否则就解除。
 
-### 7.3 第三层——硬上限 → 会话重置
+防抖动状态同样被持久化，进程重启后不丢失。
 
-`compression_exhausted` 标志在 `max_compression_attempts` 超出后在 `agent/conversation_loop.py:5155, 5300, 5455, 5518` 设置。网关读取此标志并执行会话的**自动重置**。当冷却和防抖动都失败时，逃生舱是最后的停止点。
+> **一句话总结：防抖动就是"压缩没效果就别再压了"——连续两次节省率低于百分之十就锁住五分钟不再触发，五分钟到了再试探一次，如果还是没用就重新锁住直到情况改变。**
 
-### 7.4 不同路径失败方式不同
+### 7.3 强制重置会话
 
-- **主动工具结果修剪**——静默失败，保留原始对话记录，无缓存破坏。
-- **微压缩**——静默失败，内存中的拼接仍会发生，恢复时原始行会在下次批量压缩清理之前以 `active=1` 重新出现，与摘要并存。
-- **主 `compress_context()`**——异常传播；工具后调用点将其检测为 `compression_skipped_due_to_lock` 并返还尝试预算。在 `max_compression_attempts` 耗尽后，网关自动重置。
+如果冷却期和防抖动都失效了，又连续失败太多次，系统会向网关报告一个"压缩耗尽"信号。网关收到这个信号后，会自动重置会话——保留摘要之前的对话历史，丢弃之后的乱七八糟内容，从一个干净的状态重新开始。
 
-主触发器没有“会话持续增长”的优雅路径——只有主动修剪和微压缩是完全失败无操作的。对于主路径，反复失败会触发自动重置逃生舱。
+这是最后的逃生通道。日常情况下不会走到这一步，只有当系统状态已经严重异常时才会触发。
+
+### 7.4 不同路径的失败行为不同
+
+主动裁剪（基于本地算法的工具结果去重）失败时静默退让，会话保持原样，不报错。
+
+微压缩失败时内存中的拼接照常进行，但数据库同步失败。下次启动时原始消息和摘要会一起出现，直到下一次批量压缩清理。
+
+主压缩失败时异常会向上抛出，调用方会识别这是"压缩被锁住"的信号并退还尝试预算。连续失败超过最大尝试次数后，网关会重置会话。
+
+主路径没有"会话继续膨胀"的优雅退化选项——一旦主压缩反复失败，唯一的兜底就是会话重置。
 
 ---
 
-## 8. 配置参考
+## 8. 可调的旋钮
 
-所有压缩设置都位于 `config.yaml` 的 `compression:` 下。默认值在 `hermes_cli/config_defaults.py:620-823` 中。
+所有压缩相关的设置都在配置文件的压缩块下，按功能分组。
 
-### 8.1 阈值
+### 8.1 阈值相关
 
-| 键 | 默认值 | 效果 |
-|---|---|---|
-| `enabled` | `True` | 总开关——禁用所有自动压缩 |
-| `threshold` | `0.50` | 触发比例（<512K 模型的小窗口下限为 0.75） |
-| `threshold_tokens` | `None` | 绝对 token 上限；取 `min(ratio, cap)` |
-| `model_thresholds` | `{}` | 按模型比例覆盖（最长子串匹配胜出） |
+主开关控制是否启用所有自动压缩。关闭后只有手动压缩可用。
 
-### 8.2 行为
+阈值比例控制默认的百分之五十触发点。小窗口模型的覆盖阈值（约百分之七十五）也是从这个比例派生的。
 
-| 键 | 默认值 | 效果 |
-|---|---|---|
-| `target_ratio` | `0.20` | 压缩后目标 = `threshold × target_ratio` |
-| `protect_first_n` | `3` | 头部消息永不被压缩 |
-| `protect_last_n` | `20` | 尾部消息永不被压缩 |
-| `min_tail_user_messages` | `1` | 尾部保证的真实用户消息 |
-| `max_attempts` | `3` | 每轮重试的硬上限（1–10） |
-| `in_place` | `True` | 软归档 + 插入与会话轮换 |
-| `abort_on_summary_failure` | `False` | 失败关闭与插入占位符 |
+阈值上限允许设置一个绝对的 token 数字，让系统取比例计算结果和这个上限中的较小值。
 
-### 8.3 主动修剪
+按模型覆盖允许针对特定模型名设置不同的阈值比例。匹配规则是最长模型名子串胜出。
 
-| 键 | 默认值 | 效果 |
-|---|---|---|
-| `proactive_prune_tokens` | `0` | 确定性工具结果修剪的较低阈值 |
-| `proactive_prune_min_reclaim_tokens` | `4096` | 提交修剪所需的最小回收量 |
-| `proactive_prune_min_result_chars` | `8000` | 有资格摘要的工具结果大小下限 |
+### 8.2 输出形态
+
+目标比例控制压缩后的目标长度占压缩前的比例。默认是百分之二十，即压缩后只剩五分之一。但前面说过，软预算有下限保护，实际摘要总是在两千到一万 token 之间。
+
+头部保护消息数、尾部保护消息数、尾部必须包含的用户消息数，都可以通过配置调整。
+
+最大尝试次数限制每一轮最多重试压缩多少次。
+
+归档就地开关决定压缩时是原地更新现有消息，还是为新一轮会话创建新会话。
+
+摘要失败中止开关决定摘要失败时是中断整个压缩（保守策略）还是插入占位摘要继续运行。
+
+### 8.3 主动裁剪
+
+主动裁剪的 token 阈值、最小节省要求、最小可裁剪工具结果大小，都可以通过配置调整。
 
 ### 8.4 微压缩
 
-| 键 | 默认值 | 效果 |
-|---|---|---|
-| `micro_compact` | `False` | 总开关（每次传递 = 1 次提示缓存破坏） |
-| `micro_compact_every_n_turns` | `1` | 节奏：每 N 轮传递一次 |
-| `micro_compact_defrag_threshold_tokens` | `2000` | 何时对滚动摘要进行碎片整理 |
+微压缩的总开关、每次合并多少轮（默认每轮一次）、滚动摘要的整理阈值，都可调。
 
 ### 8.5 空闲时间
 
-| 键 | 默认值 | 效果 |
-|---|---|---|
-| `idle_compact_after_seconds` | `0` | 非活动这么多秒后压缩 |
+唯一参数是空闲秒数。零表示禁用。
 
 ### 8.6 网关卫生
 
-| 键 | 默认值 | 效果 |
-|---|---|---|
-| `hygiene_hard_message_limit` | `5000` | 消息数量安全网 |
-| `hygiene_timeout_seconds` | `30` | 卫生压缩的非活动预算 |
-| `hygiene_total_ceiling_seconds` | `600` | 卫生压缩等待的绝对上限 |
-| `hygiene_failure_cooldown_seconds` | `300` | 跳过重复失败的卫生尝试 |
+消息条数硬上限（默认五千）、卫生压缩的最大等待时长、总的最大超时、失败冷却时间，都可调。
 
-### 8.7 提供商特定
+### 8.7 模型与服务相关
 
-| 键 | 默认值 | 效果 |
-|---|---|---|
-| `codex_gpt55_autoraise` | `True` | 在 Codex OAuth 上将 gpt-5.4/5.5/5.6 的阈值提高到 0.85 |
-| `codex_app_server_auto` | `"native"` | `"native"` / `"hermes"` / `"off"` |
-| `codex_responses_native` | `False` | 选择加入 OpenAI 服务器端压缩（仅 gpt-5.6） |
-| `codex_responses_compact_threshold` | `200000` | 服务器端触发 token |
+Codex 应用的自动压缩策略（原生、托管、关闭）、OpenAI 原生压缩的开关与服务端触发阈值，都可调。
 
 ### 8.8 超时
 
-| 键 | 默认值 | 效果 |
-|---|---|---|
-| `context_timeout_seconds` | `120` | 代理内 `compress_context` 的空闲预算 |
-| `context_total_ceiling_seconds` | `600` | 摘要等待的绝对上限 |
+压缩上下文的空闲超时和总超时，决定了一次压缩调用最多可以等待多久。
 
-没有直接控制阈值的环境变量——配置仅通过 `config.yaml` 进行。
+所有这些参数都通过配置文件设置，没有对应的环境变量。
 
 ---
 
-## 9. 端到端走查
+## 9. 完整流程示例
 
-一次压缩事件的完整跟踪：
+假设用户从 Telegram 发来一条消息，整个会话的压缩流程如下：
 
-```
-1. 用户在 Telegram 上发送一条消息。
-2. 网关接收它；卫生检查运行。
-   - msg_count = 800, approx_tokens = 120K → 低于两个阈值 → 无操作。
-3. 代理加载会话，调用 API。
-4. API 返回带有 last_prompt_tokens = 110K 的响应。
-5. should_compress_info(110K) → 阈值为 100K，110K > 100K → True。
-6. 调用 _compress_context()。
-7. protect_first_n = 3 → 头部 = msgs[0:3]
-   protect_last_n = 20 → 尾部 = msgs[-20:]
-   中间 = msgs[3:-20] → 待摘要
-8. _compute_summary_budget(middle) → 比如 6500 个 token。
-9. prompt = 目标约 6500 个 token 的结构化摘要模板。
-10. LLM 调用返回 5800 个 token 的摘要。
-11. 新消息列表 = 头部 + 1 条摘要消息 + 尾部。
-12. archive_and_compact() 执行：
-    - UPDATE messages SET active=0, compacted=1 WHERE session_id=? AND active=1
-    - INSERT 新的压缩消息（头部 + 摘要 + 尾部）
-13. FTS 触发器在新的 INSERT 上触发；旧行保留在索引中，
-    因为它们的标志通过 UPDATE（而非 DELETE）翻转。
-14. 代理看到精简后的会话，继续。
-15. 数据库现在包含：
-    - 800 条实时行（active=1）
-    - 一些压缩行（active=0, compacted=1）——原始文本
-    - 一些摘要行（active=1）——新摘要
-16. 搜索“出现在消息 47 中的关键词”仍然能找到它，
-    因为消息 47 仍在 FTS 索引中。
-```
+第一步，网关收到消息。第二步，卫生检查运行——消息条数八百、估算 token 十二万，两者都低于阈值，放行。第三步，代理加载会话，调用模型 API。第四步，模型返回响应，附带这次请求实际使用的 token 数：十一万。第五步，阈值检查——阈值是十万，十一万超过，触发压缩。第六步，压缩引擎启动：保护头部三条消息，保护尾部二十条消息，中间部分作为摘要输入。第七步，计算摘要预算——假设算出来是六千五百 token。第八步，把被压缩内容序列化成结构化的提示词，附带目标长度说明，发给摘要模型。第九步，摘要模型返回约五千八百 token 的摘要。第十步，组装新对话记录——头部三条 + 摘要消息 + 尾部二十条。第十一步，写回数据库：被压缩的旧消息标记为已归档（但保留原始文本），新对话记录插入并标记为活跃。第十二步，代理继续处理。
+
+经过这次压缩，数据库里有三种消息：被归档的原始消息（数百条，全部保留文本）、摘要消息（一条）、活跃消息（头部和尾部，约二十三条）。当用户后续搜索某个关键词时，无论这个关键词出现在压缩前的哪条消息里，都能被检索到。
 
 ---
 
-## 10. 关键不变量
+## 10. 核心设计原则
 
-1. **压缩是非破坏性的。** 原始文本保留在数据库和 FTS 索引中。压缩后，基于原始对话记录的搜索仍然有效。
-2. **头部和尾部永不被压缩。** 只有中间 3–20 区域可被摘要。
-3. **摘要长度受提示指导软约束，而非线路硬上限。** 压缩器故意省略 `max_tokens`，以避免截断思考模型的输出。
-4. **消息数量硬限制是 token 路径的备份。** 当提供商不可达时，卫生检查仍通过计数行来触发压缩。
-5. **三层失败防护防止失控循环。** 冷却（10 分钟）→ 防抖动（5 分钟）→ 会话重置。
-6. **手动 `/compress` 绕过冷却和防抖动。** 当用户需要立即压缩时，这是用户的逃生舱。
-7. **摘要消息是唯一的新内容。** 压缩后的对话记录是*头部 + 1 条摘要 + 尾部*，而不是多条缩短的消息。
+第一，**压缩是非破坏性的**。原始文本永远保留在数据库里，搜索功能在压缩后依然能命中原文。这是整个设计的基石。
+
+第二，**头部和尾部永远不被压缩**。只有中间部分可被摘要。这意味着系统提示词、最初几轮对话、最近的对话上下文始终保持完整。
+
+第三，**摘要长度由提示词引导，不由 API 硬性截断**。系统故意不传输出上限，避免推理模型的输出被截断成废摘要。
+
+第四，**消息条数硬上限是 token 路径的备份**。当 API 不可达时，条数路径依然能触发压缩。
+
+第五，**三层失败保护防止压缩循环**。冷却期、防抖动、会话重置，层层兜底。
+
+第六，**手动压缩绕过所有保护**。用户主动发起的压缩是万能逃生通道。
+
+第七，**压缩后的对话记录是头部 + 摘要 + 尾部**，是整段拼接，不是很多条短消息的集合。

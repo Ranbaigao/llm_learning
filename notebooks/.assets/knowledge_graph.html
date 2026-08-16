@@ -178,6 +178,35 @@
     white-space: nowrap;
   }
 
+  /* 站点总浏览量：标题下方的弱化一行 */
+  .site-view-stats {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+
+  .site-view-stats strong {
+    color: var(--accent-text);
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 侧边栏笔记行的阅读量（小眼睛图标 + 数字） */
+  .tree-pv {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: var(--muted);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tree-pv[hidden] { display: none; }
+
+  .tree-pv svg { width: 11px; height: 11px; stroke-width: 2; opacity: 0.75; }
+
   .legend-panel {
     top: 18px;
     right: 18px;
@@ -682,6 +711,7 @@
   <section class="panel header-panel" aria-label="图谱统计">
     <p class="eyebrow">Knowledge Graph</p>
     <h1>我的 LLM 笔记星图</h1>
+    <p class="site-view-stats">总浏览量 <strong id="site-pv">-</strong> 次 · 访客 <strong id="site-uv">-</strong> 人</p>
     <div class="metric-row">
       <div class="metric"><strong id="stat-nodes">0</strong><span>节点</span></div>
       <div class="metric"><strong id="stat-notes">0</strong><span>笔记</span></div>
@@ -1216,6 +1246,9 @@ function buildGraph(data) {
 
   createGraphLabels();
   buildSidebar();
+  graphStats = data.stats || {};
+  loadSiteViewStats();
+  loadNotePageviews();
   seedConstellation();
   createBackgroundStars();
   updateStats(data.stats || {});
@@ -2018,6 +2051,119 @@ function pinNode(node) {
   syncSidebarActive(node.id);
 }
 
+// ======= 浏览量统计（构建期烘焙 + Vercount 只读接口后台刷新）=======
+// 浏览量主要由构建钩子在每次 mkdocs build 时烘焙进图谱 JSON（node.pv /
+// stats.site_pv / stats.pv_fetched_at），侧边栏建行时直接渲染，访客零请求。
+// 仅当烘焙数据超过 30 分钟（站点久未重新部署）才用 GET 只读接口后台刷新——
+// 本页被 iframe 嵌入首页，父页面已计一次全站 PV，这里绝不 POST 计数。
+// 接口限流 80 次/分/IP，实时值带 localStorage 缓存（30 分钟）。
+const PAGEVIEW_API = 'https://events.vercount.one/api/v2/log';
+const PAGEVIEW_CACHE_KEY = 'kg_pageview_cache_v1';
+const PAGEVIEW_CACHE_TTL = 30 * 60 * 1000;
+const PAGEVIEW_REFRESH_CONCURRENCY = 8;
+// 构建期烘焙的站点统计（buildGraph 时赋值）
+let graphStats = {};
+// 本地 mkdocs serve 的访问不属于正式站点，不做实时刷新（否则会把烘焙值覆盖成 0）
+const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+function pageviewCacheRead() {
+  try { return JSON.parse(localStorage.getItem(PAGEVIEW_CACHE_KEY)) || {}; }
+  catch (_) { return {}; }
+}
+
+function pageviewCacheWrite(cache) {
+  try { localStorage.setItem(PAGEVIEW_CACHE_KEY, JSON.stringify(cache)); }
+  catch (_) { /* 隐私模式等场景下静默失败 */ }
+}
+
+function formatCount(value) {
+  const n = Number(value) || 0;
+  return n >= 10000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+}
+
+async function fetchCounts(url) {
+  const response = await fetch(`${PAGEVIEW_API}?url=${encodeURIComponent(url)}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.json();
+  if (data && data.status === 'success' && data.data) return data.data;
+  throw new Error('unexpected response');
+}
+
+// 烘焙数据是否已超过 30 分钟（过期才需要后台实时刷新）
+function pageviewStale() {
+  const fetchedAt = Number(graphStats.pv_fetched_at) || 0;
+  return Date.now() - fetchedAt * 1000 > PAGEVIEW_CACHE_TTL;
+}
+
+// 站点总浏览量 / 访客数：优先渲染烘焙值；过期且非本地开发时发一次 GET 刷新
+async function loadSiteViewStats() {
+  if (graphStats.site_pv != null) {
+    document.getElementById('site-pv').textContent = formatCount(graphStats.site_pv);
+    document.getElementById('site-uv').textContent = formatCount(graphStats.site_uv);
+  }
+  if (isLocalDev || !pageviewStale()) return;
+  try {
+    const siteRoot = new URL('../', window.location.href).href;
+    const data = await fetchCounts(siteRoot);
+    document.getElementById('site-pv').textContent = formatCount(data.site_pv);
+    document.getElementById('site-uv').textContent = formatCount(data.site_uv);
+  } catch (_) { /* 网络失败时保留已有显示 */ }
+}
+
+function renderNotePageview(node, pv) {
+  const el = sidebarRowById.get(node.id)?.querySelector('.tree-pv');
+  if (!el) return;
+  el.querySelector('.tree-pv-num').textContent = formatCount(pv);
+  el.hidden = false;
+}
+
+// 侧边栏显示顺序（orderedChildren 遍历序）：后台刷新按此顺序，可见行优先更新
+function sidebarDisplayOrder() {
+  const order = new Map();
+  let index = 0;
+  (function walk(id) {
+    for (const child of orderedChildren(id)) {
+      if (!order.has(child.id)) order.set(child.id, index++);
+      walk(child.id);
+    }
+  })('__root__');
+  return order;
+}
+
+async function loadNotePageviews() {
+  const noteNodes = nodes.filter(node => node.type === 'note' && node.url);
+  const cache = pageviewCacheRead();
+  const now = Date.now();
+  const pending = [];
+  for (const node of noteNodes) {
+    const entry = cache[node.id];
+    if (entry && now - entry.t < PAGEVIEW_CACHE_TTL) {
+      renderNotePageview(node, entry.v); // 实时缓存比烘焙值新，覆盖显示
+    } else if (node.pv == null || pageviewStale()) {
+      pending.push(node); // 无烘焙值，或烘焙数据过期 → 后台刷新
+    }
+  }
+  if (isLocalDev || !pending.length) return;
+
+  const order = sidebarDisplayOrder();
+  pending.sort((a, b) => (order.get(a.id) ?? 1e9) - (order.get(b.id) ?? 1e9));
+  // 8 路并发、无强制间隔：58 条全部刷新约 2~4s，在后台无感进行
+  let cursor = 0;
+  async function worker() {
+    while (cursor < pending.length) {
+      const node = pending[cursor++];
+      try {
+        const url = new URL(`../${node.url}`, window.location.href).href;
+        const data = await fetchCounts(url);
+        cache[node.id] = { v: Number(data.page_pv) || 0, t: Date.now() };
+        renderNotePageview(node, data.page_pv);
+      } catch (_) { /* 单条失败保持现有显示，下次再试 */ }
+    }
+  }
+  await Promise.all(Array.from({ length: PAGEVIEW_REFRESH_CONCURRENCY }, worker));
+  pageviewCacheWrite(cache);
+}
+
 // ======= 笔记目录侧边栏 =======
 // 目录树直接由图谱数据（childrenById / parentById）生成，与星图节点一一对应。
 // 单击目录名 / 笔记名：在星图中固定选中该节点（视角平滑移入、文字标签浮现）；
@@ -2076,6 +2222,19 @@ function buildSidebarItem(node, depth) {
     count.className = 'tree-count';
     count.textContent = node.note_count || '';
     row.appendChild(count);
+  } else if (node.type === 'note') {
+    // 笔记行尾部：阅读量。构建期烘焙的值（node.pv）直接渲染，访客零等待；
+    // 无烘焙值时先隐藏，等后台实时数据到达后显示
+    const pv = document.createElement('span');
+    pv.className = 'tree-pv';
+    pv.title = '阅读量';
+    pv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="tree-pv-num"></span>';
+    if (node.pv != null) {
+      pv.querySelector('.tree-pv-num').textContent = formatCount(node.pv);
+    } else {
+      pv.hidden = true;
+    }
+    row.appendChild(pv);
   }
 
   row.addEventListener('click', () => {
