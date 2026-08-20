@@ -48,10 +48,12 @@ markdown_extensions:
 
 extra_css:
   - .assets/stylesheets/pageview.css   # 浏览量统计样式
+  - .assets/stylesheets/html_modal.css # HTML 弹窗查看器样式
 
 # 引入本地配置与在线数学引擎
 extra_javascript:
   - .assets/javascripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
   - .assets/javascripts/pageview.js    # 注入浏览量统计元素（必须先于统计服务脚本执行）
+  - .assets/javascripts/html_modal.js  # HTML 弹窗查看器（拦截 .html-modal-link 点击）
   - https://cn.vercount.one/js         # Vercount 浏览量统计服务（兼容不蒜子标记）

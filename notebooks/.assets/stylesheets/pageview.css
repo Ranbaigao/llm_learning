@@ -1,13 +1,6 @@
 /* 浏览量统计样式 */
 
-/* 文章级：标题下方的阅读量 */
-.pageview-info {
-  font-size: 0.64rem;
-  color: var(--md-default-fg-color--light);
-  margin: -0.5rem 0 1rem;
-}
-
-/* 全站级：页脚版权行内 */
+/* 页脚版权行内的统计行 */
 .pageview-site {
   margin-top: 0.2rem;
 }

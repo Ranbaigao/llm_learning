@@ -2051,12 +2051,12 @@ function pinNode(node) {
   syncSidebarActive(node.id);
 }
 
-// ======= 浏览量统计（构建期烘焙 + Vercount 只读接口后台刷新）=======
-// 浏览量主要由构建钩子在每次 mkdocs build 时烘焙进图谱 JSON（node.pv /
-// stats.site_pv / stats.pv_fetched_at），侧边栏建行时直接渲染，访客零请求。
-// 仅当烘焙数据超过 30 分钟（站点久未重新部署）才用 GET 只读接口后台刷新——
+// ======= 浏览量统计（构建期烘焙 + Vercount 只读接口实时刷新）=======
+// 笔记浏览量主要由构建钩子在每次 mkdocs build 时烘焙进图谱 JSON（node.pv），
+// 侧边栏建行时直接渲染，访客零请求；烘焙数据超过 30 分钟才后台批量刷新。
+// 站点总量（site_pv/site_uv）只有一个请求，始终实时拉取，与文章页脚保持一致。
 // 本页被 iframe 嵌入首页，父页面已计一次全站 PV，这里绝不 POST 计数。
-// 接口限流 80 次/分/IP，实时值带 localStorage 缓存（30 分钟）。
+// 接口限流 80 次/分/IP，笔记实时值带 localStorage 缓存（30 分钟）。
 const PAGEVIEW_API = 'https://events.vercount.one/api/v2/log';
 const PAGEVIEW_CACHE_KEY = 'kg_pageview_cache_v1';
 const PAGEVIEW_CACHE_TTL = 30 * 60 * 1000;
@@ -2095,19 +2095,20 @@ function pageviewStale() {
   return Date.now() - fetchedAt * 1000 > PAGEVIEW_CACHE_TTL;
 }
 
-// 站点总浏览量 / 访客数：优先渲染烘焙值；过期且非本地开发时发一次 GET 刷新
+// 站点总浏览量 / 访客数：先渲染构建期烘焙值避免空白，随后立即拉取实时值覆盖——
+// 只有 1 个请求，且保证与文章页脚（统计脚本 POST 返回值）严格同源同步
 async function loadSiteViewStats() {
   if (graphStats.site_pv != null) {
     document.getElementById('site-pv').textContent = formatCount(graphStats.site_pv);
     document.getElementById('site-uv').textContent = formatCount(graphStats.site_uv);
   }
-  if (isLocalDev || !pageviewStale()) return;
+  if (isLocalDev) return;
   try {
     const siteRoot = new URL('../', window.location.href).href;
     const data = await fetchCounts(siteRoot);
     document.getElementById('site-pv').textContent = formatCount(data.site_pv);
     document.getElementById('site-uv').textContent = formatCount(data.site_uv);
-  } catch (_) { /* 网络失败时保留已有显示 */ }
+  } catch (_) { /* 网络失败时保留烘焙值 */ }
 }
 
 function renderNotePageview(node, pv) {
@@ -2184,7 +2185,9 @@ function buildSidebarItem(node, depth) {
   const isDir = children.length > 0;
   const item = document.createElement('div');
   item.className = 'tree-item';
-  if (isDir && depth === 0) item.classList.add('is-expanded'); // 顶层目录默认展开
+  // 一级目录默认也折叠，只展示顶层目录名；点击标题或箭头展开子目录
+  // （如需恢复旧行为：取消下一行注释即可）
+  // if (isDir && depth === 0) item.classList.add('is-expanded');
 
   const row = document.createElement('button');
   row.type = 'button';

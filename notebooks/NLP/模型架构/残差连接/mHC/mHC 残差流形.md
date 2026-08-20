@@ -27,16 +27,8 @@ $$
 ## 3. mHC 的四步宏观流程
 
 下面这个流程图把 mHC 放回 LLM 的整体网络拓扑里看：它包裹在每一个 Attention/FFN 子层外面，负责读、算、混、写。
-<!-- 
-<iframe
-  class="auto-height-frame"
-  title="mHC topology flow"
-  src="../../../../.assets/mhc_topology_flow.html"
-  width="100%"
-  scrolling="no"
-  style="border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;"
-></iframe> -->
---8<-- ".assets/mhc_topology_flow.html"
+
+<a class="html-modal-link" href="../../../../.assets/mhc_topology_flow.html" data-title="mHC 拓扑流程图">🔍查看交互图：mHC 拓扑流程</a>
 
 ### 3.1 Read / Pre-routing：用 $H_{pre}$ 聚合输入
 
