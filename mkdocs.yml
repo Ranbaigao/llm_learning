@@ -1,7 +1,7 @@
 site_name: LLM知识库
-site_url: https://sui-xing.github.io/llm_learning/
-repo_url: https://github.com/Sui-Xing/llm_learning
-repo_name: Sui-Xing/llm_learning
+site_url: https://ranbaigao.github.io/llm_learning/
+repo_url: https://github.com/Ranbaigao/llm_learning
+repo_name: Ranbaigao/llm_learning
 
 theme:
   name: material
