@@ -15,6 +15,7 @@ docs_dir: notebooks/ # 将项目根目录设为文档根目录
 # 自定义钩子: 在构建前自动扫描 notebooks/ 生成知识图谱数据
 hooks:
   - hooks/generate_graph_data.py
+  - hooks/hide_blog_from_nav.py # 从自动导航中隐藏 blog 入口（侧边栏只留知识库笔记）
 
 plugins:
   - search
