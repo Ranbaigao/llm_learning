@@ -968,7 +968,7 @@ let parentById = new Map();
 let focusNode = null;
 let focusIds = new Set();
 let focusChildIds = new Set(); // 焦点的直接子节点：悬停时只给它们显示名字
-// 焦点来源：'pointer'（悬停，高亮 + 显示自身与子节点名字）/ 'pin'（星图或侧边栏选中）/ 'search'（搜索选中）
+// 焦点来源：'pointer'（悬停，高亮 + 显示自身/子节点/父节点名字）/ 'pin'（星图或侧边栏选中）/ 'search'（搜索选中）
 // 完整文字标签（含父节点/引用节点）只在锁定选中（pin / search）时浮现，默认状态下星图无文字
 let focusSource = null;
 let searchMatches = new Set();
@@ -2056,7 +2056,7 @@ function labelZoomBoost() {
 
 // 文字标签的显示时机：
 // - 锁定选中（点击固定 pin / 搜索选中 search）：焦点与关联节点（子/父/引用）的名字全部浮现；
-// - 悬停（pointer，未固定）：只显示悬停节点与它的直接子节点的名字；
+// - 悬停（pointer，未固定）：只显示悬停节点与它的直接子节点、直接父节点的名字；
 // - 默认状态：星图完全无文字标识。
 function labelsLocked() {
   return !!focusNode && (!!pinnedNode || focusSource === 'search');
@@ -2068,10 +2068,11 @@ function labelAlphaFor(node) {
     if (focusIds.has(node.id)) return 0.92;
     return 0;
   }
-  // 悬停状态：显示悬停节点本身与它的直接子节点的名字
+  // 悬停状态：显示悬停节点本身、直接子节点与直接父节点的名字
   if (focusNode && focusSource === 'pointer') {
     if (node.id === focusNode.id) return 1;
     if (focusChildIds.has(node.id)) return 0.9;
+    if (node === parentById.get(focusNode.id)) return 0.9;
   }
   return 0;
 }
