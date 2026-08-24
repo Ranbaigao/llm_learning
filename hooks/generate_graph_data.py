@@ -45,6 +45,7 @@ EXCLUDE_DIRS = {
     "__pycache__",
     ".venv",
     "venv",
+    "blog",  # 博客是独立板块，不属于知识库笔记，不进星图与笔记目录
 }
 # 排除文件
 EXCLUDE_FILES = {"index.md", "knowledge_graph.md"}
@@ -70,7 +71,7 @@ NAV_END_MARKER = "<!-- AUTO-GENERATED-NOTE-NAV:END -->"
 # 缓存 6 小时：mkdocs serve 频繁重建不会重复访问网络，也避免 rebuild 循环。
 # 环境变量 KG_PAGEVIEW=off 可完全禁用（离线开发场景）。
 PAGEVIEW_API = "https://events.vercount.one/api/v2/log"
-SITE_BASE_URL = "https://sui-xing.github.io/llm_learning/"
+SITE_BASE_URL = "https://ranbaigao.github.io/llm_learning/"
 PAGEVIEW_CACHE_PATH = NOTEBOOKS_DIR / ".assets" / "data" / "pageview_cache.json"
 PAGEVIEW_CACHE_TTL = 6 * 3600
 PAGEVIEW_WORKERS = 8

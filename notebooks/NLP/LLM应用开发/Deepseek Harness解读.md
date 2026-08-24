@@ -50,9 +50,9 @@ DeepSeek Harness 的核心设计可以进一步概括为六点：
 
 ---
 
-# 1. 为什么需要 Harness
+## 1. 为什么需要 Harness
 
-## 1.1 Model 并不等于 Agent
+### 1.1 Model 并不等于 Agent
 
 典型 LLM API 的工作模式非常简单：
 
@@ -127,7 +127,7 @@ Harness 实际上是模型能力的“显影层”。
 
 ---
 
-# 2. DeepSeek Harness 总体架构
+## 2. DeepSeek Harness 总体架构
 
 DeepSeek Harness 最重要的设计理念是：
 
@@ -194,9 +194,9 @@ graph TD
 
 ---
 
-# 3. Cordis：插件化 Agent Runtime 的底座
+## 3. Cordis：插件化 Agent Runtime 的底座
 
-## 3.1 为什么不是普通 Plugin System
+### 3.1 为什么不是普通 Plugin System
 
 传统插件系统一般只是：
 
@@ -235,7 +235,7 @@ Cordis 自身尽可能只提供：
 
 ---
 
-## 3.2 Effect：解决插件卸载问题
+### 3.2 Effect：解决插件卸载问题
 
 插件加载时通常会产生大量副作用：
 
@@ -286,7 +286,7 @@ Temporal Composability
 
 ---
 
-## 3.3 Coeffect：解决动态依赖
+### 3.3 Coeffect：解决动态依赖
 
 另一个问题是插件之间的依赖。
 
@@ -348,7 +348,7 @@ Local Provider
 
 ---
 
-# 4. Agent Loop：Harness 的核心执行引擎
+## 4. Agent Loop：Harness 的核心执行引擎
 
 DeepSeek Harness 默认 Agent Loop 为：
 
@@ -364,11 +364,11 @@ ReactLoopAgent
 
 ---
 
-## 4.1 Turn 与 Step
+### 4.1 Turn 与 Step
 
 dsh 对执行过程划分为：
 
-### Step
+#### Step
 
 ```text
 一次 LLM Request
@@ -376,7 +376,7 @@ dsh 对执行过程划分为：
 该 Request 产生的 Tool Calls
 ```
 
-### Turn
+#### Turn
 
 ```text
 一个用户任务触发
@@ -402,7 +402,7 @@ Step 3
 
 ---
 
-## 4.2 核心控制流
+### 4.2 核心控制流
 
 简化后的 Loop：
 
@@ -455,7 +455,7 @@ agent/pre-step hooks
 
 ---
 
-## 4.3 请求冻结
+### 4.3 请求冻结
 
 一个非常重要的设计是：
 
@@ -489,9 +489,9 @@ plugin config
 
 ---
 
-# 5. Tool Runtime
+## 5. Tool Runtime
 
-## 5.1 工具不是直接执行
+### 5.1 工具不是直接执行
 
 模型输出：
 
@@ -528,7 +528,7 @@ tools/post-execute
 
 ---
 
-## 5.2 并行执行，但确定性提交
+### 5.2 并行执行，但确定性提交
 
 假设模型同时调用：
 
@@ -579,7 +579,7 @@ deriveMessages()
 
 ---
 
-# 6. PTC：Programmatic Tool Calling
+## 6. PTC：Programmatic Tool Calling
 
 PTC 是 DeepSeek Harness 最值得关注的创新之一。
 
@@ -607,7 +607,7 @@ write()
 
 ---
 
-## 6.1 PTC 的核心思想
+### 6.1 PTC 的核心思想
 
 PTC 将几十个工具统一包装为：
 
@@ -669,7 +669,7 @@ LLM
 
 ---
 
-## 6.2 为什么 PTC 能降低 Context 消耗
+### 6.2 为什么 PTC 能降低 Context 消耗
 
 传统模式：
 
@@ -721,7 +721,7 @@ Intermediate Observation Token
 
 ---
 
-## 6.3 PTC 的适用边界
+### 6.3 PTC 的适用边界
 
 PTC 并非所有场景都更优。
 
@@ -749,7 +749,7 @@ PTC 并非所有场景都更优。
 
 ---
 
-# 7. Session Event Sourcing
+## 7. Session Event Sourcing
 
 DeepSeek Harness 最具架构价值的设计之一，是：
 
@@ -774,7 +774,7 @@ Messages != Runtime State
 
 ---
 
-## 7.1 Append-only Event Log
+### 7.1 Append-only Event Log
 
 dsh 使用：
 
@@ -808,7 +808,7 @@ the log IS the state
 
 ---
 
-## 7.2 Surface Event
+### 7.2 Surface Event
 
 并非所有 Event 都进入模型。
 
@@ -850,7 +850,7 @@ Messages          Trajectory
 
 ---
 
-## 7.3 “Model-visible means logged”
+### 7.3 “Model-visible means logged”
 
 这是 dsh 一个非常关键的不变量：
 
@@ -879,7 +879,7 @@ System Prompt 是什么？
 
 ---
 
-# 8. Replay、Resume 与 Fork
+## 8. Replay、Resume 与 Fork
 
 Event Sourcing 带来的直接收益是：
 
@@ -894,7 +894,7 @@ Telemetry
 
 ---
 
-## 8.1 Resume
+### 8.1 Resume
 
 ```text
 Event 1
@@ -911,7 +911,7 @@ Continue
 
 ---
 
-## 8.2 Fork
+### 8.2 Fork
 
 假设：
 
@@ -947,7 +947,7 @@ E3
 
 ---
 
-# 9. Context Engineering 与 Cache Architecture
+## 9. Context Engineering 与 Cache Architecture
 
 Agent 长任务中的核心成本来自：
 
@@ -971,7 +971,7 @@ Prefix Cache
 
 ---
 
-## 9.1 Context 三层结构
+### 9.1 Context 三层结构
 
 可以抽象为：
 
@@ -1011,7 +1011,7 @@ cleared → explicit CLEARED event
 
 ---
 
-## 9.2 为什么 Cache 命中率高
+### 9.2 为什么 Cache 命中率高
 
 因为：
 
@@ -1052,9 +1052,9 @@ AAAA BBBB CCCC
 
 ---
 
-# 10. Skills、Preset 与 Multi-Agent
+## 10. Skills、Preset 与 Multi-Agent
 
-## 10.1 Preset 不是 Prompt Template
+### 10.1 Preset 不是 Prompt Template
 
 传统所谓 Agent Preset 往往只是：
 
@@ -1095,7 +1095,7 @@ Creator
 
 ---
 
-## 10.2 Minimal 模式的意义
+### 10.2 Minimal 模式的意义
 
 Minimal 刻意只保留少量工具。
 
@@ -1128,7 +1128,7 @@ DeepSeek V4-Pro Score = XX
 
 ---
 
-## 10.3 SubAgent Provider
+### 10.3 SubAgent Provider
 
 SubAgent 同样被抽象成 provider。
 
@@ -1162,7 +1162,7 @@ Parent Agent
 
 ---
 
-# 11. Security：Prompt Guidance 与 Runtime Enforcement 分离
+## 11. Security：Prompt Guidance 与 Runtime Enforcement 分离
 
 Agent Security 最常见的错误是：
 
@@ -1207,7 +1207,7 @@ Approval
 
 ---
 
-## 11.1 Sandbox
+### 11.1 Sandbox
 
 抽象为：
 
@@ -1227,7 +1227,7 @@ Agent 对环境能够产生什么副作用
 
 ---
 
-## 11.2 Approval
+### 11.2 Approval
 
 Approval 决定：
 
@@ -1268,7 +1268,7 @@ fail open
 
 ---
 
-# 12. Harness 与 Agent 后训练
+## 12. Harness 与 Agent 后训练
 
 DeepSeek Harness 的另一层重要价值在于：
 
@@ -1330,7 +1330,7 @@ Agent RL / SFT
 
 ---
 
-## 12.1 对 SFT 的价值
+### 12.1 对 SFT 的价值
 
 可以从成功 Trajectory 中提取：
 
@@ -1347,7 +1347,7 @@ Task
 
 ---
 
-## 12.2 对 Agent RL 的价值
+### 12.2 对 Agent RL 的价值
 
 如果有 Verifier：
 
@@ -1393,13 +1393,13 @@ Training
 
 ---
 
-# 13. DeepSeek Harness 最核心的技术创新
+## 13. DeepSeek Harness 最核心的技术创新
 
 如果把整个项目进一步压缩，我认为真正值得关注的是以下五点。
 
 ---
 
-## 13.1 Harness 成为一等系统变量
+### 13.1 Harness 成为一等系统变量
 
 过去：
 
@@ -1430,7 +1430,7 @@ Replace
 
 ---
 
-## 13.2 Agent Loop 不再是黑盒
+### 13.2 Agent Loop 不再是黑盒
 
 传统产品：
 
@@ -1458,7 +1458,7 @@ Loop 从产品内部实现变成可实验算法。
 
 ---
 
-## 13.3 Event Sourcing 成为 Agent 状态模型
+### 13.3 Event Sourcing 成为 Agent 状态模型
 
 核心变化：
 
@@ -1483,7 +1483,7 @@ Log = State
 
 ---
 
-## 13.4 PTC 将 Tool Calling 从自然语言控制升级为程序控制
+### 13.4 PTC 将 Tool Calling 从自然语言控制升级为程序控制
 
 传统：
 
@@ -1515,7 +1515,7 @@ Deterministic Executor
 
 ---
 
-## 13.5 Harness 开始连接推理与后训练
+### 13.5 Harness 开始连接推理与后训练
 
 Agent Runtime 不再只是推理基础设施：
 
@@ -1539,7 +1539,7 @@ Training Data
 
 ---
 
-# 14. 当前局限
+## 14. 当前局限
 
 DeepSeek Harness 目前仍属于快速演进中的开发者预览项目，因此其设计理念与实现成熟度需要分开评价。
 
@@ -1599,7 +1599,7 @@ Version Compatibility Risk
 
 ---
 
-# 15. 总结
+## 15. 总结
 
 DeepSeek Harness 最值得关注的，并不是“DeepSeek 做了一个 Claude Code”。
 
