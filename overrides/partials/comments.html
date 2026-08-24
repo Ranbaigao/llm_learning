@@ -1,0 +1,26 @@
+{# Giscus 评论区：评论与 Reaction（👍❤️🚀…）存储在 GitHub Discussions，零后端。
+   开启方式：文章 frontmatter 中设置 `comments: true`。
+
+   首次配置（一次性，约 2 分钟）：
+     1. 仓库 Settings → General → Features 勾选 Discussions；
+        再到 https://github.com/apps/giscus 安装 giscus App（仅授权本仓库即可）。
+     2. 打开 https://giscus.app/zh-CN ，仓库填 Sui-Xing/llm_learning，
+        将生成的 data-repo-id / data-category-id 替换下方两处占位符。 #}
+{% if page.meta.comments %}
+<h2 id="__comments">评论</h2>
+<script src="https://giscus.app/client.js"
+        data-repo="Ranbaigao/llm_learning"
+        data-repo-id="R_kgDOS6jz6w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOS6jz684DEEsg"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+{% endif %}

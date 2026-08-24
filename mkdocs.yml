@@ -1,8 +1,14 @@
 site_name: LLM知识库
+site_url: https://sui-xing.github.io/llm_learning/
+repo_url: https://github.com/Sui-Xing/llm_learning
+repo_name: Sui-Xing/llm_learning
+
 theme:
   name: material
+  language: zh
   logo: .assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png
   favicon: .assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png
+  custom_dir: overrides # 主题覆盖层（Giscus 评论区）
 
 docs_dir: notebooks/ # 将项目根目录设为文档根目录
 
@@ -12,6 +18,10 @@ hooks:
 
 plugins:
   - search
+  # 内置博客插件：文章放在 notebooks/blog/posts/，自动生成文章流/归档/分类页
+  # 文章 frontmatter 加 `comments: true` 即可开启 Giscus 评论与 Reaction
+  - blog:
+      blog_dir: blog
   - mkdocs-jupyter
 
 # 显式声明不要排除 .assets 目录（注意感叹号）
@@ -31,6 +41,7 @@ markdown_extensions:
       inline_syntax:
         - dollar             # 支持 $ ... $
         - round              # 支持 \( ... \)
+  - mdx_truly_sane_lists         # 列表无需前置空行也能解析（兼容 AI 生成的不规范列表）
   - pymdownx.magiclink
   - pymdownx.snippets:
       base_path:
