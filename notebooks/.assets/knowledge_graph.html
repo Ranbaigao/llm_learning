@@ -967,8 +967,9 @@ let childrenById = new Map();
 let parentById = new Map();
 let focusNode = null;
 let focusIds = new Set();
-// 焦点来源：'pointer'（悬停，仅高亮不显文字）/ 'pin'（星图或侧边栏选中）/ 'search'（搜索选中）
-// 文字标签只在锁定选中（pin / search）时浮现，默认状态下星图无文字
+let focusChildIds = new Set(); // 焦点的直接子节点：悬停时只给它们显示名字
+// 焦点来源：'pointer'（悬停，高亮 + 显示自身与子节点名字）/ 'pin'（星图或侧边栏选中）/ 'search'（搜索选中）
+// 完整文字标签（含父节点/引用节点）只在锁定选中（pin / search）时浮现，默认状态下星图无文字
 let focusSource = null;
 let searchMatches = new Set();
 let searchQuery = '';
@@ -2053,16 +2054,25 @@ function labelZoomBoost() {
   return clamp(0.72 + camera.zoom * 0.42, 0.82, 1.55);
 }
 
-// 文字标签只在"锁定选中"时浮现：侧边栏/星图点击固定（pin）或搜索框选中（search）。
-// 悬停只高亮节点与连线，不显示文字；默认状态下星图完全无文字标识。
+// 文字标签的显示时机：
+// - 锁定选中（点击固定 pin / 搜索选中 search）：焦点与关联节点（子/父/引用）的名字全部浮现；
+// - 悬停（pointer，未固定）：只显示悬停节点与它的直接子节点的名字；
+// - 默认状态：星图完全无文字标识。
 function labelsLocked() {
   return !!focusNode && (!!pinnedNode || focusSource === 'search');
 }
 
 function labelAlphaFor(node) {
-  if (!labelsLocked()) return 0;
-  if (node.id === focusNode.id) return 1;
-  if (focusIds.has(node.id)) return 0.92;
+  if (labelsLocked()) {
+    if (node.id === focusNode.id) return 1;
+    if (focusIds.has(node.id)) return 0.92;
+    return 0;
+  }
+  // 悬停状态：显示悬停节点本身与它的直接子节点的名字
+  if (focusNode && focusSource === 'pointer') {
+    if (node.id === focusNode.id) return 1;
+    if (focusChildIds.has(node.id)) return 0.9;
+  }
   return 0;
 }
 
@@ -2154,6 +2164,7 @@ function setFocus(node, fromPointer = false, source = null) {
   const parent = parentById.get(node.id);
   if (parent) ids.add(parent.id);
   focusIds = ids;
+  focusChildIds = new Set(children.map(child => child.id));
   showTooltip(node);
 }
 
@@ -2164,6 +2175,7 @@ function clearFocus() {
   hoveredNode = null;
   isHoveringNode = false;
   focusIds = new Set();
+  focusChildIds = new Set();
   searchMatches = searchQuery
     ? new Set(nodes.filter(node => searchable(node).includes(searchQuery)).map(node => node.id))
     : new Set();
