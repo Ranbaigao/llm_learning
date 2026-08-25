@@ -42,6 +42,8 @@ comments: false
   .knowledge-graph-frame {
     width: 100%;
     height: calc(100vh - 48px);
+    /* 移动端浏览器地址栏会压缩可视高度，dvh 动态跟随，避免星图底部组件被裁掉 */
+    height: calc(100dvh - 48px);
     min-height: 480px;
     border: none;
     border-radius: 0;

@@ -765,17 +765,24 @@
   #loading[hidden] { display: none; }
 
   @media (max-width: 760px) {
+    /* 统计卡片：底部通栏，避免与工具栏在水平方向互相挤压重叠 */
     .header-panel {
-      bottom: 10px;
+      left: 10px;
       right: 10px;
+      bottom: 10px;
       width: auto;
     }
 
     .legend-panel { display: none; }
 
+    /* 工具栏：右侧竖排居中，避开左上搜索/目录与底部统计卡片 */
     .toolbar {
-      left: 10px;
-      bottom: 10px;
+      left: auto;
+      right: 10px;
+      top: 50%;
+      bottom: auto;
+      transform: translateY(-50%);
+      flex-direction: column;
     }
 
     .search-panel {
@@ -798,7 +805,8 @@
       width: min(240px, calc(100vw - 66px));
     }
 
-    .metric-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* 通栏卡片宽度足够，指标恢复 4 列让卡片更矮 */
+    .metric-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   }
 </style>
 </head>
