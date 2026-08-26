@@ -1,0 +1,4060 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ranbaigao.github.io/llm_learning/NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/OpenMythos%20Recurrent%E8%A7%A3%E8%AF%BB/">
+      
+      
+        <link rel="prev" href="../Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/">
+      
+      
+        <link rel="next" href="../Qwen3.5%E8%A7%A3%E8%AF%BB/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>OpenMythos Recurrent解读 - LLM知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../.assets/stylesheets/pageview.css">
+    
+      <link rel="stylesheet" href="../../../.assets/stylesheets/html_modal.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="LLM知识库" class="md-header__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OpenMythos Recurrent解读
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="LLM知识库" class="md-nav__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    LLM知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../knowledge_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JEPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JEPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JiT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JiT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/SAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/VAE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VAE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    世界模型
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    世界模型
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/%E5%B0%8F%E9%B9%8FVLA%E4%B8%8E%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小鹏 VLA 与世界模型技术体系总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/%E5%9F%BA%E7%A1%80/Reparameterization%20Trick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重参数化技巧（Reparameterization Trick）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/%E5%9F%BA%E7%A1%80/SD%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD公式推导
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NLP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NLP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM应用开发
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM应用开发
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Harness%2BAgent%E5%BC%95%E5%85%A5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness+Agent引入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Skill%E6%84%8F%E4%B9%89%E6%8E%A2%E8%AE%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill意义探讨
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_3" id="__nav_4_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepseek Harness
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deepseek Harness
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Deepseek%20Harness%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek Harness 技术报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Dsh%20%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dsh 会话记忆机制：the log IS the state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_4" id="__nav_4_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hermes Agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%8D%95%E4%B8%AA%E4%BC%9A%E8%AF%9D%E7%9A%84%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent 单会话记忆管理策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%A4%9AAgent%E9%80%9A%E4%BF%A1%E6%9E%B6%E6%9E%84/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    多 Agent 通信架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%AE%89%E5%85%A8%E3%80%81%E5%B7%A5%E4%BD%9C%E5%8C%BA%E9%9A%94%E7%A6%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全隔离与工作区隔离
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E8%AE%B0%E5%BF%86%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    内存压缩机制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Muon优化器
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/Muon%E4%BC%98%E5%8C%96%E5%99%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/%E5%A5%87%E5%BC%82%E5%80%BC%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%92%8C%E6%AD%A3%E4%BA%A4%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    奇异值、特征值和正交矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    位置编码
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    位置编码
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/RoPe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoPe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    残差连接
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    残差连接
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Attention%20Residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attention Residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Pre-Norm%20vs%20Post-Norm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre Norm vs Post Norm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/%E6%B5%81%E5%BD%A2%E6%AF%94%E8%BE%83/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    流形（Manifold） JiT 中的和 mHC 中的是一个意思吗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    mHC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/mHC%20%E6%AE%8B%E5%B7%AE%E6%B5%81%E5%BD%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC_残差流形
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/%E5%8F%8C%E9%9A%8F%E6%9C%BA%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    双随机矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    注意力机制
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    注意力机制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/DSA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/GatedAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GatedAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/LinearAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LinearAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/MLA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型训练
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_1" id="__nav_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SFT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/LoRA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/SFT%E4%B8%8D%E5%AE%8C%E6%95%B4%E5%AD%A6%E4%B9%A0%E7%8E%B0%E8%B1%A1ILP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT 为什么"学不会"：不完整学习现象（ILP）的系统性研究
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2" id="__nav_4_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    强化学习
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    强化学习
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/ClipPPO%E5%8E%9F%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipPPO原理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/DPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/GSPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GSPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RL知识图谱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%9D%8E%E5%AE%8F%E6%AF%85DRL%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    李宏毅DRL笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2_6" id="__nav_4_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent RL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent RL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/Agent%20RL/%E6%A3%80%E9%AA%8CAgent%E7%9A%84coding%E5%AE%9E%E7%8E%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检验Agent的coding实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM源码解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM源码解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/ChatGPT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChatGPT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/Einsum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Einsum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/MOE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/%E6%A0%B8%E5%BF%83%E8%A6%81%E4%B9%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心要义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    OpenMythos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/ACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/LTI%20Injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LTI Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/OpenMythos%E6%A1%86%E6%9E%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开源llm解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开源llm解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AR-Diffusion%E4%B8%8E%E6%BD%9C%E7%A9%BA%E9%97%B4%E6%8E%A8%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AR-Diffusion 与潜空间推理路线综述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Claude%20Mythos%205%E6%8E%A8%E6%B5%8B/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Mythos 5 技术报告：官方披露的训练方法与模型架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4 技术报告：面向百万上下文的高效长文本模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GLM-5.3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GLM 5.3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Kimi%20K3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kimi K3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nemotron-Labs-Diffusion 技术报告：统一 AR、Diffusion 与 Self-Speculation 的三模式语言模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos Recurrent解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Qwen3.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3.5解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    代码实践
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    代码实践
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/esft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gpt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gqa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GQA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/mhc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/moe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/open_mythos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open mythos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/vit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    性能优化
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    性能优化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Deepspeed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepspeed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Flash-Attention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/MOE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE负载均衡
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/SGLang/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SGLang
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/vLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vLLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E5%88%86%E5%B8%83%E5%BC%8F/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    分布式
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推理加速方法总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>OpenMythos Recurrent解读</h1>
+
+<div class="rb-demo-wrapper" id="rb-demo-root">
+    <style>
+        /* =========================================
+           1. 绝对沙盒化 CSS，全部以 rb- 开头
+           2. 视觉色彩规范：Deepspeed Zero2 现代清新浅色系
+           ========================================= */
+        .rb-demo-wrapper {
+            --rb-bg-color: #f8fafc;
+            --rb-panel-bg: #ffffff;
+            --rb-text-primary: #334155;
+            --rb-text-strong: #0f172a;
+            --rb-text-secondary: #64748b;
+            --rb-border-color: #cbd5e1;
+            --rb-highlight: #3b82f6;       /* blue-500 */
+            --rb-highlight-dark: #1d4ed8;  /* blue-700 */
+            --rb-success: #16a34a;         /* green-600 */
+            --rb-danger: #ef4444;          /* red-500 */
+            --rb-panel-shadow: 0 4px 6px rgba(0,0,0,0.05);
+
+            /* 4色切片配色 */
+            --rb-c0: #e0f2fe; --rb-c0-text: #0369a1; --rb-c0-border: #7dd3fc;
+            --rb-c1: #dcfce7; --rb-c1-text: #15803d; --rb-c1-border: #86efac;
+            --rb-c2: #fef9c3; --rb-c2-text: #a16207; --rb-c2-border: #fde047;
+            --rb-c3: #f3e8ff; --rb-c3-text: #6b21a8; --rb-c3-border: #d8b4fe;
+
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+            background-color: var(--rb-bg-color);
+            color: var(--rb-text-primary);
+            width: 100%;
+            margin: 0 auto;
+            padding: 18px 18px 96px;
+            box-sizing: border-box;
+            line-height: 1.6;
+            border-radius: 12px;
+            position: relative;
+            min-height: 700px;
+        }
+
+        .rb-demo-wrapper * { box-sizing: border-box; }
+
+        /* --- 标题区域 --- */
+        .rb-demo-wrapper .rb-header-title { text-align: center; font-size: 22px; font-weight: 800; color: var(--rb-text-strong); margin-bottom: 5px; }
+        .rb-demo-wrapper .rb-header-desc { text-align: center; color: var(--rb-text-secondary); font-size: 13px; margin-bottom: 20px; }
+
+        /* --- 分页内容容器 --- */
+        .rb-demo-wrapper .rb-step-content {
+            display: none;
+            animation: rb-fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .rb-demo-wrapper .rb-step-content.rb-active { display: block; }
+
+        /* --- 核心组件：信息面板 --- */
+        .rb-demo-wrapper .rb-info-panel {
+            background: var(--rb-panel-bg);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--rb-border-color);
+            border-left: 5px solid var(--rb-highlight);
+            box-shadow: var(--rb-panel-shadow);
+            margin-bottom: 25px;
+            position: relative;
+            min-height: 95px;
+            display: flex;
+            flex-direction: column;
+        }
+        .rb-demo-wrapper .rb-info-title { font-size: 16px; font-weight: 700; color: var(--rb-highlight-dark); margin-bottom: 6px; padding-right: 90px; }
+        .rb-demo-wrapper .rb-info-desc { font-size: 13px; color: var(--rb-text-secondary); margin-bottom: 10px; }
+
+        .rb-demo-wrapper .rb-text-box {
+            font-size: 13px; color: var(--rb-text-secondary); margin-bottom: 15px;
+            background: #f1f5f9; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+
+        /* --- 实时动画解说条 (Action Log) --- */
+        .rb-demo-wrapper .rb-action-log {
+            background: #eff6ff; color: #1d4ed8; padding: 8px 12px; border-radius: 6px;
+            font-size: 13px; font-weight: 700; border: 1px dashed #93c5fd;
+            opacity: 0; transition: opacity 0.3s ease; display: flex; align-items: center; gap: 8px;
+        }
+        .rb-demo-wrapper .rb-action-log.rb-active { opacity: 1; }
+
+        /* --- 重播按钮 --- */
+        .rb-demo-wrapper .rb-replay-btn {
+            position: absolute; top: 15px; right: 15px; display: flex; align-items: center; gap: 4px;
+            padding: 5px 10px; font-size: 12px; font-weight: 600; color: var(--rb-highlight);
+            background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+        }
+        .rb-demo-wrapper .rb-replay-btn:hover { background: #e2e8f0; transform: translateY(-1px); }
+        .rb-demo-wrapper .rb-replay-btn svg { width: 13px; height: 13px; }
+
+        /* --- 流水线动画区域 (Pipeline) --- */
+        .rb-demo-wrapper .rb-pipeline-container {
+            display: flex; flex-direction: column; gap: 10px; align-items: center; margin: 15px 0;
+            background: var(--rb-bg-color); padding: 20px; border-radius: 10px; border: 1px solid var(--rb-border-color);
+        }
+        .rb-demo-wrapper .rb-pipe-row {
+            display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; flex-wrap: wrap;
+        }
+        .rb-demo-wrapper .rb-module {
+            background: #ffffff; border: 2px solid var(--rb-border-color); padding: 10px 12px;
+            border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--rb-text-primary);
+            text-align: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); min-width: 100px; position: relative;
+        }
+        .rb-demo-wrapper .rb-arrow { 
+            font-size: 18px; color: #cbd5e1; font-weight: 900; transition: all 0.3s; 
+        }
+        .rb-demo-wrapper .rb-arrow.rb-flowing {
+            color: var(--rb-highlight); text-shadow: 0 0 8px rgba(59,130,246,0.6); transform: scale(1.2);
+        }
+
+        /* 模块激活态光晕 (Deepspeed 风格) */
+        .rb-demo-wrapper .rb-module.rb-receiving {
+            transform: scale(1.15); z-index: 5;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+            border: 2px solid var(--rb-highlight);
+            color: var(--rb-highlight-dark);
+        }
+        .rb-demo-wrapper .rb-dimmed { opacity: 0.4; filter: grayscale(50%); }
+
+        /* --- 静态步骤卡片 (不随动画改变内容) --- */
+        .rb-demo-wrapper .rb-static-desc-grid {
+            display: flex; flex-direction: column; gap: 8px; margin-top: 15px;
+        }
+        .rb-demo-wrapper .rb-step-card {
+            background: #f8fafc; border: 1px solid var(--rb-border-color); padding: 12px 16px;
+            border-radius: 8px; font-size: 13px; color: var(--rb-text-secondary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+        }
+        .rb-demo-wrapper .rb-step-card strong {
+            color: var(--rb-text-strong); margin-bottom: 4px; font-size: 14px;
+        }
+        /* 静态卡片的联动高亮特效 */
+        .rb-demo-wrapper .rb-step-card.rb-highlight {
+            background: #ffffff;
+            border-color: var(--rb-highlight);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            color: var(--rb-text-primary);
+            transform: scale(1.02);
+            border-left: 4px solid var(--rb-highlight);
+        }
+        .rb-demo-wrapper .rb-step-card.rb-highlight strong { color: var(--rb-highlight-dark); }
+
+
+        /* --- ACT 模拟器样式 --- */
+        .rb-demo-wrapper .rb-act-grid { display: grid; gap: 10px; margin-top: 15px; }
+        .rb-demo-wrapper .rb-act-row {
+            display: flex; align-items: center; gap: 10px; background: #f8fafc;
+            padding: 10px; border-radius: 8px; border: 1px solid var(--rb-border-color);
+        }
+        .rb-demo-wrapper .rb-token-label {
+            font-size: 12px; font-weight: 700; width: 140px; display: flex; align-items: center; gap: 6px;
+        }
+        .rb-demo-wrapper .rb-chunk {
+            padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 800; border: 1px solid transparent;
+        }
+        .rb-demo-wrapper .rb-progress-track {
+            flex: 1; height: 16px; background: #e2e8f0; border-radius: 999px; position: relative; overflow: hidden;
+        }
+        .rb-demo-wrapper .rb-progress-fill {
+            height: 100%; width: 0%; background: var(--rb-highlight); transition: all 0.4s ease;
+        }
+        .rb-demo-wrapper .rb-progress-fill.rb-halted {
+            background-color: var(--rb-success);
+            background-image: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+        }
+        .rb-demo-wrapper .rb-limit-line { position: absolute; left: 99%; top: 0; bottom: 0; width: 2px; background: var(--rb-danger); z-index: 10; }
+        .rb-demo-wrapper .rb-prob-val { font-size: 11px; font-weight: 700; width: 40px; text-align: right; font-family: monospace; }
+
+        /* --- Dock 风格底部导航 --- */
+        .rb-demo-wrapper .rb-dock-container {
+            position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom));
+            z-index: 10000; width: min(420px, calc(100vw - 32px)); display: flex; justify-content: center;
+            transform: translateX(-50%); pointer-events: none;
+        }
+        .rb-demo-wrapper .rb-dock {
+            display: flex; align-items: center; gap: 12px; padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 999px; border: 1px solid rgba(203, 213, 225, 0.95);
+            box-shadow: 0 12px 28px -10px rgba(15,23,42,0.22), 0 4px 10px -6px rgba(15,23,42,0.16);
+            pointer-events: auto;
+        }
+        .rb-demo-wrapper .rb-dock-btn {
+            background: transparent; border: none; color: #475569; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 50%; transition: all 0.2s;
+        }
+        .rb-demo-wrapper .rb-dock-btn:hover:not(:disabled) { background: #f1f5f9; color: #0f172a; }
+        .rb-demo-wrapper .rb-dock-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .rb-demo-wrapper .rb-dock-btn svg { width: 18px; height: 18px; }
+
+        .rb-demo-wrapper .rb-dock-steps { display: flex; gap: 8px; }
+        .rb-demo-wrapper .rb-dot {
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; color: #64748b; background: transparent; border-radius: 50%;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none;
+        }
+        .rb-demo-wrapper .rb-dot:hover { background: #e2e8f0; }
+        .rb-demo-wrapper .rb-dot.rb-active { background: var(--rb-highlight); color: white; transform: scale(1.1); box-shadow: 0 4px 8px rgba(59,130,246,0.3); }
+
+        @keyframes rb-fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div class="rb-header-title">OpenMythos：RecurrentBlock 解析</div>
+    <div class="rb-header-desc">单物理层网络，如何通过时间循环与动态路由实现隐式深度推理？</div>
+
+    <!-- 步骤 0: 宏观架构 -->
+    <div id="rb-step-0" class="rb-step-content rb-active">
+        <div class="rb-info-panel">
+            <div class="rb-info-title">阶段 0: 宏观结构 (时间换空间)</div>
+            <div class="rb-info-desc">在传统的 Transformer 中，深度是由物理层数堆叠而成的（例如 12 层）。</div>
+
+            <div class="rb-text-box">
+                <b>Recurrent-Depth Transformer (RDT) 颠覆了这一点：</b><br>
+                它的核心大脑仅仅是一个 <code>TransformerBlock</code>，但在前向传播时，代码会通过 <code>for t in range(n_loops)</code> 让数据在这个块里反复迭代。<br><br>
+                <b>输入要素：</b><br>
+                • <code>h</code>：隐状态（潜变量），在每次循环中不断更新。<br>
+                • <code>e</code>：原始输入的编码特征，在所有循环中被<b>冻结并强行注入</b>，防止跑偏。
+            </div>
+            <div style="text-align: center; margin-top: 10px;">
+                <button onclick="rbChangeStep(1)" style="padding: 8px 16px; background: var(--rb-highlight); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">
+                    查看内部微观流水线 ➔
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 步骤 1: 5步微观流水线动画 -->
+    <div id="rb-step-1" class="rb-step-content">
+        <div class="rb-info-panel">
+            <button class="rb-replay-btn" onclick="rbPlayPipeline()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path></svg>
+                运行循环动画
+            </button>
+            <div class="rb-info-title">阶段 1: 循环迭代的 5 步流水线</div>
+            <div class="rb-info-desc">下方静态卡片展示了 RecurrentBlock 的 5 大核心模块原理。点击上方按钮可观看数据流转动画。</div>
+
+            <div class="rb-action-log" id="rb-action-log-1">
+                <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span id="rb-action-log-1-text">等待执行循环...</span>
+            </div>
+
+            <!-- 动态流水线容器 -->
+            <div class="rb-pipeline-container">
+                <div style="font-size: 11px; font-weight: 700; color: var(--rb-text-secondary); margin-bottom: 5px;">
+                    当前循环深度: <span id="rb-t-display" style="color: var(--rb-highlight-dark); font-size: 14px;">t = 0</span>
+                </div>
+                <div class="rb-pipe-row">
+                    <div class="rb-module" id="rb-mod-1">1. Loop-Index</div>
+                    <div class="rb-arrow" id="rb-arr-1">→</div>
+                    <div class="rb-module" id="rb-mod-2">2. Trans+MoE</div>
+                    <div class="rb-arrow" id="rb-arr-2">→</div>
+                    <div class="rb-module" id="rb-mod-3">3. LoRA Delta</div>
+                    <div class="rb-arrow" id="rb-arr-3">→</div>
+                    <div class="rb-module" id="rb-mod-4">4. LTI Inject</div>
+                    <div class="rb-arrow" id="rb-arr-4">→</div>
+                    <div class="rb-module" id="rb-mod-5">5. ACT Halt</div>
+                </div>
+            </div>
+
+            <!-- 静态讲解卡片区（内容永远可见，不随动画改变） -->
+            <div class="rb-static-desc-grid">
+                <div class="rb-step-card" id="rb-desc-1">
+                    <strong>1. Loop-Index Embedding (赋予时间感知)</strong>
+                    <span>把当前的循环次数 t 编码成正弦波注入特征。这让同一套物理参数能在循环前期做特征提取，后期做逻辑总结。同时强制加回原始输入 e，防止思考过度导致“语义漂移”。</span>
+                </div>
+                <div class="rb-step-card" id="rb-desc-2">
+                    <strong>2. Transformer + MoE 路由 (动态路由计算)</strong>
+                    <span>核心的推理大脑。依靠上方赋予的时间感知，MoE 路由器会在循环的早期自动激活“基础知识专家”，而在循环晚期激活“逻辑推导专家”，在单一网络层内动态拓展了知识域。</span>
+                </div>
+                <div class="rb-step-card" id="rb-desc-3">
+                    <strong>3. Depth-wise LoRA (打破权重共享僵化)</strong>
+                    <span>完全一样的权重会让模型思维僵化。这里引入了一个随 t 变化的微小专属缩放向量 <code>scale[t]</code>，通过降维/升维矩阵，以极低的参数成本微调每一步的推理方向。</span>
+                </div>
+                <div class="rb-step-card" id="rb-desc-4">
+                    <strong>4. LTI Injection (抗爆炸的物理稳定器)</strong>
+                    <span>如果简单累加残差，几十次循环必定引发数值爆炸 (NaN)。此模块运用零阶保持器 (ZOH) 离散化映射，强制将隐状态衰减系数 A 压死在 (0, 1) 区间内，化爆炸为平稳衰减。</span>
+                </div>
+                <div class="rb-step-card" id="rb-desc-5">
+                    <strong>5. ACT Halting (自适应算力早退判断)</strong>
+                    <span>计算当前 Token 是否已经收敛（累积概率 p ≥ 0.99）。如果是“the”这种简单词，可能循环 1 次就退出；如果是数学公式，则持续循环到满。极大节省了全局算力。</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 步骤 2: 深度外推与 LoRA -->
+    <div id="rb-step-2" class="rb-step-content">
+        <div class="rb-info-panel">
+            <div class="rb-info-title">阶段 2: 深度外推 (Depth Extrapolation) 的秘密</div>
+            <div class="rb-info-desc">为什么训练时只循环 8 次，推理时循环 16 次也能解开更难的题？</div>
+
+            <div class="rb-text-box">
+                秘密在于上文提到的 <b>Depth-wise LoRA</b>。它用极少的参数 <code>scale[t]</code> 在不同的循环轮次微调模型。当推理循环次数超过训练时，代码会触发 <code>Clamp</code> 机制（复用最后一个缩放向量），保持模型稳定外推。
+            </div>
+
+            <div style="position: relative; width: 100%; height: 260px; margin-top: 10px;">
+                <canvas id="rb-lora-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 步骤 3: ACT 算力模拟器 -->
+    <div id="rb-step-3" class="rb-step-content">
+        <div class="rb-info-panel">
+            <button class="rb-replay-btn" onclick="rbResetACT()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path></svg>
+                重置 Tokens
+            </button>
+            <div class="rb-info-title">阶段 3: ACT (自适应计算时间) 模拟</div>
+            <div class="rb-info-desc">不同难度的 Token 在同一 Batch 内的“早退”机制。</div>
+
+            <div class="rb-text-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span>当累积概率 ≥ 0.99 时，该 Token 停止更新 (Halted)。</span>
+                <button id="rb-act-btn" onclick="rbNextACTLoop()" style="padding: 5px 12px; background: var(--rb-highlight); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">执行 Loop +1 ➔</button>
+            </div>
+
+            <div class="rb-act-grid">
+                <!-- Token 1 -->
+                <div class="rb-act-row">
+                    <div class="rb-token-label">
+                        <span class="rb-chunk rb-c0">T0</span> <span style="color:var(--rb-c0-text);">"The"</span> <br><span style="font-weight:normal; font-size:10px; color:#64748b; margin-left:4px;">(简单词)</span>
+                    </div>
+                    <div class="rb-progress-track">
+                        <div class="rb-progress-fill" id="rb-bar-0"></div>
+                        <div class="rb-limit-line"></div>
+                    </div>
+                    <div class="rb-prob-val" id="rb-prob-0">0.00</div>
+                </div>
+                <!-- Token 2 -->
+                <div class="rb-act-row">
+                    <div class="rb-token-label">
+                        <span class="rb-chunk rb-c1">T1</span> <span style="color:var(--rb-c1-text);">"Therefore"</span> <br><span style="font-weight:normal; font-size:10px; color:#64748b; margin-left:4px;">(逻辑词)</span>
+                    </div>
+                    <div class="rb-progress-track">
+                        <div class="rb-progress-fill" id="rb-bar-1"></div>
+                        <div class="rb-limit-line"></div>
+                    </div>
+                    <div class="rb-prob-val" id="rb-prob-1">0.00</div>
+                </div>
+                <!-- Token 3 -->
+                <div class="rb-act-row">
+                    <div class="rb-token-label">
+                        <span class="rb-chunk rb-c2">T2</span> <span style="color:var(--rb-c2-text);">"Quantum"</span> <br><span style="font-weight:normal; font-size:10px; color:#64748b; margin-left:4px;">(深层词)</span>
+                    </div>
+                    <div class="rb-progress-track">
+                        <div class="rb-progress-fill" id="rb-bar-2"></div>
+                        <div class="rb-limit-line"></div>
+                    </div>
+                    <div class="rb-prob-val" id="rb-prob-2">0.00</div>
+                </div>
+            </div>
+
+            <div class="rb-action-log" id="rb-act-log" style="margin-top: 15px;">
+                <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span id="rb-act-log-text">等待执行循环...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底栏 Dock 导航 -->
+    <div class="rb-dock-container">
+        <div class="rb-dock">
+            <button class="rb-dock-btn" id="rb-btn-prev" onclick="rbChangeStep(-1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <div class="rb-dock-steps">
+                <button class="rb-dot rb-active" id="rb-dot-0" onclick="rbGoToStep(0)">0</button>
+                <button class="rb-dot" id="rb-dot-1" onclick="rbGoToStep(1)">1</button>
+                <button class="rb-dot" id="rb-dot-2" onclick="rbGoToStep(2)">2</button>
+                <button class="rb-dot" id="rb-dot-3" onclick="rbGoToStep(3)">3</button>
+            </div>
+            <button class="rb-dock-btn" id="rb-btn-next" onclick="rbChangeStep(1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // --- 核心工具 ---
+            const rbSleep = ms => new Promise(r => setTimeout(r, ms));
+            let rbCurrentStep = 0;
+            const rbTotalSteps = 4;
+            let rbChartInitialized = false;
+
+            // --- 步骤导航逻辑 ---
+            window.rbGoToStep = function(step) {
+                if(step < 0 || step >= rbTotalSteps) return;
+                rbCurrentStep = step;
+
+                document.getElementById('rb-btn-prev').disabled = (step === 0);
+                document.getElementById('rb-btn-next').disabled = (step === rbTotalSteps - 1);
+
+                document.querySelectorAll('.rb-dot').forEach(d => d.classList.remove('rb-active'));
+                document.getElementById(`rb-dot-${step}`).classList.add('rb-active');
+
+                document.querySelectorAll('.rb-step-content').forEach(c => c.classList.remove('rb-active'));
+                document.getElementById(`rb-step-${step}`).classList.add('rb-active');
+
+                // 按需初始化图表
+                if (step === 2 && !rbChartInitialized) {
+                    rbInitChart();
+                    rbChartInitialized = true;
+                }
+
+                // 每次切换到步骤 1 时如果不在播放状态，可提示用户点击，或自动播放
+                if (step === 1) rbPlayPipeline();
+            }
+            window.rbChangeStep = function(delta) { rbGoToStep(rbCurrentStep + delta); }
+
+            // --- 日志更新 ---
+            function rbSetLog(id, msg) {
+                const logBox = document.getElementById(id);
+                const logText = document.getElementById(id + '-text');
+                if (msg) {
+                    logText.innerHTML = msg;
+                    logBox.classList.add('rb-active');
+                } else {
+                    logBox.classList.remove('rb-active');
+                }
+            }
+
+            // --- 阶段 1：静态区与联动流水线动画 ---
+            let rbAnimVersion = 0;
+
+            window.rbPlayPipeline = async function() {
+                rbAnimVersion++;
+                let myVer = rbAnimVersion;
+
+                // 演示跑 3 个内部循环，展示数据流转感
+                const totalLoopsToAnimate = 3;
+
+                for (let t = 0; t < totalLoopsToAnimate; t++) {
+                    if(myVer !== rbAnimVersion || rbCurrentStep !== 1) return;
+
+                    document.getElementById('rb-t-display').innerText = `t = ${t}`;
+                    rbSetLog('rb-action-log-1', `🔄 正在执行第 <b>${t}</b> 轮内部循环的数据流转...`);
+                    await rbSleep(500);
+
+                    for (let m = 1; m <= 5; m++) {
+                        if(myVer !== rbAnimVersion || rbCurrentStep !== 1) return;
+
+                        // 重置所有模块、卡片、箭头的状态
+                        for(let i=1; i<=5; i++) {
+                            document.getElementById(`rb-mod-${i}`).classList.remove('rb-receiving');
+                            document.getElementById(`rb-mod-${i}`).classList.add('rb-dimmed');
+                            document.getElementById(`rb-desc-${i}`).classList.remove('rb-highlight');
+                            if(i < 5) document.getElementById(`rb-arr-${i}`).classList.remove('rb-flowing');
+                        }
+
+                        // 点亮当前箭头 (流入模块 m)
+                        if (m > 1) {
+                            document.getElementById(`rb-arr-${m-1}`).classList.add('rb-flowing');
+                        }
+
+                        // 激活当前模块与对应静态卡片
+                        document.getElementById(`rb-mod-${m}`).classList.remove('rb-dimmed');
+                        document.getElementById(`rb-mod-${m}`).classList.add('rb-receiving');
+                        document.getElementById(`rb-desc-${m}`).classList.add('rb-highlight');
+
+                        // 流转节奏 (0.7秒)
+                        await rbSleep(700); 
+                    }
+                }
+
+                if(myVer === rbAnimVersion) {
+                    // 恢复全亮待机状态
+                    for(let i=1; i<=5; i++) {
+                        document.getElementById(`rb-mod-${i}`).classList.remove('rb-receiving', 'rb-dimmed');
+                        document.getElementById(`rb-desc-${i}`).classList.remove('rb-highlight');
+                        if(i < 5) document.getElementById(`rb-arr-${i}`).classList.remove('rb-flowing');
+                    }
+                    rbSetLog('rb-action-log-1', `✅ 循环演示结束。隐状态 h 已更新完毕，准备进入下一阶段。`);
+                }
+            };
+
+            // --- 阶段 2：LoRA Chart ---
+            window.rbInitChart = function() {
+                const initChartInterval = setInterval(() => {
+                    if (typeof Chart !== 'undefined') {
+                        clearInterval(initChartInterval);
+                        const ctx = document.getElementById('rb-lora-chart').getContext('2d');
+                        const labels = Array.from({length: 12}, (_, i) => `t=${i}`);
+
+                        const generateData = (peak, speed) => {
+                            let data = [];
+                            for(let i=0; i<12; i++) {
+                                let t = i > 8 ? 8 : i; // 模拟 Clamp 保护
+                                data.push(Math.sin(t * speed) * peak + peak);
+                            }
+                            return data;
+                        };
+
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: 'LoRA Scale [某浅层通道]',
+                                        data: generateData(1.5, 0.8),
+                                        borderColor: '#3b82f6', backgroundColor: 'transparent',
+                                        tension: 0.4, borderWidth: 3
+                                    },
+                                    {
+                                        label: 'LoRA Scale [某深层通道]',
+                                        data: generateData(2.0, 0.3),
+                                        borderColor: '#10b981', backgroundColor: 'transparent',
+                                        tension: 0.4, borderWidth: 3
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true, maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { position: 'top', labels: { font: { family: 'system-ui' } } },
+                                    annotation: {
+                                        annotations: {
+                                            line1: {
+                                                type: 'line', xMin: 8, xMax: 8,
+                                                borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5],
+                                                label: { content: 'Training Limit (Clamp)', enabled: true, position: 'top' }
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: { title: { display: true, text: 'Loop Iteration (t)' }, grid: { display: false } },
+                                    y: { title: { display: true, text: 'Scale Value (s)' } }
+                                }
+                            }
+                        });
+                    }
+                }, 100);
+            };
+
+            // --- 阶段 3：ACT 模拟器 ---
+            let actT = 0;
+            const threshold = 0.99;
+            let tokens = [
+                { id: 0, sum: 0, halted: false, rate: [0.6, 0.4, 0.0, 0.0, 0.0, 0.0] }, // T0: The (快)
+                { id: 1, sum: 0, halted: false, rate: [0.3, 0.3, 0.2, 0.15, 0.05, 0.0] }, // T1: Therefore (中)
+                { id: 2, sum: 0, halted: false, rate: [0.1, 0.2, 0.2, 0.2, 0.2, 0.1] }  // T2: Quantum (慢)
+            ];
+
+            window.rbNextACTLoop = function() {
+                if(actT >= 6) return;
+                let allHalted = true;
+
+                tokens.forEach(tok => {
+                    if (!tok.halted) {
+                        let p = tok.rate[actT] || 0;
+                        let remainder = Math.max(0, 1.0 - tok.sum);
+
+                        if (tok.sum + p >= threshold) {
+                            tok.sum += remainder; // ACT Remainder 补齐
+                            tok.halted = true;
+                            document.getElementById(`rb-bar-${tok.id}`).classList.add('rb-halted');
+                        } else {
+                            tok.sum += p;
+                            allHalted = false;
+                        }
+
+                        document.getElementById(`rb-prob-${tok.id}`).innerText = tok.sum.toFixed(2);
+                        document.getElementById(`rb-bar-${tok.id}`).style.width = `${Math.min(100, tok.sum * 100)}%`;
+                    }
+                });
+
+                actT++;
+                rbSetLog('rb-act-log', `经过 <b>${actT}</b> 轮循环计算，更新各 Token 累积收敛概率。`);
+
+                if (allHalted) {
+                    document.getElementById('rb-act-btn').disabled = true;
+                    document.getElementById('rb-act-btn').innerText = "已全退出";
+                    document.getElementById('rb-act-btn').style.background = "#94a3b8";
+                    rbSetLog('rb-act-log', `✅ 所有 Token 均已越过 0.99 阈值，网络整体提前短路退出 (Short-circuit Exit)！`);
+                }
+            };
+
+            window.rbResetACT = function() {
+                actT = 0;
+                document.getElementById('rb-act-btn').disabled = false;
+                document.getElementById('rb-act-btn').innerText = "执行 Loop +1 ➔";
+                document.getElementById('rb-act-btn').style.background = "var(--rb-highlight)";
+                rbSetLog('rb-act-log', "");
+
+                tokens.forEach(tok => {
+                    tok.sum = 0; tok.halted = false;
+                    document.getElementById(`rb-prob-${tok.id}`).innerText = "0.00";
+                    const bar = document.getElementById(`rb-bar-${tok.id}`);
+                    bar.style.width = "0%";
+                    bar.classList.remove('rb-halted');
+                });
+            };
+
+            // 启动初始化
+            rbGoToStep(0);
+
+        })();
+    </script>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">评论</h2>
+<script src="https://giscus.app/client.js"
+        data-repo="Ranbaigao/llm_learning"
+        data-repo-id="R_kgDOS6jz6w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOS6jz684DEEsg"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../.assets/javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../../.assets/javascripts/pageview.js"></script>
+      
+        <script src="../../../.assets/javascripts/html_modal.js"></script>
+      
+        <script src="https://cn.vercount.one/js"></script>
+      
+    
+  </body>
+</html>

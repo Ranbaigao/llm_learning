@@ -1,0 +1,4702 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ranbaigao.github.io/llm_learning/NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/%E5%8F%8C%E9%9A%8F%E6%9C%BA%E7%9F%A9%E9%98%B5/">
+      
+      
+        <link rel="prev" href="../mHC%20%E6%AE%8B%E5%B7%AE%E6%B5%81%E5%BD%A2/">
+      
+      
+        <link rel="next" href="../../../%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/DSA/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>双随机矩阵 - LLM知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../.assets/stylesheets/pageview.css">
+    
+      <link rel="stylesheet" href="../../../../../.assets/stylesheets/html_modal.css">
+    
+    <script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#1-hc" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../../.." title="LLM知识库" class="md-header__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              双随机矩阵
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../../.." title="LLM知识库" class="md-nav__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    LLM知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../knowledge_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JEPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JEPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JiT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JiT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/SAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/VAE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VAE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    世界模型
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    世界模型
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/%E5%B0%8F%E9%B9%8FVLA%E4%B8%8E%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小鹏 VLA 与世界模型技术体系总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/%E5%9F%BA%E7%A1%80/Reparameterization%20Trick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重参数化技巧（Reparameterization Trick）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/%E5%9F%BA%E7%A1%80/SD%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD公式推导
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NLP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NLP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM应用开发
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM应用开发
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Harness%2BAgent%E5%BC%95%E5%85%A5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness+Agent引入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Skill%E6%84%8F%E4%B9%89%E6%8E%A2%E8%AE%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill意义探讨
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_3" id="__nav_4_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepseek Harness
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deepseek Harness
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Deepseek%20Harness%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek Harness 技术报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Dsh%20%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dsh 会话记忆机制：the log IS the state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_4" id="__nav_4_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hermes Agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%8D%95%E4%B8%AA%E4%BC%9A%E8%AF%9D%E7%9A%84%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent 单会话记忆管理策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%A4%9AAgent%E9%80%9A%E4%BF%A1%E6%9E%B6%E6%9E%84/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    多 Agent 通信架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%AE%89%E5%85%A8%E3%80%81%E5%B7%A5%E4%BD%9C%E5%8C%BA%E9%9A%94%E7%A6%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全隔离与工作区隔离
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E8%AE%B0%E5%BF%86%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    内存压缩机制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Muon优化器
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Muon%E4%BC%98%E5%8C%96%E5%99%A8/Muon%E4%BC%98%E5%8C%96%E5%99%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Muon%E4%BC%98%E5%8C%96%E5%99%A8/%E5%A5%87%E5%BC%82%E5%80%BC%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%92%8C%E6%AD%A3%E4%BA%A4%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    奇异值、特征值和正交矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    位置编码
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    位置编码
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/RoPe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoPe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    残差连接
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    残差连接
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Attention%20Residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attention Residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Pre-Norm%20vs%20Post-Norm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre Norm vs Post Norm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E6%B5%81%E5%BD%A2%E6%AF%94%E8%BE%83/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    流形（Manifold） JiT 中的和 mHC 中的是一个意思吗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    mHC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mHC%20%E6%AE%8B%E5%B7%AE%E6%B5%81%E5%BD%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC_残差流形
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    双随机矩阵
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    双随机矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-hc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 先理解：为什么 HC 里面会有这么一张矩阵？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-hc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. HC 真正的问题：这些矩阵要连续乘几十次
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. HC 真正的问题：这些矩阵要连续乘几十次">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一个最简单的例子
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-mhc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. mHC 的想法其实非常漂亮
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 为什么“双随机”刚好解决这个问题？
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 为什么“双随机”刚好解决这个问题？">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第一：信息确实发生了交换
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第二：它不能凭空制造信号
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 行和为 1 又负责什么？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 更关键的是：反向传播也稳定
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 最强的性质：双随机矩阵连乘之后仍然是双随机矩阵
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-hi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 所以它恢复的其实不是严格意义上的 \(H=I\)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-birkhoff-polytope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Birkhoff Polytope 又是什么意思？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-spectral-norm-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 为什么论文还说 spectral norm ≤ 1？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-h" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 那模型怎么保证学出来的 \(H\) 是双随机的？
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 那模型怎么保证学出来的 \(H\) 是双随机的？">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第一步：保证所有元素为正
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第二步：行归一化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第三步：列归一化
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 这张矩阵在整篇论文里的真正作用
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 这张矩阵在整篇论文里的真正作用">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 我认为最值得你记住的一个视角
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    注意力机制
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    注意力机制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/DSA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/GatedAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GatedAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/LinearAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LinearAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/MLA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型训练
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_1" id="__nav_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SFT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/LoRA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/SFT%E4%B8%8D%E5%AE%8C%E6%95%B4%E5%AD%A6%E4%B9%A0%E7%8E%B0%E8%B1%A1ILP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT 为什么"学不会"：不完整学习现象（ILP）的系统性研究
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2" id="__nav_4_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    强化学习
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    强化学习
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/ClipPPO%E5%8E%9F%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipPPO原理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/DPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/GSPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GSPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RL知识图谱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%9D%8E%E5%AE%8F%E6%AF%85DRL%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    李宏毅DRL笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2_6" id="__nav_4_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent RL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent RL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/Agent%20RL/%E6%A3%80%E9%AA%8CAgent%E7%9A%84coding%E5%AE%9E%E7%8E%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检验Agent的coding实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM源码解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM源码解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/ChatGPT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChatGPT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/Einsum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Einsum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/MOE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/%E6%A0%B8%E5%BF%83%E8%A6%81%E4%B9%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心要义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    OpenMythos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/ACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/LTI%20Injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LTI Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/OpenMythos%E6%A1%86%E6%9E%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开源llm解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开源llm解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/AR-Diffusion%E4%B8%8E%E6%BD%9C%E7%A9%BA%E9%97%B4%E6%8E%A8%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AR-Diffusion 与潜空间推理路线综述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Claude%20Mythos%205%E6%8E%A8%E6%B5%8B/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Mythos 5 技术报告：官方披露的训练方法与模型架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4 技术报告：面向百万上下文的高效长文本模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/GLM-5.3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GLM 5.3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Kimi%20K3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kimi K3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nemotron-Labs-Diffusion 技术报告：统一 AR、Diffusion 与 Self-Speculation 的三模式语言模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/OpenMythos%20Recurrent%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos Recurrent解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Qwen3.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3.5解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    代码实践
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    代码实践
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/esft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gpt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gqa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GQA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/mhc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/moe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/open_mythos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open mythos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/vit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    性能优化
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    性能优化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Deepspeed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepspeed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Flash-Attention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/MOE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE负载均衡
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/SGLang/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SGLang
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/vLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vLLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E5%88%86%E5%B8%83%E5%BC%8F/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    分布式
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推理加速方法总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-hc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 先理解：为什么 HC 里面会有这么一张矩阵？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-hc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. HC 真正的问题：这些矩阵要连续乘几十次
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. HC 真正的问题：这些矩阵要连续乘几十次">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        一个最简单的例子
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-mhc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. mHC 的想法其实非常漂亮
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 为什么“双随机”刚好解决这个问题？
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 为什么“双随机”刚好解决这个问题？">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第一：信息确实发生了交换
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第二：它不能凭空制造信号
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 行和为 1 又负责什么？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 更关键的是：反向传播也稳定
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 最强的性质：双随机矩阵连乘之后仍然是双随机矩阵
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-hi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 所以它恢复的其实不是严格意义上的 \(H=I\)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-birkhoff-polytope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Birkhoff Polytope 又是什么意思？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-spectral-norm-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 为什么论文还说 spectral norm ≤ 1？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-h" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 那模型怎么保证学出来的 \(H\) 是双随机的？
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. 那模型怎么保证学出来的 \(H\) 是双随机的？">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第一步：保证所有元素为正
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第二步：行归一化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第三步：列归一化
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 这张矩阵在整篇论文里的真正作用
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. 这张矩阵在整篇论文里的真正作用">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 我认为最值得你记住的一个视角
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<p>你可以论文里的“双随机矩阵”理解成一种<strong>受严格约束的“残差流路由矩阵”</strong>。它既不是随机初始化的意思，也不是两张随机矩阵，而是 <strong>doubly stochastic matrix</strong>：</p>
+<div class="arithmatex">\[
+H\in \mathbb{R}^{n\times n},\qquad
+H_{ij}\ge 0,\qquad
+H\mathbf 1=\mathbf 1,\qquad
+\mathbf 1^TH=\mathbf 1^T
+\]</div>
+<p>也就是：</p>
+<ul>
+<li>每一行元素之和 = 1；</li>
+<li>每一列元素之和 = 1；</li>
+<li>所有元素 ≥ 0。</li>
+</ul>
+<p>这正是论文对 <span class="arithmatex">\(H_l^{res}\)</span> 加的核心约束。</p>
+<hr />
+<h2 id="1-hc">1. 先理解：为什么 HC 里面会有这么一张矩阵？</h2>
+<p>普通 Transformer 残差连接是：</p>
+<div class="arithmatex">\[
+x_{l+1}=x_l+F(x_l)
+\]</div>
+<p>这里有一个非常重要的特点：</p>
+<blockquote>
+<p>即使 <span class="arithmatex">\(F\)</span> 学得一塌糊涂，<span class="arithmatex">\(x_l\)</span> 至少还能原封不动地通过 identity path 传到下一层。</p>
+</blockquote>
+<p>因此几十层、上百层串起来：</p>
+<div class="arithmatex">\[
+x_L=x_l+\sum_iF(x_i)
+\]</div>
+<p>最前面的那个 <span class="arithmatex">\(x_l\)</span> 始终存在，不会因为连续乘很多矩阵而消失。</p>
+<p>论文把这称为 residual connection 的 <strong>identity mapping property</strong>。</p>
+<hr />
+<p>HC 做了一件更激进的事情。</p>
+<p>它不再只有一条 residual stream，而是扩成 <span class="arithmatex">\(n\)</span> 条：</p>
+<div class="arithmatex">\[
+X_l=
+\begin{bmatrix}
+x_{l,1}\\
+x_{l,2}\\
+\vdots\\
+x_{l,n}
+\end{bmatrix}
+\]</div>
+<p>例如论文使用 <span class="arithmatex">\(n=4\)</span>。</p>
+<p>所以可以想象成 Transformer 中同时存在：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Residual Stream 1 ───────
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Residual Stream 2 ───────
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Residual Stream 3 ───────
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Residual Stream 4 ───────
+</span></code></pre></div>
+<p>然后让不同 residual stream 之间互相交换信息。</p>
+<p>这时候就引入了：</p>
+<div class="arithmatex">\[
+H_l^{res}\in \mathbb{R}^{n\times n}
+\]</div>
+<p>例如：</p>
+<div class="arithmatex">\[
+H_l^{res}=
+\begin{bmatrix}
+0.7&amp;0.1&amp;0.1&amp;0.1\\
+0.2&amp;0.5&amp;0.2&amp;0.1\\
+0.1&amp;0.1&amp;0.7&amp;0.1\\
+0.1&amp;0.2&amp;0.2&amp;0.5
+\end{bmatrix}
+\]</div>
+<p>然后：</p>
+<div class="arithmatex">\[
+X' = H_l^{res}X
+\]</div>
+<p>于是第一条 residual stream 可能变成：</p>
+<div class="arithmatex">\[
+x'_1 = 0.7x_1+0.1x_2+0.1x_3+0.1x_4
+\]</div>
+<p>也就是说：</p>
+<blockquote>
+<p><strong><span class="arithmatex">\(H^{res}\)</span> 本质上就是 residual streams 之间的信息路由/混合矩阵。</strong></p>
+</blockquote>
+<p>论文的消融实验也发现，HC 三个 mapping 里面，<span class="arithmatex">\(H^{res}\)</span> 带来的性能收益最大，说明真正重要的是不同 residual stream 之间的信息交换。</p>
+<hr />
+<h1 id="2-hc">2. HC 真正的问题：这些矩阵要连续乘几十次</h1>
+<p>这才是理解 mHC 的关键。</p>
+<p>假设第 1 层：</p>
+<div class="arithmatex">\[
+X_1=H_0X_0
+\]</div>
+<p>第二层：</p>
+<div class="arithmatex">\[
+X_2=H_1X_1=H_1H_0X_0
+\]</div>
+<p>100 层以后：</p>
+<div class="arithmatex">\[
+X_{100} = H_{99}H_{98}\cdots H_0X_0
+\]</div>
+<p>所以真正控制深层信号传播的并不是某一个 <span class="arithmatex">\(H\)</span>，而是：</p>
+<div class="arithmatex">\[
+H_{\text{total}} = \prod_l H_l^{res}
+\]</div>
+<p>这就是原始 HC 的危险之处。</p>
+<h3 id="_1">一个最简单的例子</h3>
+<p>假设某个方向上每层都放大：</p>
+<div class="arithmatex">\[
+H\approx1.1
+\]</div>
+<p>一层：</p>
+<div class="arithmatex">\[
+1.1
+\]</div>
+<p>10 层：</p>
+<div class="arithmatex">\[
+1.1^{10}\approx2.59
+\]</div>
+<p>100 层：</p>
+<div class="arithmatex">\[
+1.1^{100}\approx13780
+\]</div>
+<p>反过来，如果：</p>
+<div class="arithmatex">\[
+H\approx0.9
+\]</div>
+<p>那么：</p>
+<div class="arithmatex">\[
+0.9^{100}\approx0.0000266
+\]</div>
+<p>一个是爆炸，一个是消失。</p>
+<p>这正是 HC 破坏普通 residual connection 的地方：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>普通 Residual：
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>x ─────────────────────────────→ x
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>      + F(x)
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>天然存在 coefficient = 1 的通路
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>HC：
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>x ── H1 ── H2 ── H3 ── ... ── HL ─→
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>最终：
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>HL ... H3 H2 H1 x
+</span></code></pre></div>
+<p>如果 <span class="arithmatex">\(H_l\)</span> 完全自由学习，就没有任何东西保证：</p>
+<div class="arithmatex">\[
+H_L\cdots H_2H_1
+\]</div>
+<p>不会越来越大或者越来越小。</p>
+<p>论文在 27B 模型上真的观察到了这个现象：HC 的 composite mapping 的 forward/backward gain 峰值接近 <strong>3000</strong>，同时 loss 和 gradient norm 出现明显异常。</p>
+<hr />
+<h1 id="3-mhc">3. mHC 的想法其实非常漂亮</h1>
+<p>DeepSeek 的思路不是：</p>
+<blockquote>
+<p>“既然 <span class="arithmatex">\(H\)</span> 会造成不稳定，那我干脆把 <span class="arithmatex">\(H=I\)</span>。”</p>
+</blockquote>
+<p>如果：</p>
+<div class="arithmatex">\[
+H=I
+\]</div>
+<p>确实绝对稳定。</p>
+<p>但是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>stream 1 → stream 1
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>stream 2 → stream 2
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>stream 3 → stream 3
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>stream 4 → stream 4
+</span></code></pre></div>
+<p>不同 residual stream 又无法互相交流。</p>
+<p>这样 HC 的意义就没了。</p>
+<p>所以他们实际上在寻找一个折中：</p>
+<blockquote>
+<p><strong>既允许 residual streams 相互交换信息，同时又不能改变整体信号尺度。</strong></p>
+</blockquote>
+<p>于是选中了：</p>
+<div class="arithmatex">\[
+\boxed{\text{Doubly Stochastic Matrix}}
+\]</div>
+<p>也就是双随机矩阵。</p>
+<hr />
+<h1 id="4">4. 为什么“双随机”刚好解决这个问题？</h1>
+<p>比如最简单的：</p>
+<div class="arithmatex">\[
+H=
+\begin{bmatrix}
+0.8&amp;0.2\\
+0.2&amp;0.8
+\end{bmatrix}
+\]</div>
+<p>显然：</p>
+<div class="arithmatex">\[
+0.8+0.2=1
+\]</div>
+<p>每一行和每一列都是 1。</p>
+<p>如果原来有两个 residual stream：</p>
+<div class="arithmatex">\[
+X=
+\begin{bmatrix}
+x_1\\
+x_2
+\end{bmatrix}
+\]</div>
+<p>经过 <span class="arithmatex">\(H\)</span>：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+x'_1&amp;=0.8x_1+0.2x_2\\
+x'_2&amp;=0.2x_1+0.8x_2
+\end{aligned}
+\]</div>
+<p>注意它同时做了两件事。</p>
+<h3 id="_2">第一：信息确实发生了交换</h3>
+<p><span class="arithmatex">\(x_1\)</span> 里面现在有 <span class="arithmatex">\(x_2\)</span>。</p>
+<p><span class="arithmatex">\(x_2\)</span> 里面也有 <span class="arithmatex">\(x_1\)</span>。</p>
+<p>所以不是 Identity：</p>
+<div class="arithmatex">\[
+H\neq I
+\]</div>
+<p>模型仍然具有 HC 想要的跨 residual stream 信息融合能力。</p>
+<hr />
+<h3 id="_3">第二：它不能凭空制造信号</h3>
+<p>把两个输出加起来：</p>
+<div class="arithmatex">\[
+x'_1+x'_2
+\]</div>
+<p>得到：</p>
+<div class="arithmatex">\[
+(0.8+0.2)x_1+(0.2+0.8)x_2
+\]</div>
+<p>即：</p>
+<div class="arithmatex">\[
+\boxed{x'_1+x'_2=x_1+x_2}
+\]</div>
+<p>总量没有变化。</p>
+<p>这就是<strong>列和为 1</strong>的重要意义。</p>
+<p>一般情况下：</p>
+<div class="arithmatex">\[
+\mathbf1^TH=\mathbf1^T
+\]</div>
+<p>因此：</p>
+<div class="arithmatex">\[
+\mathbf1^THX=\mathbf1^TX
+\]</div>
+<p>也就是：</p>
+<div class="arithmatex">\[
+\boxed{\text{所有 residual stream 的总和/均值被保持}}
+\]</div>
+<p>这就是论文所说的 signal conservation。</p>
+<hr />
+<h1 id="5-1">5. 行和为 1 又负责什么？</h1>
+<p>考虑：</p>
+<div class="arithmatex">\[
+x'_1 = 0.8x_1+0.2x_2
+\]</div>
+<p>因为：</p>
+<div class="arithmatex">\[
+0.8+0.2=1
+\]</div>
+<p>并且系数全部：</p>
+<div class="arithmatex">\[
+\ge0
+\]</div>
+<p>所以 <span class="arithmatex">\(x'_1\)</span> 是：</p>
+<div class="arithmatex">\[
+x_1,x_2
+\]</div>
+<p>的 <strong>convex combination，凸组合</strong>。</p>
+<p>也就是说它只能做：</p>
+<blockquote>
+<p>“80% 的 stream 1 + 20% 的 stream 2”</p>
+</blockquote>
+<p>而不能干：</p>
+<div class="arithmatex">\[
+10x_1-17x_2
+\]</div>
+<p>这种非常激进的信号放大和正负抵消。</p>
+<p>因此每个输出 stream 都是在已有 streams 之间进行“软混合”。</p>
+<p>论文明确把这一点作为 mHC 稳定性的来源之一：双随机约束让 residual mapping 成为输入 features 的 convex combination。</p>
+<hr />
+<h1 id="6">6. 更关键的是：反向传播也稳定</h1>
+<p>这一点非常容易被忽略，但其实正是为什么必须“<strong>双</strong>随机”，而不是单纯“每行和为 1”。</p>
+<p>前向传播：</p>
+<div class="arithmatex">\[
+Y=HX
+\]</div>
+<p>反向传播：</p>
+<div class="arithmatex">\[
+\frac{\partial L}{\partial X} = H^T \frac{\partial L}{\partial Y}
+\]</div>
+<p>所以：</p>
+<blockquote>
+<p>前向传播看的是 <span class="arithmatex">\(H\)</span>，反向传播实际上看的是 <span class="arithmatex">\(H^T\)</span>。</p>
+</blockquote>
+<p>如果只有：</p>
+<div class="arithmatex">\[
+H\mathbf1=\mathbf1
+\]</div>
+<p>也就是 row stochastic，只能保证前向的某种稳定性。</p>
+<p>但是反向传播用的是：</p>
+<div class="arithmatex">\[
+H^T
+\]</div>
+<p>因此还需要：</p>
+<div class="arithmatex">\[
+H^T\mathbf1=\mathbf1
+\]</div>
+<p>等价于：</p>
+<div class="arithmatex">\[
+\mathbf1^TH=\mathbf1^T
+\]</div>
+<p>所以：</p>
+<div class="arithmatex">\[
+\boxed{
+\text{row sum = 1}
+\quad+\quad
+\text{column sum = 1}
+}
+\]</div>
+<p>实际上对应着：</p>
+<div class="arithmatex">\[
+\boxed{
+\text{Forward 稳定}
++
+\text{Backward 稳定}
+}
+\]</div>
+<p>论文甚至直接用 composite mapping 的最大绝对<strong>行和</strong>衡量 forward gain，用最大绝对<strong>列和</strong>衡量 backward gain。</p>
+<p>这个设计其实非常有针对性。</p>
+<hr />
+<h1 id="7">7. 最强的性质：双随机矩阵连乘之后仍然是双随机矩阵</h1>
+<p>这是整个 mHC 最重要的数学性质之一。</p>
+<p>假设：</p>
+<div class="arithmatex">\[
+A\mathbf1=\mathbf1
+\]</div>
+<p>以及：</p>
+<div class="arithmatex">\[
+B\mathbf1=\mathbf1
+\]</div>
+<p>那么：</p>
+<div class="arithmatex">\[
+AB\mathbf1 = A(B\mathbf1) = A\mathbf1 = \mathbf1
+\]</div>
+<p>同理：</p>
+<div class="arithmatex">\[
+\mathbf1^TAB = (\mathbf1^TA)B = \mathbf1^TB = \mathbf1^T
+\]</div>
+<p>所以：</p>
+<div class="arithmatex">\[
+A,B\text{ 都是双随机}
+\Rightarrow
+AB\text{ 仍然双随机}
+\]</div>
+<p>于是：</p>
+<div class="arithmatex">\[
+H_{100}H_{99}\cdots H_1
+\]</div>
+<p>依然满足双随机约束。</p>
+<p>这对于深度神经网络至关重要。</p>
+<p>原始 HC：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>H1 H2 H3 H4 ... H100
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>每乘一次
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    ↓
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>误差/增益可能积累
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    ↓
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>最终 gain → 3000
+</span></code></pre></div>
+<p>mHC：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>H1 H2 H3 H4 ... H100
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>│  │  │  │      │
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>DS DS DS DS     DS
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        ↓
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>乘积仍然 DS
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        ↓
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>信号约束不会因为深度消失
+</span></code></pre></div>
+<p>这就是论文所谓的 <strong>Compositional Closure</strong>。</p>
+<hr />
+<h1 id="8-hi">8. 所以它恢复的其实不是严格意义上的 <span class="arithmatex">\(H=I\)</span></h1>
+<p>这里有一个非常重要的细节。</p>
+<p>论文经常使用：</p>
+<blockquote>
+<p>restore identity mapping property</p>
+</blockquote>
+<p>但千万不要理解成：</p>
+<div class="arithmatex">\[
+H^{res}=I
+\]</div>
+<p>实际上一般：</p>
+<div class="arithmatex">\[
+H^{res}\neq I
+\]</div>
+<p>例如：</p>
+<div class="arithmatex">\[
+\begin{bmatrix}
+0.8&amp;0.2\\
+0.2&amp;0.8
+\end{bmatrix}
+\neq
+\begin{bmatrix}
+1&amp;0\\
+0&amp;1
+\end{bmatrix}
+\]</div>
+<p>它恢复的是一种<strong>广义 identity/conservation property</strong>。</p>
+<p>特别是：</p>
+<div class="arithmatex">\[
+H\mathbf1=\mathbf1
+\]</div>
+<p>意味着全 1 方向是它的特征向量：</p>
+<div class="arithmatex">\[
+H\mathbf1=1\cdot\mathbf1
+\]</div>
+<p>也就是说有一个 eigenvalue：</p>
+<div class="arithmatex">\[
+\lambda=1
+\]</div>
+<p>如果所有 residual streams 中都有一个共同分量：</p>
+<div class="arithmatex">\[
+X=
+\begin{bmatrix}
+v\\
+v\\
+v\\
+v
+\end{bmatrix}
+=\mathbf1\otimes v
+\]</div>
+<p>那么：</p>
+<div class="arithmatex">\[
+HX=X
+\]</div>
+<p>这个公共信号是<strong>严格不变的</strong>。</p>
+<p>所以你可以把它理解为：</p>
+<blockquote>
+<p>普通 ResNet 是“整条 residual stream 原样保留”；
+mHC 是“多 residual streams 中的公共/平均信息原样保留，同时允许各 stream 之间重新混合”。</p>
+</blockquote>
+<p>这比直接说“它还是 identity mapping”要准确得多。</p>
+<hr />
+<h1 id="9-birkhoff-polytope">9. Birkhoff Polytope 又是什么意思？</h1>
+<p>论文进一步指出：</p>
+<blockquote>
+<p>所有 <span class="arithmatex">\(n\times n\)</span> 双随机矩阵组成 Birkhoff polytope，而且任何双随机矩阵都可以表示成 permutation matrices 的凸组合。</p>
+</blockquote>
+<p>这个性质特别适合用来理解 mHC。</p>
+<p>Permutation matrix 例如：</p>
+<div class="arithmatex">\[
+P=
+\begin{bmatrix}
+0&amp;1\\
+1&amp;0
+\end{bmatrix}
+\]</div>
+<p>它只是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>stream 1 ← stream 2
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>stream 2 ← stream 1
+</span></code></pre></div>
+<p>纯粹交换两个 stream。</p>
+<p>Identity matrix：</p>
+<div class="arithmatex">\[
+I=
+\begin{bmatrix}
+1&amp;0\\
+0&amp;1
+\end{bmatrix}
+\]</div>
+<p>是不交换。</p>
+<p>而：</p>
+<div class="arithmatex">\[
+H=
+\begin{bmatrix}
+0.8&amp;0.2\\
+0.2&amp;0.8
+\end{bmatrix}
+\]</div>
+<p>其实可以写成：</p>
+<div class="arithmatex">\[
+H=0.8I+0.2P
+\]</div>
+<p>所以你完全可以把双随机矩阵理解成：</p>
+<div class="arithmatex">\[
+\boxed{
+\text{一系列 residual-stream 重排方式的“软组合”}
+}
+\]</div>
+<p>这非常形象：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Identity routing
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>       ↓
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>┌─────────────┐
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>│             │
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>stream1 → 1   │
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>stream2 → 2   │
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>stream3 → 3   │
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>└─────────────┘
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>Permutation routing
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>       ↓
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>stream1 → 3
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>stream2 → 1
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>stream3 → 2
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>mHC
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>       ↓
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>0.5 × routing A
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>+ 0.3 × routing B
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>+ 0.2 × routing C
+</span></code></pre></div>
+<p>因此它既比普通 residual connection 灵活得多，又不像任意矩阵那样能够胡乱放大信号。</p>
+<hr />
+<h1 id="10-spectral-norm-1">10. 为什么论文还说 spectral norm ≤ 1？</h1>
+<p>论文列出的另一个性质是：</p>
+<div class="arithmatex">\[
+\lVert H\rVert_2\le1
+\]</div>
+<p>从而 mapping 是 non-expansive。</p>
+<p>直觉上就是：</p>
+<blockquote>
+<p><span class="arithmatex">\(H\)</span> 可以重新分配、平均、混合信息，但不能把输入向量的 <span class="arithmatex">\(L_2\)</span> 能量任意放大。</p>
+</blockquote>
+<p>严格一点，因为双随机矩阵满足：</p>
+<div class="arithmatex">\[
+\lVert H\rVert_\infty=1
+\]</div>
+<p>以及：</p>
+<div class="arithmatex">\[
+\lVert H\rVert_1=1
+\]</div>
+<p>于是：</p>
+<div class="arithmatex">\[
+\lVert H\rVert_2
+\le
+\sqrt{\lVert H\rVert_1\,\lVert H\rVert_\infty}
+=1
+\]</div>
+<p>因此：</p>
+<div class="arithmatex">\[
+\lVert Hx\rVert_2\le\lVert x\rVert_2
+\]</div>
+<p>这就是为什么梯度不容易爆炸。</p>
+<p>不过这里我建议对论文的“Norm Preservation”这个词稍微谨慎理解：</p>
+<p><strong>它并不意味着所有向量的 norm 都完全不变。</strong></p>
+<p>比如：</p>
+<div class="arithmatex">\[
+H=
+\begin{bmatrix}
+0.5&amp;0.5\\
+0.5&amp;0.5
+\end{bmatrix}
+\]</div>
+<p>对于：</p>
+<div class="arithmatex">\[
+x=
+\begin{bmatrix}
+1\\
+-1
+\end{bmatrix}
+\]</div>
+<p>结果：</p>
+<div class="arithmatex">\[
+Hx=
+\begin{bmatrix}
+0\\
+0
+\end{bmatrix}
+\]</div>
+<p>norm 显然缩小了。</p>
+<p>所以更准确地说是：</p>
+<div class="arithmatex">\[
+\boxed{\text{non-expansion / norm upper-bound}}
+\]</div>
+<p>它主要阻止爆炸，并严格保持 stream mean/common-mode，而不是保证所有 feature direction 都完全不衰减。</p>
+<hr />
+<h1 id="11-h">11. 那模型怎么保证学出来的 <span class="arithmatex">\(H\)</span> 是双随机的？</h1>
+<p>它没有直接要求优化器自己学会这些约束。</p>
+<p>模型先正常生成一个任意矩阵：</p>
+<div class="arithmatex">\[
+\tilde H_l^{res}
+\]</div>
+<p>这个矩阵是由当前 hidden states 动态生成的。论文先 flatten <span class="arithmatex">\(X_l\)</span>，经过一个 linear projection 得到动态 mapping。</p>
+<p>之后：</p>
+<div class="arithmatex">\[
+H_l^{res} = \operatorname{SinkhornKnopp}(\tilde H_l^{res})
+\]</div>
+<p>Sinkhorn-Knopp 做的事情可以粗略理解成：</p>
+<h3 id="_4">第一步：保证所有元素为正</h3>
+<div class="arithmatex">\[
+M^{(0)}=\exp(\tilde H)
+\]</div>
+<h3 id="_5">第二步：行归一化</h3>
+<p>例如：</p>
+<div class="arithmatex">\[
+[2,3,5]
+\rightarrow
+[0.2,0.3,0.5]
+\]</div>
+<h3 id="_6">第三步：列归一化</h3>
+<p>让每列也变成 sum=1。</p>
+<p>但是列归一化之后，行可能又有一点偏。</p>
+<p>于是不断：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>行归一化
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a> ↓
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>列归一化
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a> ↓
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>行归一化
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a> ↓
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>列归一化
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a> ↓
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>...
+</span></code></pre></div>
+<p>最终逼近：</p>
+<div class="arithmatex">\[
+\begin{cases}
+\text{row sum}=1\\
+\text{column sum}=1
+\end{cases}
+\]</div>
+<p>论文实际用了 <strong>20 次迭代</strong>。</p>
+<p>所以整个过程其实是：</p>
+<div class="arithmatex">\[
+\boxed{
+X
+\rightarrow
+\text{预测任意 routing logits}
+\rightarrow
+Sinkhorn
+\rightarrow
+\text{合法的双随机 routing}
+}
+\]</div>
+<hr />
+<h1 id="12">12. 这张矩阵在整篇论文里的真正作用</h1>
+<p>如果压缩成一句话：</p>
+<blockquote>
+<p><strong>mHC 的双随机矩阵是在“普通残差的稳定性”和“HC 多 residual stream 的表达能力”之间搭了一座桥。</strong></p>
+</blockquote>
+<p>可以把三种架构这样对比：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Residual routing</th>
+<th>优点</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通 Residual</td>
+<td><span class="arithmatex">\(I\)</span></td>
+<td>极其稳定</td>
+<td>residual topology 很简单</td>
+</tr>
+<tr>
+<td>HC</td>
+<td>任意 <span class="arithmatex">\(H\)</span></td>
+<td>信息路由能力很强</td>
+<td>多层连乘可能爆炸/消失</td>
+</tr>
+<tr>
+<td><strong>mHC</strong></td>
+<td><strong>Doubly Stochastic <span class="arithmatex">\(H\)</span></strong></td>
+<td><strong>可以混合，同时约束增益</strong></td>
+<td>需要 Sinkhorn + 工程优化</td>
+</tr>
+</tbody>
+</table>
+<p>本质上就是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Residual
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>H = I
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>稳定性 ★★★★★
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>灵活性 ★
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>HC
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>H = arbitrary matrix
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>稳定性 ★★
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>灵活性 ★★★★★
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>mHC
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>H ∈ Birkhoff Polytope
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>稳定性 ★★★★★
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>灵活性 ★★★★
+</span></code></pre></div>
+<hr />
+<h2 id="13">13. 我认为最值得你记住的一个视角</h2>
+<p>不要把 mHC 理解成：</p>
+<blockquote>
+<p>“DeepSeek 找了一种特殊的归一化方法。”</p>
+</blockquote>
+<p>这样会低估这篇论文。</p>
+<p>它真正做的是一个<strong>架构层面的约束设计</strong>：</p>
+<div class="arithmatex">\[
+\boxed{
+\text{把残差连接从一个固定 identity operator}
+\rightarrow
+\text{扩展成一个受约束的 learnable routing operator}
+}
+\]</div>
+<p>普通 residual：</p>
+<div class="arithmatex">\[
+I
+\]</div>
+<p>HC：</p>
+<div class="arithmatex">\[
+H\in\mathbb R^{n\times n}
+\]</div>
+<p>mHC：</p>
+<div class="arithmatex">\[
+\boxed{
+H\in
+\{H\ge0,\ H\mathbf1=\mathbf1,\ \mathbf1^TH=\mathbf1^T\}
+}
+\]</div>
+<p>也就是把搜索空间从<strong>所有矩阵</strong>限制在 <strong>Birkhoff Polytope</strong> 上。</p>
+<p>这样模型仍然能学习：</p>
+<blockquote>
+<p>“这一层到底应该从哪几个 residual streams 读取多少信息？”</p>
+</blockquote>
+<p>但不允许学习：</p>
+<blockquote>
+<p>“把这个 stream 放大 37 倍、另一个乘 -16，再让这种增益连续累积 100 层。”</p>
+</blockquote>
+<p>因此它限制的不是<strong>信息流动方向</strong>，而主要限制的是<strong>信息流动的增益</strong>。</p>
+<p>这也是为什么论文最终实验中，原 HC composite gain 可以接近 <strong>3000</strong>，而 mHC 即使因为 Sinkhorn 只迭代 20 次而不是得到数学上的精确双随机矩阵，最大 composite gain 也只有大约 <strong>1.6</strong>，相差约三个数量级。</p>
+<p><strong>所以如果用一句最形象的话：</strong></p>
+<blockquote>
+<p>HC 相当于给 residual stream 修了很多互通的高速公路，但每条路的“信号增益”没有限速；mHC 保留了这些互通道路，却规定每个路口只能重新分配已有流量，不能凭空制造流量，而且这个规则无论经过多少个路口都成立。</p>
+</blockquote>
+<p>这就是“双随机矩阵”在这篇论文里发挥作用的核心原理。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">评论</h2>
+<script src="https://giscus.app/client.js"
+        data-repo="Ranbaigao/llm_learning"
+        data-repo-id="R_kgDOS6jz6w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOS6jz684DEEsg"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": [], "search": "../../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../../.assets/javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../../../../.assets/javascripts/pageview.js"></script>
+      
+        <script src="../../../../../.assets/javascripts/html_modal.js"></script>
+      
+        <script src="https://cn.vercount.one/js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1038 @@
+<style>
+.bp-container {
+  --bp-bg: #f8fafc;
+  --bp-panel: #ffffff;
+  --bp-text: #334155;
+  --bp-muted: #64748b;
+  --bp-border: #cbd5e1;
+  --bp-blue: #3b82f6;
+  --bp-blue-strong: #1d4ed8;
+  --bp-ok: #16a34a;
+  --bp-bad: #dc2626;
+  --bp-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  width: 100%;
+  margin: 0 auto;
+  padding: 14px 16px;
+  background: var(--bp-bg);
+  color: var(--bp-text);
+  border-radius: 12px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.bp-container * {
+  box-sizing: border-box;
+}
+
+.bp-pages {
+  max-height: clamp(540px, 76vh, 900px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--bp-border);
+  border-radius: 12px;
+  background: var(--bp-bg);
+  padding: 10px 0;
+}
+
+.bp-page {
+  display: none;
+}
+
+.bp-page.bp-active {
+  display: block;
+  animation: bpFadeIn 0.22s ease;
+}
+
+@keyframes bpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bp-section {
+  max-width: 920px;
+  margin: 0 auto 30px;
+  padding: 0 22px;
+}
+
+.bp-section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--bp-blue-strong);
+  border-left: 4px solid var(--bp-blue);
+  padding-left: 12px;
+  margin: 8px 0 12px;
+}
+
+.bp-note {
+  background: var(--bp-panel);
+  border: 1px solid var(--bp-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--bp-muted);
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  margin-bottom: 12px;
+}
+
+.bp-note b {
+  color: var(--bp-blue-strong);
+}
+
+.bp-card {
+  background: var(--bp-panel);
+  border: 1px solid var(--bp-border);
+  border-radius: 10px;
+  box-shadow: var(--bp-shadow);
+  padding: 12px;
+}
+
+.bp-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.bp-mat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 54px);
+  gap: 6px;
+}
+
+.bp-cell {
+  width: 54px;
+  height: 44px;
+  border-radius: 6px;
+  border: 1px solid var(--bp-border);
+  background: #f1f5f9;
+}
+
+.bp-cell input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  text-align: center;
+  background: transparent;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bp-sum-row,
+.bp-sum-col {
+  font-size: 12px;
+  color: #475569;
+}
+
+.bp-sum-ok {
+  color: var(--bp-ok);
+  font-weight: 700;
+}
+
+.bp-sum-bad {
+  color: var(--bp-bad);
+  font-weight: 700;
+}
+
+.bp-verdict {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bp-verdict.bp-ok {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+.bp-verdict.bp-bad {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.22);
+}
+
+.bp-canvas {
+  width: 100%;
+  border-radius: 10px;
+  background: #f1f5f9;
+  border: 1px solid var(--bp-border);
+  display: block;
+}
+
+.bp-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.bp-slider-row input[type="range"] {
+  flex: 1;
+}
+
+.bp-inline-code {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  background: #f1f5f9;
+  color: #b45309;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.bp-perm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.bp-perm-btn {
+  border: 1px solid var(--bp-border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bp-perm-btn:hover {
+  border-color: var(--bp-blue);
+  background: #eff6ff;
+  color: var(--bp-blue-strong);
+}
+
+.bp-perm-btn.bp-active {
+  border-color: var(--bp-blue);
+  background: #dbeafe;
+  color: var(--bp-blue-strong);
+  font-weight: 700;
+}
+
+.bp-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.bp-btn {
+  border: 1px solid var(--bp-border);
+  border-radius: 6px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bp-btn:hover {
+  border-color: var(--bp-blue);
+  background: #eff6ff;
+  color: var(--bp-blue-strong);
+}
+
+.bp-metric {
+  margin-top: 10px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: #475569;
+}
+
+.bp-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border: 1px solid var(--bp-border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.bp-table th,
+.bp-table td {
+  border-bottom: 1px solid var(--bp-border);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.bp-table th {
+  color: var(--bp-blue-strong);
+  background: #f1f5f9;
+}
+
+.bp-table tr:last-child td {
+  border-bottom: none;
+}
+
+.bp-formula {
+  background: #ffffff;
+  border-left: 4px solid var(--bp-blue);
+  border-radius: 0 8px 8px 0;
+  border: 1px solid var(--bp-border);
+  border-left-width: 4px;
+  padding: 10px 12px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: var(--bp-blue-strong);
+  margin: 10px 0;
+}
+
+.bp-dock-container {
+  margin: 12px auto 0;
+  display: flex;
+  justify-content: center;
+}
+
+.bp-dock {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--bp-border);
+  border-radius: 999px;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+  padding: 8px 12px;
+}
+
+.bp-dock-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.bp-dock-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.bp-dock-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.bp-dock-steps {
+  display: flex;
+  gap: 7px;
+}
+
+.bp-dot {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bp-dot:hover {
+  background: #e2e8f0;
+}
+
+.bp-dot.bp-active {
+  background: var(--bp-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.28);
+}
+
+@media (max-width: 760px) {
+  .bp-container {
+    padding: 12px 10px;
+    font-size: 12px;
+  }
+
+  .bp-pages {
+    max-height: 74vh;
+    padding: 8px 0;
+  }
+
+  .bp-section {
+    padding: 0 10px;
+    margin-bottom: 18px;
+  }
+
+  .bp-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .bp-section-title {
+    font-size: 16px;
+  }
+
+  .bp-dot {
+    width: 25px;
+    height: 25px;
+    font-size: 11px;
+  }
+}
+</style>
+
+<div class="bp-container">
+  <div class="bp-pages" id="bp-pages-viewport">
+    <div class="bp-page bp-active" data-bp-page="0">
+      <div class="bp-section">
+        <div class="bp-section-title">① 什么是双随机矩阵</div>
+        <div class="bp-note">满足三条约束：<b>每行和 = 1</b>、<b>每列和 = 1</b>、<b>所有元素 >= 0</b>。编辑下面 3x3 矩阵，观察约束是否成立。</div>
+        <div class="bp-grid-2">
+          <div class="bp-card">
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <div>
+                <div class="bp-mat-grid" id="bp-matrix-inputs"></div>
+                <div class="bp-sum-col" id="bp-col-sums" style="display:flex; gap:6px; margin-top:7px;"></div>
+              </div>
+              <div class="bp-sum-row" id="bp-row-sums" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+            <div id="bp-verdict" class="bp-verdict"></div>
+          </div>
+          <div class="bp-card">
+            <canvas id="bp-matrix-canvas" class="bp-canvas" height="300"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="1">
+      <div class="bp-section">
+        <div class="bp-section-title">② 2x2 情形：一条线段</div>
+        <div class="bp-note">2x2 双随机矩阵只有 1 个自由度：<span class="bp-inline-code">B(t) = [[t, 1-t], [1-t, t]]</span>，其中 t 属于 [0,1]。</div>
+        <div class="bp-card">
+          <canvas id="bp-slider-canvas" class="bp-canvas" height="280"></canvas>
+          <div class="bp-slider-row">
+            <span>t =</span>
+            <input id="bp-t-slider" type="range" min="0" max="100" value="50">
+            <span id="bp-t-value">0.50</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="2">
+      <div class="bp-section">
+        <div class="bp-section-title">③ 3x3 情形：6 个置换矩阵顶点</div>
+        <div class="bp-note">3x3 的所有置换矩阵一共 6 个，它们是 Birkhoff 多面体的顶点。点击任意顶点，查看对应矩阵和投影位置。</div>
+        <div class="bp-grid-2">
+          <div class="bp-card">
+            <div class="bp-perm-grid" id="bp-perm-grid"></div>
+            <div class="bp-metric" id="bp-perm-label" style="margin-top:8px;">当前顶点：P1</div>
+          </div>
+          <div class="bp-card">
+            <canvas id="bp-poly-canvas" class="bp-canvas" height="320"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="3">
+      <div class="bp-section">
+        <div class="bp-section-title">④ 凸组合：任意双随机矩阵都可分解</div>
+        <div class="bp-note">Birkhoff-von Neumann 定理：任意双随机矩阵可写为置换矩阵的非负加权和，且权重和为 1。</div>
+        <div class="bp-card">
+          <canvas id="bp-convex-canvas" class="bp-canvas" height="300"></canvas>
+          <div class="bp-controls">
+            <button class="bp-btn" data-bp-mix="center">示例 A：中心点</button>
+            <button class="bp-btn" data-bp-mix="edge">示例 B：边上点</button>
+            <button class="bp-btn" data-bp-mix="near">示例 C：近顶点</button>
+          </div>
+          <div class="bp-formula" id="bp-convex-eq"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="4">
+      <div class="bp-section">
+        <div class="bp-section-title">⑤ Sinkhorn：把任意正矩阵拉回双随机集合</div>
+        <div class="bp-note">交替执行行归一化与列归一化。点击按钮观察偏差如何收敛。</div>
+        <div class="bp-grid-2">
+          <div class="bp-card">
+            <canvas id="bp-sink-canvas" class="bp-canvas" height="280"></canvas>
+            <div class="bp-controls">
+              <button class="bp-btn" id="bp-sink-row">行归一化</button>
+              <button class="bp-btn" id="bp-sink-col">列归一化</button>
+              <button class="bp-btn" id="bp-sink-step">迭代 1 次</button>
+              <button class="bp-btn" id="bp-sink-reset">重置</button>
+            </div>
+          </div>
+          <div class="bp-card">
+            <div class="bp-metric" id="bp-sink-stat-1"></div>
+            <div class="bp-metric" id="bp-sink-stat-2"></div>
+            <div class="bp-formula" style="margin-top:12px;">H = exp(M / tau)\nfor k in range(K):\n  H = H / row_sum(H)\n  H = H / col_sum(H)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="5">
+      <div class="bp-section">
+        <div class="bp-section-title">⑥ mHC 中的作用：稳定混合残差流</div>
+        <div class="bp-note">在 mHC 中，H_res 被约束为双随机矩阵，可以在不显著放大信号的前提下完成多流通信。</div>
+        <div class="bp-table-wrap">
+          <table class="bp-table">
+            <tr><th>矩阵</th><th>约束</th><th>作用</th></tr>
+            <tr><td>H_res</td><td>双随机</td><td>流与流之间的软重排，保证稳定混合</td></tr>
+            <tr><td>H_pre</td><td>[0,1] 门控</td><td>从多流读入主干计算</td></tr>
+            <tr><td>H_post</td><td>[0,2] 门控</td><td>把主干输出分发回多流</td></tr>
+          </table>
+        </div>
+        <div class="bp-formula">x_{l+1} = H_res x_l + H_post ⊙ F(H_pre x_l)</div>
+        <div class="bp-note">你可以把它理解为：先混流，再把主干计算结果按比例写回，整体比无约束混合更稳。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bp-dock-container" aria-label="Birkhoff 分页导航">
+    <div class="bp-dock">
+      <button class="bp-dock-btn" type="button" data-bp-prev aria-label="上一页">◀</button>
+      <div class="bp-dock-steps">
+        <button class="bp-dot bp-active" type="button" data-bp-page-target="0">1</button>
+        <button class="bp-dot" type="button" data-bp-page-target="1">2</button>
+        <button class="bp-dot" type="button" data-bp-page-target="2">3</button>
+        <button class="bp-dot" type="button" data-bp-page-target="3">4</button>
+        <button class="bp-dot" type="button" data-bp-page-target="4">5</button>
+        <button class="bp-dot" type="button" data-bp-page-target="5">6</button>
+      </div>
+      <button class="bp-dock-btn" type="button" data-bp-next aria-label="下一页">▶</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const clamp = function (v, lo, hi) {
+    return Math.max(lo, Math.min(hi, v));
+  };
+
+  function setCanvasSize(canvas, height) {
+    const parent = canvas.parentElement;
+    const w = Math.max(parent.clientWidth - 4, 280);
+    canvas.width = w;
+    canvas.height = height;
+    return { w: canvas.width, h: canvas.height };
+  }
+
+  function clearBg(ctx, w, h) {
+    ctx.fillStyle = "#f1f5f9";
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  const matrixState = [
+    [0.5, 0.2, 0.3],
+    [0.3, 0.4, 0.3],
+    [0.2, 0.4, 0.4]
+  ];
+
+  const matrixGrid = document.getElementById("bp-matrix-inputs");
+  const rowSumsEl = document.getElementById("bp-row-sums");
+  const colSumsEl = document.getElementById("bp-col-sums");
+  const verdictEl = document.getElementById("bp-verdict");
+  const matrixCanvas = document.getElementById("bp-matrix-canvas");
+  const matrixCtx = matrixCanvas.getContext("2d");
+
+  const inputCells = [];
+  for (let r = 0; r < 3; r++) {
+    inputCells[r] = [];
+    for (let c = 0; c < 3; c++) {
+      const cell = document.createElement("div");
+      cell.className = "bp-cell";
+      const input = document.createElement("input");
+      input.type = "number";
+      input.step = "0.01";
+      input.min = "0";
+      input.max = "1";
+      input.value = matrixState[r][c].toFixed(2);
+      input.addEventListener("input", function () {
+        const v = parseFloat(input.value);
+        matrixState[r][c] = isNaN(v) ? 0 : v;
+        renderMatrixSection();
+      });
+      cell.appendChild(input);
+      matrixGrid.appendChild(cell);
+      inputCells[r][c] = input;
+    }
+  }
+
+  function matrixRowSums() {
+    return matrixState.map(function (row) {
+      return row[0] + row[1] + row[2];
+    });
+  }
+
+  function matrixColSums() {
+    return [0, 1, 2].map(function (c) {
+      return matrixState[0][c] + matrixState[1][c] + matrixState[2][c];
+    });
+  }
+
+  function renderMatrixCanvas() {
+    const dim = setCanvasSize(matrixCanvas, 300);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(matrixCtx, w, h);
+
+    const cw = 68;
+    const ch = 54;
+    const gap = 8;
+    const offX = (w - (3 * cw + 2 * gap)) / 2;
+    const offY = 30;
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const v = matrixState[r][c];
+        const alpha = clamp(v, 0, 1) * 0.6 + 0.08;
+        const x = offX + c * (cw + gap);
+        const y = offY + r * (ch + gap);
+        matrixCtx.fillStyle = "rgba(59,130,246," + alpha + ")";
+        matrixCtx.beginPath();
+        matrixCtx.roundRect(x, y, cw, ch, 6);
+        matrixCtx.fill();
+
+        matrixCtx.fillStyle = "#0f172a";
+        matrixCtx.font = "bold 13px monospace";
+        matrixCtx.textAlign = "center";
+        matrixCtx.textBaseline = "middle";
+        matrixCtx.fillText(v.toFixed(2), x + cw / 2, y + ch / 2);
+      }
+    }
+
+    const rs = matrixRowSums();
+    const cs = matrixColSums();
+    matrixCtx.font = "bold 12px monospace";
+    matrixCtx.textAlign = "left";
+    for (let i = 0; i < 3; i++) {
+      matrixCtx.fillStyle = Math.abs(rs[i] - 1) < 0.01 ? "#16a34a" : "#dc2626";
+      matrixCtx.fillText("行" + (i + 1) + "=" + rs[i].toFixed(2), offX + 3 * (cw + gap) + 8, offY + i * (ch + gap) + 28);
+    }
+
+    matrixCtx.textAlign = "center";
+    for (let j = 0; j < 3; j++) {
+      matrixCtx.fillStyle = Math.abs(cs[j] - 1) < 0.01 ? "#16a34a" : "#dc2626";
+      matrixCtx.fillText(cs[j].toFixed(2), offX + j * (cw + gap) + cw / 2, offY + 3 * (ch + gap) + 16);
+    }
+  }
+
+  function renderMatrixSection() {
+    const rs = matrixRowSums();
+    const cs = matrixColSums();
+
+    rowSumsEl.innerHTML = "";
+    for (let i = 0; i < 3; i++) {
+      const ok = Math.abs(rs[i] - 1) < 0.01;
+      const row = document.createElement("div");
+      row.innerHTML = "行" + (i + 1) + " <span class='" + (ok ? "bp-sum-ok" : "bp-sum-bad") + "'>" + rs[i].toFixed(3) + "</span>";
+      rowSumsEl.appendChild(row);
+    }
+
+    colSumsEl.innerHTML = "";
+    for (let j = 0; j < 3; j++) {
+      const ok = Math.abs(cs[j] - 1) < 0.01;
+      const col = document.createElement("div");
+      col.innerHTML = "<span class='" + (ok ? "bp-sum-ok" : "bp-sum-bad") + "'>" + cs[j].toFixed(2) + "</span>";
+      colSumsEl.appendChild(col);
+    }
+
+    const allNonNeg = matrixState.every(function (row) {
+      return row.every(function (v) {
+        return v >= 0;
+      });
+    });
+    const allRowOk = rs.every(function (s) { return Math.abs(s - 1) < 0.01; });
+    const allColOk = cs.every(function (s) { return Math.abs(s - 1) < 0.01; });
+
+    if (allNonNeg && allRowOk && allColOk) {
+      verdictEl.className = "bp-verdict bp-ok";
+      verdictEl.textContent = "这是一个双随机矩阵，位于 Birkhoff Polytope 内";
+    } else {
+      verdictEl.className = "bp-verdict bp-bad";
+      verdictEl.textContent = "当前不满足双随机约束";
+    }
+
+    renderMatrixCanvas();
+  }
+
+  const slider = document.getElementById("bp-t-slider");
+  const sliderVal = document.getElementById("bp-t-value");
+  const sliderCanvas = document.getElementById("bp-slider-canvas");
+  const sliderCtx = sliderCanvas.getContext("2d");
+
+  function renderSliderSection() {
+    const t = parseInt(slider.value, 10) / 100;
+    sliderVal.textContent = t.toFixed(2);
+
+    const dim = setCanvasSize(sliderCanvas, 280);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(sliderCtx, w, h);
+
+    const x0 = 80;
+    const x1 = w - 80;
+    const y = h / 2;
+
+    sliderCtx.strokeStyle = "#cbd5e1";
+    sliderCtx.lineWidth = 4;
+    sliderCtx.beginPath();
+    sliderCtx.moveTo(x0, y);
+    sliderCtx.lineTo(x1, y);
+    sliderCtx.stroke();
+
+    sliderCtx.strokeStyle = "#3b82f6";
+    sliderCtx.beginPath();
+    sliderCtx.moveTo(x0, y);
+    sliderCtx.lineTo(x0 + (x1 - x0) * t, y);
+    sliderCtx.stroke();
+
+    const cx = x0 + (x1 - x0) * t;
+    sliderCtx.fillStyle = "#ffffff";
+    sliderCtx.strokeStyle = "#1d4ed8";
+    sliderCtx.lineWidth = 2;
+    sliderCtx.beginPath();
+    sliderCtx.arc(cx, y, 10, 0, Math.PI * 2);
+    sliderCtx.fill();
+    sliderCtx.stroke();
+
+    sliderCtx.fillStyle = "#475569";
+    sliderCtx.font = "12px monospace";
+    sliderCtx.textAlign = "center";
+    sliderCtx.fillText("t=0", x0, y - 18);
+    sliderCtx.fillText("t=1", x1, y - 18);
+
+    const B = [
+      [t, 1 - t],
+      [1 - t, t]
+    ];
+    const cw = 70;
+    const ch = 52;
+    const gx = (w - (2 * cw + 8)) / 2;
+    const gy = y + 28;
+
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 2; c++) {
+        const v = B[r][c];
+        sliderCtx.fillStyle = "rgba(59,130,246," + (0.15 + v * 0.6) + ")";
+        sliderCtx.beginPath();
+        sliderCtx.roundRect(gx + c * (cw + 8), gy + r * (ch + 8), cw, ch, 6);
+        sliderCtx.fill();
+        sliderCtx.fillStyle = "#0f172a";
+        sliderCtx.font = "bold 13px monospace";
+        sliderCtx.fillText(v.toFixed(2), gx + c * (cw + 8) + cw / 2, gy + r * (ch + 8) + ch / 2);
+      }
+    }
+  }
+
+  slider.addEventListener("input", renderSliderSection);
+
+  const permData = [
+    [1, 2, 3],
+    [1, 3, 2],
+    [2, 1, 3],
+    [2, 3, 1],
+    [3, 1, 2],
+    [3, 2, 1]
+  ];
+  let activePerm = 0;
+  const permGrid = document.getElementById("bp-perm-grid");
+  const permLabel = document.getElementById("bp-perm-label");
+  const polyCanvas = document.getElementById("bp-poly-canvas");
+  const polyCtx = polyCanvas.getContext("2d");
+
+  function renderPermButtons() {
+    permGrid.innerHTML = "";
+    permData.forEach(function (p, idx) {
+      const b = document.createElement("button");
+      b.className = "bp-perm-btn" + (idx === activePerm ? " bp-active" : "");
+      b.textContent = "P" + (idx + 1) + " [" + p.join(",") + "]";
+      b.addEventListener("click", function () {
+        activePerm = idx;
+        renderPermButtons();
+        renderPolyCanvas();
+      });
+      permGrid.appendChild(b);
+    });
+  }
+
+  function renderPolyCanvas() {
+    const dim = setCanvasSize(polyCanvas, 320);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(polyCtx, w, h);
+
+    const cx = w / 2;
+    const cy = h / 2;
+    const R = Math.min(w, h) * 0.32;
+
+    const pts = [];
+    for (let i = 0; i < 6; i++) {
+      const ang = -Math.PI / 2 + i * (Math.PI / 3);
+      pts.push([cx + R * Math.cos(ang), cy + R * Math.sin(ang)]);
+    }
+
+    polyCtx.strokeStyle = "#94a3b8";
+    polyCtx.lineWidth = 2;
+    polyCtx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const p = pts[i];
+      if (i === 0) polyCtx.moveTo(p[0], p[1]);
+      else polyCtx.lineTo(p[0], p[1]);
+    }
+    polyCtx.closePath();
+    polyCtx.stroke();
+
+    pts.forEach(function (p, i) {
+      polyCtx.fillStyle = i === activePerm ? "#1d4ed8" : "#64748b";
+      polyCtx.beginPath();
+      polyCtx.arc(p[0], p[1], i === activePerm ? 7 : 5, 0, Math.PI * 2);
+      polyCtx.fill();
+      polyCtx.fillStyle = "#334155";
+      polyCtx.font = "12px sans-serif";
+      polyCtx.textAlign = "center";
+      polyCtx.fillText("P" + (i + 1), p[0], p[1] - 12);
+    });
+
+    permLabel.textContent = "当前顶点：P" + (activePerm + 1) + " = [" + permData[activePerm].join(",") + "]";
+  }
+
+  const convexCanvas = document.getElementById("bp-convex-canvas");
+  const convexCtx = convexCanvas.getContext("2d");
+  const convexEq = document.getElementById("bp-convex-eq");
+  let convexWeights = [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6];
+
+  function drawConvex() {
+    const dim = setCanvasSize(convexCanvas, 300);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(convexCtx, w, h);
+
+    const cx = w / 2;
+    const cy = h / 2;
+    const R = Math.min(w, h) * 0.33;
+
+    const pts = [];
+    for (let i = 0; i < 6; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 3;
+      pts.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]);
+    }
+
+    convexCtx.strokeStyle = "#94a3b8";
+    convexCtx.lineWidth = 2;
+    convexCtx.beginPath();
+    pts.forEach(function (p, i) {
+      if (i === 0) convexCtx.moveTo(p[0], p[1]);
+      else convexCtx.lineTo(p[0], p[1]);
+    });
+    convexCtx.closePath();
+    convexCtx.stroke();
+
+    let mx = 0;
+    let my = 0;
+    for (let i = 0; i < 6; i++) {
+      mx += convexWeights[i] * pts[i][0];
+      my += convexWeights[i] * pts[i][1];
+      convexCtx.fillStyle = "#64748b";
+      convexCtx.beginPath();
+      convexCtx.arc(pts[i][0], pts[i][1], 4, 0, Math.PI * 2);
+      convexCtx.fill();
+    }
+
+    convexCtx.fillStyle = "#1d4ed8";
+    convexCtx.beginPath();
+    convexCtx.arc(mx, my, 8, 0, Math.PI * 2);
+    convexCtx.fill();
+
+    convexCtx.fillStyle = "#334155";
+    convexCtx.font = "12px sans-serif";
+    convexCtx.textAlign = "center";
+    convexCtx.fillText("双随机矩阵点", mx, my - 12);
+
+    const terms = convexWeights
+      .map(function (w, i) {
+        return w.toFixed(2) + "*P" + (i + 1);
+      })
+      .join(" + ");
+    convexEq.textContent = "M = " + terms;
+  }
+
+  document.querySelectorAll("[data-bp-mix]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const type = btn.getAttribute("data-bp-mix");
+      if (type === "center") {
+        convexWeights = [0.17, 0.16, 0.17, 0.16, 0.17, 0.17];
+      } else if (type === "edge") {
+        convexWeights = [0.5, 0.5, 0, 0, 0, 0];
+      } else {
+        convexWeights = [0.72, 0.1, 0.08, 0.05, 0.03, 0.02];
+      }
+      drawConvex();
+    });
+  });
+
+  let sinkM;
+  const sinkCanvas = document.getElementById("bp-sink-canvas");
+  const sinkCtx = sinkCanvas.getContext("2d");
+  const sinkStat1 = document.getElementById("bp-sink-stat-1");
+  const sinkStat2 = document.getElementById("bp-sink-stat-2");
+
+  function resetSink() {
+    sinkM = [
+      [Math.random() + 0.2, Math.random() + 0.2, Math.random() + 0.2],
+      [Math.random() + 0.2, Math.random() + 0.2, Math.random() + 0.2],
+      [Math.random() + 0.2, Math.random() + 0.2, Math.random() + 0.2]
+    ];
+    renderSink();
+  }
+
+  function rowNorm(M) {
+    M.forEach(function (row) {
+      const s = row[0] + row[1] + row[2] + 1e-8;
+      row[0] /= s;
+      row[1] /= s;
+      row[2] /= s;
+    });
+  }
+
+  function colNorm(M) {
+    for (let c = 0; c < 3; c++) {
+      const s = M[0][c] + M[1][c] + M[2][c] + 1e-8;
+      M[0][c] /= s;
+      M[1][c] /= s;
+      M[2][c] /= s;
+    }
+  }
+
+  function maxDev(M) {
+    const rs = M.map(function (r) { return r[0] + r[1] + r[2]; });
+    const cs = [0, 1, 2].map(function (c) { return M[0][c] + M[1][c] + M[2][c]; });
+    const rd = Math.max.apply(null, rs.map(function (v) { return Math.abs(v - 1); }));
+    const cd = Math.max.apply(null, cs.map(function (v) { return Math.abs(v - 1); }));
+    return { rd: rd, cd: cd };
+  }
+
+  function renderSink() {
+    const dim = setCanvasSize(sinkCanvas, 280);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(sinkCtx, w, h);
+
+    const cw = 72;
+    const ch = 52;
+    const gap = 8;
+    const offX = (w - (3 * cw + 2 * gap)) / 2;
+    const offY = 30;
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const v = sinkM[r][c];
+        sinkCtx.fillStyle = "rgba(59,130,246," + (0.1 + clamp(v, 0, 1) * 0.6) + ")";
+        sinkCtx.beginPath();
+        sinkCtx.roundRect(offX + c * (cw + gap), offY + r * (ch + gap), cw, ch, 6);
+        sinkCtx.fill();
+        sinkCtx.fillStyle = "#0f172a";
+        sinkCtx.font = "bold 12px monospace";
+        sinkCtx.textAlign = "center";
+        sinkCtx.textBaseline = "middle";
+        sinkCtx.fillText(v.toFixed(3), offX + c * (cw + gap) + cw / 2, offY + r * (ch + gap) + ch / 2);
+      }
+    }
+
+    const dev = maxDev(sinkM);
+    const ok = dev.rd < 0.01 && dev.cd < 0.01;
+    sinkStat1.textContent = "行偏差最大值: " + dev.rd.toFixed(5) + " | 列偏差最大值: " + dev.cd.toFixed(5);
+    sinkStat2.innerHTML = ok
+      ? "<span style='color:#16a34a;font-weight:700;'>已接近双随机矩阵</span>"
+      : "<span style='color:#dc2626;font-weight:700;'>尚未收敛，继续迭代</span>";
+  }
+
+  document.getElementById("bp-sink-row").addEventListener("click", function () {
+    rowNorm(sinkM);
+    renderSink();
+  });
+
+  document.getElementById("bp-sink-col").addEventListener("click", function () {
+    colNorm(sinkM);
+    renderSink();
+  });
+
+  document.getElementById("bp-sink-step").addEventListener("click", function () {
+    rowNorm(sinkM);
+    colNorm(sinkM);
+    renderSink();
+  });
+
+  document.getElementById("bp-sink-reset").addEventListener("click", function () {
+    resetSink();
+  });
+
+  function initAll() {
+    renderMatrixSection();
+    renderSliderSection();
+    renderPermButtons();
+    renderPolyCanvas();
+    drawConvex();
+    resetSink();
+  }
+
+  const root = document.querySelector(".bp-container");
+  const viewport = document.getElementById("bp-pages-viewport");
+  const pages = Array.from(root.querySelectorAll(".bp-page"));
+  const dots = Array.from(root.querySelectorAll("[data-bp-page-target]"));
+  const prev = root.querySelector("[data-bp-prev]");
+  const next = root.querySelector("[data-bp-next]");
+  let current = 0;
+
+  function goToPage(index) {
+    current = Math.max(0, Math.min(index, pages.length - 1));
+    pages.forEach(function (p, i) {
+      p.classList.toggle("bp-active", i === current);
+    });
+    dots.forEach(function (d, i) {
+      d.classList.toggle("bp-active", i === current);
+    });
+    if (prev) prev.disabled = current === 0;
+    if (next) next.disabled = current === pages.length - 1;
+    if (viewport) viewport.scrollTop = 0;
+    requestAnimationFrame(function () {
+      window.dispatchEvent(new Event("resize"));
+    });
+  }
+
+  dots.forEach(function (dot) {
+    dot.addEventListener("click", function () {
+      goToPage(Number(dot.getAttribute("data-bp-page-target")));
+    });
+  });
+  if (prev) prev.addEventListener("click", function () { goToPage(current - 1); });
+  if (next) next.addEventListener("click", function () { goToPage(current + 1); });
+
+  window.addEventListener("resize", function () {
+    renderMatrixCanvas();
+    renderSliderSection();
+    renderPolyCanvas();
+    drawConvex();
+    renderSink();
+  });
+
+  initAll();
+  goToPage(0);
+})();
+</script>

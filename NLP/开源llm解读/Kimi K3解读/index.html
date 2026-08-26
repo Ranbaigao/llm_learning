@@ -1,0 +1,4575 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ranbaigao.github.io/llm_learning/NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Kimi%20K3%E8%A7%A3%E8%AF%BB/">
+      
+      
+        <link rel="prev" href="../GLM-5.3%E8%A7%A3%E8%AF%BB/">
+      
+      
+        <link rel="next" href="../Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Kimi K3解读 - LLM知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../.assets/stylesheets/pageview.css">
+    
+      <link rel="stylesheet" href="../../../.assets/stylesheets/html_modal.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#1-k3-scale" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="LLM知识库" class="md-header__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Kimi K3解读
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="LLM知识库" class="md-nav__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    LLM知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../knowledge_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JEPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JEPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JiT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JiT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/SAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/VAE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VAE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    世界模型
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    世界模型
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/%E5%B0%8F%E9%B9%8FVLA%E4%B8%8E%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小鹏 VLA 与世界模型技术体系总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/%E5%9F%BA%E7%A1%80/Reparameterization%20Trick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重参数化技巧（Reparameterization Trick）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/%E5%9F%BA%E7%A1%80/SD%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD公式推导
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NLP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NLP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM应用开发
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM应用开发
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Harness%2BAgent%E5%BC%95%E5%85%A5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness+Agent引入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Skill%E6%84%8F%E4%B9%89%E6%8E%A2%E8%AE%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill意义探讨
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_3" id="__nav_4_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepseek Harness
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deepseek Harness
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Deepseek%20Harness%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek Harness 技术报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Dsh%20%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dsh 会话记忆机制：the log IS the state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_4" id="__nav_4_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hermes Agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%8D%95%E4%B8%AA%E4%BC%9A%E8%AF%9D%E7%9A%84%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent 单会话记忆管理策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%A4%9AAgent%E9%80%9A%E4%BF%A1%E6%9E%B6%E6%9E%84/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    多 Agent 通信架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%AE%89%E5%85%A8%E3%80%81%E5%B7%A5%E4%BD%9C%E5%8C%BA%E9%9A%94%E7%A6%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全隔离与工作区隔离
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E8%AE%B0%E5%BF%86%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    内存压缩机制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Muon优化器
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/Muon%E4%BC%98%E5%8C%96%E5%99%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/%E5%A5%87%E5%BC%82%E5%80%BC%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%92%8C%E6%AD%A3%E4%BA%A4%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    奇异值、特征值和正交矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    位置编码
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    位置编码
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/RoPe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoPe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    残差连接
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    残差连接
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Attention%20Residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attention Residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Pre-Norm%20vs%20Post-Norm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre Norm vs Post Norm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/%E6%B5%81%E5%BD%A2%E6%AF%94%E8%BE%83/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    流形（Manifold） JiT 中的和 mHC 中的是一个意思吗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    mHC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/mHC%20%E6%AE%8B%E5%B7%AE%E6%B5%81%E5%BD%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC_残差流形
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/%E5%8F%8C%E9%9A%8F%E6%9C%BA%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    双随机矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    注意力机制
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    注意力机制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/DSA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/GatedAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GatedAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/LinearAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LinearAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/MLA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型训练
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_1" id="__nav_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SFT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/LoRA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/SFT%E4%B8%8D%E5%AE%8C%E6%95%B4%E5%AD%A6%E4%B9%A0%E7%8E%B0%E8%B1%A1ILP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT 为什么"学不会"：不完整学习现象（ILP）的系统性研究
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2" id="__nav_4_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    强化学习
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    强化学习
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/ClipPPO%E5%8E%9F%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipPPO原理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/DPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/GSPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GSPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RL知识图谱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%9D%8E%E5%AE%8F%E6%AF%85DRL%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    李宏毅DRL笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2_6" id="__nav_4_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent RL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent RL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/Agent%20RL/%E6%A3%80%E9%AA%8CAgent%E7%9A%84coding%E5%AE%9E%E7%8E%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检验Agent的coding实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM源码解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM源码解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/ChatGPT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChatGPT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/Einsum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Einsum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/MOE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/%E6%A0%B8%E5%BF%83%E8%A6%81%E4%B9%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心要义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    OpenMythos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/ACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/LTI%20Injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LTI Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/OpenMythos%E6%A1%86%E6%9E%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开源llm解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开源llm解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AR-Diffusion%E4%B8%8E%E6%BD%9C%E7%A9%BA%E9%97%B4%E6%8E%A8%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AR-Diffusion 与潜空间推理路线综述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Claude%20Mythos%205%E6%8E%A8%E6%B5%8B/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Mythos 5 技术报告：官方披露的训练方法与模型架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4 技术报告：面向百万上下文的高效长文本模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GLM-5.3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GLM 5.3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kimi K3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nemotron-Labs-Diffusion 技术报告：统一 AR、Diffusion 与 Self-Speculation 的三模式语言模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OpenMythos%20Recurrent%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos Recurrent解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Qwen3.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3.5解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    代码实践
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    代码实践
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/esft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gpt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gqa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GQA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/mhc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/moe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/open_mythos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open mythos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/vit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    性能优化
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    性能优化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Deepspeed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepspeed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Flash-Attention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/MOE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE负载均衡
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/SGLang/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SGLang
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/vLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vLLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E5%88%86%E5%B8%83%E5%BC%8F/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    分布式
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推理加速方法总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<p>可以。Kimi K3 和刚才的 GLM-5.3 放在一起看特别有意思，因为两者代表了两种不同的 frontier scaling 路线。</p>
+<p><strong>GLM-5.3 更像“底座不变，把后训练和 Agent 环境做到极致”；Kimi K3 则是“底座、架构、MoE、长上下文、多模态、Agent RL、推理基础设施一起 scale”。</strong></p>
+<p>K3 官方的基本配置已经很激进：<strong>2.78T 总参数、104.2B 激活参数、93 层、896 个 routed experts / 每 token 激活 16 个、1M context，并且从预训练阶段就是原生多模态。</strong>相比 K2 的 1.04T / 32.6B activated，规模不是小升级。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>我认为 Kimi K3 真正值得看的创新，可以归纳成下面 <strong>7 个部分</strong>。</p>
+<hr />
+<h1 id="1-k3-scale">1. K3 的总体思路：同时 Scale 三个信息流维度</h1>
+<p>K3 的架构设计其实可以用一个非常漂亮的三维框架理解：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                    Kimi K3
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                       │
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        ┌──────────────┼──────────────┐
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        │              │              │
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a> Sequence Mixing   Depth Mixing   Channel Mixing
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        │              │              │
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>   KDA + MLA         AttnRes       LatentMoE
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        │              │              │
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a> 长序列信息流       跨层信息流       专家/参数容量
+</span></code></pre></div>
+<p>Kimi 官方也明确把 K3 描述为沿着：</p>
+<ul>
+<li>sequence length</li>
+<li>network depth</li>
+<li>model width</li>
+</ul>
+<p>三个方向扩展 information flow。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这是理解整个 K3 架构最好的入口。</p>
+<hr />
+<h1 id="2-kda-mla-attention">2. 第一大创新：KDA + MLA，把 Attention 变成「局部递归记忆 + 周期性全局检索」</h1>
+<p>K2 基本上还是 MLA。</p>
+<p>K3 变成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>KDA
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>KDA
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>KDA
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>MLA
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>KDA
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>KDA
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>KDA
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>MLA
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>...
+</span></code></pre></div>
+<p>也就是 <strong>3:1 的 KDA : MLA hybrid attention</strong>，整个模型最终是：</p>
+<ul>
+<li>69 层 KDA</li>
+<li>24 层 MLA</li>
+</ul>
+<p>共 93 层。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<h3 id="_1">为什么这么做？</h3>
+<p>Softmax Attention 的问题大家都知道：</p>
+<p>[
+KV\ Cache \propto L
+]</p>
+<p>context 越长，KV Cache 越大。</p>
+<p>而 KDA 属于一种 recurrent / linear attention：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>token1
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  ↓
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>state S1
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  ↓
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>token2
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  ↓
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>state S2
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>  ↓
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>token3
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  ↓
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>...
+</span></code></pre></div>
+<p>它把历史压缩到固定大小的状态 (S_t) 里。</p>
+<p>所以长上下文下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Traditional Attention
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>token ────────────────────► all previous KV
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>KV Cache ↑ with context
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>KDA
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>token → recurrent state S → token
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>          fixed size
+</span></code></pre></div>
+<p>K3 的 KDA state 不随着序列无限增长，因此特别适合 1M context。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>但是纯 linear/recurrent attention 又有问题：</p>
+<blockquote>
+<p>历史信息被压进 state 后，精确检索某个很久以前 token 的能力会弱于 full attention。</p>
+</blockquote>
+<p>所以 K3 没有完全干掉 Softmax Attention，而是：</p>
+<blockquote>
+<p><strong>3 层 KDA 做廉价的信息传播 + 1 层 MLA 做全局精确 retrieval。</strong></p>
+</blockquote>
+<p>这其实是一种非常合理的 hybrid architecture。</p>
+<hr />
+<h2 id="k3-kda">K3 对 KDA 还有两个重要修改</h2>
+<p>KDA 本身不是 K3 才第一次提出，来自 Moonshot 此前的 Kimi Linear。</p>
+<p>K3 真正改了两个工程上很关键的地方。</p>
+<h3 id="1-lower-bounded-decay">① Lower-bounded decay</h3>
+<p>以前 decay 可以无限接近 0。</p>
+<p>那么 chunkwise parallel 时：</p>
+<p>[
+1/\Gamma
+]</p>
+<p>可能变得巨大，产生 numerical overflow。</p>
+<p>K3 强制：</p>
+<p>[
+g_{\min}=-5
+]</p>
+<p>使 retention factor：</p>
+<p>[
+\alpha &gt; e^{-5}
+]</p>
+<p>这样一个 16-token tile 内累计缩放仍然落在 BF16 能表达的范围里。</p>
+<p>结果是：</p>
+<blockquote>
+<p><strong>连 diagonal tile 都可以直接 Tensor Core GEMM。</strong></p>
+</blockquote>
+<p>不再需要特殊 position-pair kernel。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这属于非常典型的：</p>
+<p><strong>algorithm ↔ hardware co-design。</strong></p>
+<p>不是单纯数学上变漂亮，而是：</p>
+<blockquote>
+<p>我重新设计 recurrence 参数化，让它恰好适合 GPU Tensor Core。</p>
+</blockquote>
+<p>这类创新我认为实际价值很高。</p>
+<hr />
+<h1 id="3-attention-residuals">3. 第二个很值得注意的东西：Attention Residuals</h1>
+<p>这个东西我觉得甚至比 KDA 更有研究味道。</p>
+<p>传统 Transformer：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Layer 1
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  ↓ residual add
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Layer 2
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  ↓ residual add
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Layer 3
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  ↓
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>Layer 4
+</span></code></pre></div>
+<p>隐藏状态实际上是：</p>
+<p>[
+h_l=h_{l-1}+f_l(h_{l-1})
+]</p>
+<p>于是第 80 层想使用第 5 层的信息，只能依赖：</p>
+<blockquote>
+<p>第 5 层的信息在前面 75 次 residual accumulation 之后还没有丢掉。</p>
+</blockquote>
+<p>Moonshot 的一个观点是：</p>
+<blockquote>
+<p>这其实和 Transformer 出现前的 RNN 有点像。</p>
+</blockquote>
+<p><strong>sequence dimension 上我们已经从 RNN → Attention 了，为什么 depth dimension 还在做 sequential accumulation？</strong></p>
+<p>于是 AttnRes 做了一件很直接的事：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Layer 1 ───────────────┐
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Layer 2 ────────────┐  │
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Layer 3 ─────────┐  │  │
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>                 ▼  ▼  ▼
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>               Attention
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>                   ↓
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>                Layer N
+</span></code></pre></div>
+<p>换句话说：</p>
+<blockquote>
+<p><strong>让 Layer 对 Layer 也做 Attention。</strong></p>
+</blockquote>
+<p>而不是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>全部历史层
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>   ↓
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>不断相加
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>   ↓
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>一个 hidden state
+</span></code></pre></div>
+<p>K3 使用 learned pseudo-query，根据前面不同 block 的 representation 动态计算权重，再组合出当前层输入。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>我认为这个思想特别值得关注：</p>
+<h3 id="transformer">Transformer 传统上只有</h3>
+<p>[
+Attention_{token}
+]</p>
+<p>现在变成：</p>
+<p>[
+Attention_{token}
++
+Attention_{layer}
+]</p>
+<p>也就是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>横向：
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>哪个历史 token 重要？
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>纵向：
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>哪个历史 layer representation 重要？
+</span></code></pre></div>
+<hr />
+<h2 id="attention">为什么最后不是每层互相 Attention？</h2>
+<p>因为那样需要保存所有层 activation。</p>
+<p>所以 K3 实际用了 <strong>Block AttnRes</strong>：</p>
+<p>93 层被压成大约 8 个主要 block，每个 block 约 12 层，然后对 block-level representation 做 attention。</p>
+<p>于是 storage：</p>
+<p>[
+O(Ld)
+]</p>
+<p>下降到：</p>
+<p>[
+O(Nd)
+]</p>
+<p>官方说经验上约 8 个 block 已经可以恢复 Full AttnRes 的大部分收益。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这应该算 K3 最值得关注的架构创新之一。</p>
+<hr />
+<h1 id="4-stable-latentmoe-moe">4. Stable LatentMoE：真正把 MoE 做到了「近千专家」</h1>
+<p>K3 的 MoE 数字很夸张：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>K2:
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>384 experts
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>Top-8
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>K3:
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>896 experts
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>Top-16
+</span></code></pre></div>
+<p>但是这里不能简单理解为：</p>
+<blockquote>
+<p>把专家数量翻倍。</p>
+</blockquote>
+<p>因为 K3 又引入了 <strong>LatentMoE</strong>。</p>
+<p>传统 MoE：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>hidden dimension = 7168
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>token
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a> ↓
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>7168-d
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a> ↓
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>Expert
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a> ↓
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>7168-d
+</span></code></pre></div>
+<p>16 个专家都处理 full-width representation，通信和 expert traffic 会非常大。</p>
+<p>LatentMoE 变成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>        full hidden
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>           7168
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>             ↓
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>        W_down
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>             ↓
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>          3584
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>             ↓
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>     ┌───────┼───────┐
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>     E1      E2 ...  E16
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>     └───────┼───────┘
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>             ↓
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>          latent
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>             ↓
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>         W_up
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>             ↓
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>          7168
+</span></code></pre></div>
+<p>也就是 routed expert 只在：</p>
+<p>[
+3584 = 0.5\times7168
+]</p>
+<p>的 latent space 里面工作。</p>
+<p>与此同时还有 <strong>2 个 full-width shared experts</strong> 负责通用 transformation。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>所以本质是：</p>
+<blockquote>
+<p><strong>Common knowledge → full-width shared expert</strong></p>
+<p><strong>Specialized knowledge → narrow latent experts</strong></p>
+</blockquote>
+<p>这样才能负担得起：</p>
+<p>[
+896 \text{ experts},\ Top16
+]</p>
+<p>这个设计对 MoE scaling 很有意义。</p>
+<hr />
+<h1 id="5-896">5. 更有意思的是它怎么解决 896 专家的负载均衡</h1>
+<p>这块和你之前问 Qwen MoE load balancing 很相关。</p>
+<p>K3 没采用经典 auxiliary load-balancing loss。</p>
+<p>而是：</p>
+<blockquote>
+<p><strong>Auxiliary-loss-free routing + Quantile Balancing。</strong></p>
+</blockquote>
+<p>以前 DeepSeek 那类 auxiliary-loss-free balancing 大致是维护 expert bias：</p>
+<p>[
+s'_j=s_j+b_j
+]</p>
+<p>哪个专家过载：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>bias ↓
+</span></code></pre></div>
+<p>哪个专家冷门：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>bias ↑
+</span></code></pre></div>
+<p>问题在于更新通常是：</p>
+<p>[
+b_j \leftarrow b_j+\gamma \cdot sign(target-load_j)
+]</p>
+<p>这里存在一个敏感超参数：</p>
+<p>[
+\gamma
+]</p>
+<p>太小：</p>
+<blockquote>
+<p>调不过来。</p>
+</blockquote>
+<p>太大：</p>
+<blockquote>
+<p>expert load 来回震荡。</p>
+</blockquote>
+<p>对于：</p>
+<p>[
+896 experts
+]</p>
+<p>这个问题就很明显了。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<hr />
+<h2 id="k3-quantile-balancing">K3 的 Quantile Balancing</h2>
+<p>它不再慢慢“调 bias”。</p>
+<p>而是直接问：</p>
+<blockquote>
+<p><strong>如果 expert j 应该获得 q 个 token，那么它的 score threshold 应该是多少？</strong></p>
+</blockquote>
+<p>然后直接计算 router score margin 的 quantile。</p>
+<p>简化理解：</p>
+<p>假设：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>1000 tokens
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>100 experts
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>Top-10
+</span></code></pre></div>
+<p>总 assignment：</p>
+<p>[
+1000\times10=10000
+]</p>
+<p>理想每 expert：</p>
+<p>[
+q=100
+]</p>
+<p>那么 K3 就直接找：</p>
+<blockquote>
+<p>让 expert j 恰好落在 top-k 的第 100 个 token 对应的 score quantile。</p>
+</blockquote>
+<p>然后一次性设置 bias。</p>
+<p>所以：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>旧方案：
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>过载 → bias -0.01
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>还是过载 → -0.01
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>还是过载 → -0.01
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>...
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>QB：
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>应该拿100个token？
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>→ 算第100名 threshold
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>→ 直接设置 bias
+</span></code></pre></div>
+<p>这对于 <strong>近 1000 experts 的 MoE</strong> 是非常漂亮的设计。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<hr />
+<h1 id="6-situ-glu">6. SiTU-GLU：一个看似小，但很实用的稳定性改动</h1>
+<p>LatentMoE 带来一个问题。</p>
+<p>routing branch 实际上会连续经过很多 matrix multiplication：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>W_down
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a> ↓
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>expert W_gate
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a> ↓
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>expert W_up
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a> ↓
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>W_up to hidden
+</span></code></pre></div>
+<p>2.8T 规模以后容易出现 activation explosion。</p>
+<p>传统 SwiGLU：</p>
+<p>[
+x\sigma(x)\cdot x
+]</p>
+<p>正方向是没有上界的。</p>
+<p>K3 提出了 <strong>SiTU-GLU</strong>：</p>
+<p>核心就是把两个 branch 都 soft-cap：</p>
+<p>[
+\beta\tanh(x/\beta)
+]</p>
+<p>于是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>SwiGLU
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>activation
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    ↑
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    │          /
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    │        /
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    │      /
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    │    /
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>────┴────────────→ x
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>SiTU
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>activation
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>    ↑
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>    │       ─────── cap
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>    │     /
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>    │   /
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>    │ /
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>────┴────────────→ x
+</span></code></pre></div>
+<p>小数值区域保持接近 SwiGLU，大 activation 时自动饱和。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这类设计并不性感，但对训练 <strong>2.8T MoE</strong> 很现实。</p>
+<hr />
+<h1 id="7-native-multimodal-vit">7. Native Multimodal：不是后面外挂一个 ViT</h1>
+<p>K3 与很多 VLM 一个非常重要的区别是：</p>
+<blockquote>
+<p><strong>vision 从 pre-training 一开始就参与训练。</strong></p>
+</blockquote>
+<p>不是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>先训练 LLM
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>      ↓
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>冻结 / partially freeze
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>      ↓
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>接 ViT
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>      ↓
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>alignment
+</span></code></pre></div>
+<p>而是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>         Pre-training
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>             │
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>     ┌───────┴────────┐
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>     │                │
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>   text             vision
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>     │                │
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>     └───────┬────────┘
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>             ↓
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>      next-token loss
+</span></code></pre></div>
+<p>K3 使用约 <strong>401M 参数、27 层的 MoonViT-V2</strong>，图像和视频共享参数。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>而且有一个数据细节非常重要：</p>
+<p>他们大量增加：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>code
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>  ↕
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>rendered visual
+</span></code></pre></div>
+<p>这样的 programmatic multimodal data：</p>
+<ul>
+<li>SVG</li>
+<li>Webpage</li>
+<li>Game</li>
+<li>3D assets</li>
+<li>CAD</li>
+</ul>
+<p>(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这很好解释了为什么 K3 在：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>看 screenshot
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>→ 修改代码
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>→ render
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>→ 再看 screenshot
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>→ 再修改
+</span></code></pre></div>
+<p>这类 <strong>vision-in-the-loop coding</strong> 上特别强。</p>
+<p>这不是普通的“看图回答问题”。</p>
+<p>而是在训练：</p>
+<blockquote>
+<p><strong>视觉 observation → action → 新视觉 observation</strong></p>
+</blockquote>
+<hr />
+<h1 id="8-1m-context-rope">8. 1M Context 这里的设计也比“把 RoPE 拉长”有意思</h1>
+<p>K3 使用 <strong>NoPE</strong>。</p>
+<p>MLA 没有显式 positional embedding，KDA 本身的 recurrent decay 提供顺序信息。</p>
+<p>因此从理论设计上：</p>
+<blockquote>
+<p>context extension 不需要调整 RoPE base / YaRN。</p>
+</blockquote>
+<p>(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>训练则走：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>8K
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a> ↓
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>64K
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a> ↓
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>256K
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a> ↓
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>1M
+</span></code></pre></div>
+<p>的 progressive curriculum。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>而且 Moonshot 特别指出：</p>
+<blockquote>
+<p>有一百万 token 长的数据 ≠ 模型真的会使用一百万 token。</p>
+</blockquote>
+<p>所以他们专门合成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>information A ──────────────────────────────┐
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>                                           │
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>                     information B ────────┤
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>                                           ▼
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>                                    final question
+</span></code></pre></div>
+<p>只有把分散在整个 1M context 的信息组合起来才能完成任务。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这个数据设计比单纯 long-document continual pretraining 更合理。</p>
+<hr />
+<h1 id="9-k3-post-training">9. 对你来说最值得看的其实是 K3 的 Post-training</h1>
+<p>这里我觉得 <strong>K3 比 GLM-5.3 公布得详细很多。</strong></p>
+<p>它明确写出了：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>                K3 Base
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>                   ↓
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>                  SFT
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>                   ↓
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>            Cold-start Policy
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>                   ↓
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>                  RL
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>        ┌──────────┼──────────┐
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>        │          │          │
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>     General   General Agent Coding Agent
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>        │          │          │
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>    Low/High/Max Low/High/Max Low/High/Max
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>        │          │          │
+</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>        └──────────┼──────────┘
+</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>                   ↓
+</span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>             9 RL Experts
+</span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>                   ↓
+</span><span id="__span-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a>        Multi-Teacher On-Policy
+</span><span id="__span-23-19"><a id="__codelineno-23-19" name="__codelineno-23-19" href="#__codelineno-23-19"></a>             Distillation
+</span><span id="__span-23-20"><a id="__codelineno-23-20" name="__codelineno-23-20" href="#__codelineno-23-20"></a>                   ↓
+</span><span id="__span-23-21"><a id="__codelineno-23-21" name="__codelineno-23-21" href="#__codelineno-23-21"></a>               Kimi K3
+</span></code></pre></div>
+<p>这是我认为 K3 后训练最重要的框架。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<hr />
+<h2 id="sft-cold-start">第一阶段：SFT 只负责 Cold Start</h2>
+<p>这里和我们之前讨论的逻辑几乎一致。</p>
+<p>Kimi 明确说：</p>
+<blockquote>
+<p>SFT establishes a high-quality cold-start policy for subsequent RL.</p>
+</blockquote>
+<p>它通过之前 Kimi 系列的 domain expert 生成 agent trajectory，再经过：</p>
+<ul>
+<li>多阶段 verification</li>
+<li>human-in-the-loop annotation</li>
+</ul>
+<p>建立：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>基础 reasoning
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>工具调用
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>Agent protocol
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>长程任务行为
+</span></code></pre></div>
+<p>然后再进 RL。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>所以它不是想靠 SFT 把最终 Agent 能力全部训出来。</p>
+<hr />
+<h1 id="10-rl-3-domain-3-effort-9-expert">10. RL 不是一个模型一起乱训，而是 3 Domain × 3 Effort = 9 个 Expert</h1>
+<p>这个设计我非常喜欢。</p>
+<p>K3 把 RL 分成三个 domain：</p>
+<h3 id="general">General</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>reasoning
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>knowledge
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>vision
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>faithfulness
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>search
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>knowledge work
+</span></code></pre></div>
+<h3 id="general-agent">General Agent</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>long-horizon assistant
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>deep research
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>writing
+</span></code></pre></div>
+<h3 id="coding-agent">Coding Agent</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>SWE
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>coding
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>kernel
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>web development
+</span></code></pre></div>
+<p>每一个又训练：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>low
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>high
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>max
+</span></code></pre></div>
+<p>三个 reasoning effort。</p>
+<p>所以：</p>
+<p>[
+3\times3=9
+]</p>
+<p>个 RL expert。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这解决一个经典问题：</p>
+<blockquote>
+<p><strong>如果所有任务、所有 inference budget 都放到一个 RL policy 里直接优化，很容易产生梯度冲突。</strong></p>
+</blockquote>
+<p>所以它先：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>specialize
+</span></code></pre></div>
+<p>再：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>merge
+</span></code></pre></div>
+<hr />
+<h1 id="11-reasoning-effort-rl-prompt">11. Reasoning Effort RL：不是 prompt 里说一句“少想一点”</h1>
+<p>它给每个问题建立初始 budget：</p>
+<p>[
+b_0(x)
+]</p>
+<p>然后设置：</p>
+<p>[
+T(y)\le\tau b_0(x)
+]</p>
+<p>超过预算直接：</p>
+<p>[
+reward=-1
+]</p>
+<p>于是：</p>
+<h3 id="max-model">Max model</h3>
+<p>[
+\tau = large
+]</p>
+<p>允许多思考。</p>
+<h3 id="high">High</h3>
+<p>降低 (\tau)。</p>
+<h3 id="low">Low</h3>
+<p>继续降低 (\tau)。</p>
+<p>(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>对于 agent task：</p>
+<p>[
+T(y)
+]</p>
+<p>甚至不只是 thinking tokens，而包含：</p>
+<blockquote>
+<p><strong>reasoning + tool-call arguments 的累计输出 token。</strong></p>
+</blockquote>
+<p>这其实是在训练：</p>
+<p>[
+\text{Capability}/\text{Compute}
+]</p>
+<p>而不仅仅：</p>
+<p>[
+\text{Capability}
+]</p>
+<p>也就是说模型真正学习：</p>
+<blockquote>
+<p>“这个问题值不值得花 20k token？”</p>
+</blockquote>
+<p>这是 test-time scaling 下一阶段非常关键的东西。</p>
+<hr />
+<h1 id="12-9-rl-expert-sft-merge">12. 最精彩的部分：9 个 RL expert 最后不是普通 SFT merge</h1>
+<p>如果最后把九个 expert 的 trajectory 全部丢回 SFT：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>Expert trajectory
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>        ↓
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>       SFT
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>        ↓
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>Unified model
+</span></code></pre></div>
+<p>会有明显 distillation loss。</p>
+<p>K3 使用：</p>
+<h1 id="multi-teacher-on-policy-distillation">Multi-Teacher On-Policy Distillation</h1>
+<p>也就是 <strong>MOPD</strong>。</p>
+<p>学生自己 rollout：</p>
+<p>[
+y_t\sim \pi_\theta
+]</p>
+<p>然后对应 domain/effort 的 teacher 给每个 token 一个 dense reward：</p>
+<p>[
+r_t
+===</p>
+<p>\log
+\frac{
+\pi_{\text{teacher}}(y_t|x,y_{&lt;t})
+}{
+\pi_{\text{student}}(y_t|x,y_{&lt;t})
+}
+]</p>
+<p>再 clip 控制极端 reward。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>所以不是：</p>
+<blockquote>
+<p>Teacher 给答案 → Student 模仿答案</p>
+</blockquote>
+<p>而是：</p>
+<blockquote>
+<p>Student 自己探索 → Teacher 在 Student 访问到的 state distribution 上纠正它。</p>
+</blockquote>
+<p>这就是 <strong>on-policy distillation</strong> 的意义。</p>
+<hr />
+<h2 id="sft-distillation">和 SFT distillation 的差别非常大</h2>
+<p>普通：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>Teacher trajectory:
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>S0 → A → B → C → D
+</span><span id="__span-32-4"><a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>     ↑
+</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a> student learns this
+</span></code></pre></div>
+<p>问题是 Student 真正执行时可能：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>S0 → A → X
+</span></code></pre></div>
+<p>然后：</p>
+<blockquote>
+<p>它从来没学过 X 后面怎么办。</p>
+</blockquote>
+<p>MOPD：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>Student:
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>S0 → A → X → Y
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>          ↑
+</span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>     Teacher evaluates
+</span><span id="__span-34-6"><a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>     token by token
+</span></code></pre></div>
+<p>所以可以减少：</p>
+<p>[
+distribution\ shift
+]</p>
+<p>对于长程 Agent 尤其重要。</p>
+<p><strong>这是 K3 后训练里我认为最值得借鉴的设计之一。</strong></p>
+<hr />
+<h1 id="13-k3-glm-53-scale-environment">13. K3 与 GLM-5.3 出现了明显的共识：真正应该 Scale 的是 Environment</h1>
+<p>你刚刚问 GLM-5.3 时，我们总结的是：</p>
+<blockquote>
+<p>Environment Scaling。</p>
+</blockquote>
+<p>K3 完全走到了同一个方向，而且披露得更具体。</p>
+<p>K3 做了一个 <strong>Unified White-Box RL Environment</strong>。</p>
+<p>把 Agent Harness 拆成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>Agent Harness
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>│
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>├── System Prompt
+</span><span id="__span-35-4"><a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>├── Tools
+</span><span id="__span-35-5"><a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>├── Context Management
+</span><span id="__span-35-6"><a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>├── Skills
+</span><span id="__span-35-7"><a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a>├── Memory
+</span><span id="__span-35-8"><a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a>├── Subagents
+</span><span id="__span-35-9"><a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a>└── Interaction Protocol
+</span></code></pre></div>
+<p>然后随机组合。</p>
+<p>甚至可以模拟：</p>
+<ul>
+<li>Kimi Code</li>
+<li>Claude Code</li>
+<li>Codex</li>
+<li>OpenClaw</li>
+<li>Hermes</li>
+</ul>
+<p>(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这个设计的核心不是“支持很多工具”。</p>
+<p>而是防止模型：</p>
+<blockquote>
+<p><strong>overfit 某一种 Agent scaffold。</strong></p>
+</blockquote>
+<p>这是非常重要的。</p>
+<p>例如只用：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>&lt;tool_call&gt;
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>...
+</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>&lt;/tool_call&gt;
+</span></code></pre></div>
+<p>训练出来的 Agent，很可能其实学的是：</p>
+<blockquote>
+<p>“Claude Code harness policy”</p>
+</blockquote>
+<p>而不是：</p>
+<blockquote>
+<p>“general tool-use policy”。</p>
+</blockquote>
+<p>K3 在 RL 过程中动态换：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>tool schema
+</span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>system prompt
+</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>memory
+</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>context management
+</span><span id="__span-37-5"><a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>sub-agent architecture
+</span></code></pre></div>
+<p>实际是在主动做：</p>
+<h1 id="agent-scaffold-domain-randomization">Agent Scaffold Domain Randomization</h1>
+<p>这个思路和 robotics 里的 domain randomization 很类似。</p>
+<hr />
+<h1 id="14-knowledge-graph-guided-task-synthesis">14. Knowledge Graph Guided Task Synthesis</h1>
+<p>这块也非常值得你后训练的数据章节借鉴。</p>
+<p>普通 synthetic data：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>随机 topic
+</span><span id="__span-38-2"><a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a> ↓
+</span><span id="__span-38-3"><a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>LLM generate question
+</span></code></pre></div>
+<p>覆盖率很难控制。</p>
+<p>K3 建一个会自动扩张的 hierarchical knowledge graph：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>Computer Science
+</span><span id="__span-39-2"><a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>      │
+</span><span id="__span-39-3"><a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>      ├── Distributed System
+</span><span id="__span-39-4"><a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>      │       ├── Consensus
+</span><span id="__span-39-5"><a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a>      │       │     ├── Raft
+</span><span id="__span-39-6"><a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>      │       │     └── Paxos
+</span><span id="__span-39-7"><a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a>      │       └── ...
+</span><span id="__span-39-8"><a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a>      │
+</span><span id="__span-39-9"><a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a>      └── Compiler
+</span><span id="__span-39-10"><a id="__codelineno-39-10" name="__codelineno-39-10" href="#__codelineno-39-10"></a>              ├── IR
+</span><span id="__span-39-11"><a id="__codelineno-39-11" name="__codelineno-39-11" href="#__codelineno-39-11"></a>              ├── SSA
+</span><span id="__span-39-12"><a id="__codelineno-39-12" name="__codelineno-39-12" href="#__codelineno-39-12"></a>              └── ...
+</span></code></pre></div>
+<p>Agent 自动：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>Web Search
+</span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>→ 找新 concept
+</span><span id="__span-40-3"><a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>→ 去重
+</span><span id="__span-40-4"><a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a>→ 判断父子关系
+</span><span id="__span-40-5"><a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a>→ 加入 graph
+</span><span id="__span-40-6"><a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a>→ 继续递归
+</span></code></pre></div>
+<p>直到 concept 足够 atomic。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>训练时再按目标 domain distribution：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>sample graph node
+</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>       ↓
+</span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>retrieve real material
+</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a>       ↓
+</span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>task synthesis
+</span><span id="__span-41-6"><a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>       ↓
+</span><span id="__span-41-7"><a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a>RL environment
+</span></code></pre></div>
+<p>所以它解决了 synthetic data 两个很重要的问题：</p>
+<p>[
+Coverage
+]</p>
+<p>和：</p>
+<p>[
+Granularity
+]</p>
+<p>这比单纯 random prompt evolution 成熟很多。</p>
+<hr />
+<h1 id="15-k3-living-environment-rl">15. K3 已经真正开始做「Living Environment RL」</h1>
+<p>这个我认为比 benchmark 更值得关注。</p>
+<p>它自己构造 mock：</p>
+<ul>
+<li>Gmail</li>
+<li>Notion</li>
+<li>Slack</li>
+<li>Canvas</li>
+</ul>
+<p>但是环境是 <strong>persistent</strong> 的。</p>
+<p>例如：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>Day 1:
+</span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>收到客户邮件
+</span><span id="__span-42-3"><a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>     ↓
+</span><span id="__span-42-4"><a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>修改 Notion
+</span><span id="__span-42-5"><a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>
+</span><span id="__span-42-6"><a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>Day 2:
+</span><span id="__span-42-7"><a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a>Slack 出现新信息
+</span><span id="__span-42-8"><a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a>     ↓
+</span><span id="__span-42-9"><a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a>发现 Day1 判断错误
+</span><span id="__span-42-10"><a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a>     ↓
+</span><span id="__span-42-11"><a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a>修改 Excel
+</span><span id="__span-42-12"><a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a>
+</span><span id="__span-42-13"><a id="__codelineno-42-13" name="__codelineno-42-13" href="#__codelineno-42-13"></a>Day 3:
+</span><span id="__span-42-14"><a id="__codelineno-42-14" name="__codelineno-42-14" href="#__codelineno-42-14"></a>收到审批
+</span><span id="__span-42-15"><a id="__codelineno-42-15" name="__codelineno-42-15" href="#__codelineno-42-15"></a>     ↓
+</span><span id="__span-42-16"><a id="__codelineno-42-16" name="__codelineno-42-16" href="#__codelineno-42-16"></a>再发邮件
+</span></code></pre></div>
+<p>一个 rollout 最长：</p>
+<blockquote>
+<p><strong>几千次 tool calls + millions of context tokens。</strong></p>
+</blockquote>
+<p>(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这意味着训练样本已经不再是：</p>
+<p>[
+(x,y)
+]</p>
+<p>甚至也不只是：</p>
+<p>[
+Environment + Trajectory
+]</p>
+<p>而开始接近：</p>
+<p>[
+WorldState_t
+\rightarrow Action_t
+\rightarrow WorldState_{t+1}
+]</p>
+<p>也就是：</p>
+<h1 id="agent-rl-sequential-decision-making">Agent RL 正在越来越接近真正的 sequential decision making。</h1>
+<hr />
+<h1 id="16-rl-infrastructure">16. 为此他们甚至重写了 RL Infrastructure</h1>
+<p>如果 trajectory 有：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>1000 tool calls
+</span><span id="__span-43-2"><a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>1M context
+</span></code></pre></div>
+<p>一个 rollout 不可能每一轮训练都从头跑。</p>
+<p>于是 K3 使用 <strong>Partial Rollout</strong>：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>Iteration 1
+</span><span id="__span-44-2"><a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>
+</span><span id="__span-44-3"><a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>trajectory A ───────────done
+</span><span id="__span-44-4"><a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>trajectory B ─────done
+</span><span id="__span-44-5"><a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>trajectory C ────────────────────── still running
+</span><span id="__span-44-6"><a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>trajectory D ─────────done
+</span><span id="__span-44-7"><a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>
+</span><span id="__span-44-8"><a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a>达到 λ 比例
+</span><span id="__span-44-9"><a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>       ↓
+</span><span id="__span-44-10"><a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a>开始 training
+</span><span id="__span-44-11"><a id="__codelineno-44-11" name="__codelineno-44-11" href="#__codelineno-44-11"></a>
+</span><span id="__span-44-12"><a id="__codelineno-44-12" name="__codelineno-44-12" href="#__codelineno-44-12"></a>C:
+</span><span id="__span-44-13"><a id="__codelineno-44-13" name="__codelineno-44-13" href="#__codelineno-44-13"></a>pause + save
+</span><span id="__span-44-14"><a id="__codelineno-44-14" name="__codelineno-44-14" href="#__codelineno-44-14"></a>       ↓
+</span><span id="__span-44-15"><a id="__codelineno-44-15" name="__codelineno-44-15" href="#__codelineno-44-15"></a>Iteration 2
+</span><span id="__span-44-16"><a id="__codelineno-44-16" name="__codelineno-44-16" href="#__codelineno-44-16"></a>resume
+</span></code></pre></div>
+<p>(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这会产生一个很重要的问题：</p>
+<blockquote>
+<p>trajectory C 开始时用的是 policy θ₁，
+后半部分已经训练到 θ₃ 了。</p>
+</blockquote>
+<p>也就是说是极端：</p>
+<p>[
+off-policy / stale trajectory
+]</p>
+<p>Kimi 表示其 policy optimization 使用 per-token regularization，使其能容忍这种 stale data。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这一点很值得继续深入看 K2.5 的 RL objective。</p>
+<hr />
+<h1 id="17-kv-cache-rl">17. 甚至 KV Cache 都必须变成 RL 基础设施的一部分</h1>
+<p>1M agent trajectory 最大的问题之一：</p>
+<blockquote>
+<p>pause 后 resume，如果 prefix KV 丢掉了怎么办？</p>
+</blockquote>
+<p>重新 prefill 800K token 显然不能接受。</p>
+<p>于是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>GPU
+</span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>│
+</span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>├── Active KV
+</span><span id="__span-45-4"><a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>│
+</span><span id="__span-45-5"><a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a>└── idle KV
+</span><span id="__span-45-6"><a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a>       ↓ eviction
+</span><span id="__span-45-7"><a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a>CPU DRAM KV Pool
+</span><span id="__span-45-8"><a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a>       ↓
+</span><span id="__span-45-9"><a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a>resume
+</span><span id="__span-45-10"><a id="__codelineno-45-10" name="__codelineno-45-10" href="#__codelineno-45-10"></a>       ↓
+</span><span id="__span-45-11"><a id="__codelineno-45-11" name="__codelineno-45-11" href="#__codelineno-45-11"></a>prefetch back GPU
+</span></code></pre></div>
+<p>训练权重 / optimizer state甚至会阶段性 offload 到：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>NVMe
+</span></code></pre></div>
+<p>给 CPU DRAM 腾空间存 rollout KV。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这已经非常清楚地说明：</p>
+<blockquote>
+<p><strong>Agent RL 的 Scaling 已经不是单纯 PPO/GRPO 算法问题了。</strong></p>
+</blockquote>
+<p>而是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>RL Algorithm
+</span><span id="__span-47-2"><a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a>+
+</span><span id="__span-47-3"><a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>Inference Engine
+</span><span id="__span-47-4"><a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a>+
+</span><span id="__span-47-5"><a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a>KV Cache System
+</span><span id="__span-47-6"><a id="__codelineno-47-6" name="__codelineno-47-6" href="#__codelineno-47-6"></a>+
+</span><span id="__span-47-7"><a id="__codelineno-47-7" name="__codelineno-47-7" href="#__codelineno-47-7"></a>Sandbox
+</span><span id="__span-47-8"><a id="__codelineno-47-8" name="__codelineno-47-8" href="#__codelineno-47-8"></a>+
+</span><span id="__span-47-9"><a id="__codelineno-47-9" name="__codelineno-47-9" href="#__codelineno-47-9"></a>Environment
+</span><span id="__span-47-10"><a id="__codelineno-47-10" name="__codelineno-47-10" href="#__codelineno-47-10"></a>+
+</span><span id="__span-47-11"><a id="__codelineno-47-11" name="__codelineno-47-11" href="#__codelineno-47-11"></a>Scheduler
+</span></code></pre></div>
+<p>必须一起设计。</p>
+<hr />
+<h1 id="18-deployment-aware-post-training">18. 还有一个非常容易被忽略，但我很喜欢的设计：Deployment-Aware Post-training</h1>
+<p>K3 从 <strong>SFT 阶段开始就做 QAT</strong>。</p>
+<p>Expert weight：</p>
+<p>[
+MXFP4
+]</p>
+<p>Activation：</p>
+<p>[
+MXFP8
+]</p>
+<p>而且：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>SFT
+</span><span id="__span-48-2"><a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>↓
+</span><span id="__span-48-3"><a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>RL
+</span><span id="__span-48-4"><a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a>↓
+</span><span id="__span-48-5"><a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>Rollout
+</span><span id="__span-48-6"><a id="__codelineno-48-6" name="__codelineno-48-6" href="#__codelineno-48-6"></a>↓
+</span><span id="__span-48-7"><a id="__codelineno-48-7" name="__codelineno-48-7" href="#__codelineno-48-7"></a>Deployment
+</span></code></pre></div>
+<p>全部维持相同 quantization setting。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这解决一个很现实的问题：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>BF16 model RL:
+</span><span id="__span-49-2"><a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>reward = 0.9
+</span><span id="__span-49-3"><a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>
+</span><span id="__span-49-4"><a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a>部署 FP4:
+</span><span id="__span-49-5"><a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a>behavior changed
+</span><span id="__span-49-6"><a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a>reward = ?
+</span></code></pre></div>
+<p>K3 相当于直接优化：</p>
+<blockquote>
+<p><strong>最终真正上线的 quantized policy。</strong></p>
+</blockquote>
+<p>对于 2.8T model，这实际上不是可选优化，而是必要条件。</p>
+<hr />
+<h1 id="19-k3">19. 所以 K3 真正的新东西应该怎么排序？</h1>
+<p>如果让我按研究价值排序，我会这样排：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>K3 创新</th>
+<th>我的评价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⭐⭐⭐⭐⭐</td>
+<td><strong>AttnRes</strong></td>
+<td>非常值得关注的架构思想</td>
+</tr>
+<tr>
+<td>⭐⭐⭐⭐⭐</td>
+<td><strong>3×3 RL Experts + MOPD</strong></td>
+<td>后训练最值得研究</td>
+</tr>
+<tr>
+<td>⭐⭐⭐⭐⭐</td>
+<td><strong>1M Long-Horizon Agent RL</strong></td>
+<td>Agent scaling 的关键方向</td>
+</tr>
+<tr>
+<td>⭐⭐⭐⭐½</td>
+<td><strong>Stable LatentMoE + Quantile Balancing</strong></td>
+<td>大规模 MoE 非常实用</td>
+</tr>
+<tr>
+<td>⭐⭐⭐⭐½</td>
+<td><strong>Unified White-Box Environment</strong></td>
+<td>防 scaffold overfit 很重要</td>
+</tr>
+<tr>
+<td>⭐⭐⭐⭐</td>
+<td><strong>KDA + MLA Hybrid</strong></td>
+<td>长上下文架构的重要路线</td>
+</tr>
+<tr>
+<td>⭐⭐⭐⭐</td>
+<td><strong>Knowledge-Graph Task Synthesis</strong></td>
+<td>后训练数据工程很有价值</td>
+</tr>
+<tr>
+<td>⭐⭐⭐½</td>
+<td>Per-Head Muon</td>
+<td>很好的 optimizer engineering</td>
+</tr>
+<tr>
+<td>⭐⭐⭐½</td>
+<td>SiTU-GLU</td>
+<td>主要是训练稳定性</td>
+</tr>
+<tr>
+<td>⭐⭐⭐⭐</td>
+<td>SFT/RL 全程 MXFP4 QAT</td>
+<td>deployment-oriented，很实用</td>
+</tr>
+</tbody>
+</table>
+<p>其中需要注意：</p>
+<p><strong>KDA、LatentMoE、Muon 本身都不是 K3 凭空第一次提出。</strong>K3 真正厉害的是把这些东西进一步修改并组合起来，真正 scale 到 <strong>2.8T + 896 expert + 1M context + agentic RL</strong>。(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<hr />
+<h1 id="20-kimi-k3-glm-53">20. Kimi K3 和 GLM-5.3，本质上已经在指向同一个结论</h1>
+<p>这是我觉得最有意思的地方。</p>
+<h3 id="glm-53">GLM-5.3：</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>Strong Base
+</span><span id="__span-50-2"><a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>   ↓
+</span><span id="__span-50-3"><a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>Environment Scaling
+</span><span id="__span-50-4"><a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a>   ↓
+</span><span id="__span-50-5"><a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a>Long-Horizon RL
+</span><span id="__span-50-6"><a id="__codelineno-50-6" name="__codelineno-50-6" href="#__codelineno-50-6"></a>   ↓
+</span><span id="__span-50-7"><a id="__codelineno-50-7" name="__codelineno-50-7" href="#__codelineno-50-7"></a>Agent Capability
+</span></code></pre></div>
+<h3 id="kimi-k3">Kimi K3：</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>         Pre-training Scaling
+</span><span id="__span-51-2"><a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>                ↓
+</span><span id="__span-51-3"><a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>       2.8T / KDA / AttnRes
+</span><span id="__span-51-4"><a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a>                +
+</span><span id="__span-51-5"><a id="__codelineno-51-5" name="__codelineno-51-5" href="#__codelineno-51-5"></a>         Post-training Scaling
+</span><span id="__span-51-6"><a id="__codelineno-51-6" name="__codelineno-51-6" href="#__codelineno-51-6"></a>                ↓
+</span><span id="__span-51-7"><a id="__codelineno-51-7" name="__codelineno-51-7" href="#__codelineno-51-7"></a> Environment + Long-Horizon RL
+</span><span id="__span-51-8"><a id="__codelineno-51-8" name="__codelineno-51-8" href="#__codelineno-51-8"></a>                +
+</span><span id="__span-51-9"><a id="__codelineno-51-9" name="__codelineno-51-9" href="#__codelineno-51-9"></a>        Test-Time Scaling
+</span><span id="__span-51-10"><a id="__codelineno-51-10" name="__codelineno-51-10" href="#__codelineno-51-10"></a>                ↓
+</span><span id="__span-51-11"><a id="__codelineno-51-11" name="__codelineno-51-11" href="#__codelineno-51-11"></a>       Low / High / Max
+</span></code></pre></div>
+<p>Kimi 自己其实把这个讲得很明确：</p>
+<p>以前：</p>
+<p>[
+Pretraining\ Compute \rightarrow Intelligence
+]</p>
+<p>后来 reasoning model 引入第二根轴：</p>
+<p>[
+Test\ Time\ Compute \rightarrow Intelligence
+]</p>
+<p>而 K3 的目标是：</p>
+<h1 id="scaling-axis">两条 Scaling Axis 同时推进。</h1>
+<p>(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>这也是 K3 和 GLM-5.3 最大的哲学差异。</p>
+<hr />
+<h2 id="pipeline">对你现在研究后训练，我认为最值得吸收的是这条 pipeline</h2>
+<p>不是 KDA，也不是 2.8T 参数，而是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>                    Base
+</span><span id="__span-52-2"><a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>                      ↓
+</span><span id="__span-52-3"><a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a>        ┌─────────── SFT ───────────┐
+</span><span id="__span-52-4"><a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a>        │      建立行为先验          │
+</span><span id="__span-52-5"><a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a>        │   Tool / Agent Cold Start │
+</span><span id="__span-52-6"><a id="__codelineno-52-6" name="__codelineno-52-6" href="#__codelineno-52-6"></a>        └────────────┬──────────────┘
+</span><span id="__span-52-7"><a id="__codelineno-52-7" name="__codelineno-52-7" href="#__codelineno-52-7"></a>                     ↓
+</span><span id="__span-52-8"><a id="__codelineno-52-8" name="__codelineno-52-8" href="#__codelineno-52-8"></a>              Specialized RL
+</span><span id="__span-52-9"><a id="__codelineno-52-9" name="__codelineno-52-9" href="#__codelineno-52-9"></a>                     ↓
+</span><span id="__span-52-10"><a id="__codelineno-52-10" name="__codelineno-52-10" href="#__codelineno-52-10"></a>      ┌──────────────┼──────────────┐
+</span><span id="__span-52-11"><a id="__codelineno-52-11" name="__codelineno-52-11" href="#__codelineno-52-11"></a>      │              │              │
+</span><span id="__span-52-12"><a id="__codelineno-52-12" name="__codelineno-52-12" href="#__codelineno-52-12"></a>   General        Agent           Coding
+</span><span id="__span-52-13"><a id="__codelineno-52-13" name="__codelineno-52-13" href="#__codelineno-52-13"></a>      │              │              │
+</span><span id="__span-52-14"><a id="__codelineno-52-14" name="__codelineno-52-14" href="#__codelineno-52-14"></a> Low High Max   Low High Max   Low High Max
+</span><span id="__span-52-15"><a id="__codelineno-52-15" name="__codelineno-52-15" href="#__codelineno-52-15"></a>      └──────────────┼──────────────┘
+</span><span id="__span-52-16"><a id="__codelineno-52-16" name="__codelineno-52-16" href="#__codelineno-52-16"></a>                     ↓
+</span><span id="__span-52-17"><a id="__codelineno-52-17" name="__codelineno-52-17" href="#__codelineno-52-17"></a>             9 Specialized Policy
+</span><span id="__span-52-18"><a id="__codelineno-52-18" name="__codelineno-52-18" href="#__codelineno-52-18"></a>                     ↓
+</span><span id="__span-52-19"><a id="__codelineno-52-19" name="__codelineno-52-19" href="#__codelineno-52-19"></a>              On-Policy Distill
+</span><span id="__span-52-20"><a id="__codelineno-52-20" name="__codelineno-52-20" href="#__codelineno-52-20"></a>                     ↓
+</span><span id="__span-52-21"><a id="__codelineno-52-21" name="__codelineno-52-21" href="#__codelineno-52-21"></a>              Unified Model
+</span></code></pre></div>
+<p>与此同时，<strong>RL 数据生产系统本身</strong>又是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>Knowledge Graph
+</span><span id="__span-53-2"><a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a>       ↓
+</span><span id="__span-53-3"><a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a>Real Material Retrieval
+</span><span id="__span-53-4"><a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a>       ↓
+</span><span id="__span-53-5"><a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a>Task Synthesis
+</span><span id="__span-53-6"><a id="__codelineno-53-6" name="__codelineno-53-6" href="#__codelineno-53-6"></a>       ↓
+</span><span id="__span-53-7"><a id="__codelineno-53-7" name="__codelineno-53-7" href="#__codelineno-53-7"></a>Executable Environment
+</span><span id="__span-53-8"><a id="__codelineno-53-8" name="__codelineno-53-8" href="#__codelineno-53-8"></a>       ↓
+</span><span id="__span-53-9"><a id="__codelineno-53-9" name="__codelineno-53-9" href="#__codelineno-53-9"></a>Different Agent Harness
+</span><span id="__span-53-10"><a id="__codelineno-53-10" name="__codelineno-53-10" href="#__codelineno-53-10"></a>       ↓
+</span><span id="__span-53-11"><a id="__codelineno-53-11" name="__codelineno-53-11" href="#__codelineno-53-11"></a>Rollout
+</span><span id="__span-53-12"><a id="__codelineno-53-12" name="__codelineno-53-12" href="#__codelineno-53-12"></a>       ↓
+</span><span id="__span-53-13"><a id="__codelineno-53-13" name="__codelineno-53-13" href="#__codelineno-53-13"></a>Verifier / GRM
+</span><span id="__span-53-14"><a id="__codelineno-53-14" name="__codelineno-53-14" href="#__codelineno-53-14"></a>       ↓
+</span><span id="__span-53-15"><a id="__codelineno-53-15" name="__codelineno-53-15" href="#__codelineno-53-15"></a>Reward
+</span><span id="__span-53-16"><a id="__codelineno-53-16" name="__codelineno-53-16" href="#__codelineno-53-16"></a>       ↓
+</span><span id="__span-53-17"><a id="__codelineno-53-17" name="__codelineno-53-17" href="#__codelineno-53-17"></a>RL
+</span></code></pre></div>
+<p>(<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">arXiv</a>)</p>
+<p>我认为这一套比简单写成：</p>
+<blockquote>
+<p>SFT → GRPO → RLHF</p>
+</blockquote>
+<p>成熟了一个层级。</p>
+<p><strong>因为 K3 和 GLM-5.3 都在说明：2026 年真正的后训练竞争，已经逐渐从“GRPO 公式怎么改”转向“谁能构建规模更大、覆盖更广、更接近真实工作、同时可验证的 Agent Environment”。</strong></p>
+<p>而 Kimi K3 又进一步补了一块：<strong>不同 domain / reasoning budget 不必硬塞到一个 RL policy 里，可以先训练多个专门 policy，再通过 on-policy distillation 合回来。</strong></p>
+<p>这一点其实非常适合进一步映射到你前面讨论的 <strong>政务 MoE / ESFT / 通用 replay / Function Calling / GRPO</strong> 方案里：K3 的做法能给出一个比“所有能力都在一个 SFT + 一个 GRPO 阶段混训”更清晰的训练分工。</p>
+<h2 id="_2">参考文献</h2>
+<ul>
+<li><a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">1</a> [Kimi K3: Open Frontier Intelligence]<a href="https://arxiv.org/html/2607.24653v2" title="Kimi K3: Open Frontier Intelligence">1</a> —— 官方技术报告，正文各处标注 <code>([arXiv][1])</code> 均出自此处</li>
+<li>[2] <a href="../模型架构/残差连接/Attention%20Residuals.md">Attention Residuals</a> —— 本仓库笔记，配合第 3 节 AttnRes 部分阅读</li>
+<li>[3] <a href="../GLM-5.3%E8%A7%A3%E8%AF%BB/">GLM-5.3 解读</a> —— 对比阅读：另一条 frontier scaling 路线</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">评论</h2>
+<script src="https://giscus.app/client.js"
+        data-repo="Ranbaigao/llm_learning"
+        data-repo-id="R_kgDOS6jz6w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOS6jz684DEEsg"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../.assets/javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../../.assets/javascripts/pageview.js"></script>
+      
+        <script src="../../../.assets/javascripts/html_modal.js"></script>
+      
+        <script src="https://cn.vercount.one/js"></script>
+      
+    
+  </body>
+</html>

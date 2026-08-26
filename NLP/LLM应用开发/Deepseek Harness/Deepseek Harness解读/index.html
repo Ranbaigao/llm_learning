@@ -1,0 +1,5934 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ranbaigao.github.io/llm_learning/NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Deepseek%20Harness%E8%A7%A3%E8%AF%BB/">
+      
+      
+        <link rel="prev" href="../../Skill%E6%84%8F%E4%B9%89%E6%8E%A2%E8%AE%A8/">
+      
+      
+        <link rel="next" href="../Dsh%20%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>DeepSeek Harness 技术报告 - LLM知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../.assets/stylesheets/pageview.css">
+    
+      <link rel="stylesheet" href="../../../../.assets/stylesheets/html_modal.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deepseek-harness" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="LLM知识库" class="md-header__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DeepSeek Harness 技术报告
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="LLM知识库" class="md-nav__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    LLM知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../knowledge_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JEPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JEPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JiT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JiT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/SAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/VAE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VAE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    世界模型
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    世界模型
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../CV/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/%E5%B0%8F%E9%B9%8FVLA%E4%B8%8E%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小鹏 VLA 与世界模型技术体系总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../CV/%E5%9F%BA%E7%A1%80/Reparameterization%20Trick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重参数化技巧（Reparameterization Trick）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../CV/%E5%9F%BA%E7%A1%80/SD%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD公式推导
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NLP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NLP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM应用开发
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM应用开发
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Harness%2BAgent%E5%BC%95%E5%85%A5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness+Agent引入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Skill%E6%84%8F%E4%B9%89%E6%8E%A2%E8%AE%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill意义探讨
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_3" id="__nav_4_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepseek Harness
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deepseek Harness
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek Harness 技术报告
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek Harness 技术报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 为什么需要 Harness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 为什么需要 Harness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-model-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Model 并不等于 Agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-deepseek-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. DeepSeek Harness 总体架构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-cordis-agent-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Cordis：插件化 Agent Runtime 的底座
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Cordis：插件化 Agent Runtime 的底座">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-plugin-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 为什么不是普通 Plugin System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Effect：解决插件卸载问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-coeffect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Coeffect：解决动态依赖
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-agent-loopharness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Agent Loop：Harness 的核心执行引擎
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Agent Loop：Harness 的核心执行引擎">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-turn-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Turn 与 Step
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1 Turn 与 Step">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#turn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turn
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 核心控制流
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 请求冻结
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-tool-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Tool Runtime
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Tool Runtime">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 工具不是直接执行
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 并行执行，但确定性提交
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-ptcprogrammatic-tool-calling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. PTC：Programmatic Tool Calling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. PTC：Programmatic Tool Calling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-ptc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 PTC 的核心思想
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-ptc-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 为什么 PTC 能降低 Context 消耗
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-ptc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 PTC 的适用边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-session-event-sourcing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Session Event Sourcing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Session Event Sourcing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-append-only-event-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Append-only Event Log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-surface-event" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Surface Event
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-model-visible-means-logged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 “Model-visible means logged”
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-replayresume-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Replay、Resume 与 Fork
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Replay、Resume 与 Fork">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Resume
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Fork
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-context-engineering-cache-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Context Engineering 与 Cache Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Context Engineering 与 Cache Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Context 三层结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 为什么 Cache 命中率高
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-skillspreset-multi-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Skills、Preset 与 Multi-Agent
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Skills、Preset 与 Multi-Agent">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-preset-prompt-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Preset 不是 Prompt Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-minimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Minimal 模式的意义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-subagent-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 SubAgent Provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-securityprompt-guidance-runtime-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Security：Prompt Guidance 与 Runtime Enforcement 分离
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Security：Prompt Guidance 与 Runtime Enforcement 分离">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-sandbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Sandbox
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-approval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Approval
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-harness-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Harness 与 Agent 后训练
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Harness 与 Agent 后训练">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-sft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 对 SFT 的价值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-agent-rl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 对 Agent RL 的价值
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-deepseek-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. DeepSeek Harness 最核心的技术创新
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. DeepSeek Harness 最核心的技术创新">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.1 Harness 成为一等系统变量
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-agent-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.2 Agent Loop 不再是黑盒
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#133-event-sourcing-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.3 Event Sourcing 成为 Agent 状态模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#134-ptc-tool-calling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.4 PTC 将 Tool Calling 从自然语言控制升级为程序控制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#135-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.5 Harness 开始连接推理与后训练
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 当前局限
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Dsh%20%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dsh 会话记忆机制：the log IS the state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_4" id="__nav_4_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hermes Agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Hermes%20Agent/Hermes%20Agent%E5%8D%95%E4%B8%AA%E4%BC%9A%E8%AF%9D%E7%9A%84%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent 单会话记忆管理策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Hermes%20Agent/Hermes%20Agent%E5%A4%9AAgent%E9%80%9A%E4%BF%A1%E6%9E%B6%E6%9E%84/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    多 Agent 通信架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Hermes%20Agent/Hermes%20Agent%E5%AE%89%E5%85%A8%E3%80%81%E5%B7%A5%E4%BD%9C%E5%8C%BA%E9%9A%94%E7%A6%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全隔离与工作区隔离
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Hermes%20Agent/Hermes%20Agent%E8%AE%B0%E5%BF%86%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    内存压缩机制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Muon优化器
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/Muon%E4%BC%98%E5%8C%96%E5%99%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/%E5%A5%87%E5%BC%82%E5%80%BC%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%92%8C%E6%AD%A3%E4%BA%A4%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    奇异值、特征值和正交矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    位置编码
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    位置编码
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/RoPe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoPe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    残差连接
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    残差连接
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Attention%20Residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attention Residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Pre-Norm%20vs%20Post-Norm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre Norm vs Post Norm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/%E6%B5%81%E5%BD%A2%E6%AF%94%E8%BE%83/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    流形（Manifold） JiT 中的和 mHC 中的是一个意思吗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    mHC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/mHC%20%E6%AE%8B%E5%B7%AE%E6%B5%81%E5%BD%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC_残差流形
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/%E5%8F%8C%E9%9A%8F%E6%9C%BA%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    双随机矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    注意力机制
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    注意力机制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/DSA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/GatedAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GatedAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/LinearAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LinearAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/MLA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型训练
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_1" id="__nav_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SFT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/LoRA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/SFT%E4%B8%8D%E5%AE%8C%E6%95%B4%E5%AD%A6%E4%B9%A0%E7%8E%B0%E8%B1%A1ILP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT 为什么"学不会"：不完整学习现象（ILP）的系统性研究
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2" id="__nav_4_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    强化学习
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    强化学习
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/ClipPPO%E5%8E%9F%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipPPO原理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/DPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/GSPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GSPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RL知识图谱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%9D%8E%E5%AE%8F%E6%AF%85DRL%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    李宏毅DRL笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2_6" id="__nav_4_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent RL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent RL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/Agent%20RL/%E6%A3%80%E9%AA%8CAgent%E7%9A%84coding%E5%AE%9E%E7%8E%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检验Agent的coding实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM源码解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM源码解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/ChatGPT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChatGPT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/Einsum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Einsum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/MOE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/%E6%A0%B8%E5%BF%83%E8%A6%81%E4%B9%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心要义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    OpenMythos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/ACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/LTI%20Injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LTI Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/OpenMythos%E6%A1%86%E6%9E%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开源llm解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开源llm解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/AR-Diffusion%E4%B8%8E%E6%BD%9C%E7%A9%BA%E9%97%B4%E6%8E%A8%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AR-Diffusion 与潜空间推理路线综述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Claude%20Mythos%205%E6%8E%A8%E6%B5%8B/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Mythos 5 技术报告：官方披露的训练方法与模型架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4 技术报告：面向百万上下文的高效长文本模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/GLM-5.3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GLM 5.3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Kimi%20K3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kimi K3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nemotron-Labs-Diffusion 技术报告：统一 AR、Diffusion 与 Self-Speculation 的三模式语言模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/OpenMythos%20Recurrent%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos Recurrent解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Qwen3.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3.5解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    代码实践
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    代码实践
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/esft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gpt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gqa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GQA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/mhc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/moe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/open_mythos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open mythos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/vit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    性能优化
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    性能优化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Deepspeed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepspeed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Flash-Attention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/MOE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE负载均衡
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/SGLang/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SGLang
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/vLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vLLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E5%88%86%E5%B8%83%E5%BC%8F/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    分布式
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推理加速方法总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 为什么需要 Harness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 为什么需要 Harness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-model-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Model 并不等于 Agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-deepseek-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. DeepSeek Harness 总体架构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-cordis-agent-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Cordis：插件化 Agent Runtime 的底座
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Cordis：插件化 Agent Runtime 的底座">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-plugin-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 为什么不是普通 Plugin System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Effect：解决插件卸载问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-coeffect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Coeffect：解决动态依赖
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-agent-loopharness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Agent Loop：Harness 的核心执行引擎
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Agent Loop：Harness 的核心执行引擎">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-turn-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Turn 与 Step
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1 Turn 与 Step">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#turn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turn
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 核心控制流
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 请求冻结
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-tool-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Tool Runtime
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Tool Runtime">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 工具不是直接执行
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 并行执行，但确定性提交
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-ptcprogrammatic-tool-calling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. PTC：Programmatic Tool Calling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. PTC：Programmatic Tool Calling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-ptc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 PTC 的核心思想
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-ptc-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 为什么 PTC 能降低 Context 消耗
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-ptc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 PTC 的适用边界
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-session-event-sourcing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Session Event Sourcing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Session Event Sourcing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-append-only-event-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Append-only Event Log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-surface-event" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Surface Event
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-model-visible-means-logged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 “Model-visible means logged”
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-replayresume-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Replay、Resume 与 Fork
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Replay、Resume 与 Fork">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Resume
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Fork
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-context-engineering-cache-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Context Engineering 与 Cache Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Context Engineering 与 Cache Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Context 三层结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 为什么 Cache 命中率高
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-skillspreset-multi-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Skills、Preset 与 Multi-Agent
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Skills、Preset 与 Multi-Agent">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-preset-prompt-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Preset 不是 Prompt Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-minimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Minimal 模式的意义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-subagent-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 SubAgent Provider
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-securityprompt-guidance-runtime-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Security：Prompt Guidance 与 Runtime Enforcement 分离
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Security：Prompt Guidance 与 Runtime Enforcement 分离">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-sandbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Sandbox
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-approval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Approval
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-harness-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Harness 与 Agent 后训练
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Harness 与 Agent 后训练">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-sft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 对 SFT 的价值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-agent-rl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 对 Agent RL 的价值
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-deepseek-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. DeepSeek Harness 最核心的技术创新
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. DeepSeek Harness 最核心的技术创新">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.1 Harness 成为一等系统变量
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-agent-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.2 Agent Loop 不再是黑盒
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#133-event-sourcing-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.3 Event Sourcing 成为 Agent 状态模型
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#134-ptc-tool-calling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.4 PTC 将 Tool Calling 从自然语言控制升级为程序控制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#135-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.5 Harness 开始连接推理与后训练
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. 当前局限
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. 总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="deepseek-harness">DeepSeek Harness 技术报告</h1>
+<blockquote>
+<p><strong>从 Model 到 Agent Runtime：DeepSeek 对 Agent Harness、可组合运行时与上下文工程的系统化实现</strong></p>
+</blockquote>
+<hr />
+<h2 id="0">0. 摘要</h2>
+<p>大模型本身并不能构成一个完整的 Agent。</p>
+<p>模型主要负责：</p>
+<ul>
+<li>理解任务；</li>
+<li>推理与规划；</li>
+<li>生成文本或工具调用意图。</li>
+</ul>
+<p>而一个真正能够在真实环境中持续执行任务的 Agent，还需要解决：</p>
+<ul>
+<li>如何获取环境状态；</li>
+<li>如何调用文件、终端、搜索等工具；</li>
+<li>如何组织多轮执行；</li>
+<li>如何维护长期会话状态；</li>
+<li>如何处理中断、重试与恢复；</li>
+<li>如何控制上下文长度；</li>
+<li>如何管理工具权限；</li>
+<li>如何记录完整执行轨迹；</li>
+<li>如何调度子 Agent；</li>
+<li>如何保证执行过程可复现、可评测。</li>
+</ul>
+<p>DeepSeek 将模型之外的这一整层统一称为 <strong>Harness</strong>，并将 Agent 表述为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Agent = Model + Harness
+</span></code></pre></div>
+<p>在这一架构中，Harness 不再被视作围绕 LLM 的简单胶水层，而是决定模型能力能否真正兑现为任务完成能力的 <strong>Agent Runtime</strong>。原报告将其职责概括为工作区访问、工具执行、沙箱与审批、append-only 会话日志以及 Agent Loop 等核心部分。</p>
+<p>DeepSeek Harness 的核心设计可以进一步概括为六点：</p>
+<ol>
+<li><strong>Everything is a Plugin</strong></li>
+<li><strong>Agent Loop 可替换</strong></li>
+<li><strong>Session Log 即系统状态</strong></li>
+<li><strong>PTC 将工具调用转化为程序执行</strong></li>
+<li><strong>确定性 Context 构建提升 Prefix Cache 命中</strong></li>
+<li><strong>安全约束从 Prompt Guidance 下沉到 Runtime Enforcement</strong></li>
+</ol>
+<p>其最大的技术意义，不是提供另一款类似 Claude Code 的编程助手，而是试图建立一个：</p>
+<blockquote>
+<p><strong>模型、Loop、工具、上下文、Session、Sandbox、Multi-Agent 都可以独立替换和实验的 Agent Runtime。</strong></p>
+</blockquote>
+<hr />
+<h2 id="1-harness">1. 为什么需要 Harness</h2>
+<h3 id="11-model-agent">1.1 Model 并不等于 Agent</h3>
+<p>典型 LLM API 的工作模式非常简单：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Prompt
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  ↓
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>LLM
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  ↓
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Response
+</span></code></pre></div>
+<p>但真实 Agent 系统通常是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>User Task
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    ↓
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Context Construction
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    ↓
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>LLM Reasoning
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    ↓
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Tool Selection
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    ↓
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>Tool Execution
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    ↓
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>Environment Changes
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    ↓
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>Observation
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    ↓
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>LLM Reasoning
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    ↓
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>...
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    ↓
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>Task Completion
+</span></code></pre></div>
+<p>因此 Agent 的最终能力不仅由模型参数决定，还取决于整个执行系统。</p>
+<p>例如，同一个模型：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Model A
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>   │
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>   ├── Harness A
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>   │      └── 任务成功
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>   │
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>   └── Harness B
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>          └── 任务失败
+</span></code></pre></div>
+<p>原因可能并非模型不会，而是：</p>
+<ul>
+<li>Harness 给错了上下文；</li>
+<li>工具太多导致模型选错；</li>
+<li>工具结果顺序不稳定；</li>
+<li>Tool Schema 设计不合理；</li>
+<li>Compaction 丢失关键信息；</li>
+<li>Agent Loop 提前终止；</li>
+<li>Retry 策略错误；</li>
+<li>Sandbox 阻止了正确操作。</li>
+</ul>
+<p>因此对于 Agent Benchmark：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Agent Performance
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>        =
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Model Capability
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        ×
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Harness Quality
+</span></code></pre></div>
+<p>Harness 实际上是模型能力的“显影层”。</p>
+<hr />
+<h2 id="2-deepseek-harness">2. DeepSeek Harness 总体架构</h2>
+<p>DeepSeek Harness 最重要的设计理念是：</p>
+<blockquote>
+<p><strong>Everything is a Plugin</strong></p>
+</blockquote>
+<p>官方架构思想甚至进一步表述为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>There is no privileged core to patch.
+</span></code></pre></div>
+<p>即模型适配器、工具注册表、Session、Agent Loop 等能力都尽量通过插件组织，而不是形成一个不可替换的大型核心。</p>
+<p>整体可以抽象为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>graph TD
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    A[User / UI / SDK] --&gt; B[Agent Runtime]
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    B --&gt; C[Agent Loop]
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    C --&gt; D[Context Builder]
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    D --&gt; E[LLM Adapter]
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    E --&gt; F[Model]
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    C --&gt; G[Tool Registry]
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    G --&gt; H[Tool Pipeline]
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    H --&gt; I[Filesystem]
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    H --&gt; J[Terminal]
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    H --&gt; K[Web]
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>    H --&gt; L[Skills]
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>    H --&gt; M[Sub Agent]
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>    C --&gt; N[Session Event Log]
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>    N --&gt; O[Replay]
+</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>    N --&gt; P[Fork]
+</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>    N --&gt; Q[Resume]
+</span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>    N --&gt; R[Telemetry]
+</span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>
+</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>    H --&gt; S[Approval]
+</span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>    H --&gt; T[Sandbox]
+</span><span id="__span-6-29"><a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>
+</span><span id="__span-6-30"><a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>    U[Cordis Runtime] --&gt; C
+</span><span id="__span-6-31"><a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>    U --&gt; D
+</span><span id="__span-6-32"><a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>    U --&gt; G
+</span><span id="__span-6-33"><a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>    U --&gt; N
+</span><span id="__span-6-34"><a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>    U --&gt; S
+</span><span id="__span-6-35"><a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a>    U --&gt; T
+</span></code></pre></div>
+<p>从实现层来看，可以划分为四层。</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>主要职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cordis Runtime</td>
+<td>插件生命周期、依赖、事件与组合</td>
+</tr>
+<tr>
+<td>Core Agent Runtime</td>
+<td>Session、System Prompt、Tools、Agent、Agent Loop</td>
+</tr>
+<tr>
+<td>Capability Layer</td>
+<td>LLM、Filesystem、Sandbox、Terminal、LSP 等</td>
+</tr>
+<tr>
+<td>Agent Extensions</td>
+<td>Skill、Workflow、SubAgent、Compaction、SDK 等</td>
+</tr>
+</tbody>
+</table>
+<p>原报告对源码结构的归纳同样显示：Cordis 位于组合内核层，<code>core/session</code>、<code>core/tools</code>、<code>core/agent</code>、<code>core/agent-loop</code> 等构成产品 API 主干，而 sandbox、fs、terminal、subagent 等能力继续通过 seam/plugin 接入。</p>
+<hr />
+<h2 id="3-cordis-agent-runtime">3. Cordis：插件化 Agent Runtime 的底座</h2>
+<h3 id="31-plugin-system">3.1 为什么不是普通 Plugin System</h3>
+<p>传统插件系统一般只是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Core
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a> ├─ Plugin A
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a> ├─ Plugin B
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a> └─ Plugin C
+</span></code></pre></div>
+<p>Core 拥有绝大部分逻辑，Plugin 只能调用预留 API。</p>
+<p>DeepSeek Harness 的结构更接近：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>              Cordis
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>                │
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>       ┌────────┼────────┐
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>       ↓        ↓        ↓
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>     LLM      Tools    Session
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>       │        │        │
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>       └──── Agent Loop ─┘
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>                │
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>             Extensions
+</span></code></pre></div>
+<p>Cordis 自身尽可能只提供：</p>
+<ul>
+<li>Context；</li>
+<li>Dependency Injection；</li>
+<li>Plugin Lifecycle；</li>
+<li>Event Bus；</li>
+<li>Effect Management。</li>
+</ul>
+<p>真正的 Agent 语义位于其上的插件中。</p>
+<hr />
+<h3 id="32-effect">3.2 Effect：解决插件卸载问题</h3>
+<p>插件加载时通常会产生大量副作用：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>register tool
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>register event listener
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>register service
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>start timer
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>mount filesystem
+</span></code></pre></div>
+<p>普通系统最大的隐患是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Plugin 卸载
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    ↓
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Listener 没删
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Timer 没停
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Service 没撤销
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    ↓
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>Ghost State
+</span></code></pre></div>
+<p>Cordis 将这些副作用注册为 <strong>Effect</strong>：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Plugin Mount
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>   ↓
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>Effect A
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>Effect B
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>Effect C
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>   ↓
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>Plugin Unmount
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>   ↓
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>Dispose C
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>Dispose B
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>Dispose A
+</span></code></pre></div>
+<p>因此插件生命周期天然具有可逆性。</p>
+<p>这构成所谓：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Temporal Composability
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>时间组合性
+</span></code></pre></div>
+<hr />
+<h3 id="33-coeffect">3.3 Coeffect：解决动态依赖</h3>
+<p>另一个问题是插件之间的依赖。</p>
+<p>传统代码：</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">import</span><span class="w"> </span><span class="nx">LLM</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"deepseek-provider"</span>
+</span></code></pre></div>
+<p>消费者已经绑定具体实现。</p>
+<p>Cordis 则更接近：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Plugin
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  ↓
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>inject: ["llm"]
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>  ↓
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>Runtime
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>  ↓
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>寻找 llm provider
+</span></code></pre></div>
+<p>如果 provider 不存在：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>Plugin → PENDING
+</span></code></pre></div>
+<p>provider 出现：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>PENDING → ACTIVE
+</span></code></pre></div>
+<p>provider 被替换：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>旧依赖解除
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>     ↓
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>重新绑定
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>     ↓
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>Plugin Reload
+</span></code></pre></div>
+<p>于是实现：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>DeepSeek Provider
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>      ↓
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>   ctx.llm
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>      ↑
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>OpenAI Provider
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>      ↑
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>Local Provider
+</span></code></pre></div>
+<p>消费方无需知道具体模型是谁。</p>
+<hr />
+<h2 id="4-agent-loopharness">4. Agent Loop：Harness 的核心执行引擎</h2>
+<p>DeepSeek Harness 默认 Agent Loop 为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>ReactLoopAgent
+</span></code></pre></div>
+<p>但关键在于：</p>
+<blockquote>
+<p><code>ReactLoopAgent</code> 是 Agent 接口的一种实现，而不是不可替换的系统核心。</p>
+</blockquote>
+<p>这使得 Loop 本身也成为实验变量。原报告指出，扩展插件依赖的是 <code>Agent</code> 接口而不是具体 <code>agent-loop</code> 实现，因此可以替换整个驱动循环。</p>
+<hr />
+<h3 id="41-turn-step">4.1 Turn 与 Step</h3>
+<p>dsh 对执行过程划分为：</p>
+<h4 id="step">Step</h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>一次 LLM Request
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>        +
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>该 Request 产生的 Tool Calls
+</span></code></pre></div>
+<h4 id="turn">Turn</h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>一个用户任务触发
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>        ↓
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>Step 1
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>        ↓
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>Step 2
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>        ↓
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>Step 3
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>        ↓
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>直到 nothing is owed
+</span></code></pre></div>
+<p>原报告对这一终止条件的总结是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>没有待处理 inbox
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>+
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>没有等待回填给模型的 tool result
+</span></code></pre></div>
+<p>此时 Turn 才真正结束。</p>
+<hr />
+<h3 id="42">4.2 核心控制流</h3>
+<p>简化后的 Loop：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>flowchart TD
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>A[Inbox] --&gt; B[Turn Start]
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>B --&gt; C[preStep]
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>C --&gt; D[Build Context]
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>D --&gt; E[Build Request]
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>E --&gt; F[LLM Stream]
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>F --&gt; G{Tool Call?}
+</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>
+</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>G -- No --&gt; H[Turn Stopping]
+</span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>
+</span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>G -- Yes --&gt; I[Execute Tools]
+</span><span id="__span-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a>
+</span><span id="__span-23-19"><a id="__codelineno-23-19" name="__codelineno-23-19" href="#__codelineno-23-19"></a>I --&gt; J[Commit Tool Results]
+</span><span id="__span-23-20"><a id="__codelineno-23-20" name="__codelineno-23-20" href="#__codelineno-23-20"></a>
+</span><span id="__span-23-21"><a id="__codelineno-23-21" name="__codelineno-23-21" href="#__codelineno-23-21"></a>J --&gt; C
+</span><span id="__span-23-22"><a id="__codelineno-23-22" name="__codelineno-23-22" href="#__codelineno-23-22"></a>
+</span><span id="__span-23-23"><a id="__codelineno-23-23" name="__codelineno-23-23" href="#__codelineno-23-23"></a>H --&gt; K{Nothing Owed?}
+</span><span id="__span-23-24"><a id="__codelineno-23-24" name="__codelineno-23-24" href="#__codelineno-23-24"></a>
+</span><span id="__span-23-25"><a id="__codelineno-23-25" name="__codelineno-23-25" href="#__codelineno-23-25"></a>K -- No --&gt; C
+</span><span id="__span-23-26"><a id="__codelineno-23-26" name="__codelineno-23-26" href="#__codelineno-23-26"></a>K -- Yes --&gt; L[Turn End]
+</span></code></pre></div>
+<p>每个 Step 前：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>preStep
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>   ↓
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>claim inputs
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>   ↓
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>derive messages
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>   ↓
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>construct system prompt
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>   ↓
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>inject runtime context
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>   ↓
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>agent/pre-step hooks
+</span></code></pre></div>
+<p>然后生成模型请求。</p>
+<hr />
+<h3 id="43">4.3 请求冻结</h3>
+<p>一个非常重要的设计是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>Request Constructed
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>        ↓
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>agent/request hooks
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>        ↓
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>Deep Freeze
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>        ↓
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>LLM Call
+</span></code></pre></div>
+<p>冻结以后，当前请求不可再变化。</p>
+<p>因此：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>request/header
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>+
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>session events
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>+
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>plugin config
+</span></code></pre></div>
+<p>能够重建：</p>
+<blockquote>
+<p>模型在当时到底看到了什么。</p>
+</blockquote>
+<p>这对 Agent Debug、Benchmark 和后训练数据都非常重要。</p>
+<hr />
+<h2 id="5-tool-runtime">5. Tool Runtime</h2>
+<h3 id="51">5.1 工具不是直接执行</h3>
+<p>模型输出：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>tool_call
+</span></code></pre></div>
+<p>并不会立即调用真实工具，而是经过完整执行管线：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>flowchart LR
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>A[Tool Call]
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>--&gt; B[pre-execute]
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>--&gt; C[Approval]
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>--&gt; D[Monotonic Guard]
+</span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>--&gt; E[execute]
+</span><span id="__span-28-8"><a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>--&gt; F[Tool]
+</span><span id="__span-28-9"><a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>--&gt; G[post-execute]
+</span><span id="__span-28-10"><a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>--&gt; H[finalizeContent]
+</span><span id="__span-28-11"><a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>--&gt; I[Tool Result]
+</span><span id="__span-28-12"><a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a>--&gt; J[Session Log]
+</span></code></pre></div>
+<p>其中三个主要 waterfall 为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>tools/pre-execute
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>tools/execute
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>tools/post-execute
+</span></code></pre></div>
+<p>审批、Guard、结果收尾等机制再围绕这些执行阶段叠加。</p>
+<hr />
+<h3 id="52">5.2 并行执行，但确定性提交</h3>
+<p>假设模型同时调用：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>Tool A
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>Tool B
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>Tool C
+</span></code></pre></div>
+<p>执行可以：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>A ──────────────┐
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>B ───────┐      │
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>C ──────────┐   │
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>             ↓
+</span></code></pre></div>
+<p>并行完成。</p>
+<p>但写入 Session Log 时必须：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>Result A
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>Result B
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>Result C
+</span></code></pre></div>
+<p>严格遵循模型原始调用顺序。</p>
+<p>即：</p>
+<blockquote>
+<p><strong>Scheduling can overlap, committing must remain ordered.</strong></p>
+</blockquote>
+<p>这样做的原因不是单纯“方便日志查看”，而是为了保证：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>同一 Event Log
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>      ↓
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>deriveMessages()
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>      ↓
+</span><span id="__span-33-5"><a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>永远得到同一 Context
+</span></code></pre></div>
+<p>否则工具完成时间的随机性会污染 Agent 的可复现性。</p>
+<p>原材料也明确将这一原则概括为“调度可以重叠，提交必须有序”。</p>
+<hr />
+<h2 id="6-ptcprogrammatic-tool-calling">6. PTC：Programmatic Tool Calling</h2>
+<p>PTC 是 DeepSeek Harness 最值得关注的创新之一。</p>
+<p>传统 Function Calling：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>LLM
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a> ↓
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>search()
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a> ↓
+</span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>LLM
+</span><span id="__span-34-6"><a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a> ↓
+</span><span id="__span-34-7"><a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>read()
+</span><span id="__span-34-8"><a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a> ↓
+</span><span id="__span-34-9"><a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>LLM
+</span><span id="__span-34-10"><a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a> ↓
+</span><span id="__span-34-11"><a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>parse()
+</span><span id="__span-34-12"><a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a> ↓
+</span><span id="__span-34-13"><a id="__codelineno-34-13" name="__codelineno-34-13" href="#__codelineno-34-13"></a>LLM
+</span><span id="__span-34-14"><a id="__codelineno-34-14" name="__codelineno-34-14" href="#__codelineno-34-14"></a> ↓
+</span><span id="__span-34-15"><a id="__codelineno-34-15" name="__codelineno-34-15" href="#__codelineno-34-15"></a>write()
+</span></code></pre></div>
+<p>假设任务需要五次工具调用，就可能需要五轮 Model ↔ Tool 往返。</p>
+<hr />
+<h3 id="61-ptc">6.1 PTC 的核心思想</h3>
+<p>PTC 将几十个工具统一包装为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>run_code()
+</span></code></pre></div>
+<p>模型看到：</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="kr">declare</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">tools</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="w">  </span><span class="nx">search</span><span class="o">:</span><span class="w"> </span><span class="kt">...</span>
+</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="w">  </span><span class="nx">readFile</span><span class="o">:</span><span class="w"> </span><span class="kt">...</span>
+</span><span id="__span-36-4"><a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="w">  </span><span class="nx">writeFile</span><span class="o">:</span><span class="w"> </span><span class="kt">...</span>
+</span><span id="__span-36-5"><a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="w">  </span><span class="p">...</span>
+</span><span id="__span-36-6"><a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>然后生成程序：</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">tools</span><span class="p">.</span><span class="nx">search</span><span class="p">(...)</span>
+</span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>
+</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>
+</span><span id="__span-37-5"><a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">file</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">files</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-37-6"><a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">tools</span><span class="p">.</span><span class="nx">readFile</span><span class="p">(...)</span>
+</span><span id="__span-37-7"><a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">condition</span><span class="p">(</span><span class="nx">content</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-37-8"><a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a><span class="w">        </span><span class="nx">results</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span>
+</span><span id="__span-37-9"><a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-37-10"><a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a><span class="p">}</span>
+</span><span id="__span-37-11"><a id="__codelineno-37-11" name="__codelineno-37-11" href="#__codelineno-37-11"></a>
+</span><span id="__span-37-12"><a id="__codelineno-37-12" name="__codelineno-37-12" href="#__codelineno-37-12"></a><span class="k">return</span><span class="w"> </span><span class="nx">results</span>
+</span></code></pre></div>
+<p>于是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>LLM
+</span><span id="__span-38-2"><a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a> ↓
+</span><span id="__span-38-3"><a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>run_code
+</span><span id="__span-38-4"><a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a> ↓
+</span><span id="__span-38-5"><a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a>Tool A
+</span><span id="__span-38-6"><a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a> ↓
+</span><span id="__span-38-7"><a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a>Tool B
+</span><span id="__span-38-8"><a id="__codelineno-38-8" name="__codelineno-38-8" href="#__codelineno-38-8"></a> ↓
+</span><span id="__span-38-9"><a id="__codelineno-38-9" name="__codelineno-38-9" href="#__codelineno-38-9"></a>Tool C
+</span><span id="__span-38-10"><a id="__codelineno-38-10" name="__codelineno-38-10" href="#__codelineno-38-10"></a> ↓
+</span><span id="__span-38-11"><a id="__codelineno-38-11" name="__codelineno-38-11" href="#__codelineno-38-11"></a>Tool D
+</span><span id="__span-38-12"><a id="__codelineno-38-12" name="__codelineno-38-12" href="#__codelineno-38-12"></a> ↓
+</span><span id="__span-38-13"><a id="__codelineno-38-13" name="__codelineno-38-13" href="#__codelineno-38-13"></a>Result
+</span><span id="__span-38-14"><a id="__codelineno-38-14" name="__codelineno-38-14" href="#__codelineno-38-14"></a> ↓
+</span><span id="__span-38-15"><a id="__codelineno-38-15" name="__codelineno-38-15" href="#__codelineno-38-15"></a>LLM
+</span></code></pre></div>
+<p>由多轮自然语言控制变成一次程序执行。</p>
+<p>原报告指出，Code/PTC 模式下模型侧主要只暴露 <code>run_code</code> 加动态生成的 TypeScript SDK 声明，程序内部的子调用仍然经过标准 Tool Pipeline。</p>
+<hr />
+<h3 id="62-ptc-context">6.2 为什么 PTC 能降低 Context 消耗</h3>
+<p>传统模式：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>Tool A Result
+</span><span id="__span-39-2"><a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>       ↓
+</span><span id="__span-39-3"><a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>Context
+</span><span id="__span-39-4"><a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>
+</span><span id="__span-39-5"><a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a>Tool B Result
+</span><span id="__span-39-6"><a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>       ↓
+</span><span id="__span-39-7"><a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a>Context
+</span><span id="__span-39-8"><a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a>
+</span><span id="__span-39-9"><a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a>Tool C Result
+</span><span id="__span-39-10"><a id="__codelineno-39-10" name="__codelineno-39-10" href="#__codelineno-39-10"></a>       ↓
+</span><span id="__span-39-11"><a id="__codelineno-39-11" name="__codelineno-39-11" href="#__codelineno-39-11"></a>Context
+</span></code></pre></div>
+<p>大量中间数据都会进入模型。</p>
+<p>PTC：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>Tool A ┐
+</span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>Tool B ├── Local Program
+</span><span id="__span-40-3"><a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>Tool C ┘
+</span><span id="__span-40-4"><a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a>          ↓
+</span><span id="__span-40-5"><a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a>      filter
+</span><span id="__span-40-6"><a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a>      map
+</span><span id="__span-40-7"><a id="__codelineno-40-7" name="__codelineno-40-7" href="#__codelineno-40-7"></a>      reduce
+</span><span id="__span-40-8"><a id="__codelineno-40-8" name="__codelineno-40-8" href="#__codelineno-40-8"></a>          ↓
+</span><span id="__span-40-9"><a id="__codelineno-40-9" name="__codelineno-40-9" href="#__codelineno-40-9"></a>     Final Result
+</span><span id="__span-40-10"><a id="__codelineno-40-10" name="__codelineno-40-10" href="#__codelineno-40-10"></a>          ↓
+</span><span id="__span-40-11"><a id="__codelineno-40-11" name="__codelineno-40-11" href="#__codelineno-40-11"></a>        Context
+</span></code></pre></div>
+<p>只有真正需要的结果回到模型。</p>
+<p>因此它优化的不只是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>Tool Call 数量
+</span></code></pre></div>
+<p>更重要的是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>Intermediate Observation Token
+</span></code></pre></div>
+<hr />
+<h3 id="63-ptc">6.3 PTC 的适用边界</h3>
+<p>PTC 并非所有场景都更优。</p>
+<p>当任务只有：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>1～2 个简单工具调用
+</span></code></pre></div>
+<p>时，引入 TypeScript SDK 本身也会消耗 Prompt Token。</p>
+<p>因此其收益更倾向于：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>工具很多
+</span><span id="__span-44-2"><a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>+
+</span><span id="__span-44-3"><a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>调用链较长
+</span><span id="__span-44-4"><a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>+
+</span><span id="__span-44-5"><a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>中间结果很大
+</span><span id="__span-44-6"><a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>+
+</span><span id="__span-44-7"><a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>存在循环 / filter / aggregation
+</span></code></pre></div>
+<p>的任务。</p>
+<hr />
+<h2 id="7-session-event-sourcing">7. Session Event Sourcing</h2>
+<p>DeepSeek Harness 最具架构价值的设计之一，是：</p>
+<blockquote>
+<p><strong>Session 不保存“当前状态”，Session Event Log 本身就是状态。</strong></p>
+</blockquote>
+<p>传统 Agent：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>messages = [...]
+</span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>current_task = ...
+</span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>tool_state = ...
+</span><span id="__span-45-4"><a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>memory = ...
+</span></code></pre></div>
+<p>不同状态分别维护。</p>
+<p>很容易发生：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>Messages != Runtime State
+</span></code></pre></div>
+<hr />
+<h3 id="71-append-only-event-log">7.1 Append-only Event Log</h3>
+<p>dsh 使用：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>SessionEvent[]
+</span></code></pre></div>
+<p>事件只允许：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>append
+</span></code></pre></div>
+<p>不允许修改历史事件。</p>
+<p>模型真正看到的消息通过：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>deriveMessages(events)
+</span></code></pre></div>
+<p>投影得到。</p>
+<p>原报告将这一原则总结为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>the log IS the state
+</span></code></pre></div>
+<p>而不是“日志记录状态”。</p>
+<hr />
+<h3 id="72-surface-event">7.2 Surface Event</h3>
+<p>并非所有 Event 都进入模型。</p>
+<p>真正影响模型历史的核心 Surface Event 主要包括：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>user/message
+</span><span id="__span-51-2"><a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>assistant/message
+</span><span id="__span-51-3"><a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>tool/result
+</span></code></pre></div>
+<p>而：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>turn/start
+</span><span id="__span-52-2"><a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>turn/end
+</span><span id="__span-52-3"><a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a>step/start
+</span><span id="__span-52-4"><a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a>step/end
+</span><span id="__span-52-5"><a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a>assistant/chunk
+</span><span id="__span-52-6"><a id="__codelineno-52-6" name="__codelineno-52-6" href="#__codelineno-52-6"></a>request/header
+</span><span id="__span-52-7"><a id="__codelineno-52-7" name="__codelineno-52-7" href="#__codelineno-52-7"></a>compaction/*
+</span></code></pre></div>
+<p>可以保留在 Event Log 中，但不直接成为 Message History。</p>
+<p>这就实现：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>         Session Event Log
+</span><span id="__span-53-2"><a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a>               │
+</span><span id="__span-53-3"><a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a>      ┌────────┴────────┐
+</span><span id="__span-53-4"><a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a>      ↓                 ↓
+</span><span id="__span-53-5"><a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a>Model Projection    Observability
+</span><span id="__span-53-6"><a id="__codelineno-53-6" name="__codelineno-53-6" href="#__codelineno-53-6"></a>      ↓                 ↓
+</span><span id="__span-53-7"><a id="__codelineno-53-7" name="__codelineno-53-7" href="#__codelineno-53-7"></a>Messages          Trajectory
+</span></code></pre></div>
+<p>原材料明确指出模型可见事件与结构/回放事件、log-only 事件被分层存储，从而同时获得完整可观测性和稳定模型上下文。</p>
+<hr />
+<h3 id="73-model-visible-means-logged">7.3 “Model-visible means logged”</h3>
+<p>这是 dsh 一个非常关键的不变量：</p>
+<blockquote>
+<p>任何模型能够看到的信息，都必须存在于 Event Log 中。</p>
+</blockquote>
+<p>即：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>Model Visible
+</span><span id="__span-54-2"><a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a>      ⇕
+</span><span id="__span-54-3"><a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a>Recorded
+</span></code></pre></div>
+<p>因此任意一次失败任务，都可以回答：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-55-1"><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>模型看到什么？
+</span><span id="__span-55-2"><a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>System Prompt 是什么？
+</span><span id="__span-55-3"><a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a>工具有哪些？
+</span><span id="__span-55-4"><a id="__codelineno-55-4" name="__codelineno-55-4" href="#__codelineno-55-4"></a>工具结果是什么？
+</span><span id="__span-55-5"><a id="__codelineno-55-5" name="__codelineno-55-5" href="#__codelineno-55-5"></a>运行时 Context 是什么？
+</span><span id="__span-55-6"><a id="__codelineno-55-6" name="__codelineno-55-6" href="#__codelineno-55-6"></a>当时选择哪个 Model？
+</span></code></pre></div>
+<p>这些信息不需要事后猜测。</p>
+<hr />
+<h2 id="8-replayresume-fork">8. Replay、Resume 与 Fork</h2>
+<p>Event Sourcing 带来的直接收益是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-56-1"><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>Resume
+</span><span id="__span-56-2"><a id="__codelineno-56-2" name="__codelineno-56-2" href="#__codelineno-56-2"></a>Fork
+</span><span id="__span-56-3"><a id="__codelineno-56-3" name="__codelineno-56-3" href="#__codelineno-56-3"></a>Replay
+</span><span id="__span-56-4"><a id="__codelineno-56-4" name="__codelineno-56-4" href="#__codelineno-56-4"></a>Telemetry
+</span></code></pre></div>
+<p>几乎全部可以由同一 Session Log 派生。</p>
+<hr />
+<h3 id="81-resume">8.1 Resume</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-57-1"><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>Event 1
+</span><span id="__span-57-2"><a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a>Event 2
+</span><span id="__span-57-3"><a id="__codelineno-57-3" name="__codelineno-57-3" href="#__codelineno-57-3"></a>...
+</span><span id="__span-57-4"><a id="__codelineno-57-4" name="__codelineno-57-4" href="#__codelineno-57-4"></a>Event N
+</span><span id="__span-57-5"><a id="__codelineno-57-5" name="__codelineno-57-5" href="#__codelineno-57-5"></a>  ↓
+</span><span id="__span-57-6"><a id="__codelineno-57-6" name="__codelineno-57-6" href="#__codelineno-57-6"></a>Process Crash
+</span><span id="__span-57-7"><a id="__codelineno-57-7" name="__codelineno-57-7" href="#__codelineno-57-7"></a>  ↓
+</span><span id="__span-57-8"><a id="__codelineno-57-8" name="__codelineno-57-8" href="#__codelineno-57-8"></a>Reload Event Log
+</span><span id="__span-57-9"><a id="__codelineno-57-9" name="__codelineno-57-9" href="#__codelineno-57-9"></a>  ↓
+</span><span id="__span-57-10"><a id="__codelineno-57-10" name="__codelineno-57-10" href="#__codelineno-57-10"></a>Continue
+</span></code></pre></div>
+<hr />
+<h3 id="82-fork">8.2 Fork</h3>
+<p>假设：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-58-1"><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>E1
+</span><span id="__span-58-2"><a id="__codelineno-58-2" name="__codelineno-58-2" href="#__codelineno-58-2"></a>E2
+</span><span id="__span-58-3"><a id="__codelineno-58-3" name="__codelineno-58-3" href="#__codelineno-58-3"></a>E3
+</span><span id="__span-58-4"><a id="__codelineno-58-4" name="__codelineno-58-4" href="#__codelineno-58-4"></a>E4
+</span><span id="__span-58-5"><a id="__codelineno-58-5" name="__codelineno-58-5" href="#__codelineno-58-5"></a>E5
+</span></code></pre></div>
+<p>可以：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-59-1"><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>E1
+</span><span id="__span-59-2"><a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a>E2
+</span><span id="__span-59-3"><a id="__codelineno-59-3" name="__codelineno-59-3" href="#__codelineno-59-3"></a>E3
+</span><span id="__span-59-4"><a id="__codelineno-59-4" name="__codelineno-59-4" href="#__codelineno-59-4"></a>├── Branch A
+</span><span id="__span-59-5"><a id="__codelineno-59-5" name="__codelineno-59-5" href="#__codelineno-59-5"></a>└── Branch B
+</span></code></pre></div>
+<p>分别尝试不同：</p>
+<ul>
+<li>Model；</li>
+<li>Prompt；</li>
+<li>Tool Set；</li>
+<li>Agent Loop；</li>
+<li>Compaction Strategy。</li>
+</ul>
+<p>原材料将 resume、fork、replay 等统一解释为对“事件流前缀 seed”的不同使用方式。</p>
+<p>这使 Harness A/B Test 非常自然。</p>
+<hr />
+<h2 id="9-context-engineering-cache-architecture">9. Context Engineering 与 Cache Architecture</h2>
+<p>Agent 长任务中的核心成本来自：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-60-1"><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a>越来越长的 Context
+</span></code></pre></div>
+<p>DeepSeek Harness 的策略不是简单截断，而是结合：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-61-1"><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>Deterministic Context Construction
+</span><span id="__span-61-2"><a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a>+
+</span><span id="__span-61-3"><a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a>Dynamic Context Projection
+</span><span id="__span-61-4"><a id="__codelineno-61-4" name="__codelineno-61-4" href="#__codelineno-61-4"></a>+
+</span><span id="__span-61-5"><a id="__codelineno-61-5" name="__codelineno-61-5" href="#__codelineno-61-5"></a>Tool Result Spill
+</span><span id="__span-61-6"><a id="__codelineno-61-6" name="__codelineno-61-6" href="#__codelineno-61-6"></a>+
+</span><span id="__span-61-7"><a id="__codelineno-61-7" name="__codelineno-61-7" href="#__codelineno-61-7"></a>Compaction
+</span><span id="__span-61-8"><a id="__codelineno-61-8" name="__codelineno-61-8" href="#__codelineno-61-8"></a>+
+</span><span id="__span-61-9"><a id="__codelineno-61-9" name="__codelineno-61-9" href="#__codelineno-61-9"></a>Prefix Cache
+</span></code></pre></div>
+<hr />
+<h3 id="91-context">9.1 Context 三层结构</h3>
+<p>可以抽象为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-62-1"><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>┌────────────────────────────┐
+</span><span id="__span-62-2"><a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a>│ Stable System Sections     │
+</span><span id="__span-62-3"><a id="__codelineno-62-3" name="__codelineno-62-3" href="#__codelineno-62-3"></a>├────────────────────────────┤
+</span><span id="__span-62-4"><a id="__codelineno-62-4" name="__codelineno-62-4" href="#__codelineno-62-4"></a>│ Agent Instructions         │
+</span><span id="__span-62-5"><a id="__codelineno-62-5" name="__codelineno-62-5" href="#__codelineno-62-5"></a>├────────────────────────────┤
+</span><span id="__span-62-6"><a id="__codelineno-62-6" name="__codelineno-62-6" href="#__codelineno-62-6"></a>│ Dynamic Runtime Context    │
+</span><span id="__span-62-7"><a id="__codelineno-62-7" name="__codelineno-62-7" href="#__codelineno-62-7"></a>├────────────────────────────┤
+</span><span id="__span-62-8"><a id="__codelineno-62-8" name="__codelineno-62-8" href="#__codelineno-62-8"></a>│ Session Messages           │
+</span><span id="__span-62-9"><a id="__codelineno-62-9" name="__codelineno-62-9" href="#__codelineno-62-9"></a>└────────────────────────────┘
+</span></code></pre></div>
+<p>其中稳定内容尽量保持：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-63-1"><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>same bytes
+</span><span id="__span-63-2"><a id="__codelineno-63-2" name="__codelineno-63-2" href="#__codelineno-63-2"></a>+
+</span><span id="__span-63-3"><a id="__codelineno-63-3" name="__codelineno-63-3" href="#__codelineno-63-3"></a>same order
+</span><span id="__span-63-4"><a id="__codelineno-63-4" name="__codelineno-63-4" href="#__codelineno-63-4"></a>+
+</span><span id="__span-63-5"><a id="__codelineno-63-5" name="__codelineno-63-5" href="#__codelineno-63-5"></a>same position
+</span></code></pre></div>
+<p>工具也按照稳定顺序组织。</p>
+<p>原报告进一步指出，动态 Context 并不是每轮机械重复，而采用：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-64-1"><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>changed → inject
+</span><span id="__span-64-2"><a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a>unchanged → skip
+</span><span id="__span-64-3"><a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a>cleared → explicit CLEARED event
+</span></code></pre></div>
+<p>的方式。</p>
+<hr />
+<h3 id="92-cache">9.2 为什么 Cache 命中率高</h3>
+<p>因为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-65-1"><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>System Prompt
+</span><span id="__span-65-2"><a id="__codelineno-65-2" name="__codelineno-65-2" href="#__codelineno-65-2"></a>Tools
+</span><span id="__span-65-3"><a id="__codelineno-65-3" name="__codelineno-65-3" href="#__codelineno-65-3"></a>History
+</span></code></pre></div>
+<p>绝大部分前缀不会变化。</p>
+<p>形成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-66-1"><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>Request 1:
+</span><span id="__span-66-2"><a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a>AAAA BBBB CCCC X
+</span><span id="__span-66-3"><a id="__codelineno-66-3" name="__codelineno-66-3" href="#__codelineno-66-3"></a>
+</span><span id="__span-66-4"><a id="__codelineno-66-4" name="__codelineno-66-4" href="#__codelineno-66-4"></a>Request 2:
+</span><span id="__span-66-5"><a id="__codelineno-66-5" name="__codelineno-66-5" href="#__codelineno-66-5"></a>AAAA BBBB CCCC X Y
+</span><span id="__span-66-6"><a id="__codelineno-66-6" name="__codelineno-66-6" href="#__codelineno-66-6"></a>
+</span><span id="__span-66-7"><a id="__codelineno-66-7" name="__codelineno-66-7" href="#__codelineno-66-7"></a>Request 3:
+</span><span id="__span-66-8"><a id="__codelineno-66-8" name="__codelineno-66-8" href="#__codelineno-66-8"></a>AAAA BBBB CCCC X Y Z
+</span></code></pre></div>
+<p>于是 Prefix Cache 可以反复复用：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-67-1"><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>AAAA BBBB CCCC
+</span></code></pre></div>
+<p>原材料将 95%～100% 的第三方缓存命中观察，与 append-only 日志、确定性 Context 拼装直接关联。</p>
+<p>因此：</p>
+<blockquote>
+<p><strong>Cache Friendly 并不是某个独立优化开关，而是确定性运行时架构的副产品。</strong></p>
+</blockquote>
+<p>这是一个很值得其他 Agent 系统借鉴的思想。</p>
+<hr />
+<h2 id="10-skillspreset-multi-agent">10. Skills、Preset 与 Multi-Agent</h2>
+<h3 id="101-preset-prompt-template">10.1 Preset 不是 Prompt Template</h3>
+<p>传统所谓 Agent Preset 往往只是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-68-1"><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a>System Prompt
+</span><span id="__span-68-2"><a id="__codelineno-68-2" name="__codelineno-68-2" href="#__codelineno-68-2"></a>+
+</span><span id="__span-68-3"><a id="__codelineno-68-3" name="__codelineno-68-3" href="#__codelineno-68-3"></a>Model Config
+</span></code></pre></div>
+<p>而 dsh Preset 更接近：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-69-1"><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a>Agent Preset
+</span><span id="__span-69-2"><a id="__codelineno-69-2" name="__codelineno-69-2" href="#__codelineno-69-2"></a>     =
+</span><span id="__span-69-3"><a id="__codelineno-69-3" name="__codelineno-69-3" href="#__codelineno-69-3"></a>Plugin Composition
+</span></code></pre></div>
+<p>它可以决定：</p>
+<ul>
+<li>Prompt；</li>
+<li>Tool；</li>
+<li>Skill；</li>
+<li>Compaction；</li>
+<li>SubAgent；</li>
+<li>Workflow；</li>
+<li>Context Policy。</li>
+</ul>
+<p>因此：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-70-1"><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a>Standard
+</span><span id="__span-70-2"><a id="__codelineno-70-2" name="__codelineno-70-2" href="#__codelineno-70-2"></a>Minimal
+</span><span id="__span-70-3"><a id="__codelineno-70-3" name="__codelineno-70-3" href="#__codelineno-70-3"></a>PTC
+</span><span id="__span-70-4"><a id="__codelineno-70-4" name="__codelineno-70-4" href="#__codelineno-70-4"></a>Creator
+</span></code></pre></div>
+<p>本质上并不是四套 Agent 代码，而是四套插件组合。</p>
+<hr />
+<h3 id="102-minimal">10.2 Minimal 模式的意义</h3>
+<p>Minimal 刻意只保留少量工具。</p>
+<p>目的不仅是轻量化，还可以用作：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-71-1"><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>Model Capability Baseline
+</span></code></pre></div>
+<p>从而减少 Harness 对 Benchmark 的污染。</p>
+<p>因此评估 Agent 时应至少披露：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-72-1"><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a>Model
+</span><span id="__span-72-2"><a id="__codelineno-72-2" name="__codelineno-72-2" href="#__codelineno-72-2"></a>Harness
+</span><span id="__span-72-3"><a id="__codelineno-72-3" name="__codelineno-72-3" href="#__codelineno-72-3"></a>Preset
+</span><span id="__span-72-4"><a id="__codelineno-72-4" name="__codelineno-72-4" href="#__codelineno-72-4"></a>Tools
+</span><span id="__span-72-5"><a id="__codelineno-72-5" name="__codelineno-72-5" href="#__codelineno-72-5"></a>Prompt
+</span><span id="__span-72-6"><a id="__codelineno-72-6" name="__codelineno-72-6" href="#__codelineno-72-6"></a>Decoding Config
+</span></code></pre></div>
+<p>而不能只写：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-73-1"><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a>DeepSeek V4-Pro Score = XX
+</span></code></pre></div>
+<p>原材料也指出，仅改变 preset 就可能显著改变同模型任务表现，因此 harness 配置应当成为评测中的显式自变量。</p>
+<hr />
+<h3 id="103-subagent-provider">10.3 SubAgent Provider</h3>
+<p>SubAgent 同样被抽象成 provider。</p>
+<p>例如：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-74-1"><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a>Parent Agent
+</span><span id="__span-74-2"><a id="__codelineno-74-2" name="__codelineno-74-2" href="#__codelineno-74-2"></a>    │
+</span><span id="__span-74-3"><a id="__codelineno-74-3" name="__codelineno-74-3" href="#__codelineno-74-3"></a>    ├── Spawn Agent
+</span><span id="__span-74-4"><a id="__codelineno-74-4" name="__codelineno-74-4" href="#__codelineno-74-4"></a>    │
+</span><span id="__span-74-5"><a id="__codelineno-74-5" name="__codelineno-74-5" href="#__codelineno-74-5"></a>    ├── Fork Agent
+</span><span id="__span-74-6"><a id="__codelineno-74-6" name="__codelineno-74-6" href="#__codelineno-74-6"></a>    │
+</span><span id="__span-74-7"><a id="__codelineno-74-7" name="__codelineno-74-7" href="#__codelineno-74-7"></a>    ├── dsh Agent
+</span><span id="__span-74-8"><a id="__codelineno-74-8" name="__codelineno-74-8" href="#__codelineno-74-8"></a>    │
+</span><span id="__span-74-9"><a id="__codelineno-74-9" name="__codelineno-74-9" href="#__codelineno-74-9"></a>    ├── Claude Code
+</span><span id="__span-74-10"><a id="__codelineno-74-10" name="__codelineno-74-10" href="#__codelineno-74-10"></a>    │
+</span><span id="__span-74-11"><a id="__codelineno-74-11" name="__codelineno-74-11" href="#__codelineno-74-11"></a>    └── Codex
+</span></code></pre></div>
+<p>因此 Claude Code / Codex 可以从“竞争对手”变成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-75-1"><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a>一种 SubAgent Backend
+</span></code></pre></div>
+<p>原报告列出的内置 provider 包括 spawn、fork、ACP、dsh-sdk、Codex 与 Claude Code。</p>
+<p>这是 dsh 一个非常有意思的生态定位：</p>
+<blockquote>
+<p>自己不一定拥有所有能力，但掌握最上层的 Runtime 编排权。</p>
+</blockquote>
+<hr />
+<h2 id="11-securityprompt-guidance-runtime-enforcement">11. Security：Prompt Guidance 与 Runtime Enforcement 分离</h2>
+<p>Agent Security 最常见的错误是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-76-1"><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a>System Prompt:
+</span><span id="__span-76-2"><a id="__codelineno-76-2" name="__codelineno-76-2" href="#__codelineno-76-2"></a>
+</span><span id="__span-76-3"><a id="__codelineno-76-3" name="__codelineno-76-3" href="#__codelineno-76-3"></a>"不要删除用户文件"
+</span></code></pre></div>
+<p>这并不构成真正的安全边界。</p>
+<p>因为模型可能：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-77-1"><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a>误解
+</span><span id="__span-77-2"><a id="__codelineno-77-2" name="__codelineno-77-2" href="#__codelineno-77-2"></a>越权
+</span><span id="__span-77-3"><a id="__codelineno-77-3" name="__codelineno-77-3" href="#__codelineno-77-3"></a>Prompt Injection
+</span><span id="__span-77-4"><a id="__codelineno-77-4" name="__codelineno-77-4" href="#__codelineno-77-4"></a>Tool Injection
+</span></code></pre></div>
+<p>因此 dsh 将：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-78-1"><a id="__codelineno-78-1" name="__codelineno-78-1" href="#__codelineno-78-1"></a>Plan Mode
+</span></code></pre></div>
+<p>定义为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-79-1"><a id="__codelineno-79-1" name="__codelineno-79-1" href="#__codelineno-79-1"></a>Soft Guidance
+</span></code></pre></div>
+<p>真正强制权限的是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-80-1"><a id="__codelineno-80-1" name="__codelineno-80-1" href="#__codelineno-80-1"></a>Sandbox
+</span><span id="__span-80-2"><a id="__codelineno-80-2" name="__codelineno-80-2" href="#__codelineno-80-2"></a>+
+</span><span id="__span-80-3"><a id="__codelineno-80-3" name="__codelineno-80-3" href="#__codelineno-80-3"></a>Approval
+</span></code></pre></div>
+<p>原报告对此直接概括为：沙箱负责“可以在哪里执行”，审批负责“这一次操作是否被允许”，两层相互独立并采用 fail-closed 设计。</p>
+<hr />
+<h3 id="111-sandbox">11.1 Sandbox</h3>
+<p>抽象为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-81-1"><a id="__codelineno-81-1" name="__codelineno-81-1" href="#__codelineno-81-1"></a>read-only
+</span><span id="__span-81-2"><a id="__codelineno-81-2" name="__codelineno-81-2" href="#__codelineno-81-2"></a>
+</span><span id="__span-81-3"><a id="__codelineno-81-3" name="__codelineno-81-3" href="#__codelineno-81-3"></a>workspace-write
+</span><span id="__span-81-4"><a id="__codelineno-81-4" name="__codelineno-81-4" href="#__codelineno-81-4"></a>
+</span><span id="__span-81-5"><a id="__codelineno-81-5" name="__codelineno-81-5" href="#__codelineno-81-5"></a>danger-full-access
+</span></code></pre></div>
+<p>负责限制：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-82-1"><a id="__codelineno-82-1" name="__codelineno-82-1" href="#__codelineno-82-1"></a>Agent 对环境能够产生什么副作用
+</span></code></pre></div>
+<hr />
+<h3 id="112-approval">11.2 Approval</h3>
+<p>Approval 决定：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-83-1"><a id="__codelineno-83-1" name="__codelineno-83-1" href="#__codelineno-83-1"></a>本次具体 Tool Call 是否允许执行
+</span></code></pre></div>
+<p>结果集收敛为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-84-1"><a id="__codelineno-84-1" name="__codelineno-84-1" href="#__codelineno-84-1"></a>allowed-once
+</span><span id="__span-84-2"><a id="__codelineno-84-2" name="__codelineno-84-2" href="#__codelineno-84-2"></a>rejected
+</span><span id="__span-84-3"><a id="__codelineno-84-3" name="__codelineno-84-3" href="#__codelineno-84-3"></a>cancelled
+</span><span id="__span-84-4"><a id="__codelineno-84-4" name="__codelineno-84-4" href="#__codelineno-84-4"></a>unavailable
+</span></code></pre></div>
+<p>其中只有：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-85-1"><a id="__codelineno-85-1" name="__codelineno-85-1" href="#__codelineno-85-1"></a>allowed-once
+</span></code></pre></div>
+<p>可以放行。</p>
+<p>没有明确授权：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-86-1"><a id="__codelineno-86-1" name="__codelineno-86-1" href="#__codelineno-86-1"></a>fail closed
+</span></code></pre></div>
+<p>而不是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-87-1"><a id="__codelineno-87-1" name="__codelineno-87-1" href="#__codelineno-87-1"></a>fail open
+</span></code></pre></div>
+<p>这是 Agent Runtime 非常重要的安全设计原则。</p>
+<hr />
+<h2 id="12-harness-agent">12. Harness 与 Agent 后训练</h2>
+<p>DeepSeek Harness 的另一层重要价值在于：</p>
+<blockquote>
+<p>它天然是一套 Agent Trajectory 数据采集系统。</p>
+</blockquote>
+<p>一次 Agent 执行可以得到：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-88-1"><a id="__codelineno-88-1" name="__codelineno-88-1" href="#__codelineno-88-1"></a>Task
+</span><span id="__span-88-2"><a id="__codelineno-88-2" name="__codelineno-88-2" href="#__codelineno-88-2"></a> ↓
+</span><span id="__span-88-3"><a id="__codelineno-88-3" name="__codelineno-88-3" href="#__codelineno-88-3"></a>Prompt
+</span><span id="__span-88-4"><a id="__codelineno-88-4" name="__codelineno-88-4" href="#__codelineno-88-4"></a> ↓
+</span><span id="__span-88-5"><a id="__codelineno-88-5" name="__codelineno-88-5" href="#__codelineno-88-5"></a>Model Request
+</span><span id="__span-88-6"><a id="__codelineno-88-6" name="__codelineno-88-6" href="#__codelineno-88-6"></a> ↓
+</span><span id="__span-88-7"><a id="__codelineno-88-7" name="__codelineno-88-7" href="#__codelineno-88-7"></a>Assistant Output
+</span><span id="__span-88-8"><a id="__codelineno-88-8" name="__codelineno-88-8" href="#__codelineno-88-8"></a> ↓
+</span><span id="__span-88-9"><a id="__codelineno-88-9" name="__codelineno-88-9" href="#__codelineno-88-9"></a>Tool Call
+</span><span id="__span-88-10"><a id="__codelineno-88-10" name="__codelineno-88-10" href="#__codelineno-88-10"></a> ↓
+</span><span id="__span-88-11"><a id="__codelineno-88-11" name="__codelineno-88-11" href="#__codelineno-88-11"></a>Tool Result
+</span><span id="__span-88-12"><a id="__codelineno-88-12" name="__codelineno-88-12" href="#__codelineno-88-12"></a> ↓
+</span><span id="__span-88-13"><a id="__codelineno-88-13" name="__codelineno-88-13" href="#__codelineno-88-13"></a>Environment Feedback
+</span><span id="__span-88-14"><a id="__codelineno-88-14" name="__codelineno-88-14" href="#__codelineno-88-14"></a> ↓
+</span><span id="__span-88-15"><a id="__codelineno-88-15" name="__codelineno-88-15" href="#__codelineno-88-15"></a>Next Request
+</span><span id="__span-88-16"><a id="__codelineno-88-16" name="__codelineno-88-16" href="#__codelineno-88-16"></a> ↓
+</span><span id="__span-88-17"><a id="__codelineno-88-17" name="__codelineno-88-17" href="#__codelineno-88-17"></a>...
+</span><span id="__span-88-18"><a id="__codelineno-88-18" name="__codelineno-88-18" href="#__codelineno-88-18"></a> ↓
+</span><span id="__span-88-19"><a id="__codelineno-88-19" name="__codelineno-88-19" href="#__codelineno-88-19"></a>Final Result
+</span></code></pre></div>
+<p>而 Event Log 又能够同时保存：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-89-1"><a id="__codelineno-89-1" name="__codelineno-89-1" href="#__codelineno-89-1"></a>request/header
+</span><span id="__span-89-2"><a id="__codelineno-89-2" name="__codelineno-89-2" href="#__codelineno-89-2"></a>assistant/chunk
+</span><span id="__span-89-3"><a id="__codelineno-89-3" name="__codelineno-89-3" href="#__codelineno-89-3"></a>tool/result
+</span><span id="__span-89-4"><a id="__codelineno-89-4" name="__codelineno-89-4" href="#__codelineno-89-4"></a>turn/*
+</span><span id="__span-89-5"><a id="__codelineno-89-5" name="__codelineno-89-5" href="#__codelineno-89-5"></a>step/*
+</span><span id="__span-89-6"><a id="__codelineno-89-6" name="__codelineno-89-6" href="#__codelineno-89-6"></a>compaction/*
+</span><span id="__span-89-7"><a id="__codelineno-89-7" name="__codelineno-89-7" href="#__codelineno-89-7"></a>usage
+</span></code></pre></div>
+<p>于是可以形成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-90-1"><a id="__codelineno-90-1" name="__codelineno-90-1" href="#__codelineno-90-1"></a>Agent Runtime
+</span><span id="__span-90-2"><a id="__codelineno-90-2" name="__codelineno-90-2" href="#__codelineno-90-2"></a>      ↓
+</span><span id="__span-90-3"><a id="__codelineno-90-3" name="__codelineno-90-3" href="#__codelineno-90-3"></a>Trajectory
+</span><span id="__span-90-4"><a id="__codelineno-90-4" name="__codelineno-90-4" href="#__codelineno-90-4"></a>      ↓
+</span><span id="__span-90-5"><a id="__codelineno-90-5" name="__codelineno-90-5" href="#__codelineno-90-5"></a>Evaluator
+</span><span id="__span-90-6"><a id="__codelineno-90-6" name="__codelineno-90-6" href="#__codelineno-90-6"></a>      ↓
+</span><span id="__span-90-7"><a id="__codelineno-90-7" name="__codelineno-90-7" href="#__codelineno-90-7"></a>Success / Failure
+</span><span id="__span-90-8"><a id="__codelineno-90-8" name="__codelineno-90-8" href="#__codelineno-90-8"></a>      ↓
+</span><span id="__span-90-9"><a id="__codelineno-90-9" name="__codelineno-90-9" href="#__codelineno-90-9"></a>Training Dataset
+</span><span id="__span-90-10"><a id="__codelineno-90-10" name="__codelineno-90-10" href="#__codelineno-90-10"></a>      ↓
+</span><span id="__span-90-11"><a id="__codelineno-90-11" name="__codelineno-90-11" href="#__codelineno-90-11"></a>Agent RL / SFT
+</span></code></pre></div>
+<p>原报告也特别指出，完整 Event Log 与 <code>request/header</code> 能同时用于 Harness 披露、可复现评测和“用户反馈 → 轨迹样本”数据管线。</p>
+<hr />
+<h3 id="121-sft">12.1 对 SFT 的价值</h3>
+<p>可以从成功 Trajectory 中提取：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-91-1"><a id="__codelineno-91-1" name="__codelineno-91-1" href="#__codelineno-91-1"></a>Task
+</span><span id="__span-91-2"><a id="__codelineno-91-2" name="__codelineno-91-2" href="#__codelineno-91-2"></a>→ Reasoning
+</span><span id="__span-91-3"><a id="__codelineno-91-3" name="__codelineno-91-3" href="#__codelineno-91-3"></a>→ Tool Call
+</span><span id="__span-91-4"><a id="__codelineno-91-4" name="__codelineno-91-4" href="#__codelineno-91-4"></a>→ Observation
+</span><span id="__span-91-5"><a id="__codelineno-91-5" name="__codelineno-91-5" href="#__codelineno-91-5"></a>→ Action
+</span><span id="__span-91-6"><a id="__codelineno-91-6" name="__codelineno-91-6" href="#__codelineno-91-6"></a>→ Final Answer
+</span></code></pre></div>
+<p>形成 Agent SFT 数据。</p>
+<hr />
+<h3 id="122-agent-rl">12.2 对 Agent RL 的价值</h3>
+<p>如果有 Verifier：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-92-1"><a id="__codelineno-92-1" name="__codelineno-92-1" href="#__codelineno-92-1"></a>Trajectory
+</span><span id="__span-92-2"><a id="__codelineno-92-2" name="__codelineno-92-2" href="#__codelineno-92-2"></a>    ↓
+</span><span id="__span-92-3"><a id="__codelineno-92-3" name="__codelineno-92-3" href="#__codelineno-92-3"></a>Environment
+</span><span id="__span-92-4"><a id="__codelineno-92-4" name="__codelineno-92-4" href="#__codelineno-92-4"></a>    ↓
+</span><span id="__span-92-5"><a id="__codelineno-92-5" name="__codelineno-92-5" href="#__codelineno-92-5"></a>Verifier
+</span><span id="__span-92-6"><a id="__codelineno-92-6" name="__codelineno-92-6" href="#__codelineno-92-6"></a>    ↓
+</span><span id="__span-92-7"><a id="__codelineno-92-7" name="__codelineno-92-7" href="#__codelineno-92-7"></a>Reward
+</span></code></pre></div>
+<p>即可形成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-93-1"><a id="__codelineno-93-1" name="__codelineno-93-1" href="#__codelineno-93-1"></a>Agent Rollout
+</span><span id="__span-93-2"><a id="__codelineno-93-2" name="__codelineno-93-2" href="#__codelineno-93-2"></a>       ↓
+</span><span id="__span-93-3"><a id="__codelineno-93-3" name="__codelineno-93-3" href="#__codelineno-93-3"></a>Reward
+</span><span id="__span-93-4"><a id="__codelineno-93-4" name="__codelineno-93-4" href="#__codelineno-93-4"></a>       ↓
+</span><span id="__span-93-5"><a id="__codelineno-93-5" name="__codelineno-93-5" href="#__codelineno-93-5"></a>GRPO / PPO / RL
+</span></code></pre></div>
+<p>因此 Harness 实际上处于：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-94-1"><a id="__codelineno-94-1" name="__codelineno-94-1" href="#__codelineno-94-1"></a>Training
+</span><span id="__span-94-2"><a id="__codelineno-94-2" name="__codelineno-94-2" href="#__codelineno-94-2"></a>   ↓
+</span><span id="__span-94-3"><a id="__codelineno-94-3" name="__codelineno-94-3" href="#__codelineno-94-3"></a>Model
+</span><span id="__span-94-4"><a id="__codelineno-94-4" name="__codelineno-94-4" href="#__codelineno-94-4"></a>   ↓
+</span><span id="__span-94-5"><a id="__codelineno-94-5" name="__codelineno-94-5" href="#__codelineno-94-5"></a>Harness
+</span><span id="__span-94-6"><a id="__codelineno-94-6" name="__codelineno-94-6" href="#__codelineno-94-6"></a>   ↓
+</span><span id="__span-94-7"><a id="__codelineno-94-7" name="__codelineno-94-7" href="#__codelineno-94-7"></a>Environment
+</span><span id="__span-94-8"><a id="__codelineno-94-8" name="__codelineno-94-8" href="#__codelineno-94-8"></a>   ↓
+</span><span id="__span-94-9"><a id="__codelineno-94-9" name="__codelineno-94-9" href="#__codelineno-94-9"></a>Trajectory
+</span><span id="__span-94-10"><a id="__codelineno-94-10" name="__codelineno-94-10" href="#__codelineno-94-10"></a>   ↓
+</span><span id="__span-94-11"><a id="__codelineno-94-11" name="__codelineno-94-11" href="#__codelineno-94-11"></a>Evaluation
+</span><span id="__span-94-12"><a id="__codelineno-94-12" name="__codelineno-94-12" href="#__codelineno-94-12"></a>   ↓
+</span><span id="__span-94-13"><a id="__codelineno-94-13" name="__codelineno-94-13" href="#__codelineno-94-13"></a>Training
+</span></code></pre></div>
+<p>这一闭环的核心位置。</p>
+<hr />
+<h2 id="13-deepseek-harness">13. DeepSeek Harness 最核心的技术创新</h2>
+<p>如果把整个项目进一步压缩，我认为真正值得关注的是以下五点。</p>
+<hr />
+<h3 id="131-harness">13.1 Harness 成为一等系统变量</h3>
+<p>过去：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-95-1"><a id="__codelineno-95-1" name="__codelineno-95-1" href="#__codelineno-95-1"></a>Model
+</span><span id="__span-95-2"><a id="__codelineno-95-2" name="__codelineno-95-2" href="#__codelineno-95-2"></a>+
+</span><span id="__span-95-3"><a id="__codelineno-95-3" name="__codelineno-95-3" href="#__codelineno-95-3"></a>一些 Tool Glue Code
+</span></code></pre></div>
+<p>现在：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-96-1"><a id="__codelineno-96-1" name="__codelineno-96-1" href="#__codelineno-96-1"></a>Model
+</span><span id="__span-96-2"><a id="__codelineno-96-2" name="__codelineno-96-2" href="#__codelineno-96-2"></a>+
+</span><span id="__span-96-3"><a id="__codelineno-96-3" name="__codelineno-96-3" href="#__codelineno-96-3"></a>Explicit Harness Runtime
+</span></code></pre></div>
+<p>Harness 本身可以：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-97-1"><a id="__codelineno-97-1" name="__codelineno-97-1" href="#__codelineno-97-1"></a>Version
+</span><span id="__span-97-2"><a id="__codelineno-97-2" name="__codelineno-97-2" href="#__codelineno-97-2"></a>Configure
+</span><span id="__span-97-3"><a id="__codelineno-97-3" name="__codelineno-97-3" href="#__codelineno-97-3"></a>Fork
+</span><span id="__span-97-4"><a id="__codelineno-97-4" name="__codelineno-97-4" href="#__codelineno-97-4"></a>Compare
+</span><span id="__span-97-5"><a id="__codelineno-97-5" name="__codelineno-97-5" href="#__codelineno-97-5"></a>Benchmark
+</span><span id="__span-97-6"><a id="__codelineno-97-6" name="__codelineno-97-6" href="#__codelineno-97-6"></a>Replace
+</span></code></pre></div>
+<hr />
+<h3 id="132-agent-loop">13.2 Agent Loop 不再是黑盒</h3>
+<p>传统产品：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-98-1"><a id="__codelineno-98-1" name="__codelineno-98-1" href="#__codelineno-98-1"></a>Agent Loop
+</span><span id="__span-98-2"><a id="__codelineno-98-2" name="__codelineno-98-2" href="#__codelineno-98-2"></a>   ↓
+</span><span id="__span-98-3"><a id="__codelineno-98-3" name="__codelineno-98-3" href="#__codelineno-98-3"></a>Closed Binary
+</span></code></pre></div>
+<p>dsh：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-99-1"><a id="__codelineno-99-1" name="__codelineno-99-1" href="#__codelineno-99-1"></a>Agent Interface
+</span><span id="__span-99-2"><a id="__codelineno-99-2" name="__codelineno-99-2" href="#__codelineno-99-2"></a>       ↓
+</span><span id="__span-99-3"><a id="__codelineno-99-3" name="__codelineno-99-3" href="#__codelineno-99-3"></a>ReactLoopAgent
+</span><span id="__span-99-4"><a id="__codelineno-99-4" name="__codelineno-99-4" href="#__codelineno-99-4"></a>
+</span><span id="__span-99-5"><a id="__codelineno-99-5" name="__codelineno-99-5" href="#__codelineno-99-5"></a>也可以：
+</span><span id="__span-99-6"><a id="__codelineno-99-6" name="__codelineno-99-6" href="#__codelineno-99-6"></a>
+</span><span id="__span-99-7"><a id="__codelineno-99-7" name="__codelineno-99-7" href="#__codelineno-99-7"></a>Agent Interface
+</span><span id="__span-99-8"><a id="__codelineno-99-8" name="__codelineno-99-8" href="#__codelineno-99-8"></a>       ↓
+</span><span id="__span-99-9"><a id="__codelineno-99-9" name="__codelineno-99-9" href="#__codelineno-99-9"></a>Custom Loop
+</span></code></pre></div>
+<p>Loop 从产品内部实现变成可实验算法。</p>
+<hr />
+<h3 id="133-event-sourcing-agent">13.3 Event Sourcing 成为 Agent 状态模型</h3>
+<p>核心变化：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-100-1"><a id="__codelineno-100-1" name="__codelineno-100-1" href="#__codelineno-100-1"></a>State + Log
+</span></code></pre></div>
+<p>变成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-101-1"><a id="__codelineno-101-1" name="__codelineno-101-1" href="#__codelineno-101-1"></a>Log = State
+</span></code></pre></div>
+<p>直接解决：</p>
+<ul>
+<li>Replay；</li>
+<li>Fork；</li>
+<li>Resume；</li>
+<li>Audit；</li>
+<li>Telemetry；</li>
+<li>Training Data。</li>
+</ul>
+<hr />
+<h3 id="134-ptc-tool-calling">13.4 PTC 将 Tool Calling 从自然语言控制升级为程序控制</h3>
+<p>传统：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-102-1"><a id="__codelineno-102-1" name="__codelineno-102-1" href="#__codelineno-102-1"></a>Reason → Tool → Reason → Tool
+</span></code></pre></div>
+<p>PTC：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-103-1"><a id="__codelineno-103-1" name="__codelineno-103-1" href="#__codelineno-103-1"></a>Reason
+</span><span id="__span-103-2"><a id="__codelineno-103-2" name="__codelineno-103-2" href="#__codelineno-103-2"></a>   ↓
+</span><span id="__span-103-3"><a id="__codelineno-103-3" name="__codelineno-103-3" href="#__codelineno-103-3"></a>Program
+</span><span id="__span-103-4"><a id="__codelineno-103-4" name="__codelineno-103-4" href="#__codelineno-103-4"></a>   ↓
+</span><span id="__span-103-5"><a id="__codelineno-103-5" name="__codelineno-103-5" href="#__codelineno-103-5"></a>Tools × N
+</span><span id="__span-103-6"><a id="__codelineno-103-6" name="__codelineno-103-6" href="#__codelineno-103-6"></a>   ↓
+</span><span id="__span-103-7"><a id="__codelineno-103-7" name="__codelineno-103-7" href="#__codelineno-103-7"></a>Result
+</span></code></pre></div>
+<p>它实际上是在 Agent 中加入了一层：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-104-1"><a id="__codelineno-104-1" name="__codelineno-104-1" href="#__codelineno-104-1"></a>LLM Planner
+</span><span id="__span-104-2"><a id="__codelineno-104-2" name="__codelineno-104-2" href="#__codelineno-104-2"></a>      ↓
+</span><span id="__span-104-3"><a id="__codelineno-104-3" name="__codelineno-104-3" href="#__codelineno-104-3"></a>Temporary Program
+</span><span id="__span-104-4"><a id="__codelineno-104-4" name="__codelineno-104-4" href="#__codelineno-104-4"></a>      ↓
+</span><span id="__span-104-5"><a id="__codelineno-104-5" name="__codelineno-104-5" href="#__codelineno-104-5"></a>Deterministic Executor
+</span></code></pre></div>
+<hr />
+<h3 id="135-harness">13.5 Harness 开始连接推理与后训练</h3>
+<p>Agent Runtime 不再只是推理基础设施：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-105-1"><a id="__codelineno-105-1" name="__codelineno-105-1" href="#__codelineno-105-1"></a>Inference Runtime
+</span></code></pre></div>
+<p>而开始变成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-106-1"><a id="__codelineno-106-1" name="__codelineno-106-1" href="#__codelineno-106-1"></a>Inference
+</span><span id="__span-106-2"><a id="__codelineno-106-2" name="__codelineno-106-2" href="#__codelineno-106-2"></a>+
+</span><span id="__span-106-3"><a id="__codelineno-106-3" name="__codelineno-106-3" href="#__codelineno-106-3"></a>Evaluation
+</span><span id="__span-106-4"><a id="__codelineno-106-4" name="__codelineno-106-4" href="#__codelineno-106-4"></a>+
+</span><span id="__span-106-5"><a id="__codelineno-106-5" name="__codelineno-106-5" href="#__codelineno-106-5"></a>Trajectory Collection
+</span><span id="__span-106-6"><a id="__codelineno-106-6" name="__codelineno-106-6" href="#__codelineno-106-6"></a>+
+</span><span id="__span-106-7"><a id="__codelineno-106-7" name="__codelineno-106-7" href="#__codelineno-106-7"></a>Training Data
+</span></code></pre></div>
+<p>的统一基础设施。</p>
+<hr />
+<h2 id="14">14. 当前局限</h2>
+<p>DeepSeek Harness 目前仍属于快速演进中的开发者预览项目，因此其设计理念与实现成熟度需要分开评价。</p>
+<p>尤其安全层已经暴露出多类 preview 阶段问题，包括沙箱隔离、<code>node:vm</code>、workflow、approval 路径等问题；原报告将共同根因总结为：</p>
+<blockquote>
+<p>安全设计的分层方向正确，但部分 enforcement 约束落在了错误的执行层。</p>
+</blockquote>
+<p>因此当前更适合：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-107-1"><a id="__codelineno-107-1" name="__codelineno-107-1" href="#__codelineno-107-1"></a>学习 Agent Runtime
+</span><span id="__span-107-2"><a id="__codelineno-107-2" name="__codelineno-107-2" href="#__codelineno-107-2"></a>实验 Harness 架构
+</span><span id="__span-107-3"><a id="__codelineno-107-3" name="__codelineno-107-3" href="#__codelineno-107-3"></a>构建自定义 Agent
+</span><span id="__span-107-4"><a id="__codelineno-107-4" name="__codelineno-107-4" href="#__codelineno-107-4"></a>设计评测框架
+</span><span id="__span-107-5"><a id="__codelineno-107-5" name="__codelineno-107-5" href="#__codelineno-107-5"></a>研究 Agent RL 数据管线
+</span></code></pre></div>
+<p>而在高权限、无人值守的生产环境中，需要额外审视：</p>
+<ul>
+<li>Sandbox；</li>
+<li>Network Isolation；</li>
+<li>Credential；</li>
+<li>Plugin Supply Chain；</li>
+<li>Approval；</li>
+<li>PTC Runtime；</li>
+<li>Workflow Runtime。</li>
+</ul>
+<p>此外，插件化也带来新的复杂性：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-108-1"><a id="__codelineno-108-1" name="__codelineno-108-1" href="#__codelineno-108-1"></a>静态代码依赖图
+</span><span id="__span-108-2"><a id="__codelineno-108-2" name="__codelineno-108-2" href="#__codelineno-108-2"></a>≠
+</span><span id="__span-108-3"><a id="__codelineno-108-3" name="__codelineno-108-3" href="#__codelineno-108-3"></a>真实运行时拓扑
+</span></code></pre></div>
+<p>实际系统结构由：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-109-1"><a id="__codelineno-109-1" name="__codelineno-109-1" href="#__codelineno-109-1"></a>Profile
+</span><span id="__span-109-2"><a id="__codelineno-109-2" name="__codelineno-109-2" href="#__codelineno-109-2"></a>+
+</span><span id="__span-109-3"><a id="__codelineno-109-3" name="__codelineno-109-3" href="#__codelineno-109-3"></a>Bundle
+</span><span id="__span-109-4"><a id="__codelineno-109-4" name="__codelineno-109-4" href="#__codelineno-109-4"></a>+
+</span><span id="__span-109-5"><a id="__codelineno-109-5" name="__codelineno-109-5" href="#__codelineno-109-5"></a>Patch
+</span><span id="__span-109-6"><a id="__codelineno-109-6" name="__codelineno-109-6" href="#__codelineno-109-6"></a>+
+</span><span id="__span-109-7"><a id="__codelineno-109-7" name="__codelineno-109-7" href="#__codelineno-109-7"></a>Preset
+</span></code></pre></div>
+<p>共同决定。</p>
+<p>因此高度可组合性同时意味着更高的：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-110-1"><a id="__codelineno-110-1" name="__codelineno-110-1" href="#__codelineno-110-1"></a>Configuration Complexity
+</span><span id="__span-110-2"><a id="__codelineno-110-2" name="__codelineno-110-2" href="#__codelineno-110-2"></a>Debug Complexity
+</span><span id="__span-110-3"><a id="__codelineno-110-3" name="__codelineno-110-3" href="#__codelineno-110-3"></a>Version Compatibility Risk
+</span></code></pre></div>
+<hr />
+<h2 id="15">15. 总结</h2>
+<p>DeepSeek Harness 最值得关注的，并不是“DeepSeek 做了一个 Claude Code”。</p>
+<p>更准确地说，它试图回答一个更基础的问题：</p>
+<blockquote>
+<p><strong>一个真正的 Agent Runtime 应该是什么样子？</strong></p>
+</blockquote>
+<p>DeepSeek 给出的答案是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-111-1"><a id="__codelineno-111-1" name="__codelineno-111-1" href="#__codelineno-111-1"></a>Agent
+</span><span id="__span-111-2"><a id="__codelineno-111-2" name="__codelineno-111-2" href="#__codelineno-111-2"></a>=
+</span><span id="__span-111-3"><a id="__codelineno-111-3" name="__codelineno-111-3" href="#__codelineno-111-3"></a>Model
+</span><span id="__span-111-4"><a id="__codelineno-111-4" name="__codelineno-111-4" href="#__codelineno-111-4"></a>+
+</span><span id="__span-111-5"><a id="__codelineno-111-5" name="__codelineno-111-5" href="#__codelineno-111-5"></a>Composable Runtime
+</span></code></pre></div>
+<p>这个 Runtime 应当满足：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-112-1"><a id="__codelineno-112-1" name="__codelineno-112-1" href="#__codelineno-112-1"></a>Model 可替换
+</span><span id="__span-112-2"><a id="__codelineno-112-2" name="__codelineno-112-2" href="#__codelineno-112-2"></a>Tool 可替换
+</span><span id="__span-112-3"><a id="__codelineno-112-3" name="__codelineno-112-3" href="#__codelineno-112-3"></a>Loop 可替换
+</span><span id="__span-112-4"><a id="__codelineno-112-4" name="__codelineno-112-4" href="#__codelineno-112-4"></a>Session 可回放
+</span><span id="__span-112-5"><a id="__codelineno-112-5" name="__codelineno-112-5" href="#__codelineno-112-5"></a>Context 可重建
+</span><span id="__span-112-6"><a id="__codelineno-112-6" name="__codelineno-112-6" href="#__codelineno-112-6"></a>Sandbox 可替换
+</span><span id="__span-112-7"><a id="__codelineno-112-7" name="__codelineno-112-7" href="#__codelineno-112-7"></a>SubAgent 可替换
+</span><span id="__span-112-8"><a id="__codelineno-112-8" name="__codelineno-112-8" href="#__codelineno-112-8"></a>UI 可替换
+</span></code></pre></div>
+<p>同时保持几个关键不变量：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-113-1"><a id="__codelineno-113-1" name="__codelineno-113-1" href="#__codelineno-113-1"></a>模型可见 ⇒ 必须有日志
+</span><span id="__span-113-2"><a id="__codelineno-113-2" name="__codelineno-113-2" href="#__codelineno-113-2"></a>
+</span><span id="__span-113-3"><a id="__codelineno-113-3" name="__codelineno-113-3" href="#__codelineno-113-3"></a>工具可以并行执行
+</span><span id="__span-113-4"><a id="__codelineno-113-4" name="__codelineno-113-4" href="#__codelineno-113-4"></a>⇒ 但结果必须确定性提交
+</span><span id="__span-113-5"><a id="__codelineno-113-5" name="__codelineno-113-5" href="#__codelineno-113-5"></a>
+</span><span id="__span-113-6"><a id="__codelineno-113-6" name="__codelineno-113-6" href="#__codelineno-113-6"></a>Prompt 可以指导行为
+</span><span id="__span-113-7"><a id="__codelineno-113-7" name="__codelineno-113-7" href="#__codelineno-113-7"></a>⇒ 但安全必须由 Runtime 强制
+</span><span id="__span-113-8"><a id="__codelineno-113-8" name="__codelineno-113-8" href="#__codelineno-113-8"></a>
+</span><span id="__span-113-9"><a id="__codelineno-113-9" name="__codelineno-113-9" href="#__codelineno-113-9"></a>Context 可以持续增长
+</span><span id="__span-113-10"><a id="__codelineno-113-10" name="__codelineno-113-10" href="#__codelineno-113-10"></a>⇒ 但历史必须可压缩、可追溯
+</span><span id="__span-113-11"><a id="__codelineno-113-11" name="__codelineno-113-11" href="#__codelineno-113-11"></a>
+</span><span id="__span-113-12"><a id="__codelineno-113-12" name="__codelineno-113-12" href="#__codelineno-113-12"></a>Harness 可以改变模型表现
+</span><span id="__span-113-13"><a id="__codelineno-113-13" name="__codelineno-113-13" href="#__codelineno-113-13"></a>⇒ 因此 Harness 本身必须可披露、可版本化
+</span></code></pre></div>
+<p>如果把 DeepSeek Harness 的技术思想压缩成一句话，可以概括为：</p>
+<blockquote>
+<p><strong>DeepSeek 正在把 Agent 从“LLM + Tool Calling 的应用程序”，重新定义为“Model 运行在一个可组合、可回放、可替换、可评测的 Runtime 之上”。</strong></p>
+</blockquote>
+<p>从这一角度看，Harness 的长期意义可能并不局限于 Coding Agent。</p>
+<p>它更接近未来 Agent 系统中的：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-114-1"><a id="__codelineno-114-1" name="__codelineno-114-1" href="#__codelineno-114-1"></a>              Agent OS / Runtime
+</span><span id="__span-114-2"><a id="__codelineno-114-2" name="__codelineno-114-2" href="#__codelineno-114-2"></a>                     │
+</span><span id="__span-114-3"><a id="__codelineno-114-3" name="__codelineno-114-3" href="#__codelineno-114-3"></a>        ┌────────────┼────────────┐
+</span><span id="__span-114-4"><a id="__codelineno-114-4" name="__codelineno-114-4" href="#__codelineno-114-4"></a>        ↓            ↓            ↓
+</span><span id="__span-114-5"><a id="__codelineno-114-5" name="__codelineno-114-5" href="#__codelineno-114-5"></a>      Model        Tools       Memory
+</span><span id="__span-114-6"><a id="__codelineno-114-6" name="__codelineno-114-6" href="#__codelineno-114-6"></a>        ↓            ↓            ↓
+</span><span id="__span-114-7"><a id="__codelineno-114-7" name="__codelineno-114-7" href="#__codelineno-114-7"></a>      Loop        Sandbox      Session
+</span><span id="__span-114-8"><a id="__codelineno-114-8" name="__codelineno-114-8" href="#__codelineno-114-8"></a>        ↓            ↓            ↓
+</span><span id="__span-114-9"><a id="__codelineno-114-9" name="__codelineno-114-9" href="#__codelineno-114-9"></a>     SubAgent     Approval     Context
+</span><span id="__span-114-10"><a id="__codelineno-114-10" name="__codelineno-114-10" href="#__codelineno-114-10"></a>        └────────────┼────────────┘
+</span><span id="__span-114-11"><a id="__codelineno-114-11" name="__codelineno-114-11" href="#__codelineno-114-11"></a>                     ↓
+</span><span id="__span-114-12"><a id="__codelineno-114-12" name="__codelineno-114-12" href="#__codelineno-114-12"></a>                 Environment
+</span></code></pre></div>
+<p>而 DeepSeek Harness 真正值得研究的地方，也正是这套 <strong>Agent Runtime 的系统设计方法</strong>。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">评论</h2>
+<script src="https://giscus.app/client.js"
+        data-repo="Ranbaigao/llm_learning"
+        data-repo-id="R_kgDOS6jz6w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOS6jz684DEEsg"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../.assets/javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../../../.assets/javascripts/pageview.js"></script>
+      
+        <script src="../../../../.assets/javascripts/html_modal.js"></script>
+      
+        <script src="https://cn.vercount.one/js"></script>
+      
+    
+  </body>
+</html>

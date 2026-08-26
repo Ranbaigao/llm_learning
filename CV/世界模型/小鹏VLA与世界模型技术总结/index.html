@@ -1,0 +1,5931 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ranbaigao.github.io/llm_learning/CV/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/%E5%B0%8F%E9%B9%8FVLA%E4%B8%8E%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93/">
+      
+      
+        <link rel="prev" href="../../CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/VAE/">
+      
+      
+        <link rel="next" href="../../%E5%9F%BA%E7%A1%80/Reparameterization%20Trick/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>小鹏 VLA 与世界模型技术体系总结 - LLM知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../.assets/stylesheets/pageview.css">
+    
+      <link rel="stylesheet" href="../../../.assets/stylesheets/html_modal.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vla" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="LLM知识库" class="md-header__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              小鹏 VLA 与世界模型技术体系总结
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="LLM知识库" class="md-nav__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    LLM知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../knowledge_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JEPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JEPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JiT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JiT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/SAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/VAE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VAE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    世界模型
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    世界模型
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小鹏 VLA 与世界模型技术体系总结
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小鹏 VLA 与世界模型技术体系总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-vla-vla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 从 VLA 到"具备未来预测能力的 VLA"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 从 VLA 到&#34;具备未来预测能力的 VLA&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-vla-reactive-predictive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 传统 VLA 的核心问题：Reactive，而不是 Predictive
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 整体技术地图
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-turingvit-vla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. TuringViT：先解决 VLA 的"眼睛"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. TuringViT：先解决 VLA 的&#34;眼睛&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-turing-linear-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Turing Linear Attention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-vista-curation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 VISTA-Curation：不是简单增加数据，而是提高监督密度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 四阶段预训练
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-x-foresight-vla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. X-Foresight：让 VLA 真正学习"未来世界"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-next-frame-prediction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 为什么不能简单做 Next Frame Prediction？
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 为什么不能简单做 Next Frame Prediction？">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-chunk-wise-foresight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Chunk-wise Foresight
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-curriculum-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Curriculum Learning：逐渐让模型看得更远
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-temporal-importance-sampling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Temporal Importance Sampling：不是所有时间片都一样重要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 一个非常关键的设计：世界知识和高清像素生成分离
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-x-mindvisual-chain-of-thought" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. X-Mind：从"生成未来视频"进一步走向"Visual Chain-of-Thought"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-abstract-sketch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Abstract Sketch：给模型一块"视觉思维画布"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-12-96-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 12 帧未来只需要 96 Tokens
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-recurrent-block-diffusion-diffusion-transformer-forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Recurrent Block Diffusion：把 Diffusion 塞进一次 Transformer Forward
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-x-mind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. X-Mind 的一个重要实验结论：预测未来比重建现在更重要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-x-world-world-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. X-World：另一个方向——把 World Model 变成"虚拟现实世界"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-x-world-3d-causal-vae-multi-view-dit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. X-World 的架构：3D Causal VAE + Multi-view DiT
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. X-World 的架构：3D Causal VAE + Multi-view DiT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#151-view-temporal-self-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15.1 View-Temporal Self-Attention
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. 世界不仅受 Action 控制，还能被"编辑"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-x-world-bidirectional-diffusion-causal-world-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. X-World 为什么必须从 Bidirectional Diffusion 改成 Causal World Model？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-self-forcing-autoregressive-drift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Self-Forcing：专门解决 Autoregressive Drift
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-rolling-kv-cache-world-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Rolling KV Cache：把 World Model 变成无限流式系统
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-x-world-rl-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. X-World 真正重要的地方：它把世界模型变成了 RL Environment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#21-x-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        21. X-Cache：世界模型开始遇到真正的"系统工程问题"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22-cross-chunk-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        22. Cross-Chunk Cache：物理世界本身是连续的
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#23-x-cache-feature-similarity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        23. 为什么 X-Cache 不能只看 Feature Similarity？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#24-kv-cache-protection-x-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        24. KV Cache Protection：这是 X-Cache 最重要的工程细节之一
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25. 五篇论文背后反复出现的统一设计思想
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="25. 五篇论文背后反复出现的统一设计思想">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#251-prediction-reconstruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25.1 第一原则：Prediction 比 Reconstruction 更重要
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#26-planning-world-representation-photorealistic-representation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        26. 第二原则：Planning World Representation 不等于 Photorealistic Representation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#27-chunk-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27. 第三原则：Chunk 正在成为视频世界模型的"Token"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#28-rollout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        28. 第四原则：训练分布与真实 Rollout 分布必须对齐
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#29-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29. 第五原则：Compute 本身就是世界模型架构的一部分
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        30. 小鹏世界模型体系可以归纳为"两种想象能力"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#31-x-foresightx-mind-x-world" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        31. X-Foresight、X-Mind 与 X-World 的本质区别
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#32-x-foresight-x-mind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        32. 从 X-Foresight 到 X-Mind：世界模型正在变成"隐式思维过程"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#33-vla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        33. 对未来 VLA 架构的启示
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        34. 目前仍然存在的核心问题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="34. 目前仍然存在的核心问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#341-long-horizon-error-accumulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        34.1 Long-Horizon Error Accumulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#342" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        34.2 多模态未来
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#343-simulator-sim2real-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        34.3 Simulator 与真实世界之间仍存在 Sim2Real Gap
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#35-world-model-world-model-centric-driving-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        35. 总结：小鹏正在构建的并不是一个 World Model，而是一套 World-Model-Centric Driving Stack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%9F%BA%E7%A1%80/Reparameterization%20Trick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重参数化技巧（Reparameterization Trick）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%9F%BA%E7%A1%80/SD%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD公式推导
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NLP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NLP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM应用开发
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM应用开发
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Harness%2BAgent%E5%BC%95%E5%85%A5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness+Agent引入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Skill%E6%84%8F%E4%B9%89%E6%8E%A2%E8%AE%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill意义探讨
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_3" id="__nav_4_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepseek Harness
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deepseek Harness
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Deepseek%20Harness%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek Harness 技术报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Dsh%20%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dsh 会话记忆机制：the log IS the state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_4" id="__nav_4_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hermes Agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%8D%95%E4%B8%AA%E4%BC%9A%E8%AF%9D%E7%9A%84%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent 单会话记忆管理策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%A4%9AAgent%E9%80%9A%E4%BF%A1%E6%9E%B6%E6%9E%84/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    多 Agent 通信架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%AE%89%E5%85%A8%E3%80%81%E5%B7%A5%E4%BD%9C%E5%8C%BA%E9%9A%94%E7%A6%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全隔离与工作区隔离
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E8%AE%B0%E5%BF%86%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    内存压缩机制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Muon优化器
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/Muon%E4%BC%98%E5%8C%96%E5%99%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/%E5%A5%87%E5%BC%82%E5%80%BC%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%92%8C%E6%AD%A3%E4%BA%A4%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    奇异值、特征值和正交矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    位置编码
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    位置编码
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/RoPe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoPe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    残差连接
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    残差连接
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Attention%20Residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attention Residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Pre-Norm%20vs%20Post-Norm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre Norm vs Post Norm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/%E6%B5%81%E5%BD%A2%E6%AF%94%E8%BE%83/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    流形（Manifold） JiT 中的和 mHC 中的是一个意思吗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    mHC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/mHC%20%E6%AE%8B%E5%B7%AE%E6%B5%81%E5%BD%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC_残差流形
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/%E5%8F%8C%E9%9A%8F%E6%9C%BA%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    双随机矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    注意力机制
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    注意力机制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/DSA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/GatedAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GatedAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/LinearAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LinearAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/MLA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型训练
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_1" id="__nav_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SFT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/LoRA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/SFT%E4%B8%8D%E5%AE%8C%E6%95%B4%E5%AD%A6%E4%B9%A0%E7%8E%B0%E8%B1%A1ILP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT 为什么"学不会"：不完整学习现象（ILP）的系统性研究
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2" id="__nav_4_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    强化学习
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    强化学习
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/ClipPPO%E5%8E%9F%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipPPO原理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/DPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/GSPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GSPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RL知识图谱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%9D%8E%E5%AE%8F%E6%AF%85DRL%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    李宏毅DRL笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2_6" id="__nav_4_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent RL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent RL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/Agent%20RL/%E6%A3%80%E9%AA%8CAgent%E7%9A%84coding%E5%AE%9E%E7%8E%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检验Agent的coding实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM源码解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM源码解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/ChatGPT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChatGPT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/Einsum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Einsum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/MOE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/%E6%A0%B8%E5%BF%83%E8%A6%81%E4%B9%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心要义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    OpenMythos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/ACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/LTI%20Injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LTI Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/OpenMythos%E6%A1%86%E6%9E%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开源llm解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开源llm解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/AR-Diffusion%E4%B8%8E%E6%BD%9C%E7%A9%BA%E9%97%B4%E6%8E%A8%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AR-Diffusion 与潜空间推理路线综述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Claude%20Mythos%205%E6%8E%A8%E6%B5%8B/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Mythos 5 技术报告：官方披露的训练方法与模型架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4 技术报告：面向百万上下文的高效长文本模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/GLM-5.3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GLM 5.3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Kimi%20K3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kimi K3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nemotron-Labs-Diffusion 技术报告：统一 AR、Diffusion 与 Self-Speculation 的三模式语言模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/OpenMythos%20Recurrent%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos Recurrent解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Qwen3.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3.5解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    代码实践
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    代码实践
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/esft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gpt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gqa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GQA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/mhc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/moe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/open_mythos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open mythos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/vit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    性能优化
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    性能优化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Deepspeed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepspeed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Flash-Attention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/MOE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE负载均衡
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/SGLang/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SGLang
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/vLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vLLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E5%88%86%E5%B8%83%E5%BC%8F/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    分布式
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推理加速方法总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. 摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-vla-vla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 从 VLA 到"具备未来预测能力的 VLA"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 从 VLA 到&#34;具备未来预测能力的 VLA&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-vla-reactive-predictive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 传统 VLA 的核心问题：Reactive，而不是 Predictive
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 整体技术地图
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-turingvit-vla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. TuringViT：先解决 VLA 的"眼睛"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. TuringViT：先解决 VLA 的&#34;眼睛&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-turing-linear-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Turing Linear Attention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-vista-curation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 VISTA-Curation：不是简单增加数据，而是提高监督密度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 四阶段预训练
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-x-foresight-vla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. X-Foresight：让 VLA 真正学习"未来世界"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-next-frame-prediction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 为什么不能简单做 Next Frame Prediction？
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 为什么不能简单做 Next Frame Prediction？">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-chunk-wise-foresight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Chunk-wise Foresight
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-curriculum-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Curriculum Learning：逐渐让模型看得更远
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-temporal-importance-sampling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Temporal Importance Sampling：不是所有时间片都一样重要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 一个非常关键的设计：世界知识和高清像素生成分离
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-x-mindvisual-chain-of-thought" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. X-Mind：从"生成未来视频"进一步走向"Visual Chain-of-Thought"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-abstract-sketch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Abstract Sketch：给模型一块"视觉思维画布"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-12-96-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 12 帧未来只需要 96 Tokens
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-recurrent-block-diffusion-diffusion-transformer-forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Recurrent Block Diffusion：把 Diffusion 塞进一次 Transformer Forward
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-x-mind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. X-Mind 的一个重要实验结论：预测未来比重建现在更重要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-x-world-world-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. X-World：另一个方向——把 World Model 变成"虚拟现实世界"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-x-world-3d-causal-vae-multi-view-dit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. X-World 的架构：3D Causal VAE + Multi-view DiT
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. X-World 的架构：3D Causal VAE + Multi-view DiT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#151-view-temporal-self-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15.1 View-Temporal Self-Attention
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. 世界不仅受 Action 控制，还能被"编辑"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-x-world-bidirectional-diffusion-causal-world-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. X-World 为什么必须从 Bidirectional Diffusion 改成 Causal World Model？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-self-forcing-autoregressive-drift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Self-Forcing：专门解决 Autoregressive Drift
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-rolling-kv-cache-world-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Rolling KV Cache：把 World Model 变成无限流式系统
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-x-world-rl-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. X-World 真正重要的地方：它把世界模型变成了 RL Environment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#21-x-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        21. X-Cache：世界模型开始遇到真正的"系统工程问题"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22-cross-chunk-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        22. Cross-Chunk Cache：物理世界本身是连续的
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#23-x-cache-feature-similarity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        23. 为什么 X-Cache 不能只看 Feature Similarity？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#24-kv-cache-protection-x-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        24. KV Cache Protection：这是 X-Cache 最重要的工程细节之一
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25. 五篇论文背后反复出现的统一设计思想
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="25. 五篇论文背后反复出现的统一设计思想">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#251-prediction-reconstruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25.1 第一原则：Prediction 比 Reconstruction 更重要
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#26-planning-world-representation-photorealistic-representation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        26. 第二原则：Planning World Representation 不等于 Photorealistic Representation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#27-chunk-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27. 第三原则：Chunk 正在成为视频世界模型的"Token"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#28-rollout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        28. 第四原则：训练分布与真实 Rollout 分布必须对齐
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#29-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29. 第五原则：Compute 本身就是世界模型架构的一部分
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        30. 小鹏世界模型体系可以归纳为"两种想象能力"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#31-x-foresightx-mind-x-world" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        31. X-Foresight、X-Mind 与 X-World 的本质区别
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#32-x-foresight-x-mind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        32. 从 X-Foresight 到 X-Mind：世界模型正在变成"隐式思维过程"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#33-vla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        33. 对未来 VLA 架构的启示
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        34. 目前仍然存在的核心问题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="34. 目前仍然存在的核心问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#341-long-horizon-error-accumulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        34.1 Long-Horizon Error Accumulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#342" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        34.2 多模态未来
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#343-simulator-sim2real-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        34.3 Simulator 与真实世界之间仍存在 Sim2Real Gap
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#35-world-model-world-model-centric-driving-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        35. 总结：小鹏正在构建的并不是一个 World Model，而是一套 World-Model-Centric Driving Stack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="vla">小鹏 VLA 与世界模型技术体系总结</h1>
+<blockquote>
+<p><strong>受众：</strong> 关注自动驾驶大模型、世界模型与 VLA 架构的研究者和工程师。
+<strong>最后更新：</strong> 2026-08-23
+<strong>基于论文：</strong> TuringViT、X-Foresight、X-Mind、X-World、X-Cache（XPeng，2026）</p>
+</blockquote>
+<h2 id="0">0. 摘要</h2>
+<p>从这几篇论文可以看出，小鹏在自动驾驶大模型上的技术路线已经不再局限于传统意义上的"端到端 VLA"，而是在尝试建立一套围绕 <strong>Physical Intelligence（物理智能）</strong> 的完整技术栈。</p>
+<p>其核心问题可以概括成一句话：</p>
+<blockquote>
+<p><strong>自动驾驶模型不能只学会"看到现在之后该怎么开"，还必须学会"如果这么开，未来世界会发生什么"。</strong></p>
+</blockquote>
+<p>传统 VLA 的基本范式是：</p>
+<div class="arithmatex">\[O_{\le t} \rightarrow VLA \rightarrow A_t\]</div>
+<p>即根据当前及历史视觉观测直接生成驾驶动作。</p>
+<p>小鹏在 X-Foresight 和 X-Mind 中试图进一步将其变成：</p>
+<div class="arithmatex">\[O_{\le t} \rightarrow \text{Predict Future} \rightarrow \hat{W}_{t:t+H} \rightarrow \text{Planning} \rightarrow A_t\]</div>
+<p>模型在采取动作之前，先显式或隐式地预测未来世界状态，让未来预测本身成为推理过程的一部分。X-Foresight 明确指出，现有 VLA 虽然能够统一感知、推理与控制，但仍然主要属于 <strong>reactive policy</strong>：模型只能根据历史信息做反应，而无法在行动前模拟未来，因此在碰撞预测、复杂交互和长期因果关系上存在天然限制。</p>
+<p>综合五篇工作，可以把小鹏目前公开的技术体系归纳为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                 海量图像 / 视频 / 驾驶数据
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                          │
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                          ▼
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>              ┌────────────────────────┐
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>              │   TuringViT            │
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>              │   视觉基础模型          │
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>              └───────────┬────────────┘
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                          ▼
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>              ┌────────────────────────┐
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>              │  Large Drive Model     │
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>              │  / VLA                 │
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>              └───────────┬────────────┘
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                          │
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>            ┌─────────────┴─────────────┐
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>            ▼                           ▼
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>  ┌──────────────────┐        ┌──────────────────┐
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>  │ X-Foresight      │        │ X-Mind           │
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  │ 视频级世界预测    │        │ Visual CoT       │
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>  └────────┬─────────┘        └────────┬─────────┘
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>           └─────────────┬─────────────┘
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>                         ▼
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>                 Trajectory / Action
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                         │
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                         ▼
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>              ┌────────────────────────┐
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>              │ X-World                │◄──── X-Cache（推理加速）
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>              │ 生成式世界模拟器        │
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>              └───────────┬────────────┘
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>                          ▼
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>          闭环评估 / Online RL / 数据合成
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>                          │
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>                          └──────► 回流数据
+</span></code></pre></div>
+<p>因此，小鹏的"世界模型"实际上出现了<strong>两种完全不同但互补的形态</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>世界模型形态</th>
+<th>代表工作</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Internal World Model</strong></td>
+<td>X-Foresight、X-Mind</td>
+<td>让 VLA 在做动作之前"想象未来"</td>
+</tr>
+<tr>
+<td><strong>External World Model</strong></td>
+<td>X-World</td>
+<td>在模型之外构建可以交互的虚拟世界</td>
+</tr>
+<tr>
+<td><strong>World Model Infra</strong></td>
+<td>X-Cache</td>
+<td>让外部世界模型达到实时闭环所需的推理速度</td>
+</tr>
+</tbody>
+</table>
+<p>再加上 TuringViT 提供视觉编码基础，小鹏实际上正在形成一套从 <strong>Perception → Prediction → Planning → Simulation → RL</strong> 的完整闭环。</p>
+<hr />
+<h2 id="1-vla-vla">1. 从 VLA 到"具备未来预测能力的 VLA"</h2>
+<h3 id="11-vla-reactive-predictive">1.1 传统 VLA 的核心问题：Reactive，而不是 Predictive</h3>
+<p>传统端到端自动驾驶模型可以抽象成：</p>
+<div class="arithmatex">\[a_t = \pi(o_{\le t})\]</div>
+<p>即：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>摄像头
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>   ↓
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Visual Encoder
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>   ↓
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>VLA / Transformer
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>   ↓
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>Trajectory / Action
+</span></code></pre></div>
+<p>这种架构即使拥有非常大的参数规模，本质上依然可能在学习：</p>
+<blockquote>
+<p><strong>当前场景长什么样 → 人类驾驶员通常怎么操作</strong></p>
+</blockquote>
+<p>但驾驶是一个强因果、强时间性的任务。例如：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>前方行人靠近路边
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>        ↓
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>当前没有进入车道
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        ↓
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>直接反应式模型：
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>继续行驶
+</span></code></pre></div>
+<p>真正优秀的驾驶策略应该考虑：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>行人当前位置
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>      ↓
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>行人运动趋势
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>      ↓
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>2 秒后是否进入道路？
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>      ↓
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>如果继续加速会发生什么？
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>      ↓
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>是否应该提前减速？
+</span></code></pre></div>
+<p>这就是世界模型引入 VLA 的根本原因。</p>
+<p>X-Foresight 将视频视作承载物理世界知识的重要媒介，因为视频同时包含物体外观、空间关系、运动模式和自车运动等时空信息，因此通过"预测未来视频"可以迫使模型学习物理世界中的动态和长期因果关系。(<a href="https://arxiv.org/abs/2605.24892" title="X-Foresight: A Joint Vision-Action Causal Forecasting Network via Predictive World Modeling">arXiv</a>)</p>
+<hr />
+<h2 id="2">2. 整体技术地图</h2>
+<p>五篇论文各自解决的是整个体系中的不同瓶颈：</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>主要问题</th>
+<th>核心技术</th>
+<th>在体系中的角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TuringViT</strong></td>
+<td>高分辨率视觉编码成本高</td>
+<td>Turing Linear Attention、VISTA-Curation、Native Dynamic Resolution</td>
+<td>视觉基础模型</td>
+</tr>
+<tr>
+<td><strong>X-Foresight</strong></td>
+<td>VLA 不具备真正的未来预测能力</td>
+<td>Chunk-wise AR World Modeling + LDM + Vision Renderer</td>
+<td>VLA 内生世界模型</td>
+</tr>
+<tr>
+<td><strong>X-Mind</strong></td>
+<td>视频世界模型太重，无法高频车端推理</td>
+<td>Abstract Sketch + DC-AE + Recurrent Block Diffusion</td>
+<td>Visual CoT</td>
+</tr>
+<tr>
+<td><strong>X-World</strong></td>
+<td>真实道路无法低成本闭环训练和测试</td>
+<td>Action-conditioned Multi-camera Video World Model</td>
+<td>外部世界模拟器</td>
+</tr>
+<tr>
+<td><strong>X-Cache</strong></td>
+<td>世界模型生成速度不足</td>
+<td>Cross-Chunk Block Caching</td>
+<td>世界模型推理基础设施</td>
+</tr>
+</tbody>
+</table>
+<p>这五项工作并不是彼此独立的论文点子。从工程视角，更适合理解成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>                    ┌──────────────────┐
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>                    │    TuringViT     │
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>                    │ Visual Foundation│
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>                    └────────┬─────────┘
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>                             │
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>                             ▼
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>                   ┌─────────────────────┐
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>                   │       VLA / LDM     │
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>                   └─────────┬───────────┘
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>                             │
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>             ┌───────────────┴───────────────┐
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>             ▼                               ▼
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>       X-Foresight                        X-Mind
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>  Future Video Prediction             Visual Thinking
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>        世界预测                         世界推理
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>             │                               │
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>             └───────────────┬───────────────┘
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>                             ▼
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>                        Trajectory
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>                             │
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>                             ▼
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>                     ┌──────────────┐
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>                     │   X-World    │
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>                     │  World Sim   │
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>                     └──────┬───────┘
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>                            │
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>                       X-Cache 加速
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>                            │
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>                            ▼
+</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>                  Evaluation / Online RL
+</span></code></pre></div>
+<hr />
+<h2 id="3-turingvit-vla">3. TuringViT：先解决 VLA 的"眼睛"</h2>
+<p>世界模型和 VLA 的第一层基础仍然是视觉表征。(<a href="https://arxiv.org/abs/2606.24253" title="TuringViT: Making SOTA Vision Transformers Accessible to All">arXiv</a>)</p>
+<p>现代 VLM/VLA 往往直接使用 SigLIP、CLIP 等现成 ViT 作为视觉编码器，但自动驾驶具有几个非常明显的特殊要求：</p>
+<ul>
+<li>高分辨率；</li>
+<li>多摄像头；</li>
+<li>多帧视频；</li>
+<li>动态输入尺寸；</li>
+<li>低延迟；</li>
+<li>长视觉 Token 序列。</li>
+</ul>
+<p>传统 Softmax Attention 的复杂度：</p>
+<div class="arithmatex">\[O(N^2)\]</div>
+<p>当输入从单张低分辨率图片扩展到多摄、多帧、高分辨率输入时，视觉 Token 数量迅速增长。</p>
+<p>因此 TuringViT 的核心不是单纯追求更高视觉 benchmark，而是：</p>
+<blockquote>
+<p><strong>重新设计一个更适合 VLM/VLA 和车端部署的视觉基础模型。</strong></p>
+</blockquote>
+<p>TuringViT 将设计归纳为三个部分：Turing Linear Attention、VISTA-Curation 和原生动态分辨率训练。论文报告其在只使用约领先开源 ViT 基线 10% 数据规模的情况下取得更好的视觉和下游多模态表现。</p>
+<h3 id="31-turing-linear-attention">3.1 Turing Linear Attention</h3>
+<p>其核心 TLA 为：</p>
+<div class="arithmatex">\[G(X)=\sigma(XW_g)\]</div>
+<div class="arithmatex">\[\operatorname{TLA}(X)=G(X)\odot\frac{\phi(Q)\left(\phi(K)^T\phi(V)\right)}{N\sqrt d}\]</div>
+<p>相比传统 Attention：</p>
+<div class="arithmatex">\[\operatorname{Softmax}\left(\frac{QK^T}{\sqrt d}\right)V\]</div>
+<p>它把主要计算路径变成近线性的全局聚合。</p>
+<p>但小鹏并没有完全抛弃 Softmax Attention。TuringViT 使用：</p>
+<div class="arithmatex">\[[\mathrm{TLA},\mathrm{TLA},\mathrm{TLA},\mathrm{TLA},\mathrm{TLA},\mathrm{MHA}]\]</div>
+<p>也就是：</p>
+<blockquote>
+<p><strong>5 层 Linear Attention + 1 层标准 MHA</strong></p>
+</blockquote>
+<p>周期性重复。这样 TLA 负责低成本全局信息聚合，而少量 MHA 保留显式 token-to-token 交互。18 层版本包含 15 层 TLA + 3 层 MHA，24 层版本包含 20 层 TLA + 4 层 MHA。</p>
+<p><img alt="TuringViT Architecture" src="../../../.assets/xpeng_turingvit_arch.jpg" /></p>
+<blockquote>
+<p>图：TuringViT 的 Turing Block 与 18L/24L 配置。</p>
+</blockquote>
+<h3 id="32-vista-curation">3.2 VISTA-Curation：不是简单增加数据，而是提高监督密度</h3>
+<p>TuringViT 另一个值得关注的点是：</p>
+<blockquote>
+<p><strong>数据规模并不是唯一决定因素。</strong></p>
+</blockquote>
+<p>VISTA-Curation 针对图像和视频重新生成、过滤和排序描述，使训练信号更加"视觉相关、语义丰富、可区分"。</p>
+<p>对于视频，还会聚合：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>局部帧信息
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    +
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>运动变化
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    +
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>全局视频语义
+</span></code></pre></div>
+<p>让视觉编码器不仅学习 object appearance，也学习：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>viewpoint change
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>object state change
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>motion
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>scene transformation
+</span></code></pre></div>
+<p>这对于后面的世界模型尤其重要，因为世界模型关心的恰恰不是静态识别，而是：</p>
+<blockquote>
+<p><strong>视觉状态如何随时间发生变化。</strong></p>
+</blockquote>
+<h3 id="33">3.3 四阶段预训练</h3>
+<p>TuringViT 采取渐进式四阶段训练路线：</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>数据</th>
+<th>主要目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stage 1</td>
+<td>55M 无标注图片</td>
+<td>MIM 视觉初始化</td>
+</tr>
+<tr>
+<td>Stage 2</td>
+<td>850M Image-Text</td>
+<td>动态分辨率视觉语言对齐</td>
+</tr>
+<tr>
+<td>Stage 3</td>
+<td>850M Image-Text</td>
+<td>Native Resolution</td>
+</tr>
+<tr>
+<td>Stage 4</td>
+<td>2M Image/Video-Text</td>
+<td>视频与时序能力适配</td>
+</tr>
+</tbody>
+</table>
+<p>其本质是逐渐从：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>视觉结构
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>↓
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>图文语义
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>↓
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>高分辨率
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>↓
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>视频时序
+</span></code></pre></div>
+<p>把视觉模型推进到适合 VLA 的输入分布。</p>
+<hr />
+<h2 id="4-x-foresight-vla">4. X-Foresight：让 VLA 真正学习"未来世界"</h2>
+<p>如果 TuringViT 是"眼睛"，那么 X-Foresight 解决的是：</p>
+<blockquote>
+<p><strong>VLA 是否真正理解物理世界的演化规律。</strong></p>
+</blockquote>
+<p>X-Foresight 并没有简单把一个独立 World Model 接在 VLA 前后，而是：</p>
+<blockquote>
+<p><strong>直接把未来世界预测任务融入 Large Drive Model。</strong></p>
+</blockquote>
+<p>LDM 同时预测：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Future Action
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>+
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>Future BEV
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>+
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>Future Camera Latent Tokens
+</span></code></pre></div>
+<p>随后再由一个 diffusion-based Vision Renderer 将抽象视觉 Token 渲染成高清多摄像头未来视频。</p>
+<p>整体可以写成：</p>
+<div class="arithmatex">\[(O_t,A_t,L_t)\rightarrow \mathrm{LDM}\rightarrow\begin{cases}A_{t+1}\\ BEV_{t+1}\\ Z^{camera}_{t+1}\end{cases}\]</div>
+<p>再由：</p>
+<div class="arithmatex">\[Z^{camera}_{t+1}\rightarrow \mathrm{VisionRenderer}\rightarrow X_{t+1}\]</div>
+<p>形成下一轮输入。</p>
+<p><img alt="X-Foresight Overview" src="../../../.assets/xpeng_xforesight_overview.jpg" /></p>
+<blockquote>
+<p>图：X-Foresight 推理架构以及 2s、4s、6s 的未来预测示例。</p>
+</blockquote>
+<hr />
+<h2 id="5-next-frame-prediction">5. 为什么不能简单做 Next Frame Prediction？</h2>
+<p>这是 X-Foresight 很重要的一个理论判断。</p>
+<p>文本语言模型：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>The
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a> ↓
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>car
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a> ↓
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>is
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a> ↓
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>turning
+</span></code></pre></div>
+<p>相邻 token 通常有很高的信息增量。</p>
+<p>但是视频：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Frame 100
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Frame 101
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Frame 102
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Frame 103
+</span></code></pre></div>
+<p>可能 95% 的像素和语义结构都没有明显变化。所以：</p>
+<div class="arithmatex">\[H(Video_{t+1}|Video_t)\]</div>
+<p>很低。如果简单训练：</p>
+<div class="arithmatex">\[Frame_t \rightarrow Frame_{t+1}\]</div>
+<p>模型很容易学成：</p>
+<blockquote>
+<p><strong>复制上一帧 + 微小外推</strong></p>
+</blockquote>
+<p>而不是真正学习：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>车辆为什么会移动
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>行人会不会穿越道路
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>红灯什么时候转绿
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>当前动作会产生什么后果
+</span></code></pre></div>
+<p>X-Foresight 因此使用 <strong>Chunk-wise Autoregressive Prediction</strong>。</p>
+<h3 id="51-chunk-wise-foresight">5.1 Chunk-wise Foresight</h3>
+<p>不是逐帧预测：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Frame
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a> ↓
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>Frame
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a> ↓
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>Frame
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a> ↓
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>Frame
+</span></code></pre></div>
+<p>而是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>Chunk t
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>   ↓
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>Chunk t+1
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>   ↓
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>Chunk t+2
+</span></code></pre></div>
+<p>每个 Chunk 内部保留连续密集帧：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Chunk
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>├── frame 1
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>├── frame 2
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>├── frame 3
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>└── frame 4
+</span></code></pre></div>
+<p>于是同时保留两种时间尺度：</p>
+<p><strong>Chunk 内</strong>学习：速度、加速度、转向、局部交互——即 <strong>Instantaneous Dynamics</strong>。</p>
+<p><strong>Chunk 之间</strong>学习：交通灯变化、路口行为、长期路线意图、多车交互演化——即 <strong>Long-term Causality</strong>。</p>
+<p><img alt="X-Foresight Chunk-wise Prediction" src="../../../.assets/xpeng_xforesight_chunkwise.jpg" /></p>
+<blockquote>
+<p>图：Frame-wise、Chunk-wise、Longer Foresight 与 Temporal Importance Sampling 的区别。</p>
+</blockquote>
+<p>这是小鹏几篇世界模型论文中反复出现的一个重要思想：</p>
+<blockquote>
+<p><strong>Chunk 是自动驾驶世界模型非常自然的时间建模单位。</strong></p>
+</blockquote>
+<p>后面的 X-World 和 X-Cache 同样沿用了 Chunk 这一抽象。</p>
+<hr />
+<h2 id="6-curriculum-learning">6. Curriculum Learning：逐渐让模型看得更远</h2>
+<p>直接让模型预测非常遥远的未来会导致训练困难。X-Foresight 使用：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>短时间预测
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>     ↓
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>1 秒 Chunk 间隔
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>     ↓
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>逐渐扩大时间距离
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>     ↓
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>3 秒 Chunk stride
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>     ↓
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>Long Horizon Prediction
+</span></code></pre></div>
+<p>也就是：</p>
+<div class="arithmatex">\[H_{short}\rightarrow H_{long}\]</div>
+<p>一个关键点是：</p>
+<blockquote>
+<p><strong>扩大 Chunk 之间的 temporal stride，并不需要等比例增加 Token 数。</strong></p>
+</blockquote>
+<p>因此在基本不增加序列计算成本的情况下，可以迫使模型学习更远的因果关系。</p>
+<hr />
+<h2 id="7-temporal-importance-sampling">7. Temporal Importance Sampling：不是所有时间片都一样重要</h2>
+<p>大量自动驾驶数据实际上非常"无聊"：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>直行
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>直行
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>直行
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>直行
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>直行
+</span></code></pre></div>
+<p>真正决定模型安全能力的是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>急刹车
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>Cut-in
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>突然变道
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>路口博弈
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>行人横穿
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>交通灯变化
+</span></code></pre></div>
+<p>因此 X-Foresight 不是均匀训练所有未来片段，而是根据 longitudinal acceleration、lateral acceleration、ego motion、driving behavior 识别重要未来 Chunk。最终：</p>
+<div class="arithmatex">\[P(chunk)\propto Importance(chunk)\]</div>
+<p>让安全关键状态得到更多世界模型监督。</p>
+<p>X-Foresight 的 Stage I 还同时采用了短到长 Curriculum、Temporal Importance Sampling 和定制的 Block Sparse Attention，以降低长时间序列训练成本。</p>
+<hr />
+<h2 id="8">8. 一个非常关键的设计：世界知识和高清像素生成分离</h2>
+<p>X-Foresight 并不要求 LDM 自己生成高清图像。这是一个非常值得注意的架构选择。</p>
+<p>LDM 主要负责：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>World Semantics
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>+
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>Geometry
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>+
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>Dynamics
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>+
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>Action
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>+
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>Causality
+</span></code></pre></div>
+<p>而高清纹理（texture、lighting、appearance、pixel details）交给 Diffusion Renderer。</p>
+<p>原因在于：</p>
+<blockquote>
+<p><strong>用于 Planning 的世界表示不需要保存每一片树叶、道路纹理和天空细节。</strong></p>
+</blockquote>
+<p>所以：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>          LDM
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>           │
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>           ▼
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>Camera Latent Token
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>           │
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>     ┌─────┴─────┐
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>     ▼           ▼
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>Planning      Renderer
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>需要语义       需要高清像素
+</span></code></pre></div>
+<p>Renderer 基于 X-World 中的 DiT 和 3D Causal VAE，并通过跨视角/时间 Attention 保持多摄像头几何和时序一致性；在 X-Foresight 最终配置中，Renderer 只接收 LDM 预测的 Camera Token 作为核心控制信号。</p>
+<p>X-Foresight 训练进一步采用三阶段路线：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>Stage I
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>训练 LDM
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>Action + BEV + Camera Tokens
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>        ↓
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>Stage II
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>单独训练 Vision Renderer
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>GT Action → Future Video
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>        ↓
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>Stage III
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>冻结 LDM
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>Renderer 改为消费
+</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>LDM predicted Camera Tokens
+</span></code></pre></div>
+<p>这样解决"Teacher Forcing 时的输入分布和真正闭环推理时输入分布不同"的问题。</p>
+<p>推理时则形成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>History Frames
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>      ↓
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>     LDM
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>      ↓
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>Action + Camera Tokens
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>      ↓
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>Vision Renderer
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>      ↓
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>Future Frames
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>      ↓
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>重新进入 LDM
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>      ↓
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>下一轮预测
+</span></code></pre></div>
+<p>从而可以递归形成长时间闭环 rollout。</p>
+<hr />
+<h2 id="9-x-mindvisual-chain-of-thought">9. X-Mind：从"生成未来视频"进一步走向"Visual Chain-of-Thought"</h2>
+<p>X-Foresight 证明：预测未来可以提升驾驶决策。但新的问题随之出现：</p>
+<p><strong>真的有必要在车上生成高清未来视频吗？</strong></p>
+<p>对于驾驶模型而言，树叶颜色、建筑纹理、天空云层、车辆漆面——很多信息对于 Planning 实际上并不重要。真正重要的是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>道路拓扑
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>其他车辆位置
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>车辆运动
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>行人
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>交通灯
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>导航路线
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>限速
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>自车状态
+</span></code></pre></div>
+<p>因此 X-Mind 做了一个明显更加激进的抽象：</p>
+<blockquote>
+<p><strong>World Model 不再预测 Photorealistic Video，而是预测 Abstract Sketch。</strong></p>
+</blockquote>
+<p>X-Mind 将 Predictive World Model 直接定义为一种 <strong>Visual Chain-of-Thought</strong>：模型必须先展开未来世界，再生成驾驶动作，而不是把未来重建作为网络末端的辅助任务。(<a href="https://arxiv.org/abs/2606.28758" title="X-Mind: Efficient Visual Chain-of-Thought via Predictive World Model for End-to-End Driving">arXiv</a>)</p>
+<hr />
+<h2 id="10-abstract-sketch">10. Abstract Sketch：给模型一块"视觉思维画布"</h2>
+<p>Abstract Sketch 本质上是：</p>
+<div class="arithmatex">\[Sketch = BEV + DrivingPrior\]</div>
+<p>其中包含：</p>
+<p><strong>Physical Scene</strong>：Ego Vehicle、Surrounding Agents、Road Topology、Lane Boundary。</p>
+<p><strong>Driving Prior</strong>：Traffic Light、Navigation Intent、Route、Speed Limit、Ego Speed。</p>
+<p><img alt="X-Mind Abstract Sketch" src="../../../.assets/xpeng_xmind_sketch.jpg" /></p>
+<blockquote>
+<p>图：X-Mind 使用的 Abstract Sketch，它不仅表示物理场景，还把交通灯、导航意图和速度约束编码进同一个 BEV Canvas。</p>
+</blockquote>
+<p>可以把它理解为：</p>
+<blockquote>
+<p><strong>模型不需要在脑子里想象"高清电影"，只需要画一张未来交通草图。</strong></p>
+</blockquote>
+<hr />
+<h2 id="11-12-96-tokens">11. 12 帧未来只需要 96 Tokens</h2>
+<p>即便是 BEV Sketch，如果直接作为高分辨率图像 Token 进入 Transformer，也依然非常昂贵。因此 X-Mind 使用 <strong>Deep Compression Autoencoder（DC-AE）</strong> 进一步把未来 Sketch 压缩。最终：</p>
+<div class="arithmatex">\[12\ \text{Frames}\rightarrow 96\ \text{Tokens}\]</div>
+<p>这意味着平均：</p>
+<div class="arithmatex">\[8\ \text{Tokens / Frame}\]</div>
+<p>就能表示一段用于驾驶推理的未来世界。论文将这一点作为让 Visual CoT 能够真正进入资源受限车端的重要条件。</p>
+<hr />
+<h2 id="12-recurrent-block-diffusion-diffusion-transformer-forward">12. Recurrent Block Diffusion：把 Diffusion 塞进一次 Transformer Forward</h2>
+<p>传统 Diffusion：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>Noise
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a> ↓
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>Denoise 1
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a> ↓
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>Denoise 2
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a> ↓
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>Denoise 3
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a> ↓
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>...
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a> ↓
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>Future
+</span></code></pre></div>
+<p>意味着需要执行多次模型 Forward，这对车端推理明显不现实。</p>
+<p>X-Mind 提出 <strong>Recurrent Block Diffusion（RBD）</strong>。核心思想是：</p>
+<blockquote>
+<p>不再沿"时间上的多次 Forward"执行 Denoising，而是把不同 Denoising Stage 展开到 LLM 的不同深度。</p>
+</blockquote>
+<p>例如：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>LLM Block 1
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>Denoise Step 1
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>      ↓
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>LLM Block 2
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>Denoise Step 2
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>      ↓
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>LLM Block 3
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>Denoise Step 3
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>      ↓
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>LLM Block 4
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>Denoise Step 4
+</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>      ↓
+</span><span id="__span-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>Future Sketch
+</span></code></pre></div>
+<p>于是：</p>
+<div class="arithmatex">\[N\times \text{Forward}\]</div>
+<p>变成：</p>
+<div class="arithmatex">\[1\times \text{Forward}\]</div>
+<p><img alt="X-Mind Recurrent Block Diffusion" src="../../../.assets/xpeng_xmind_rbd.jpg" /></p>
+<blockquote>
+<p>图：Recurrent Block Diffusion，将逐步去噪展开到大型驾驶模型内部不同 Transformer Block 中。</p>
+</blockquote>
+<p>最终架构变成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>Camera
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>  ↓
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>Visual Encoder
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>  ↓
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>Large Drive Model
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>  │
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>  ├── Internal Visual CoT
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>  │      ↓
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>  │   Future Sketch
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>  │
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>  ▼
+</span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>Inverse Dynamics Planner
+</span><span id="__span-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a>  ↓
+</span><span id="__span-25-14"><a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>Trajectory
+</span></code></pre></div>
+<p>相比 X-Foresight：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>World Model
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>→ Video Latent
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>→ Diffusion Renderer
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>→ Future Video
+</span></code></pre></div>
+<p>X-Mind 更加接近：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>World Model
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>→ Abstract Future State
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>→ Planner
+</span></code></pre></div>
+<p>这说明小鹏对"世界模型"的理解已经从"生成未来世界"进一步转向"用未来世界作为模型内部推理空间"。</p>
+<hr />
+<h2 id="13-x-mind">13. X-Mind 的一个重要实验结论：预测未来比重建现在更重要</h2>
+<p>X-Mind 对比了 Current Frame Reconstruction、Future 1 Frame、Future 12 Frames，结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>Prediction Target</th>
+<th style="text-align: right;">FID ↓</th>
+<th style="text-align: right;">Lateral ADE ↓</th>
+<th style="text-align: right;">Longitudinal ADE ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Current Frame</td>
+<td style="text-align: right;">8.97</td>
+<td style="text-align: right;">0.1866</td>
+<td style="text-align: right;">1.2132</td>
+</tr>
+<tr>
+<td>Future 1 Frame</td>
+<td style="text-align: right;">9.05</td>
+<td style="text-align: right;">0.1840</td>
+<td style="text-align: right;">1.2124</td>
+</tr>
+<tr>
+<td>Future 12 Frames</td>
+<td style="text-align: right;">9.59</td>
+<td style="text-align: right;"><strong>0.1765</strong></td>
+<td style="text-align: right;"><strong>1.1849</strong></td>
+</tr>
+</tbody>
+</table>
+<p>一个非常有意思的现象是：</p>
+<blockquote>
+<p>Current Reconstruction 的 FID 最好，但是驾驶 ADE 反而最差。</p>
+</blockquote>
+<p>而预测 12 帧未来：图像生成指标更难，但驾驶规划结果最好。它实际上说明：</p>
+<div class="arithmatex">\[Visual\ Fidelity \neq Planning\ Intelligence\]</div>
+<p>对于具身智能而言，好的内部世界表征未必需要"看起来最真实"。更关键的是它是否编码：</p>
+<div class="arithmatex">\[Dynamics + Causality + Future\ Occupancy + Interaction\]</div>
+<hr />
+<h2 id="14-x-world-world-model">14. X-World：另一个方向——把 World Model 变成"虚拟现实世界"</h2>
+<p>X-Foresight / X-Mind 解决的是"车上的 VLA 怎么预测未来"，X-World 解决的则是：</p>
+<blockquote>
+<p><strong>我们能不能在真实道路之外构造一个世界，让 VLA 在里面跑？</strong></p>
+</blockquote>
+<p>其基本模型：</p>
+<div class="arithmatex">\[\hat X_{t+1:t+H}^{1:V}\sim p\left(X_{t+1:t+H}^{1:V}\mid X_{t-L:t}^{1:V},A_{t:t+H},C\right)\]</div>
+<p>其中 <span class="arithmatex">\(X\)</span> 是七摄像头视频，<span class="arithmatex">\(A\)</span> 是未来自车动作，<span class="arithmatex">\(C\)</span> 是可选世界条件。(<a href="https://arxiv.org/abs/2603.19979" title="X-World: Controllable Ego-Centric Multi-Camera World Models for Scalable End-to-End Driving">arXiv</a>)</p>
+<p>因此 X-World 可以做：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>同一个初始世界
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>       │
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>       ├── Action A
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>       │      ↓
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>       │   Future A
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>       │
+</span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a>       ├── Action B
+</span><span id="__span-28-8"><a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>       │      ↓
+</span><span id="__span-28-9"><a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>       │   Future B
+</span><span id="__span-28-10"><a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>       │
+</span><span id="__span-28-11"><a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a>       └── Action C
+</span><span id="__span-28-12"><a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a>              ↓
+</span><span id="__span-28-13"><a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a>           Future C
+</span></code></pre></div>
+<p>本质上就是 <strong>Counterfactual Simulation</strong>。</p>
+<hr />
+<h2 id="15-x-world-3d-causal-vae-multi-view-dit">15. X-World 的架构：3D Causal VAE + Multi-view DiT</h2>
+<p>X-World 基于 WAN 2.2 构建。</p>
+<p>首先使用高压缩 3D Causal VAE：</p>
+<div class="arithmatex">\[Video\rightarrow Latent\]</div>
+<p>压缩比例达到 <span class="arithmatex">\(16\times\)</span> Spatial 以及 <span class="arithmatex">\(4\times\)</span> Temporal，从而显著缩短 DiT 需要处理的时空序列。随后使用定制 Multi-view DiT。</p>
+<p><img alt="X-World Architecture" src="../../../.assets/xpeng_xworld_arch.jpg" /></p>
+<blockquote>
+<p>图：X-World 整体结构。</p>
+</blockquote>
+<h3 id="151-view-temporal-self-attention">15.1 View-Temporal Self-Attention</h3>
+<p>普通 Video Diffusion 主要关注 Time。但自动驾驶有七个摄像头：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>Front
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>Front Narrow
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>Front Left
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>Front Right
+</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>Rear Left
+</span><span id="__span-29-6"><a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>Rear Right
+</span><span id="__span-29-7"><a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>Rear
+</span></code></pre></div>
+<p>因此还必须保证：</p>
+<div class="arithmatex">\[Camera_i\leftrightarrow Camera_j\]</div>
+<p>之间空间一致。X-World 交替执行：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>Temporal Attention
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>        +
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>Cross-view Attention
+</span></code></pre></div>
+<p>让模型学习时间一致性 + 跨摄几何一致性，避免出现这类世界状态不一致问题：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>左摄像头：
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>一辆白车
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>前摄像头：
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>同一位置没有车
+</span></code></pre></div>
+<hr />
+<h2 id="16-action">16. 世界不仅受 Action 控制，还能被"编辑"</h2>
+<p>X-World 的 Condition 包括：Ego Action、Dynamic Agents、Static Elements、Camera Parameters、Text Prompt。不同条件采用不同注入方式：</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Injection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Action</td>
+<td>adaLN-Zero</td>
+</tr>
+<tr>
+<td>Flow timestep</td>
+<td>adaLN</td>
+</tr>
+<tr>
+<td>Camera Parameters</td>
+<td>Additive Embedding</td>
+</tr>
+<tr>
+<td>Dynamic Agent</td>
+<td>Cross Attention</td>
+</tr>
+<tr>
+<td>Static Element</td>
+<td>Cross Attention</td>
+</tr>
+<tr>
+<td>Text</td>
+<td>Cross Attention</td>
+</tr>
+</tbody>
+</table>
+<p>而且 Dynamic、Static、Text 分别使用独立 Cross-Attention Branch。原因是：</p>
+<blockquote>
+<p><strong>不同 Condition 如果全部塞进同一 Attention，容易产生条件干扰。</strong></p>
+</blockquote>
+<p>于是可以人为构造：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>增加一个突然横穿的骑行者
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>改变道路结构
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>修改其他车辆运动
+</span><span id="__span-32-4"><a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>改变天气
+</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>改变时间
+</span><span id="__span-32-6"><a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>改变国家道路外观
+</span></code></pre></div>
+<p>再观察 VLA 会做什么。</p>
+<hr />
+<h2 id="17-x-world-bidirectional-diffusion-causal-world-model">17. X-World 为什么必须从 Bidirectional Diffusion 改成 Causal World Model？</h2>
+<p>Stage I 的 X-World 类似传统高质量 Video Diffusion。一次：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>Noise
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a> ↓
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>约 50 次 refinement
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a> ↓
+</span><span id="__span-33-5"><a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>完整 Video Clip
+</span></code></pre></div>
+<p>画质很好，但这不是真正的实时 Simulator。闭环驾驶要求：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>World Model
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>   ↓
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>生成 1 秒未来
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>   ↓
+</span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>VLA 看见结果
+</span><span id="__span-34-6"><a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>   ↓
+</span><span id="__span-34-7"><a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>输出 Action
+</span><span id="__span-34-8"><a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a>   ↓
+</span><span id="__span-34-9"><a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>World Model 根据 Action
+</span><span id="__span-34-10"><a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>   ↓
+</span><span id="__span-34-11"><a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>继续生成下一秒
+</span></code></pre></div>
+<p>所以必须 <strong>Streaming + Causal + Autoregressive</strong>。X-World Stage II 将 Stage I 的双向、多步模型转化为 <strong>Chunk-wise Causal Few-Step Model</strong>。Chunk 内部依旧允许双向交互保证局部生成质量，但不同 Chunk 之间严格保持时间因果关系。</p>
+<hr />
+<h2 id="18-self-forcing-autoregressive-drift">18. Self-Forcing：专门解决 Autoregressive Drift</h2>
+<p>训练时如果永远：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>GT Frame
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>   ↓
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>Predict
+</span><span id="__span-35-4"><a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>   ↓
+</span><span id="__span-35-5"><a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>GT Frame
+</span><span id="__span-35-6"><a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>   ↓
+</span><span id="__span-35-7"><a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a>Predict
+</span></code></pre></div>
+<p>但推理时却：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>Pred Frame
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>   ↓
+</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>Predict
+</span><span id="__span-36-4"><a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>   ↓
+</span><span id="__span-36-5"><a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a>Pred Frame
+</span><span id="__span-36-6"><a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a>   ↓
+</span><span id="__span-36-7"><a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a>Predict
+</span></code></pre></div>
+<p>就会产生 <strong>Exposure Bias</strong>，误差随后持续累积。</p>
+<p>因此 X-World Stage II 直接使用模型自己生成的历史训练：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>Generated Chunk
+</span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>       ↓
+</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>Next Chunk
+</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>       ↓
+</span><span id="__span-37-5"><a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>Generated Chunk
+</span><span id="__span-37-6"><a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a>       ↓
+</span><span id="__span-37-7"><a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a>Next Chunk
+</span></code></pre></div>
+<p>并通过 DMD 让 4-step Causal Student 逼近 Stage I 的高质量 Bidirectional Teacher：</p>
+<div class="arithmatex">\[p_{student}\rightarrow p_{teacher}\]</div>
+<p>所以最终可以做到：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>50-step Offline Model
+</span><span id="__span-38-2"><a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>        ↓
+</span><span id="__span-38-3"><a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>Distillation
+</span><span id="__span-38-4"><a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>        ↓
+</span><span id="__span-38-5"><a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a>4-step Streaming Model
+</span></code></pre></div>
+<hr />
+<h2 id="19-rolling-kv-cache-world-model">19. Rolling KV Cache：把 World Model 变成无限流式系统</h2>
+<p>如果生成 Chunk 1 到 Chunk 100，每一次都重新 Attention 所有历史：</p>
+<div class="arithmatex">\[O(N^2)\]</div>
+<p>计算和显存会不断增长。因此 X-World 使用固定长度的 <strong>Rolling KV Cache</strong>：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>KV Cache
+</span><span id="__span-39-2"><a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>
+</span><span id="__span-39-3"><a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>[Chunk 20]
+</span><span id="__span-39-4"><a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>[Chunk 21]
+</span><span id="__span-39-5"><a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a>[Chunk 22]
+</span><span id="__span-39-6"><a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>[Chunk 23]
+</span><span id="__span-39-7"><a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a>[Chunk 24]
+</span><span id="__span-39-8"><a id="__codelineno-39-8" name="__codelineno-39-8" href="#__codelineno-39-8"></a>
+</span><span id="__span-39-9"><a id="__codelineno-39-9" name="__codelineno-39-9" href="#__codelineno-39-9"></a>新的 Chunk 25 进入
+</span><span id="__span-39-10"><a id="__codelineno-39-10" name="__codelineno-39-10" href="#__codelineno-39-10"></a>      ↓
+</span><span id="__span-39-11"><a id="__codelineno-39-11" name="__codelineno-39-11" href="#__codelineno-39-11"></a>删除最老 Chunk 20
+</span></code></pre></div>
+<p>即 FIFO。这样：</p>
+<div class="arithmatex">\[Memory\approx Constant\]</div>
+<p>而不是随 rollout 长度持续增长。论文展示了 24 秒多摄像头长时间生成，在延长 rollout 时仍保持较稳定的时序与跨摄像头一致性。</p>
+<hr />
+<h2 id="20-x-world-rl-environment">20. X-World 真正重要的地方：它把世界模型变成了 RL Environment</h2>
+<p>X-World 的最终目的其实并不是"生成自动驾驶视频"。更重要的是：</p>
+<div class="arithmatex">\[\text{WorldModel}=\text{Environment}\]</div>
+<p>于是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>             ┌───────────────┐
+</span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>             │      VLA      │
+</span><span id="__span-40-3"><a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>             └───────┬───────┘
+</span><span id="__span-40-4"><a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a>                     │ Action
+</span><span id="__span-40-5"><a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a>                     ▼
+</span><span id="__span-40-6"><a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a>             ┌───────────────┐
+</span><span id="__span-40-7"><a id="__codelineno-40-7" name="__codelineno-40-7" href="#__codelineno-40-7"></a>             │    X-World    │
+</span><span id="__span-40-8"><a id="__codelineno-40-8" name="__codelineno-40-8" href="#__codelineno-40-8"></a>             └───────┬───────┘
+</span><span id="__span-40-9"><a id="__codelineno-40-9" name="__codelineno-40-9" href="#__codelineno-40-9"></a>                     │ Observation
+</span><span id="__span-40-10"><a id="__codelineno-40-10" name="__codelineno-40-10" href="#__codelineno-40-10"></a>                     ▼
+</span><span id="__span-40-11"><a id="__codelineno-40-11" name="__codelineno-40-11" href="#__codelineno-40-11"></a>             ┌───────────────┐
+</span><span id="__span-40-12"><a id="__codelineno-40-12" name="__codelineno-40-12" href="#__codelineno-40-12"></a>             │      VLA      │
+</span><span id="__span-40-13"><a id="__codelineno-40-13" name="__codelineno-40-13" href="#__codelineno-40-13"></a>             └───────────────┘
+</span></code></pre></div>
+<p>这就是 Online RL 的基础。</p>
+<p>真实世界里不能让模型故意尝试撞车、故意抢行、故意逼近行人、故意进行极限变道——但 World Model 中可以。</p>
+<p>论文明确将 X-World 用于：Closed-loop Evaluation、Hard-case Specialization、Online RL、Corner Case Generation、Data Augmentation、海外驾驶场景的外观迁移。于是数据闭环就变成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>真实车队数据
+</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>    │
+</span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>    ▼
+</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a> VLA 训练
+</span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>    │
+</span><span id="__span-41-6"><a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>    ▼
+</span><span id="__span-41-7"><a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a> VLA 策略 ──Action──► X-World ──Observation──► 闭环评估
+</span><span id="__span-41-8"><a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a>    ▲                    │                        │
+</span><span id="__span-41-9"><a id="__codelineno-41-9" name="__codelineno-41-9" href="#__codelineno-41-9"></a>    │                    │                        ▼
+</span><span id="__span-41-10"><a id="__codelineno-41-10" name="__codelineno-41-10" href="#__codelineno-41-10"></a>    │                    │                   Hard Case 挖掘
+</span><span id="__span-41-11"><a id="__codelineno-41-11" name="__codelineno-41-11" href="#__codelineno-41-11"></a>    │                    │                        │
+</span><span id="__span-41-12"><a id="__codelineno-41-12" name="__codelineno-41-12" href="#__codelineno-41-12"></a>    │                    │◄───────────────────────┘
+</span><span id="__span-41-13"><a id="__codelineno-41-13" name="__codelineno-41-13" href="#__codelineno-41-13"></a>    │                    ▼
+</span><span id="__span-41-14"><a id="__codelineno-41-14" name="__codelineno-41-14" href="#__codelineno-41-14"></a>    │               Online RL ──────► 改进 VLA
+</span><span id="__span-41-15"><a id="__codelineno-41-15" name="__codelineno-41-15" href="#__codelineno-41-15"></a>    │                    │
+</span><span id="__span-41-16"><a id="__codelineno-41-16" name="__codelineno-41-16" href="#__codelineno-41-16"></a>    └──── 合成数据 ◄─────┘
+</span></code></pre></div>
+<p>这比单纯扩大真实驾驶数据规模更接近一个 <strong>Self-Improving Autonomous Driving System</strong>。</p>
+<hr />
+<h2 id="21-x-cache">21. X-Cache：世界模型开始遇到真正的"系统工程问题"</h2>
+<p>当 X-World 从 Offline Video Generator 变成 Interactive Simulator，最大的瓶颈之一就变成 <strong>Latency</strong>。(<a href="https://arxiv.org/abs/2604.20289" title="X-Cache: Cross-Chunk Block Caching for Few-Step Autoregressive World Models Inference">arXiv</a>)</p>
+<p>即便已经从几十步 Diffusion 压缩到 4-step，DiT 仍然很重。传统 Diffusion Cache 通常复用相邻 Denoise Step 之间的相似性（Cross-Step Cache），但 Few-Step Diffusion 中每一步变化都很大，已经不存在足够强的冗余。</p>
+<p>X-Cache 发现了另一种冗余：<strong>Cross-Chunk Redundancy</strong>。</p>
+<hr />
+<h2 id="22-cross-chunk-cache">22. Cross-Chunk Cache：物理世界本身是连续的</h2>
+<p>自动驾驶中的 Chunk <span class="arithmatex">\(t\)</span> 和 Chunk <span class="arithmatex">\(t+1\)</span> 通常变化并不剧烈。道路不会突然消失，建筑不会瞬移，大部分车辆只发生小范围位移。</p>
+<p>因此相同（denoise step, transformer block）上的 feature 很相似。于是可以缓存上一 Chunk 中：</p>
+<div class="arithmatex">\[r_{t,b}=f_b(x_{t,b-1})\]</div>
+<p>下一 Chunk 如果足够相似：</p>
+<div class="arithmatex">\[\tilde x_{t,b}=x_{t,b-1}+\hat r_{t,b}\]</div>
+<p>直接复用 Residual。</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>Chunk N
+</span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>Block 17
+</span><span id="__span-42-3"><a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>      │
+</span><span id="__span-42-4"><a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>      ├── Compute
+</span><span id="__span-42-5"><a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>      │
+</span><span id="__span-42-6"><a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>      └── Cache Residual
+</span><span id="__span-42-7"><a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a>                │
+</span><span id="__span-42-8"><a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a>                ▼
+</span><span id="__span-42-9"><a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a>Chunk N+1
+</span><span id="__span-42-10"><a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a>Block 17
+</span><span id="__span-42-11"><a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a>      │
+</span><span id="__span-42-12"><a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a>Similarity Check
+</span><span id="__span-42-13"><a id="__codelineno-42-13" name="__codelineno-42-13" href="#__codelineno-42-13"></a>      │
+</span><span id="__span-42-14"><a id="__codelineno-42-14" name="__codelineno-42-14" href="#__codelineno-42-14"></a>      ├── Similar → Reuse
+</span><span id="__span-42-15"><a id="__codelineno-42-15" name="__codelineno-42-15" href="#__codelineno-42-15"></a>      │
+</span><span id="__span-42-16"><a id="__codelineno-42-16" name="__codelineno-42-16" href="#__codelineno-42-16"></a>      └── Different → Recompute
+</span></code></pre></div>
+<p><img alt="X-Cache Architecture" src="../../../.assets/xpeng_xcache_arch.jpg" /></p>
+<p>X-Cache 最终报告约 <span class="arithmatex">\(71\%\)</span> 的 Block Skip Rate，以及约 <span class="arithmatex">\(2.6\times\)</span> 的 DiT wall-clock 加速，同时维持较小质量退化。</p>
+<hr />
+<h2 id="23-x-cache-feature-similarity">23. 为什么 X-Cache 不能只看 Feature Similarity？</h2>
+<p>因为"画面差不多"并不意味着"驾驶动作也差不多"。例如：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>当前图像基本没变化
+</span><span id="__span-43-2"><a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>
+</span><span id="__span-43-3"><a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a>上一秒：
+</span><span id="__span-43-4"><a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a>直行
+</span><span id="__span-43-5"><a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a>
+</span><span id="__span-43-6"><a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a>下一秒：
+</span><span id="__span-43-7"><a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a>急打方向
+</span></code></pre></div>
+<p>所以 X-Cache 的 Fingerprint 不只是视觉 latent，而是：</p>
+<div class="arithmatex">\[\text{Fingerprint}=\text{SpatialFeature}+\text{GlobalMean}+\text{ActionCondition}\]</div>
+<p>并且不是直接在 flatten token 上随机采样，而是在 <span class="arithmatex">\((F,H,W)\)</span> 三维时空网格中采样。因此 Cache Gate 同时感知 Scene Structure、Scene Drift 与 Control Action。</p>
+<hr />
+<h2 id="24-kv-cache-protection-x-cache">24. KV Cache Protection：这是 X-Cache 最重要的工程细节之一</h2>
+<p>Autoregressive World Model 有一类非常危险的 Forward：<strong>KV Update</strong>。因为当前输出会写入 KV Cache，并成为未来所有 Chunk 的历史。如果这里使用错误近似：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>当前误差
+</span><span id="__span-44-2"><a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a> ↓
+</span><span id="__span-44-3"><a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>写入 KV Cache
+</span><span id="__span-44-4"><a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a> ↓
+</span><span id="__span-44-5"><a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>Chunk +1
+</span><span id="__span-44-6"><a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a> ↓
+</span><span id="__span-44-7"><a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>继续传播
+</span><span id="__span-44-8"><a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a> ↓
+</span><span id="__span-44-9"><a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>Chunk +2
+</span><span id="__span-44-10"><a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a> ↓
+</span><span id="__span-44-11"><a id="__codelineno-44-11" name="__codelineno-44-11" href="#__codelineno-44-11"></a>继续传播
+</span></code></pre></div>
+<p>会形成永久污染。因此 X-Cache 规定：</p>
+<blockquote>
+<p><strong>所有写 KV 的关键步骤强制完整计算。</strong></p>
+</blockquote>
+<p>这个设计并非可有可无。消融实验中，如果允许 KV-update Chunk 跳过计算，PSNR 从约 <span class="arithmatex">\(53.4\ \mathrm{dB}\)</span> 下降到 <span class="arithmatex">\(21.5\ \mathrm{dB}\)</span>，同时 LPIPS 出现数量级恶化，而额外得到的 Skip Rate 收益很有限。</p>
+<p>这说明对于 Autoregressive World Model：</p>
+<blockquote>
+<p><strong>Cache 的核心不是"能跳多少计算"，而是"哪些状态绝对不能被近似污染"。</strong></p>
+</blockquote>
+<hr />
+<h2 id="25">25. 五篇论文背后反复出现的统一设计思想</h2>
+<p>把这些论文放在一起看，会发现小鹏并不是在堆孤立技巧，而是在反复解决几个相同问题。</p>
+<h3 id="251-prediction-reconstruction">25.1 第一原则：Prediction 比 Reconstruction 更重要</h3>
+<p>传统视觉模型：</p>
+<div class="arithmatex">\[Understand(Current)\]</div>
+<p>世界模型：</p>
+<div class="arithmatex">\[Predict(Future)\]</div>
+<p>两者最大的区别不是生成能力，而是：</p>
+<div class="arithmatex">\[Prediction\Rightarrow Causality\]</div>
+<p>模型只有预测未来，才必须理解"如果车辆这样移动，其他交通参与者会怎样响应，世界状态会怎样改变"。X-Mind 的 Future-12-frame 实验尤其直接地支持了这一点。</p>
+<hr />
+<h2 id="26-planning-world-representation-photorealistic-representation">26. 第二原则：Planning World Representation 不等于 Photorealistic Representation</h2>
+<p>五篇论文共同体现出一个逐渐明确的分层：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>用于理解世界
+</span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>        ≠
+</span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>用于渲染世界
+</span></code></pre></div>
+<p>X-Foresight：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>Camera Tokens
+</span><span id="__span-46-2"><a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a>→ Dynamics / Causality
+</span><span id="__span-46-3"><a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>
+</span><span id="__span-46-4"><a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a>Diffusion
+</span><span id="__span-46-5"><a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a>→ Photorealism
+</span></code></pre></div>
+<p>X-Mind 则进一步：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>Abstract Sketch
+</span><span id="__span-47-2"><a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a>→ Planning
+</span><span id="__span-47-3"><a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a>
+</span><span id="__span-47-4"><a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a>完全不需要 Photorealistic Future
+</span></code></pre></div>
+<p>而 X-World 因为要作为外部 Simulator，VLA 必须重新"看到"这个世界，所以才真正需要 <strong>Photorealistic Multi-Camera Video</strong>。</p>
+<p>因此三者不是互相冲突，而是针对不同任务选择不同 World Representation：</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>合适的世界表示</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内部 Planning</td>
+<td>Semantic Latent</td>
+</tr>
+<tr>
+<td>Visual CoT</td>
+<td>Abstract Sketch</td>
+</tr>
+<tr>
+<td>Simulator</td>
+<td>Photorealistic Video</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="27-chunk-token">27. 第三原则：Chunk 正在成为视频世界模型的"Token"</h2>
+<p>LLM 的基本单位是 Token。而从这些论文看，小鹏世界模型越来越倾向于把 Temporal Chunk 视作世界演化的基本单位：</p>
+<ul>
+<li>X-Foresight：Chunk-wise Prediction</li>
+<li>X-World：Chunk-wise Causal Generation</li>
+<li>X-Cache：Cross-Chunk Caching</li>
+</ul>
+<p>这是一个非常值得关注的统一性。可以类比：</p>
+<div class="arithmatex">\[\text{LLM:}\ Token_t\rightarrow Token_{t+1}\]</div>
+<p>而 Driving World Model：</p>
+<div class="arithmatex">\[WorldChunk_t\rightarrow WorldChunk_{t+1}\]</div>
+<p>但一个 Chunk 内部仍保持密集时空信息。</p>
+<hr />
+<h2 id="28-rollout">28. 第四原则：训练分布与真实 Rollout 分布必须对齐</h2>
+<p>几个项目都遇到了同一个问题：</p>
+<div class="arithmatex">\[TeacherForcing\neq AutoregressiveInference\]</div>
+<p>对应解决方式：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>X-Foresight</td>
+<td>Renderer Stage III Alignment</td>
+</tr>
+<tr>
+<td>X-World</td>
+<td>Self-Forcing</td>
+</tr>
+<tr>
+<td>X-Cache</td>
+<td>KV Update Protection</td>
+</tr>
+</tbody>
+</table>
+<p>也就是说：</p>
+<blockquote>
+<p><strong>真正困难的已经不只是单步预测准确率，而是模型在自己生成的数据上运行几十、几百步之后还能否稳定。</strong></p>
+</blockquote>
+<p>这实际上是世界模型进入工程阶段之后最重要的问题之一。</p>
+<hr />
+<h2 id="29-compute">29. 第五原则：Compute 本身就是世界模型架构的一部分</h2>
+<p>小鹏这几篇论文中，几乎每一篇都在直接处理算力问题：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>TuringViT
+</span><span id="__span-48-2"><a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>Linear Attention
+</span><span id="__span-48-3"><a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>        ↓
+</span><span id="__span-48-4"><a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a>降低视觉编码复杂度
+</span><span id="__span-48-5"><a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>
+</span><span id="__span-48-6"><a id="__codelineno-48-6" name="__codelineno-48-6" href="#__codelineno-48-6"></a>X-Foresight
+</span><span id="__span-48-7"><a id="__codelineno-48-7" name="__codelineno-48-7" href="#__codelineno-48-7"></a>Block Sparse Attention
+</span><span id="__span-48-8"><a id="__codelineno-48-8" name="__codelineno-48-8" href="#__codelineno-48-8"></a>        ↓
+</span><span id="__span-48-9"><a id="__codelineno-48-9" name="__codelineno-48-9" href="#__codelineno-48-9"></a>降低 Long Horizon Training Cost
+</span><span id="__span-48-10"><a id="__codelineno-48-10" name="__codelineno-48-10" href="#__codelineno-48-10"></a>
+</span><span id="__span-48-11"><a id="__codelineno-48-11" name="__codelineno-48-11" href="#__codelineno-48-11"></a>X-Mind
+</span><span id="__span-48-12"><a id="__codelineno-48-12" name="__codelineno-48-12" href="#__codelineno-48-12"></a>96 Tokens + RBD
+</span><span id="__span-48-13"><a id="__codelineno-48-13" name="__codelineno-48-13" href="#__codelineno-48-13"></a>        ↓
+</span><span id="__span-48-14"><a id="__codelineno-48-14" name="__codelineno-48-14" href="#__codelineno-48-14"></a>降低 Visual CoT Cost
+</span><span id="__span-48-15"><a id="__codelineno-48-15" name="__codelineno-48-15" href="#__codelineno-48-15"></a>
+</span><span id="__span-48-16"><a id="__codelineno-48-16" name="__codelineno-48-16" href="#__codelineno-48-16"></a>X-World
+</span><span id="__span-48-17"><a id="__codelineno-48-17" name="__codelineno-48-17" href="#__codelineno-48-17"></a>4-step Distillation + Rolling KV
+</span><span id="__span-48-18"><a id="__codelineno-48-18" name="__codelineno-48-18" href="#__codelineno-48-18"></a>        ↓
+</span><span id="__span-48-19"><a id="__codelineno-48-19" name="__codelineno-48-19" href="#__codelineno-48-19"></a>降低 Streaming Simulation Cost
+</span><span id="__span-48-20"><a id="__codelineno-48-20" name="__codelineno-48-20" href="#__codelineno-48-20"></a>
+</span><span id="__span-48-21"><a id="__codelineno-48-21" name="__codelineno-48-21" href="#__codelineno-48-21"></a>X-Cache
+</span><span id="__span-48-22"><a id="__codelineno-48-22" name="__codelineno-48-22" href="#__codelineno-48-22"></a>Cross-Chunk Cache
+</span><span id="__span-48-23"><a id="__codelineno-48-23" name="__codelineno-48-23" href="#__codelineno-48-23"></a>        ↓
+</span><span id="__span-48-24"><a id="__codelineno-48-24" name="__codelineno-48-24" href="#__codelineno-48-24"></a>进一步降低 DiT Inference Cost
+</span></code></pre></div>
+<p>例如 X-Foresight 的定制 Block Sparse Attention 将论文报告的单步训练时间从 <span class="arithmatex">\(24.50\ \mathrm{s}\)</span> 降到 <span class="arithmatex">\(15.40\ \mathrm{s}\)</span>，约为 <span class="arithmatex">\(1.59\times\)</span> 加速。</p>
+<p>这说明一个很明显的趋势：</p>
+<blockquote>
+<p><strong>世界模型研究正在从"能不能生成"进入"能不能实时运行"。</strong></p>
+</blockquote>
+<hr />
+<h2 id="30">30. 小鹏世界模型体系可以归纳为"两种想象能力"</h2>
+<p>综合来看，可以用一个非常简单的框架理解小鹏的路线。</p>
+<p><strong>第一种：车自己想象未来。</strong> 代表 X-Foresight、X-Mind，目的是 <span class="arithmatex">\(Better\ Policy\)</span>。模型问："如果继续这样发展，未来会发生什么？"然后再做动作。</p>
+<p><strong>第二种：云端替车辆创造未来。</strong> 代表 X-World + X-Cache，目的是 <span class="arithmatex">\(Better\ Training + Better\ Evaluation\)</span>。系统问："如果车辆采取这个动作，我能不能创造一个合理的未来世界给它体验？"</p>
+<p>最终两者可以形成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>                     REAL WORLD
+</span><span id="__span-49-2"><a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>                         │
+</span><span id="__span-49-3"><a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>                         ▼
+</span><span id="__span-49-4"><a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a>                    Fleet Data
+</span><span id="__span-49-5"><a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a>                         │
+</span><span id="__span-49-6"><a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a>                         ▼
+</span><span id="__span-49-7"><a id="__codelineno-49-7" name="__codelineno-49-7" href="#__codelineno-49-7"></a>                 ┌──────────────┐
+</span><span id="__span-49-8"><a id="__codelineno-49-8" name="__codelineno-49-8" href="#__codelineno-49-8"></a>                 │     VLA      │
+</span><span id="__span-49-9"><a id="__codelineno-49-9" name="__codelineno-49-9" href="#__codelineno-49-9"></a>                 │ X-Foresight  │
+</span><span id="__span-49-10"><a id="__codelineno-49-10" name="__codelineno-49-10" href="#__codelineno-49-10"></a>                 │   X-Mind     │
+</span><span id="__span-49-11"><a id="__codelineno-49-11" name="__codelineno-49-11" href="#__codelineno-49-11"></a>                 └──────┬───────┘
+</span><span id="__span-49-12"><a id="__codelineno-49-12" name="__codelineno-49-12" href="#__codelineno-49-12"></a>                        │
+</span><span id="__span-49-13"><a id="__codelineno-49-13" name="__codelineno-49-13" href="#__codelineno-49-13"></a>                     Action
+</span><span id="__span-49-14"><a id="__codelineno-49-14" name="__codelineno-49-14" href="#__codelineno-49-14"></a>                        │
+</span><span id="__span-49-15"><a id="__codelineno-49-15" name="__codelineno-49-15" href="#__codelineno-49-15"></a>                        ▼
+</span><span id="__span-49-16"><a id="__codelineno-49-16" name="__codelineno-49-16" href="#__codelineno-49-16"></a>                 ┌──────────────┐
+</span><span id="__span-49-17"><a id="__codelineno-49-17" name="__codelineno-49-17" href="#__codelineno-49-17"></a>                 │   X-World    │
+</span><span id="__span-49-18"><a id="__codelineno-49-18" name="__codelineno-49-18" href="#__codelineno-49-18"></a>                 │ + X-Cache    │
+</span><span id="__span-49-19"><a id="__codelineno-49-19" name="__codelineno-49-19" href="#__codelineno-49-19"></a>                 └──────┬───────┘
+</span><span id="__span-49-20"><a id="__codelineno-49-20" name="__codelineno-49-20" href="#__codelineno-49-20"></a>                        │
+</span><span id="__span-49-21"><a id="__codelineno-49-21" name="__codelineno-49-21" href="#__codelineno-49-21"></a>                  Future World
+</span><span id="__span-49-22"><a id="__codelineno-49-22" name="__codelineno-49-22" href="#__codelineno-49-22"></a>                        │
+</span><span id="__span-49-23"><a id="__codelineno-49-23" name="__codelineno-49-23" href="#__codelineno-49-23"></a>                        ▼
+</span><span id="__span-49-24"><a id="__codelineno-49-24" name="__codelineno-49-24" href="#__codelineno-49-24"></a>                 VLA observes it
+</span><span id="__span-49-25"><a id="__codelineno-49-25" name="__codelineno-49-25" href="#__codelineno-49-25"></a>                        │
+</span><span id="__span-49-26"><a id="__codelineno-49-26" name="__codelineno-49-26" href="#__codelineno-49-26"></a>                        ▼
+</span><span id="__span-49-27"><a id="__codelineno-49-27" name="__codelineno-49-27" href="#__codelineno-49-27"></a>                Evaluation / RL
+</span><span id="__span-49-28"><a id="__codelineno-49-28" name="__codelineno-49-28" href="#__codelineno-49-28"></a>                        │
+</span><span id="__span-49-29"><a id="__codelineno-49-29" name="__codelineno-49-29" href="#__codelineno-49-29"></a>                        └──────────────┐
+</span><span id="__span-49-30"><a id="__codelineno-49-30" name="__codelineno-49-30" href="#__codelineno-49-30"></a>                                       │
+</span><span id="__span-49-31"><a id="__codelineno-49-31" name="__codelineno-49-31" href="#__codelineno-49-31"></a>                                       ▼
+</span><span id="__span-49-32"><a id="__codelineno-49-32" name="__codelineno-49-32" href="#__codelineno-49-32"></a>                                  Better VLA
+</span></code></pre></div>
+<p>这才是这五篇论文放在一起之后最值得关注的部分。</p>
+<hr />
+<h2 id="31-x-foresightx-mind-x-world">31. X-Foresight、X-Mind 与 X-World 的本质区别</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>X-Foresight</th>
+<th>X-Mind</th>
+<th>X-World</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>World Model 所在位置</td>
+<td>VLA 内部</td>
+<td>VLA 深层内部</td>
+<td>VLA 外部</td>
+</tr>
+<tr>
+<td>核心目的</td>
+<td>学习世界因果</td>
+<td>Visual Reasoning</td>
+<td>Simulator</td>
+</tr>
+<tr>
+<td>预测对象</td>
+<td>Camera Latent + BEV + Action</td>
+<td>Abstract Sketch</td>
+<td>Multi-camera Video</td>
+</tr>
+<tr>
+<td>是否需要高清图像</td>
+<td>Renderer 需要</td>
+<td>不需要</td>
+<td>必须</td>
+</tr>
+<tr>
+<td>World Representation</td>
+<td>Visual Latent</td>
+<td>Compressed Sketch</td>
+<td>Video Latent</td>
+</tr>
+<tr>
+<td>推理方式</td>
+<td>Chunk AR</td>
+<td>Single Forward RBD</td>
+<td>Chunk AR Diffusion</td>
+</tr>
+<tr>
+<td>Planning</td>
+<td>直接联合</td>
+<td>Inverse Dynamics</td>
+<td>不负责</td>
+</tr>
+<tr>
+<td>Closed-loop RL</td>
+<td>间接</td>
+<td>间接</td>
+<td>核心用途</td>
+</tr>
+<tr>
+<td>对实时性的要求</td>
+<td>很高</td>
+<td>极高</td>
+<td>很高</td>
+</tr>
+</tbody>
+</table>
+<p>因此更准确地说：</p>
+<blockquote>
+<p><strong>X-Foresight 和 X-Mind 是"Policy World Model"，X-World 是"Environment World Model"。</strong></p>
+</blockquote>
+<p>这是理解小鹏这条技术路线非常重要的区分。</p>
+<hr />
+<h2 id="32-x-foresight-x-mind">32. 从 X-Foresight 到 X-Mind：世界模型正在变成"隐式思维过程"</h2>
+<p>如果从技术思想上观察 X-Foresight → X-Mind，可以看到明显变化：</p>
+<p>X-Foresight：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>我预测未来世界
+</span><span id="__span-50-2"><a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>↓
+</span><span id="__span-50-3"><a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>因此我更懂世界
+</span><span id="__span-50-4"><a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a>↓
+</span><span id="__span-50-5"><a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a>因此我开得更好
+</span></code></pre></div>
+<p>X-Mind：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>我必须先预测未来
+</span><span id="__span-51-2"><a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>↓
+</span><span id="__span-51-3"><a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>预测未来就是我的推理过程
+</span><span id="__span-51-4"><a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a>↓
+</span><span id="__span-51-5"><a id="__codelineno-51-5" name="__codelineno-51-5" href="#__codelineno-51-5"></a>然后才能决定怎么开
+</span></code></pre></div>
+<p>于是 World Model 不再只是一个 Auxiliary Task，而变成：</p>
+<div class="arithmatex">\[\text{WorldModel}=\text{ReasoningProcess}\]</div>
+<p>也就是 <strong>Visual Chain-of-Thought</strong>。这可能是这几篇论文中，对 VLA 架构演进最重要的信号。</p>
+<hr />
+<h2 id="33-vla">33. 对未来 VLA 架构的启示</h2>
+<p>如果沿着这条路线继续发展，一个更加成熟的 Physical Intelligence Model 可能会形成：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>Observation
+</span><span id="__span-52-2"><a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>      │
+</span><span id="__span-52-3"><a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a>      ▼
+</span><span id="__span-52-4"><a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a>Visual Foundation Model
+</span><span id="__span-52-5"><a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a>      │
+</span><span id="__span-52-6"><a id="__codelineno-52-6" name="__codelineno-52-6" href="#__codelineno-52-6"></a>      ▼
+</span><span id="__span-52-7"><a id="__codelineno-52-7" name="__codelineno-52-7" href="#__codelineno-52-7"></a>Semantic World State
+</span><span id="__span-52-8"><a id="__codelineno-52-8" name="__codelineno-52-8" href="#__codelineno-52-8"></a>      │
+</span><span id="__span-52-9"><a id="__codelineno-52-9" name="__codelineno-52-9" href="#__codelineno-52-9"></a>      ▼
+</span><span id="__span-52-10"><a id="__codelineno-52-10" name="__codelineno-52-10" href="#__codelineno-52-10"></a>Future World Rollout
+</span><span id="__span-52-11"><a id="__codelineno-52-11" name="__codelineno-52-11" href="#__codelineno-52-11"></a>      │
+</span><span id="__span-52-12"><a id="__codelineno-52-12" name="__codelineno-52-12" href="#__codelineno-52-12"></a>      ├── Future 1
+</span><span id="__span-52-13"><a id="__codelineno-52-13" name="__codelineno-52-13" href="#__codelineno-52-13"></a>      ├── Future 2
+</span><span id="__span-52-14"><a id="__codelineno-52-14" name="__codelineno-52-14" href="#__codelineno-52-14"></a>      └── Future 3
+</span><span id="__span-52-15"><a id="__codelineno-52-15" name="__codelineno-52-15" href="#__codelineno-52-15"></a>      │
+</span><span id="__span-52-16"><a id="__codelineno-52-16" name="__codelineno-52-16" href="#__codelineno-52-16"></a>      ▼
+</span><span id="__span-52-17"><a id="__codelineno-52-17" name="__codelineno-52-17" href="#__codelineno-52-17"></a>Evaluate Consequences
+</span><span id="__span-52-18"><a id="__codelineno-52-18" name="__codelineno-52-18" href="#__codelineno-52-18"></a>      │
+</span><span id="__span-52-19"><a id="__codelineno-52-19" name="__codelineno-52-19" href="#__codelineno-52-19"></a>      ▼
+</span><span id="__span-52-20"><a id="__codelineno-52-20" name="__codelineno-52-20" href="#__codelineno-52-20"></a>Action
+</span></code></pre></div>
+<p>也就是从 <span class="arithmatex">\(ReactivePolicy\)</span> 逐渐转向 <span class="arithmatex">\(ModelBasedPolicy\)</span>。但与传统 Model-Based RL 不同，未来的 World State 未必是人工定义的 <code>x,y,v,a</code>，而可能是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>Visual Latent
+</span><span id="__span-53-2"><a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a>Semantic Token
+</span><span id="__span-53-3"><a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a>BEV Sketch
+</span><span id="__span-53-4"><a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a>Multimodal Latent
+</span></code></pre></div>
+<p>这样的高维表示。</p>
+<hr />
+<h2 id="34">34. 目前仍然存在的核心问题</h2>
+<h3 id="341-long-horizon-error-accumulation">34.1 Long-Horizon Error Accumulation</h3>
+<p>即使单步预测很好，也不意味着 100 步 rollout 仍然正确。误差会形成：</p>
+<div class="arithmatex">\[\epsilon_1\rightarrow\epsilon_2\rightarrow\cdots\rightarrow\epsilon_T\]</div>
+<p>X-Foresight 的 Renderer Alignment、X-World 的 Self-Forcing、Rolling KV 以及 X-Cache 的 KV 保护，本质上都在不同层面处理这种闭环误差问题。</p>
+<h3 id="342">34.2 多模态未来</h3>
+<p>真实世界未来并不是唯一的。例如前车减速，未来可能是保持车道、变道、停车、再次加速。因此真正的：</p>
+<div class="arithmatex">\[P(World_{t+H}|World_t,Action)\]</div>
+<p>是多峰分布。X-Foresight 中 L2 Camera Token 更接近多个可能未来的低熵语义汇总，再由生成式 Renderer 从条件分布中实例化具体视觉未来，这已经显露出"语义预测"和"随机生成"分工的必要性。</p>
+<h3 id="343-simulator-sim2real-gap">34.3 Simulator 与真实世界之间仍存在 Sim2Real Gap</h3>
+<p>如果未来 Online RL 大量依赖 X-World：</p>
+<div class="arithmatex">\[Policy\rightarrow WorldModel\rightarrow Reward\]</div>
+<p>那么 World Model 中的系统性错误可能被 Policy 利用，即：</p>
+<div class="arithmatex">\[ModelBias\rightarrow PolicyExploitation\]</div>
+<p>因此世界模型未来不仅需要 FID、FVD，而需要更严格的 Causal Accuracy、Action Consistency、Physical Consistency、Behavioral Fidelity、Long-tail Fidelity 评价体系。</p>
+<hr />
+<h2 id="35-world-model-world-model-centric-driving-stack">35. 总结：小鹏正在构建的并不是一个 World Model，而是一套 World-Model-Centric Driving Stack</h2>
+<p>综合 TuringViT、X-Foresight、X-Mind、X-World 和 X-Cache，可以把小鹏目前的技术路线总结为五层：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>Layer 1
+</span><span id="__span-54-2"><a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a>Visual Foundation
+</span><span id="__span-54-3"><a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a>TuringViT
+</span><span id="__span-54-4"><a id="__codelineno-54-4" name="__codelineno-54-4" href="#__codelineno-54-4"></a>        ↓
+</span><span id="__span-54-5"><a id="__codelineno-54-5" name="__codelineno-54-5" href="#__codelineno-54-5"></a>
+</span><span id="__span-54-6"><a id="__codelineno-54-6" name="__codelineno-54-6" href="#__codelineno-54-6"></a>Layer 2
+</span><span id="__span-54-7"><a id="__codelineno-54-7" name="__codelineno-54-7" href="#__codelineno-54-7"></a>Vision-Language-Action
+</span><span id="__span-54-8"><a id="__codelineno-54-8" name="__codelineno-54-8" href="#__codelineno-54-8"></a>Large Drive Model
+</span><span id="__span-54-9"><a id="__codelineno-54-9" name="__codelineno-54-9" href="#__codelineno-54-9"></a>        ↓
+</span><span id="__span-54-10"><a id="__codelineno-54-10" name="__codelineno-54-10" href="#__codelineno-54-10"></a>
+</span><span id="__span-54-11"><a id="__codelineno-54-11" name="__codelineno-54-11" href="#__codelineno-54-11"></a>Layer 3
+</span><span id="__span-54-12"><a id="__codelineno-54-12" name="__codelineno-54-12" href="#__codelineno-54-12"></a>Internal World Reasoning
+</span><span id="__span-54-13"><a id="__codelineno-54-13" name="__codelineno-54-13" href="#__codelineno-54-13"></a>X-Foresight / X-Mind
+</span><span id="__span-54-14"><a id="__codelineno-54-14" name="__codelineno-54-14" href="#__codelineno-54-14"></a>        ↓
+</span><span id="__span-54-15"><a id="__codelineno-54-15" name="__codelineno-54-15" href="#__codelineno-54-15"></a>
+</span><span id="__span-54-16"><a id="__codelineno-54-16" name="__codelineno-54-16" href="#__codelineno-54-16"></a>Layer 4
+</span><span id="__span-54-17"><a id="__codelineno-54-17" name="__codelineno-54-17" href="#__codelineno-54-17"></a>External World Simulation
+</span><span id="__span-54-18"><a id="__codelineno-54-18" name="__codelineno-54-18" href="#__codelineno-54-18"></a>X-World
+</span><span id="__span-54-19"><a id="__codelineno-54-19" name="__codelineno-54-19" href="#__codelineno-54-19"></a>        ↓
+</span><span id="__span-54-20"><a id="__codelineno-54-20" name="__codelineno-54-20" href="#__codelineno-54-20"></a>
+</span><span id="__span-54-21"><a id="__codelineno-54-21" name="__codelineno-54-21" href="#__codelineno-54-21"></a>Layer 5
+</span><span id="__span-54-22"><a id="__codelineno-54-22" name="__codelineno-54-22" href="#__codelineno-54-22"></a>World Model Infrastructure
+</span><span id="__span-54-23"><a id="__codelineno-54-23" name="__codelineno-54-23" href="#__codelineno-54-23"></a>X-Cache
+</span></code></pre></div>
+<p>它所推动的核心范式变化可以概括为：从 <span class="arithmatex">\(Perception\rightarrow Action\)</span> 逐渐转变成 <span class="arithmatex">\(Perception\rightarrow Prediction\rightarrow Reasoning\rightarrow Action\)</span>，同时在训练侧形成 <span class="arithmatex">\(Action\rightarrow WorldSimulation\rightarrow Observation\rightarrow PolicyImprovement\)</span>，最终形成完整闭环：</p>
+<div class="arithmatex">\[\boxed{Data\rightarrow Perception\rightarrow WorldModel\rightarrow Planning\rightarrow Simulation\rightarrow RL\rightarrow Data}\]</div>
+<p>从这个角度看，小鹏这些工作的真正重点已经不只是"把自动驾驶模型做得更大"。更准确地说，它们正在尝试解决三个更基础的问题：</p>
+<blockquote>
+<p><strong>第一，模型如何理解物理世界？</strong> 通过预测未来，而不仅仅是识别当前。</p>
+<p><strong>第二，模型如何进行物理推理？</strong> 让 World Model 成为内部 Visual Chain-of-Thought。</p>
+<p><strong>第三，模型如何规模化获得闭环经验？</strong> 用生成式 World Simulator 代替大量昂贵、危险且不可重复的真实世界探索。</p>
+</blockquote>
+<p>因此，小鹏公开研究中逐渐显现出的技术主线可以概括为：</p>
+<div class="arithmatex">\[\boxed{VLA + Predictive\ World\ Model + Generative\ Simulator + Online\ RL}\]</div>
+<p>而 X-Foresight、X-Mind、X-World 与 X-Cache，实际上分别对应这套体系中<strong>"会预测" → "会思考" → "会模拟" → "能够实时运行"</strong>的四个关键阶段。</p>
+<h2 id="_1">参考文献</h2>
+<ol>
+<li><a href="https://arxiv.org/abs/2606.24253" title="TuringViT: Making SOTA Vision Transformers Accessible to All">TuringViT: Making SOTA Vision Transformers Accessible to All</a></li>
+<li><a href="https://arxiv.org/abs/2605.24892" title="X-Foresight: A Joint Vision-Action Causal Forecasting Network via Predictive World Modeling">X-Foresight: A Joint Vision-Action Causal Forecasting Network via Predictive World Modeling</a></li>
+<li><a href="https://arxiv.org/abs/2606.28758" title="X-Mind: Efficient Visual Chain-of-Thought via Predictive World Model for End-to-End Driving">X-Mind: Efficient Visual Chain-of-Thought via Predictive World Model for End-to-End Driving</a></li>
+<li><a href="https://arxiv.org/abs/2603.19979" title="X-World: Controllable Ego-Centric Multi-Camera World Models for Scalable End-to-End Driving">X-World: Controllable Ego-Centric Multi-Camera World Models for Scalable End-to-End Driving</a></li>
+<li><a href="https://arxiv.org/abs/2604.20289" title="X-Cache: Cross-Chunk Block Caching for Few-Step Autoregressive World Models Inference">X-Cache: Cross-Chunk Block Caching for Few-Step Autoregressive World Models Inference</a></li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">评论</h2>
+<script src="https://giscus.app/client.js"
+        data-repo="Ranbaigao/llm_learning"
+        data-repo-id="R_kgDOS6jz6w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOS6jz684DEEsg"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../.assets/javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../../.assets/javascripts/pageview.js"></script>
+      
+        <script src="../../../.assets/javascripts/html_modal.js"></script>
+      
+        <script src="https://cn.vercount.one/js"></script>
+      
+    
+  </body>
+</html>

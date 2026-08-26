@@ -1,0 +1,2937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Knowledge Graph · 我的 LLM 笔记</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Long+Cang&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-color: #030712;
+    --text-color: #cbd5e1;
+    --title-color: #f1f5f9;
+    --panel-bg: rgba(10, 16, 32, 0.58);
+    --border-color: rgba(148, 163, 184, 0.16);
+    --panel-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --accent-primary: #60a5fa;
+    --accent-text: #93c5fd;
+    --accent-light: rgba(59, 130, 246, 0.20);
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --muted: #7d8ca3;
+    --root-color: #f1f5f9;
+    --llm-color: #60a5fa;
+    --cv-color: #2dd4bf;
+    --performance-color: #fbbf24;
+    --app-color: #a78bfa;
+    --practice-color: #22d3ee;
+    --reference-color: #a78bfa;
+  }
+
+  * { box-sizing: border-box; }
+
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background:
+      radial-gradient(circle at 24% 16%, rgba(28, 50, 105, 0.14) 0, transparent 46%),
+      radial-gradient(circle at 80% 22%, rgba(48, 24, 88, 0.10) 0, transparent 48%),
+      radial-gradient(circle at 56% 88%, rgba(7, 30, 52, 0.16) 0, transparent 55%),
+      radial-gradient(circle at 8% 78%, rgba(40, 20, 66, 0.10) 0, transparent 42%),
+      linear-gradient(160deg, #01020a 0%, #020410 48%, #03061a 100%);
+  }
+
+  .app::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.028) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.024) 0 1px, transparent 1px 40px);
+    mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 16%, black 84%, transparent 100%);
+  }
+
+  #scene {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  #scene.is-dragging { cursor: grabbing; }
+
+  #labels {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    overflow: hidden;
+    pointer-events: none;
+    contain: layout style paint;
+  }
+
+  .graph-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: 220px;
+    color: var(--label-color, #cbd5e1);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    line-height: 1.16;
+    letter-spacing: 0.05em;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow:
+      0 1px 0 rgba(2, 6, 23, 0.92),
+      0 -1px 0 rgba(2, 6, 23, 0.86),
+      1px 0 0 rgba(2, 6, 23, 0.86),
+      -1px 0 0 rgba(2, 6, 23, 0.86),
+      0 0 12px rgba(2, 6, 23, 0.60);
+    transform: translate3d(-999px, -999px, 0) translateX(-50%);
+    transform-origin: 50% 0;
+    will-change: transform, opacity;
+    transition: opacity 240ms ease;
+  }
+
+  .graph-label--note { font-weight: 500; }
+
+  .panel {
+    position: absolute;
+    z-index: 4;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(10px) saturate(130%);
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
+  }
+
+  /* 统计图谱 - 调整到右下方位置互换 */
+  .header-panel {
+    bottom: 18px;
+    right: 18px;
+    width: min(430px, calc(100vw - 36px));
+    padding: 14px 16px;
+  }
+
+  .eyebrow {
+    margin: 0 0 4px;
+    color: var(--accent-text);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .header-panel h1 {
+    margin: 0;
+    color: var(--title-color);
+    font-size: 19px;
+    line-height: 1.2;
+    font-weight: 750;
+  }
+
+  .metric-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 12px;
+  }
+
+  .metric {
+    min-width: 0;
+    padding: 7px 8px;
+    background: rgba(148, 163, 184, 0.07);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 8px;
+  }
+
+  .metric strong {
+    display: block;
+    color: var(--title-color);
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .metric span {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  /* 站点总浏览量：标题下方的弱化一行 */
+  .site-view-stats {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+
+  .site-view-stats strong {
+    color: var(--accent-text);
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 侧边栏笔记行的阅读量（小眼睛图标 + 数字） */
+  .tree-pv {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: var(--muted);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tree-pv[hidden] { display: none; }
+
+  .tree-pv svg { width: 11px; height: 11px; stroke-width: 2; opacity: 0.75; }
+
+  .legend-panel {
+    top: 18px;
+    right: 18px;
+    min-width: 166px;
+    padding: 11px 12px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .legend-title {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #cbd5e1;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  .legend-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 999px;
+    box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 14%, transparent);
+    flex: 0 0 auto;
+  }
+
+  /* 星图签名：顶部居中的随机名言，纤细行楷 + 动态科技蓝边缘光，纯装饰不拦截画布交互 */
+  .quote-panel {
+    position: absolute;
+    z-index: 4;
+    left: 50%;
+    top: 24px;
+    /* 避开左上搜索框与右上图例（分别约 330px / 190px 宽） */
+    width: min(880px, calc(100vw - 760px));
+    transform: translateX(-50%);
+    pointer-events: none;
+    user-select: none;
+    text-align: center;
+    /* 远层晕光：作用于整段文字的渲染结果，跟随实际字形与换行，无副本错位问题 */
+    filter: drop-shadow(0 0 14px rgba(37, 99, 235, 0.55));
+    animation: quote-edge-far 5.3s ease-in-out infinite;
+  }
+
+  .quote-text {
+    margin: 0;
+    font-family: "Long Cang", "Zhi Mang Xing", "Ma Shan Zheng", "STXingkai", "华文行楷", "KaiTi", "楷体", cursive;
+    font-size: 28px;
+    letter-spacing: 0.12em;
+    line-height: 1.8;
+    text-wrap: balance;
+    color: #eaf2ff;
+    text-shadow:
+      0 0 3px rgba(224, 242, 254, 0.85),
+      0 0 12px rgba(125, 211, 252, 0.50),
+      0 0 30px rgba(56, 189, 248, 0.35);
+    /* 近层边缘光：drop-shadow 沿字形轮廓发光 */
+    filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.9));
+    animation:
+      quote-fade-in 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both,
+      quote-core-pulse 4.6s ease-in-out 2.2s infinite,
+      quote-edge-near 3.4s ease-in-out infinite;
+  }
+
+  /* 按标点切分出的短句：句内禁止换行，句间由 <wbr> 提供断点，保证只在标点处换行 */
+  .qseg { white-space: nowrap; }
+
+  @keyframes quote-fade-in {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 主文字核心辉光脉动 */
+  @keyframes quote-core-pulse {
+    0%, 100% {
+      text-shadow:
+        0 0 3px rgba(224, 242, 254, 0.85),
+        0 0 12px rgba(125, 211, 252, 0.50),
+        0 0 30px rgba(56, 189, 248, 0.35);
+    }
+    50% {
+      text-shadow:
+        0 0 4px rgba(224, 242, 254, 1),
+        0 0 18px rgba(125, 211, 252, 0.72),
+        0 0 44px rgba(56, 189, 248, 0.50);
+    }
+  }
+
+  /* 近层边缘光：快速小幅脉动 */
+  @keyframes quote-edge-near {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.9)); }
+    50% { filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.55)); }
+  }
+
+  /* 远层晕光：慢速大幅呼吸，与近层周期错开形成干涉感 */
+  @keyframes quote-edge-far {
+    0%, 100% { filter: drop-shadow(0 0 14px rgba(37, 99, 235, 0.55)); }
+    50% { filter: drop-shadow(0 0 24px rgba(37, 99, 235, 0.32)); }
+  }
+
+  @media (max-width: 1500px) {
+    .quote-text { font-size: 22px; letter-spacing: 0.1em; }
+  }
+
+  /* 中窄屏下顶部中央会被搜索框/图例挤占，直接隐藏签名 */
+  @media (max-width: 1199px) {
+    .quote-panel { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quote-panel {
+      animation: none;
+      filter: drop-shadow(0 0 14px rgba(37, 99, 235, 0.45));
+    }
+    .quote-text {
+      animation: quote-fade-in 0.6s ease-out both;
+      filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.7));
+    }
+  }
+
+  .toolbar {
+    left: 18px;
+    bottom: 18px;
+    padding: 7px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .icon-button {
+    width: 36px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    background: rgba(148, 163, 184, 0.06);
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+
+  .icon-button:hover {
+    transform: translateY(-1px);
+    background: var(--accent-light);
+    color: var(--accent-text);
+    border-color: rgba(96, 165, 250, 0.42);
+  }
+
+  .icon-button:active { transform: translateY(0) scale(0.97); }
+
+  .icon-button svg {
+    width: 17px;
+    height: 17px;
+    stroke-width: 2.1;
+  }
+
+  .icon-button.is-active {
+    background: var(--accent-light);
+    color: var(--accent-text);
+    border-color: rgba(96, 165, 250, 0.42);
+  }
+
+  /* 笔记目录侧边栏：折叠时树形列表从下往上卷起，顶部标题栏原样保留
+     并充当展开把手；宽度与搜索框对齐；
+     top 过渡用于搜索候选列表弹出时动态下移让位 */
+  .sidebar {
+    top: 78px;
+    left: 18px;
+    /* 高度随目录行数自适应：不设 bottom，顶边紧贴搜索栏下方；
+       max-height 兜底，目录展开过多时树形列表内部滚动 */
+    max-height: calc(100vh - 152px);
+    width: min(310px, calc(100vw - 112px));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    clip-path: inset(0 0 0 0 round 12px);
+    transition:
+      clip-path 320ms cubic-bezier(0.4, 0, 0.2, 1),
+      top 260ms cubic-bezier(0.4, 0, 0.2, 1),
+      max-height 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar.is-collapsed {
+    /* 只保留 44px 标题栏，其余部分卷起隐藏 */
+    clip-path: inset(0 0 calc(100% - 44px) 0 round 12px);
+    pointer-events: none;
+  }
+
+  .sidebar.is-collapsed .sidebar-header {
+    pointer-events: auto;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 10px 0 14px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    flex: 0 0 auto;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .sidebar-title {
+    color: var(--title-color);
+    font-size: 12.5px;
+    font-weight: 750;
+    letter-spacing: 0.04em;
+  }
+
+  .sidebar-count {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+
+  /* 侧边栏头部的收起按钮 */
+  .sidebar-collapse {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+  }
+
+  .sidebar-collapse:hover {
+    background: rgba(148, 163, 184, 0.16);
+    color: var(--title-color);
+  }
+
+  .sidebar-collapse svg { width: 14px; height: 14px; stroke-width: 2.4; }
+
+  .sidebar-tree {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  }
+
+  .sidebar-tree::-webkit-scrollbar { width: 6px; }
+  .sidebar-tree::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.28); border-radius: 999px; }
+
+  .tree-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    padding: 4px 7px 4px 4px;
+    font: inherit;
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background 140ms ease, color 140ms ease;
+  }
+
+  .tree-row:hover { background: rgba(148, 163, 184, 0.10); }
+
+  .tree-row.is-active { background: rgba(59, 130, 246, 0.18); }
+
+  .tree-chevron {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    border-radius: 4px;
+    transition: transform 180ms ease, background 140ms ease;
+  }
+
+  .tree-chevron:hover { background: rgba(148, 163, 184, 0.16); color: var(--title-color); }
+
+  .tree-chevron svg { width: 11px; height: 11px; stroke-width: 2.4; }
+
+  .tree-item.is-expanded > .tree-row .tree-chevron { transform: rotate(90deg); }
+
+  .tree-dot {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    margin: 0 4.5px;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  .tree-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tree-row.is-dir .tree-name { font-weight: 650; color: var(--title-color); }
+
+  .tree-row.is-active .tree-name { color: #dbeafe; }
+
+  .tree-count {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-size: 10px;
+  }
+
+  .tree-children {
+    margin-left: 11px;
+    padding-left: 7px;
+    border-left: 1px solid rgba(148, 163, 184, 0.12);
+    display: none;
+  }
+
+  .tree-item.is-expanded > .tree-children { display: block; }
+
+  /* 搜索面板 - 调整到左上方位置互换 */
+  .search-panel {
+    top: 18px;
+    left: 18px;
+    width: min(310px, calc(100vw - 112px));
+    height: 48px;
+    padding: 0 13px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .search-panel svg {
+    width: 17px;
+    height: 17px;
+    color: var(--muted);
+    flex: 0 0 auto;
+  }
+
+  .search-panel input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--title-color);
+    font: inherit;
+    font-size: 13px;
+  }
+
+  .search-panel input::placeholder { color: #5b6b84; }
+
+  /* 搜索结果弹窗优先级提高(z-index: 10)，位置匹配左上方 */
+  .search-results {
+    position: absolute;
+    z-index: 10;
+    top: 72px;
+    left: 18px;
+    width: min(340px, calc(100vw - 34px));
+    max-height: min(380px, calc(100vh - 190px));
+    overflow: auto;
+    padding: 8px;
+    display: grid;
+    gap: 6px;
+  }
+
+  .search-results[hidden] { display: none; }
+
+  .search-result-item {
+    width: 100%;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 10px;
+    background: rgba(148, 163, 184, 0.05);
+    color: var(--title-color);
+    padding: 8px 10px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  }
+
+  .search-result-item:hover,
+  .search-result-item.is-active {
+    border-color: rgba(96, 165, 250, 0.45);
+    background: rgba(59, 130, 246, 0.16);
+    transform: translateY(-1px);
+  }
+
+  .search-result-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .search-result-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .search-result-badge {
+    flex: 0 0 auto;
+    height: 18px;
+    border-radius: 999px;
+    padding: 0 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.25);
+  }
+
+  .search-result-meta {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 10.5px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .search-result-type {
+    margin-top: 5px;
+    font-size: 10px;
+    color: #5eead4;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  #tooltip {
+    position: fixed;
+    z-index: 8;
+    min-width: 190px;
+    max-width: min(330px, calc(100vw - 28px));
+    padding: 10px 12px 11px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    background: rgba(10, 16, 32, 0.85);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
+    color: var(--text-color);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 140ms ease;
+  }
+
+  #tooltip.visible { opacity: 1; }
+
+  .tip-type {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .tip-title {
+    margin-top: 7px;
+    color: var(--title-color);
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .tip-path {
+    margin-top: 5px;
+    color: var(--muted);
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 10.5px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .tip-hint {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 10.5px;
+  }
+
+  #loading,
+  #error {
+    position: absolute;
+    z-index: 6;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    background: rgba(10, 16, 32, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    padding: 12px 15px;
+    box-shadow: var(--panel-shadow);
+  }
+
+  .spinner {
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(148, 163, 184, 0.25);
+    border-top-color: var(--accent-primary);
+    border-radius: 999px;
+    animation: spin 760ms linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #error {
+    width: min(460px, calc(100vw - 32px));
+    padding: 16px 18px;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    border-radius: 8px;
+    background: rgba(69, 10, 10, 0.5);
+    color: #fca5a5;
+    box-shadow: var(--panel-shadow);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  #error[hidden],
+  #loading[hidden] { display: none; }
+
+  @media (max-width: 760px) {
+    /* 统计卡片：底部通栏，避免与工具栏在水平方向互相挤压重叠 */
+    .header-panel {
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      width: auto;
+    }
+
+    .legend-panel { display: none; }
+
+    /* 工具栏：右侧竖排居中，避开左上搜索/目录与底部统计卡片 */
+    .toolbar {
+      left: auto;
+      right: 10px;
+      top: 50%;
+      bottom: auto;
+      transform: translateY(-50%);
+      flex-direction: column;
+    }
+
+    .search-panel {
+      top: 10px;
+      left: 10px;
+      width: min(240px, calc(100vw - 66px));
+    }
+
+    .search-results {
+      top: 64px;
+      left: 10px;
+      width: min(280px, calc(100vw - 20px));
+      max-height: min(330px, calc(100vh - 170px));
+    }
+
+    .sidebar {
+      top: 64px;
+      left: 10px;
+      max-height: calc(100vh - 124px);
+      width: min(240px, calc(100vw - 66px));
+    }
+
+    /* 通栏卡片宽度足够，指标恢复 4 列让卡片更矮 */
+    .metric-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <canvas id="scene" aria-label="notebooks 3D 知识星图"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+
+  <div class="quote-panel" aria-hidden="true"><p class="quote-text" id="quote-text"></p></div>
+
+  <section class="panel header-panel" aria-label="图谱统计">
+    <p class="eyebrow">Knowledge Graph</p>
+    <h1>我的 LLM 笔记星图</h1>
+    <p class="site-view-stats">总浏览量 <strong id="site-pv">-</strong> 次 · 访客 <strong id="site-uv">-</strong> 人</p>
+    <div class="metric-row">
+      <div class="metric"><strong id="stat-nodes">0</strong><span>节点</span></div>
+      <div class="metric"><strong id="stat-notes">0</strong><span>笔记</span></div>
+      <div class="metric"><strong id="stat-contains">0</strong><span>结构</span></div>
+      <div class="metric"><strong id="stat-refs">0</strong><span>引用</span></div>
+    </div>
+  </section>
+
+  <aside class="panel legend-panel" aria-label="图例">
+    <div class="legend-title">Constellation</div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--root-color); color: var(--root-color);"></span><span>根星</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--llm-color); color: var(--llm-color);"></span><span>NLP 星座</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--cv-color); color: var(--cv-color);"></span><span>CV 星座</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--performance-color); color: var(--performance-color);"></span><span>性能优化</span></div>
+    <div class="legend-item"><span class="legend-dot" style="background: var(--practice-color); color: var(--practice-color);"></span><span>代码实践</span></div>
+  </aside>
+
+  <div class="panel toolbar" aria-label="图谱工具">
+    <button class="icon-button is-active" id="sidebar-toggle" type="button" title="展开/收起笔记目录" aria-label="展开或收起笔记目录">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg>
+    </button>
+    <button class="icon-button" id="fit-button" type="button" title="重置视角" aria-label="重置视角">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+    </button>
+    <button class="icon-button" id="relayout-button" type="button" title="重新排布星图" aria-label="重新排布星图">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+    </button>
+    <button class="icon-button" id="pause-button" type="button" title="暂停动画" aria-label="暂停动画">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 4H6v16h4z"/><path d="M18 4h-4v16h4z"/></svg>
+    </button>
+    <button class="icon-button" id="refresh-button" type="button" title="重新读取数据" aria-label="重新读取数据">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 11a8.1 8.1 0 0 0-15.5-2"/><path d="M4 4v5h5"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2"/><path d="M20 20v-5h-5"/></svg>
+    </button>
+  </div>
+
+  <label class="panel search-panel" for="search-input" aria-label="搜索节点">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+    <input id="search-input" type="search" placeholder="搜索笔记或目录" autocomplete="off" />
+  </label>
+  <section id="search-results" class="panel search-results" aria-label="搜索结果" hidden></section>
+
+  <aside class="panel sidebar" id="sidebar" aria-label="笔记目录">
+    <div class="sidebar-header" id="sidebar-header" role="button" aria-expanded="true" title="收起/展开笔记目录">
+      <span class="sidebar-title">笔记目录</span>
+      <span class="sidebar-count" id="sidebar-count"></span>
+      <button class="sidebar-collapse" id="sidebar-collapse" type="button" title="收起笔记目录" aria-label="收起笔记目录">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m18 15-6-6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-tree" id="sidebar-tree" role="tree"></div>
+  </aside>
+
+  <div id="tooltip" role="status" aria-live="polite"></div>
+  <div id="loading"><span class="spinner"></span><span>加载知识星图</span></div>
+  <div id="error" hidden></div>
+</div>
+
+<script>
+'use strict';
+
+const DATA_URL = 'data/knowledge_graph.json';
+const TYPE_LABEL = {
+  root: 'ROOT',
+  category: 'CATEGORY',
+  subcategory: 'SUBCATEGORY',
+  note: 'NOTE',
+};
+const TYPE_COLOR = {
+  root: cssVar('--root-color'),
+};
+// 星座色族：每个星座是一对相近色相（base → shift，色相差很小）。
+// 簇内节点颜色按空间方位角在两色之间平滑插值——同一星团内颜色连续渐变，
+// 不会出现相邻节点色相突变（参考真实星系：同一区域内恒星颜色平滑过渡）
+const CONSTELLATION_FAMILIES = {
+  NLP: { base: '#60a5fa', shift: '#38bdf8' },
+  CV: { base: '#2dd4bf', shift: '#5eead4' },
+  性能优化: { base: '#fbbf24', shift: '#fcd34d' },
+  代码实践: { base: '#22d3ee', shift: '#67e8f9' },
+};
+const FALLBACK_CONSTELLATION_COLORS = [
+  '#60a5fa',
+  '#4ade80',
+  '#fbbf24',
+  '#a78bfa',
+  '#22d3ee',
+  '#f472b6',
+];
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d', { alpha: true });
+const labelLayer = document.getElementById('labels');
+const tooltip = document.getElementById('tooltip');
+const loading = document.getElementById('loading');
+const errorBox = document.getElementById('error');
+const searchInput = document.getElementById('search-input');
+const searchResultsPanel = document.getElementById('search-results');
+const sidebar = document.getElementById('sidebar');
+const sidebarTree = document.getElementById('sidebar-tree');
+const sidebarCount = document.getElementById('sidebar-count');
+const sidebarRowById = new Map();
+
+// 星图签名：每次加载从名句库随机抽一句，以行楷泛光呈现于星图下方
+const SIGNATURE_QUOTES = [
+  '星辰不是彼岸，而是航程本身——我把每一次出发，都当作对未知的一次求婚。',
+  '地图的尽头，正是探险开始的地方；已知的边界越清晰，未知的召唤越灼热。',
+  '我以好奇为舟，以时间为海，渡向一切尚未被命名的黎明。',
+  '未来从不抵达，它只是永远在前方俯身，等一个不肯停步的人。',
+  '凝视深渊的人终成深渊，而凝视远方的人，把自己走成了路。',
+  '所谓成长，是不断亲手拆毁昨日的殿堂，用废墟的砖石砌一座更高的瞭望塔。',
+  '在熵增的宇宙里，探索是我对无序最优雅的反抗。',
+  '我不收藏答案，只收集更锋利的问题——答案会过时，问题永远年轻。',
+  '黑暗并非光的缺席，而是尚未被注视的辽阔；我愿做那个举火的人。',
+  '向深空要坐标，向时间要答案，向自己要远方。',
+  '不恋旧日的余烬，只向未至的破晓，投掷永恒的野望。',
+  '边界即是请柬；于认知的无垠暗海中，以理性凿刻不灭的星图。',
+  '越过时间的事件视界，在思维的穹顶之上，缔造尚未命名的纪元。',
+  '循逻辑之经纬，涉虚无之渊薮，向无限之维执着跃迁。',
+  '以行行符码为阶，叩问真理的奇点；目光所及，皆是明日文明的轮廓。',
+  '凡目力所不及之深渊，皆为探索者尚未加冕的疆土。',
+  '向远方永恒坍缩，向未来无限逼近，我们是刺破长夜的秩序之光。',
+  '执理性与浪漫之刻刀，在荒芜的现实彼端，雕琢下一座繁茂的星系。',
+  '历史在身后凝固成碑，而行者的脉搏，始终与未来的潮汐同频共振。',
+  '不问归途与止境，惟愿以孤绝之姿，奔赴一场与终极未知的宏大重逢。',
+];
+const quoteTextEl = document.getElementById('quote-text');
+const signatureQuote = SIGNATURE_QUOTES[Math.floor(Math.random() * SIGNATURE_QUOTES.length)];
+// 按标点切成短句：每句包一层 nowrap span，句间插入 <wbr> 断点，
+// 换行只会发生在标点之后，不会从短句中间断开
+const quoteSegments = signatureQuote.match(/.+?(?:[，。；、！？：…]|——|$)/g) || [signatureQuote];
+const quoteFrag = document.createDocumentFragment();
+quoteSegments.forEach(segment => {
+  const span = document.createElement('span');
+  span.className = 'qseg';
+  span.textContent = segment;
+  quoteFrag.appendChild(span);
+  quoteFrag.appendChild(document.createElement('wbr'));
+});
+quoteTextEl.replaceChildren(quoteFrag);
+
+let width = 0;
+let height = 0;
+let dpr = 1;
+let nodes = [];
+let links = [];
+let stars = [];
+let dustParticles = [];
+let meteors = [];
+let nextMeteorAt = 8;
+let nodeById = new Map();
+let adjacency = new Map();
+let childrenById = new Map();
+let parentById = new Map();
+let focusNode = null;
+let focusIds = new Set();
+let focusChildIds = new Set(); // 焦点的直接子节点：悬停时只给它们显示名字
+// 焦点来源：'pointer'（悬停，高亮 + 显示自身/子节点/父节点名字）/ 'pin'（星图或侧边栏选中）/ 'search'（搜索选中）
+// 完整文字标签（含父节点/引用节点）只在锁定选中（pin / search）时浮现，默认状态下星图无文字
+let focusSource = null;
+let searchMatches = new Set();
+let searchQuery = '';
+let searchResultNodes = [];
+let activeSearchResultIndex = -1;
+let hoveredNode = null;
+let isHoveringNode = false;
+let pinnedNode = null;
+let pressedNode = null;
+let paused = false;
+let dragState = null;
+let frameHandle = 0;
+let lastTime = 0;
+let time = 0;
+let constellationRotation = 0;
+// 视角旋转中心（世界坐标）：默认整个星图的重心，固定节点后平滑移动到该节点
+let viewCenter = { x: 0, y: 0, z: 0 };
+// 星图重心：布局完成后由全部节点位置平均得到，作为默认旋转中心
+let graphCenter = { x: 0, y: 0, z: 0 };
+// 默认俯仰角：饼状盘面接近水平的正侧方视角（1.18 偏俯视，此处压低到近水平）
+const DEFAULT_ROT_X = 0.2;
+const DEFAULT_ROT_Y = -0.28;
+// 初始取景比适距更近一档，约等于滚轮向前滚动三次（deltaY=100 时单次 ≈ ×1.116）
+const INITIAL_ZOOM_FACTOR = 2.4;
+let layoutSeed = 0;
+let camera = {
+  rotX: DEFAULT_ROT_X,
+  rotY: DEFAULT_ROT_Y,
+  zoom: 1,
+  panX: 0,
+  panY: 14,
+  distance: 980,
+};
+
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[char]));
+}
+
+function hexToRgb(hex) {
+  const normalized = hex.trim().replace('#', '');
+  const value = Number.parseInt(normalized.length === 3
+    ? normalized.split('').map(ch => ch + ch).join('')
+    : normalized, 16);
+  return {
+    r: (value >> 16) & 255,
+    g: (value >> 8) & 255,
+    b: value & 255,
+  };
+}
+
+function rgbToHex({ r, g, b }) {
+  return '#' + [r, g, b]
+    .map(value => Math.round(clamp(value, 0, 255)).toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function mixHex(from, to, amount) {
+  const a = hexToRgb(from);
+  const b = hexToRgb(to);
+  const t = clamp(amount, 0, 1);
+  return rgbToHex({
+    r: a.r + (b.r - a.r) * t,
+    g: a.g + (b.g - a.g) * t,
+    b: a.b + (b.b - a.b) * t,
+  });
+}
+
+function rgba(color, alpha) {
+  const rgb = hexToRgb(color);
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+}
+
+// ======= 星空精灵图缓存 =======
+// 光晕 / 星云 / 暗角均为预渲染的离屏 canvas，绘制时只 drawImage，
+// 避免每帧 createRadialGradient 与 shadowBlur 带来的性能开销。
+const STAR_SPRITE_RES = 256;
+const haloSpriteCache = new Map();
+let milkyWayCanvas = null;    // 静态银河带（resize / relayout 时重绘）
+let nebulaCanvas = null;      // 静态星云层（resize / relayout 时重绘）
+let vignetteCanvas = null;    // 暗角后期层
+
+function makeSpriteCanvas(res) {
+  const sprite = document.createElement('canvas');
+  sprite.width = res;
+  sprite.height = res;
+  return sprite;
+}
+
+// 紧致光晕精灵（节点微光与连线光流使用）：衰减很快，只为亮核提供一圈贴身辉光
+function haloSpriteFor(color) {
+  let sprite = haloSpriteCache.get(color);
+  if (sprite) return sprite;
+  sprite = makeSpriteCanvas(STAR_SPRITE_RES);
+  const g = sprite.getContext('2d');
+  const half = STAR_SPRITE_RES / 2;
+  const grad = g.createRadialGradient(half, half, 0, half, half, half);
+  grad.addColorStop(0, rgba(color, 0.55));
+  grad.addColorStop(0.42, rgba(color, 0.22));
+  grad.addColorStop(1, rgba(color, 0));
+  g.fillStyle = grad;
+  g.fillRect(0, 0, STAR_SPRITE_RES, STAR_SPRITE_RES);
+  haloSpriteCache.set(color, sprite);
+  return sprite;
+}
+
+// 银河带：斜贯画面的浅淡亮带 = 弥散辉光 + 大量细密暗星 + 暗尘埃裂隙
+function renderMilkyWayCanvas() {
+  milkyWayCanvas = document.createElement('canvas');
+  milkyWayCanvas.width = Math.max(1, Math.floor(width));
+  milkyWayCanvas.height = Math.max(1, Math.floor(height));
+  const g = milkyWayCanvas.getContext('2d');
+  const diag = Math.hypot(width, height);
+  const bandHeight = Math.min(width, height) * 0.52;
+
+  g.save();
+  g.translate(width / 2, height / 2);
+  g.rotate(-0.46);
+
+  // 弥散辉光（沿带轴垂直方向衰减，中心略偏蓝白）——压得很淡，保持背景深邃
+  const glow = g.createLinearGradient(0, -bandHeight / 2, 0, bandHeight / 2);
+  glow.addColorStop(0, 'rgba(147, 197, 253, 0)');
+  glow.addColorStop(0.30, 'rgba(147, 197, 253, 0.02)');
+  glow.addColorStop(0.50, 'rgba(226, 232, 240, 0.042)');
+  glow.addColorStop(0.70, 'rgba(191, 219, 254, 0.02)');
+  glow.addColorStop(1, 'rgba(147, 197, 253, 0)');
+  g.fillStyle = glow;
+  g.fillRect(-diag, -bandHeight / 2, diag * 2, bandHeight);
+
+  // 细密星尘：沿带轴均匀、垂直方向近似高斯分布
+  const dustCount = Math.round(clamp((width * height) / 1400, 500, 1400));
+  for (let i = 0; i < dustCount; i += 1) {
+    const x = (Math.random() * 2 - 1) * diag * 0.62;
+    const gauss = (Math.random() + Math.random() + Math.random()) / 1.5 - 1;
+    const y = gauss * bandHeight * 0.24;
+    const edgeFade = 1 - Math.min(1, Math.abs(x) / (diag * 0.62));
+    const roll = Math.random();
+    const rgb = roll < 0.6 ? '226, 232, 240' : roll < 0.85 ? '191, 219, 254' : '253, 230, 138';
+    g.fillStyle = `rgba(${rgb}, ${(0.05 + Math.random() * 0.2) * edgeFade})`;
+    g.beginPath();
+    g.arc(x, y, 0.3 + Math.random() * 0.8, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  // 暗尘埃裂隙：银河带内的吸收云，增加真实感
+  for (let i = 0; i < 6; i += 1) {
+    const x = (hashUnit(i, 211) * 2 - 1) * diag * 0.34;
+    const y = (hashUnit(i, 307) * 2 - 1) * bandHeight * 0.14;
+    const rx = 60 + hashUnit(i, 101) * 150;
+    const ry = rx * (0.28 + hashUnit(i, 157) * 0.22);
+    const grad = g.createRadialGradient(x, y, 0, x, y, rx);
+    grad.addColorStop(0, 'rgba(2, 6, 23, 0.34)');
+    grad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+    g.save();
+    g.translate(x, y);
+    g.scale(1, ry / rx);
+    g.translate(-x, -y);
+    g.fillStyle = grad;
+    g.fillRect(x - rx, y - rx, rx * 2, rx * 2);
+    g.restore();
+  }
+
+  g.restore();
+}
+
+// 静态星云层：深空中的彩色发射云 + 暗尘埃区，营造纵深与明暗
+function renderNebulaCanvas() {
+  nebulaCanvas = document.createElement('canvas');
+  nebulaCanvas.width = Math.max(1, Math.floor(width));
+  nebulaCanvas.height = Math.max(1, Math.floor(height));
+  const g = nebulaCanvas.getContext('2d');
+  const tints = ['#1e3a8a', '#4c1d95', '#134e4a', '#1d4ed8', '#701a75', '#0c4a6e'];
+  const blobCount = Math.round(clamp((width * height) / 260000, 5, 9));
+  for (let i = 0; i < blobCount; i += 1) {
+    const x = hashUnit(i, 7) * width;
+    const y = hashUnit(i, 13) * height;
+    const r = 140 + hashUnit(i, 29) * Math.min(width, height) * 0.32;
+    const tint = tints[i % tints.length];
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, rgba(tint, 0.07 + hashUnit(i, 41) * 0.05));
+    grad.addColorStop(0.55, rgba(tint, 0.028));
+    grad.addColorStop(1, rgba(tint, 0));
+    g.fillStyle = grad;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  // 暗尘埃区（阴影层）：局部压暗，衬托恒星的亮
+  for (let i = 0; i < 3; i += 1) {
+    const x = hashUnit(i, 71) * width;
+    const y = hashUnit(i, 97) * height;
+    const r = 120 + hashUnit(i, 53) * Math.min(width, height) * 0.22;
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, 'rgba(1, 3, 10, 0.36)');
+    grad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+    g.fillStyle = grad;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+}
+
+// 暗角后期层：四角轻微压暗，模拟镜头成像
+function renderVignetteCanvas() {
+  vignetteCanvas = document.createElement('canvas');
+  vignetteCanvas.width = Math.max(1, Math.floor(width));
+  vignetteCanvas.height = Math.max(1, Math.floor(height));
+  const g = vignetteCanvas.getContext('2d');
+  const cx = width / 2;
+  const cy = height / 2;
+  const outer = Math.hypot(cx, cy);
+  const grad = g.createRadialGradient(cx, cy, outer * 0.42, cx, cy, outer);
+  grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0.52)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, width, height);
+}
+
+function applyVignettePass() {
+  if (!vignetteCanvas) return;
+  ctx.save();
+  ctx.drawImage(vignetteCanvas, 0, 0, width, height);
+  ctx.restore();
+}
+
+// 深度雾：z 为相机空间深度（越大越远），返回远→近的亮度系数 0.58~1
+function depthFade(z) {
+  const t = clamp((z / (camera.distance * 0.95)) * 0.5 + 0.5, 0, 1);
+  return 1 - t * 0.42;
+}
+
+function branchIdFor(node) {
+  if (!node || node.id === '__root__') return '__root__';
+  return String(node.id).split('/')[0] || String(node.id);
+}
+
+function fallbackConstellationColor(branchId) {
+  let hash = 0;
+  for (const char of String(branchId)) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }
+  return FALLBACK_CONSTELLATION_COLORS[hash % FALLBACK_CONSTELLATION_COLORS.length];
+}
+
+// 星座色族查询：未知分支回退到调色板取 base，shift 由 base 混白推导（保持同族相近色相）
+function familyFor(branchId) {
+  if (CONSTELLATION_FAMILIES[branchId]) return CONSTELLATION_FAMILIES[branchId];
+  const base = fallbackConstellationColor(branchId);
+  return { base, shift: mixHex(base, '#ffffff', 0.22) };
+}
+
+// 布局前的初始配色；布局完成后由 applyClusterColors() 按空间位置重算
+function colorForNode(node) {
+  if (!node || node.type === 'root') return TYPE_COLOR.root;
+  const family = familyFor(branchIdFor(node));
+  if (node.type === 'category') return mixHex(family.base, '#ffffff', 0.34);
+  if (node.type === 'subcategory') return mixHex(mixHex(family.base, family.shift, 0.4), '#ffffff', 0.18);
+  return mixHex(family.base, '#ffffff', 0.6);
+}
+
+// 簇内配色（核心）：以节点相对星团中心的方位角的正弦为平滑参数 t 在色族内插值。
+// sin(angle) 绕簇一周处处连续（无接缝），空间上相邻的节点 t 必然接近 →
+// 颜色沿星团平滑渐变，彻底消除"红突变蓝"；笔记再向白色靠拢
+// （真实恒星以白/蓝白为主，仅带星座色微染），混白量同样随方位角平滑变化。
+function applyClusterColors() {
+  for (const cat of orderedChildren('__root__')) {
+    const family = familyFor(cat.branchId);
+    // 类目节点也不使用纯色：混白降饱和，保留色相身份（真实星团"代表星"也是白底染色，
+    // 避免相邻星团的纯色节点直接相撞，如青色旁边跳出一个纯黄）
+    cat.color = mixHex(family.base, '#ffffff', 0.34);
+    const stack = [...(childrenById.get(cat.id) || [])];
+    while (stack.length) {
+      const node = stack.pop();
+      const angle = Math.atan2(node.tz - cat.tz, node.tx - cat.tx);
+      const t = 0.5 + 0.5 * Math.sin(angle);
+      const clusterColor = mixHex(family.base, family.shift, t);
+      if (node.type === 'subcategory') {
+        // 子目录同样先混白降饱和，再随深度轻微压暗保持层次
+        const dark = clamp(0.04 + Math.max(0, node.depth - 1) * 0.02, 0.04, 0.12);
+        node.color = mixHex(mixHex(clusterColor, '#ffffff', 0.18), '#0f172a', dark);
+      } else {
+        const white = 0.55 + 0.15 * Math.sin(angle * 2 + 1);
+        node.color = mixHex(clusterColor, '#ffffff', white);
+      }
+      stack.push(...(childrenById.get(node.id) || []));
+    }
+  }
+}
+
+function radiusFor(node) {
+  if (node.type === 'root') return 11;
+  if (node.type === 'category') return Math.max(8, Math.min(12, node.size * 0.5 || 9));
+  if (node.type === 'subcategory') return Math.max(6, Math.min(9, node.size * 0.44 || 7));
+  return Math.max(3.2, Math.min(4.6, node.size * 0.52 || 3.8));
+}
+
+function measure() {
+  const rect = canvas.getBoundingClientRect();
+  width = Math.max(320, rect.width);
+  height = Math.max(420, rect.height);
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+// 顶层目录固定展示顺序（侧边栏与星图布局一致）：NLP → CV → 性能优化 → 代码实践
+const TOP_LEVEL_ORDER = ['NLP', 'CV', '性能优化', '代码实践'];
+
+function orderedChildren(parentId) {
+  return [...(childrenById.get(parentId) || [])].sort((a, b) => {
+    if (parentId === '__root__') {
+      const oa = TOP_LEVEL_ORDER.indexOf(a.id);
+      const ob = TOP_LEVEL_ORDER.indexOf(b.id);
+      if (oa !== ob) return (oa === -1 ? TOP_LEVEL_ORDER.length : oa) - (ob === -1 ? TOP_LEVEL_ORDER.length : ob);
+      return a.name.localeCompare(b.name, 'zh-Hans-CN');
+    }
+    const rank = { category: 0, subcategory: 1, note: 2 };
+    const dr = (rank[a.type] ?? 9) - (rank[b.type] ?? 9);
+    if (dr !== 0) return dr;
+    return a.name.localeCompare(b.name, 'zh-Hans-CN');
+  });
+}
+
+function hashUnit(value, salt = 0) {
+  let hash = 2166136261 ^ salt;
+  for (const char of String(value)) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0) / 4294967295;
+}
+
+function signedHash(value, salt = 0) {
+  return hashUnit(value, salt) * 2 - 1;
+}
+
+async function loadGraph() {
+  loading.hidden = false;
+  errorBox.hidden = true;
+  try {
+    const response = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    buildGraph(data);
+    loading.hidden = true;
+  } catch (error) {
+    loading.hidden = true;
+    errorBox.hidden = false;
+    errorBox.textContent = `知识星图数据加载失败：${error.message}。请先运行 mkdocs serve、mkdocs build，或直接执行 python hooks/generate_graph_data.py。`;
+  }
+}
+
+function buildGraph(data) {
+  cancelAnimationFrame(frameHandle);
+  measure();
+
+  nodeById = new Map();
+  nodes = (Array.isArray(data.nodes) ? data.nodes : []).map((node, index) => {
+    const next = {
+      ...node,
+      index,
+      radius: radiusFor(node),
+      branchId: branchIdFor(node),
+      color: colorForNode(node),
+      x: 0,
+      y: 0,
+      z: 0,
+      tx: 0,
+      ty: 0,
+      tz: 0,
+      screen: null,
+      pulse: Math.random() * Math.PI * 2,
+      scale: 1,
+      labelX: null,
+      labelY: null,
+      labelEl: null,
+    };
+    nodeById.set(next.id, next);
+    return next;
+  });
+
+  links = (Array.isArray(data.links) ? data.links : [])
+    .map((link, index) => ({
+      ...link,
+      index,
+      source: nodeById.get(link.source),
+      target: nodeById.get(link.target),
+    }))
+    .filter(link => link.source && link.target);
+
+  adjacency = new Map(nodes.map(node => [node.id, new Set()]));
+  childrenById = new Map(nodes.map(node => [node.id, []]));
+  parentById = new Map();
+  for (const link of links) {
+    adjacency.get(link.source.id)?.add(link.target.id);
+    adjacency.get(link.target.id)?.add(link.source.id);
+    if (link.type === 'contains') {
+      childrenById.get(link.source.id)?.push(link.target);
+      parentById.set(link.target.id, link.source);
+    }
+  }
+
+  createGraphLabels();
+  buildSidebar();
+  graphStats = data.stats || {};
+  loadSiteViewStats();
+  loadNotePageviews();
+  seedConstellation();
+  createBackgroundStars();
+  updateStats(data.stats || {});
+  resetView();
+  clearFocus();
+  lastTime = performance.now();
+  frameHandle = requestAnimationFrame(animate);
+}
+
+function updateStats(stats) {
+  document.getElementById('stat-nodes').textContent = stats.nodes ?? nodes.length;
+  document.getElementById('stat-notes').textContent = stats.notes ?? nodes.filter(node => node.type === 'note').length;
+  document.getElementById('stat-contains').textContent = stats.contains ?? links.filter(link => link.type === 'contains').length;
+  document.getElementById('stat-refs').textContent = stats.references ?? links.filter(link => link.type === 'reference').length;
+}
+
+function createGraphLabels() {
+  labelLayer.replaceChildren();
+  for (const node of nodes) {
+    const label = document.createElement('div');
+    label.className = `graph-label graph-label--${node.type}`;
+    label.textContent = node.name;
+    label.style.setProperty('--label-color', labelColorFor(node));
+    label.style.opacity = '0';
+    labelLayer.appendChild(label);
+    node.labelEl = label;
+  }
+}
+
+function seedConstellation() {
+  const root = nodeById.get('__root__');
+  const categories = orderedChildren('__root__');
+  const orbitScaleZ = 0.72; // 银盘在 z 方向压扁
+  const DISC_FLATTEN_Y = 0.45; // 星团云在盘面法线方向压扁
+
+  if (root) {
+    root.tx = 0;
+    root.ty = 0;
+    root.tz = 0;
+    root.branchAngle = 0;
+  }
+
+  // 以节点 id + layoutSeed 为种子的近似高斯（Box-Muller），保证布局可复现
+  function gaussish(value, salt) {
+    const u = Math.max(1e-6, hashUnit(value, salt + layoutSeed * 131));
+    const v = hashUnit(value, salt + 101 + layoutSeed * 131);
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(Math.PI * 2 * v);
+  }
+
+  // 均匀球面方向（由哈希驱动）
+  function sphereDir(value, salt) {
+    const phi = hashUnit(value, salt + layoutSeed * 131) * Math.PI * 2;
+    const cosT = hashUnit(value, salt + 57 + layoutSeed * 131) * 2 - 1;
+    const sinT = Math.sqrt(Math.max(0, 1 - cosT * cosT));
+    return { x: sinT * Math.cos(phi), y: cosT, z: sinT * Math.sin(phi) };
+  }
+
+  function subtreeWeight(node) {
+    let weight = 0;
+    const stack = [...(childrenById.get(node.id) || [])];
+    while (stack.length) {
+      const current = stack.pop();
+      weight += current.type === 'note' ? 1 : 2;
+      stack.push(...(childrenById.get(current.id) || []));
+    }
+    return weight;
+  }
+
+  // 子级星团云：以父节点为引力中心的三维散布，无整体朝向（消灭漏斗）
+  function placeCluster(parent) {
+    const children = orderedChildren(parent.id);
+    if (!children.length) return;
+
+    const count = children.length;
+    // 大分支更"致密"而非更"庞大"：云半径按平方根亚线性增长，
+    // 避免节点多的一级目录（如 llm）占据过多空间、拉偏星图重心
+    const cloudRadius = parent.type === 'category'
+      ? clamp(95 + Math.sqrt(count) * 30 + Math.sqrt(subtreeWeight(parent)) * 16, 130, 235)
+      : clamp(70 + Math.sqrt(count) * 26, 100, 190);
+
+    for (const child of children) {
+      const isCore = child.type !== 'note';
+      // 星团核（子目录）分布在 0.35~1.0 壳层，笔记向核心聚集（幂律密度轮廓）
+      const u = hashUnit(child.id, 13 + layoutSeed * 131);
+      const shell = isCore ? 0.35 + u * 0.65 : Math.pow(u, 0.9);
+      const dir = sphereDir(child.id, 29);
+      const dist = shell * cloudRadius * (isCore ? 1 : 0.82);
+
+      child.branchAngle = parent.branchAngle;
+      child.tx = parent.tx + dir.x * dist;
+      child.ty = parent.ty + dir.y * dist * DISC_FLATTEN_Y;
+      child.tz = parent.tz + dir.z * dist * orbitScaleZ;
+
+      if (orderedChildren(child.id).length) placeCluster(child);
+    }
+  }
+
+  // 顶层：一级目录分布在 2~3 条对数螺旋臂上（r = r0·e^(bθ)）
+  const ARM_COUNT = categories.length <= 3 ? 2 : 3;
+  const ARM_B = 0.22;
+  const perArm = Math.ceil(categories.length / ARM_COUNT);
+  categories.forEach((node, index) => {
+    const arm = index % ARM_COUNT;
+    const armIndex = Math.floor(index / ARM_COUNT);
+    const t = perArm <= 1 ? 0.5 : armIndex / (perArm - 1);
+    const armPhase = (arm / ARM_COUNT) * Math.PI * 2 + hashUnit(`arm:${arm}`, 5 + layoutSeed * 131) * 0.25;
+    const sweep = 1.0 + t * 1.5;
+    const theta = armPhase + sweep;
+    const radius = 170 * Math.exp(ARM_B * sweep) + Math.min(48, subtreeWeight(node) * 3);
+    // 银盘厚度随半径略增
+    const thickness = 20 + radius * 0.05;
+
+    node.branchAngle = theta;
+    node.tx = Math.cos(theta) * radius;
+    node.tz = Math.sin(theta) * radius * orbitScaleZ;
+    node.ty = gaussish(node.id, 41) * thickness * 0.4;
+  });
+
+  // 一级目录核心之间的排斥：保证各星系彼此分得开（在铺开星团云之前只动核心）
+  const MIN_CATEGORY_DIST = 280;
+  for (let iter = 0; iter < 50; iter++) {
+    for (let i = 0; i < categories.length; i++) {
+      for (let j = i + 1; j < categories.length; j++) {
+        const a = categories[i];
+        const b = categories[j];
+        const dx = b.tx - a.tx;
+        const dy = b.ty - a.ty;
+        const dz = b.tz - a.tz;
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 < MIN_CATEGORY_DIST * MIN_CATEGORY_DIST) {
+          const d = Math.sqrt(d2) || 0.001;
+          const push = ((MIN_CATEGORY_DIST - d) / d) * 0.25;
+          a.tx -= dx * push; a.ty -= dy * push; a.tz -= dz * push;
+          b.tx += dx * push; b.ty += dy * push; b.tz += dz * push;
+        }
+      }
+    }
+  }
+
+  for (const node of categories) placeCluster(node);
+
+  // 排斥力后处理：推开初始坐标过近的节点，再加 jitter
+  applyRepulsion();
+
+  nodes.forEach((node, index) => {
+    const jitter =
+      node.type === 'root' ? 0 :
+      node.type === 'category' ? 5 :
+      node.type === 'subcategory' ? 4 :
+      3.2;
+    const phase = (index % 5) / 5 * Math.PI * 2;
+    node.x = node.tx + Math.cos(phase) * jitter;
+    node.y = node.ty + Math.sin(phase) * jitter * 0.8;
+    node.z = node.tz + Math.sin(phase * 0.7) * jitter;
+  });
+
+  // 星图重心：全部节点位置的均值，作为默认旋转中心（而非根节点所在的银心原点）
+  const center = { x: 0, y: 0, z: 0 };
+  for (const node of nodes) {
+    center.x += node.tx;
+    center.y += node.ty;
+    center.z += node.tz;
+  }
+  if (nodes.length) {
+    center.x /= nodes.length;
+    center.y /= nodes.length;
+    center.z /= nodes.length;
+  }
+  graphCenter = center;
+  viewCenter = { ...center };
+
+  // 布局完成：按空间方位角为簇内节点重新配色（颜色随布局平滑分布）
+  applyClusterColors();
+}
+
+/**
+ * 排斥力后处理：在初始布局坐标 (tx,ty,tz) 基础上，迭代推开同星座内距离过近的节点。
+ * 只修改 tx/ty/tz，后续 jitter 和 easeNodes 再处理 x/y/z。
+ */
+function applyRepulsion() {
+  const ITERATIONS = 100;
+  // 不同类型节点对的最小 3D 期望距离
+  const MIN_NOTE_NOTE = 75;
+  const MIN_NOTE_SUB  = 90;
+  const MIN_SUB_SUB   = 100;
+
+  for (let iter = 0; iter < ITERATIONS; iter++) {
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        // 跳过根节点、跨星座节点、以及 category 自身间的排斥（由 baseRadius 控制）
+        if (a.type === 'root' || b.type === 'root') continue;
+        if (a.type === 'category' && b.type === 'category') continue;
+        if (a.branchId !== b.branchId) continue;
+
+        const dx = b.tx - a.tx;
+        const dy = b.ty - a.ty;
+        const dz = b.tz - a.tz;
+        const d2 = dx * dx + dy * dy + dz * dz;
+
+        let minDist;
+        if (a.type === 'note' && b.type === 'note') {
+          minDist = MIN_NOTE_NOTE;
+        } else if (a.type === 'note' || b.type === 'note') {
+          minDist = MIN_NOTE_SUB;
+        } else {
+          minDist = MIN_SUB_SUB;
+        }
+
+        if (d2 < minDist * minDist) {
+          const d = Math.sqrt(d2) || 0.001;
+          const overlap = (minDist - d) / d;
+          // subcategory 节点质量更大，移动幅度更小
+          const wa = a.type === 'note' ? 0.56 : 0.24;
+          const wb = b.type === 'note' ? 0.56 : 0.24;
+          a.tx -= dx * overlap * wa;
+          a.ty -= dy * overlap * wa;
+          a.tz -= dz * overlap * wa;
+          b.tx += dx * overlap * wb;
+          b.ty += dy * overlap * wb;
+          b.tz += dz * overlap * wb;
+        }
+      }
+    }
+  }
+}
+
+function createBackgroundStars() {
+  stars = [];
+  const count = Math.round(clamp((width * height) / 5500, 110, 260));
+  for (let i = 0; i < count; i += 1) {
+    const layer = Math.random() < 0.72 ? 0 : 1; // 0 远层 / 1 近层
+    const tintRoll = Math.random();
+    stars.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: layer === 0 ? 0.4 + Math.random() * 0.8 : 0.8 + Math.random() * 1.4,
+      a: layer === 0 ? 0.13 + Math.random() * 0.2 : 0.24 + Math.random() * 0.3,
+      p: Math.random() * Math.PI * 2,
+      tw: 0.5 + Math.random() * 1.3,
+      layer,
+      // 真实星色分布：白 / 蓝白为主，少量暖黄与橙
+      rgb: tintRoll < 0.55 ? '226, 232, 240' : tintRoll < 0.80 ? '191, 219, 254' : tintRoll < 0.93 ? '253, 230, 138' : '251, 146, 60',
+      bright: Math.random() < 0.06,
+    });
+  }
+  renderMilkyWayCanvas();
+  renderNebulaCanvas();
+  renderVignetteCanvas();
+  createDustParticles();
+}
+
+// 漂浮微尘：细小介质粒子，缓慢漂移 + 闪烁，近层带视差
+function createDustParticles() {
+  dustParticles = [];
+  const count = Math.round(clamp((width * height) / 22000, 40, 80));
+  for (let i = 0; i < count; i += 1) {
+    const layer = Math.random() < 0.6 ? 0 : 1;
+    dustParticles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: 0.5 + Math.random() * 1.1,
+      a: 0.05 + Math.random() * 0.12,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 4,
+      p: Math.random() * Math.PI * 2,
+      tw: 0.4 + Math.random() * 0.9,
+      layer,
+    });
+  }
+  meteors = [];
+  nextMeteorAt = time + 6 + Math.random() * 4;
+}
+
+function updateDust(dt) {
+  const step = dt * 0.001;
+  for (const d of dustParticles) {
+    d.x += d.vx * step;
+    d.y += d.vy * step;
+    if (d.x < -8) d.x = width + 8; else if (d.x > width + 8) d.x = -8;
+    if (d.y < -8) d.y = height + 8; else if (d.y > height + 8) d.y = -8;
+  }
+}
+
+function drawDustParticles() {
+  for (const d of dustParticles) {
+    const parallax = d.layer === 0 ? 4 : 10;
+    const ox = camera.rotY * parallax;
+    const oy = (camera.rotX - DEFAULT_ROT_X) * parallax * 0.7;
+    const pulse = 0.6 + Math.sin(time * d.tw + d.p) * 0.4;
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(191, 219, 254, ${d.a * pulse})`;
+    ctx.arc(d.x + ox, d.y + oy, d.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// 偶发流星：短促的渐变尾迹，6~11 秒一颗
+function updateMeteors(dt) {
+  const step = dt * 0.001;
+  if (time >= nextMeteorAt) {
+    nextMeteorAt = time + 6 + Math.random() * 5;
+    meteors.push({
+      x: Math.random() * width * 0.7,
+      y: Math.random() * height * 0.3 - 20,
+      vx: (Math.random() < 0.5 ? 1 : -1) * (320 + Math.random() * 220),
+      vy: 120 + Math.random() * 90,
+      life: 0,
+      maxLife: 0.7 + Math.random() * 0.5,
+    });
+  }
+  for (const m of meteors) {
+    m.life += step;
+    m.x += m.vx * step;
+    m.y += m.vy * step;
+  }
+  meteors = meteors.filter(m =>
+    m.life < m.maxLife && m.x > -140 && m.x < width + 140 && m.y < height + 140);
+}
+
+function drawMeteors() {
+  for (const m of meteors) {
+    const envelope = Math.sin(Math.min(1, m.life / m.maxLife) * Math.PI);
+    const tailX = m.x - m.vx * 0.09;
+    const tailY = m.y - m.vy * 0.09;
+    const grad = ctx.createLinearGradient(tailX, tailY, m.x, m.y);
+    grad.addColorStop(0, 'rgba(191, 219, 254, 0)');
+    grad.addColorStop(1, `rgba(226, 232, 240, ${0.75 * envelope})`);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(tailX, tailY);
+    ctx.lineTo(m.x, m.y);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.9 * envelope})`;
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, 1.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function projectPoint(x, y, z) {
+  // 平移坐标系：以 viewCenter 为旋转中心（固定节点后该节点即位于屏幕中心）
+  x -= viewCenter.x;
+  y -= viewCenter.y;
+  z -= viewCenter.z;
+  const cosConstellation = Math.cos(constellationRotation);
+  const sinConstellation = Math.sin(constellationRotation);
+  const rx = x * cosConstellation - z * sinConstellation;
+  const rz = x * sinConstellation + z * cosConstellation;
+  const cosY = Math.cos(camera.rotY);
+  const sinY = Math.sin(camera.rotY);
+  const cosX = Math.cos(camera.rotX);
+  const sinX = Math.sin(camera.rotX);
+
+  const x1 = rx * cosY - rz * sinY;
+  const z1 = rx * sinY + rz * cosY;
+  const y1 = y * cosX - z1 * sinX;
+  const z2 = y * sinX + z1 * cosX;
+  const perspective = camera.distance / Math.max(180, camera.distance + z2);
+
+  return {
+    x: width / 2 + camera.panX + x1 * perspective * camera.zoom,
+    y: height / 2 + camera.panY + y1 * perspective * camera.zoom,
+    z: z2,
+    scale: perspective * camera.zoom,
+  };
+}
+
+function updateProjection() {
+  for (const node of nodes) {
+    node.screen = projectPoint(node.x, node.y, node.z);
+  }
+}
+
+function targetScale(node) {
+  if (focusNode) {
+    if (node.id === focusNode.id) return 1.62;
+    // 固定状态下悬停其他节点：放大预览，提示"点击可固定到这里"
+    if (pinnedNode && hoveredNode && node.id === hoveredNode.id) return 1.48;
+    if (focusIds.has(node.id)) return 1.17;
+    return 0.86;
+  }
+  return searchMatches.has(node.id) ? 1.32 : 1;
+}
+
+function animate(now) {
+  const dt = Math.min(48, now - lastTime || 16);
+  lastTime = now;
+  if (!paused) {
+    time += dt * 0.001;
+    // 自动旋转：约 6 分钟一圈（0.000016 rad/ms），缓慢漂移不抢眼
+    if (!dragState && !isHoveringNode && !pinnedNode) constellationRotation += dt * 0.000016;
+    easeNodes(dt);
+    updateDust(dt);
+    updateMeteors(dt);
+  }
+  updateProjection();
+  drawScene();
+  if (focusNode) placeTooltipSmart(focusNode);
+  frameHandle = requestAnimationFrame(animate);
+}
+
+function easeNodes(dt) {
+  const ease = 1 - Math.pow(0.001, dt / 1000);
+  for (const node of nodes) {
+    node.x += (node.tx - node.x) * ease * 0.82;
+    node.y += (node.ty - node.y) * ease * 0.82;
+    node.z += (node.tz - node.z) * ease * 0.82;
+    node.scale += (targetScale(node) - node.scale) * 0.18;
+  }
+  // 视角旋转中心平滑追踪固定节点的当前位置（节点自身也在缓动，逐帧跟随）；
+  // 取消固定后平滑回到星图重心
+  const centerEase = ease * 0.55;
+  const cx = pinnedNode ? pinnedNode.x : graphCenter.x;
+  const cy = pinnedNode ? pinnedNode.y : graphCenter.y;
+  const cz = pinnedNode ? pinnedNode.z : graphCenter.z;
+  viewCenter.x += (cx - viewCenter.x) * centerEase;
+  viewCenter.y += (cy - viewCenter.y) * centerEase;
+  viewCenter.z += (cz - viewCenter.z) * centerEase;
+}
+
+function drawScene() {
+  ctx.clearRect(0, 0, width, height);
+  drawBackgroundStars();
+  drawDustParticles();
+  drawMeteors();
+  drawLinks();
+  drawNodes();
+  applyVignettePass();
+  updateLabels();
+}
+
+function drawBackgroundStars() {
+  if (milkyWayCanvas) ctx.drawImage(milkyWayCanvas, 0, 0, width, height);
+  if (nebulaCanvas) ctx.drawImage(nebulaCanvas, 0, 0, width, height);
+  const brightHalo = haloSpriteFor('#93c5fd');
+  for (const star of stars) {
+    // 视差：远近两层随相机旋转产生不同幅度的漂移，营造景深
+    const parallax = star.layer === 0 ? 6 : 16;
+    const ox = camera.rotY * parallax;
+    const oy = (camera.rotX - DEFAULT_ROT_X) * parallax * 0.7;
+    const pulse = 0.68 + Math.sin(time * star.tw + star.p) * 0.32;
+    if (star.bright) {
+      // 亮星：紧致微光 + 脆亮小核（无星芒），与节点的新科技感样式一致
+      const half = star.r * 3.2 * (0.9 + pulse * 0.2);
+      ctx.globalAlpha = clamp(star.a * pulse * 0.9, 0, 1);
+      ctx.drawImage(brightHalo, star.x + ox - half, star.y + oy - half, half * 2, half * 2);
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(241, 245, 249, ${clamp(star.a * pulse * 1.5, 0, 1)})`;
+      ctx.arc(star.x + ox, star.y + oy, star.r * 0.9, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${star.rgb}, ${star.a * pulse})`;
+      ctx.arc(star.x + ox, star.y + oy, star.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawLinks() {
+  const sorted = [...links].sort((a, b) => ((b.source.screen?.z || 0) + (b.target.screen?.z || 0)) - ((a.source.screen?.z || 0) + (a.target.screen?.z || 0)));
+  for (const link of sorted) {
+    const source = link.source.screen;
+    const target = link.target.screen;
+    if (!source || !target) continue;
+
+    const active = focusNode && (link.source.id === focusNode.id || link.target.id === focusNode.id);
+    const related = focusNode && (focusIds.has(link.source.id) || focusIds.has(link.target.id));
+    const muted = focusNode && !related;
+    const reference = link.type === 'reference';
+    const color = reference
+      ? mixHex(link.source.color || colorForNode(link.source), link.target.color || colorForNode(link.target), 0.5)
+      : (link.source.color || colorForNode(link.source));
+    const fade = depthFade((source.z + target.z) / 2);
+    // 常态连线刻意压低透明度，让星空背景更干净；仅激活（聚焦相关）连线保持明亮
+    const alpha = (muted ? 0.045 : active ? 0.82 : reference ? 0.21 : 0.19) * fade;
+
+    ctx.save();
+    // 底层细实线：把珠点连成一条隐约可见的通路
+    ctx.beginPath();
+    ctx.moveTo(source.x, source.y);
+    ctx.lineTo(target.x, target.y);
+    ctx.lineWidth = active ? 1.2 : 0.6;
+    if (reference) ctx.setLineDash([5, 7]);
+    ctx.strokeStyle = rgba(color, alpha * 0.5);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // 珠链：圆头零长虚线形成等距能量珠点（未来科技感的点状航线）
+    ctx.beginPath();
+    ctx.moveTo(source.x, source.y);
+    ctx.lineTo(target.x, target.y);
+    ctx.setLineDash([0.1, 13]);
+    ctx.lineCap = 'round';
+    ctx.lineWidth = active ? 3.2 : 2.1;
+    ctx.strokeStyle = rgba(color, Math.min(1, alpha * (reference ? 0.9 : 1.1)));
+    ctx.stroke();
+    ctx.restore();
+
+    if (active) drawLinkLightFlow(source, target, color);
+  }
+}
+
+// 聚焦时沿激活连线流动的光点（仅聚焦状态下计算，常态零开销）
+function drawLinkLightFlow(source, target, color) {
+  const dx = target.x - source.x;
+  const dy = target.y - source.y;
+  const halo = haloSpriteFor(color);
+  ctx.save();
+  for (let i = 0; i < 2; i += 1) {
+    const t = (time * 0.45 + i * 0.5) % 1;
+    const envelope = Math.sin(t * Math.PI);
+    const x = source.x + dx * t;
+    const y = source.y + dy * t;
+    const size = 14 + envelope * 6;
+    ctx.globalAlpha = 0.65 * envelope;
+    ctx.drawImage(halo, x - size / 2, y - size / 2, size, size);
+    ctx.globalAlpha = 0.9 * envelope;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(x, y, 1.7, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawNodes() {
+  const sorted = [...nodes].sort((a, b) => (b.screen?.z || 0) - (a.screen?.z || 0));
+  for (const node of sorted) {
+    const p = node.screen;
+    if (!p) continue;
+    const active = focusNode && focusIds.has(node.id);
+    // 固定状态下悬停预览的节点：即便不在高亮组内也按激活态提亮
+    const hoverPreview = !!(pinnedNode && hoveredNode && node.id === hoveredNode.id && node.id !== pinnedNode.id);
+    const muted = focusNode && !active && !hoverPreview;
+    const matched = searchMatches.has(node.id);
+    const baseRadius = node.radius * p.scale * node.scale;
+    const r = clamp(baseRadius, node.type === 'note' ? 2.4 : 4, node.type === 'root' ? 22 : 16);
+    node.hitRadius = Math.max(9, r + (node.type === 'note' ? 7 : 5));
+
+    const fade = depthFade(p.z);
+    const alpha = (muted ? 0.18 : 1) * fade;
+    const color = node.color;
+    const highlighted = active || hoverPreview;
+
+    ctx.save();
+
+    // ===== 科技感节点标记：亮核为主，线条装饰只给重要节点 =====
+    // 笔记 = 纯粹亮点（无环无光晕，避免密集圆圈）；子目录 = 亮核 + 贴身微光；
+    // 目录/根节点 = 亮核 + 微光 + 细线圆环 + 缓转刻度弧
+    const isMajor = node.type !== 'note';
+
+    // 1) 贴身微光：范围很小、衰减很快，只为亮核提一抹辉光
+    if (isMajor) {
+      const halo = haloSpriteFor(color);
+      const haloHalf = r * 2.1 * (highlighted ? 1.6 : 1);
+      ctx.globalAlpha = clamp(alpha * (highlighted ? 0.55 : 0.3), 0, 1);
+      ctx.drawImage(halo, p.x - haloHalf, p.y - haloHalf, haloHalf * 2, haloHalf * 2);
+    }
+
+    // 2) 亮核：偏白的实心小圆点
+    ctx.globalAlpha = clamp(alpha, 0, 1);
+    ctx.fillStyle = mixHex(color, '#ffffff', 0.58);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, Math.max(1.2, r * 0.4), 0, Math.PI * 2);
+    ctx.fill();
+
+    // 3) 主圆环：仅目录/根节点的细线轨道环
+    if (isMajor) {
+      ctx.globalAlpha = clamp(alpha * (highlighted ? 0.95 : 0.68), 0, 1);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = highlighted ? 1.4 : 1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 2.8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // 4) 刻度弧：仅根节点/一级目录外圈缓慢旋转的断续弧，交替旋向
+    if (node.type === 'root' || node.type === 'category') {
+      ctx.globalAlpha = clamp(alpha * 0.42, 0, 1);
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2.5, 6]);
+      ctx.lineDashOffset = -time * 7 * (node.index % 2 === 0 ? 1 : -1);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 6.5, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    ctx.globalAlpha = alpha;
+
+    if (node.format === 'jupyter') {
+      ctx.beginPath();
+      ctx.setLineDash([3, 3]);
+      ctx.arc(p.x, p.y, r + 5.5, 0, Math.PI * 2);
+      ctx.strokeStyle = rgba(color, active ? 0.78 : 0.48);
+      ctx.lineWidth = active ? 2.1 : 1.4;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // 悬停预览标记：固定状态下鼠标悬停的节点，外圈亮色细环提示可点击
+    if (hoverPreview) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 6.5, 0, Math.PI * 2);
+      ctx.strokeStyle = rgba(mixHex(color, '#ffffff', 0.55), 0.8);
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+    }
+
+    // 固定标记：被点击锁定的焦点星外圈绘制缓慢旋转的虚线环
+    if (pinnedNode && node.id === pinnedNode.id) {
+      ctx.beginPath();
+      ctx.setLineDash([7, 6]);
+      ctx.lineDashOffset = -time * 16;
+      ctx.arc(p.x, p.y, r + 9.5, 0, Math.PI * 2);
+      ctx.strokeStyle = rgba('#93c5fd', 0.9);
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    if (matched && !focusNode) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 7, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(217, 119, 6, 0.48)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+}
+
+function labelPriority(node) {
+  if (focusNode && node.id === focusNode.id) return 6;
+  if (focusIds.has(node.id)) return 5;
+  if (searchMatches.has(node.id)) return 5;
+  if (node.type === 'root') return 4;
+  if (node.type === 'category') return 3;
+  if (node.type === 'subcategory') return 2;
+  return 1;
+}
+
+function labelBaseSize(node) {
+  if (node.type === 'root') return 14.5;
+  if (node.type === 'category') return 13;
+  if (node.type === 'subcategory') return 10.2;
+  return 8.8;
+}
+
+function labelColorFor(node) {
+  if (node.type === 'root' || node.type === 'category') return '#f8fafc';
+  if (node.type === 'subcategory') return '#cbd5e1';
+  return '#94a3b8';
+}
+
+function labelZoomBoost() {
+  return clamp(0.72 + camera.zoom * 0.42, 0.82, 1.55);
+}
+
+// 文字标签的显示时机：
+// - 锁定选中（点击固定 pin / 搜索选中 search）：焦点与关联节点（子/父/引用）的名字全部浮现；
+// - 悬停（pointer，未固定）：只显示悬停节点与它的直接子节点、直接父节点的名字；
+// - 默认状态：星图完全无文字标识。
+function labelsLocked() {
+  return !!focusNode && (!!pinnedNode || focusSource === 'search');
+}
+
+function labelAlphaFor(node) {
+  if (labelsLocked()) {
+    if (node.id === focusNode.id) return 1;
+    if (focusIds.has(node.id)) return 0.92;
+    return 0;
+  }
+  // 悬停状态：显示悬停节点本身、直接子节点与直接父节点的名字
+  if (focusNode && focusSource === 'pointer') {
+    if (node.id === focusNode.id) return 1;
+    if (focusChildIds.has(node.id)) return 0.9;
+    if (node === parentById.get(focusNode.id)) return 0.9;
+  }
+  return 0;
+}
+
+function labelFontSizeFor(node) {
+  const depthPenalty = Math.max(0, node.depth - 1) * 0.34;
+  const focusBoost =
+    focusNode && focusNode.id === node.id ? 1.32 :
+    focusNode && focusIds.has(node.id) ? 1.12 :
+    1;
+  const size = (labelBaseSize(node) - depthPenalty) * labelZoomBoost() * focusBoost;
+  if (node.type === 'root') return clamp(size, 12, 20);
+  if (node.type === 'category') return clamp(size, 10.5, 18);
+  if (node.type === 'subcategory') return clamp(size, 7.8, 15);
+  return clamp(size, 6.8, 13.5);
+}
+
+function labelOffsetFor(node) {
+  const focusBoost =
+    focusNode && focusNode.id === node.id ? 1.28 :
+    focusNode && focusIds.has(node.id) ? 1.12 :
+    1;
+  const offset = node.radius * labelZoomBoost() * focusBoost + 8;
+  return clamp(offset, node.type === 'note' ? 9 : 13, node.type === 'root' ? 34 : 26);
+}
+
+function updateLabels() {
+  for (const node of nodes) {
+    const label = node.labelEl;
+    if (!label) continue;
+    const p = node.screen;
+    if (!p) {
+      label.style.opacity = '0';
+      continue;
+    }
+
+    const fontSize = labelFontSizeFor(node);
+    const targetX = p.x;
+    const targetY = p.y + labelOffsetFor(node);
+    const hasLabelPosition = Number.isFinite(node.labelX) && Number.isFinite(node.labelY);
+    const distance = hasLabelPosition ? Math.hypot(targetX - node.labelX, targetY - node.labelY) : Infinity;
+    const follow = dragState ? 0.62 : 0.24;
+    if (!hasLabelPosition || distance > 120) {
+      node.labelX = targetX;
+      node.labelY = targetY;
+    } else {
+      node.labelX += (targetX - node.labelX) * follow;
+      node.labelY += (targetY - node.labelY) * follow;
+    }
+
+    label.style.fontSize = `${fontSize.toFixed(2)}px`;
+    label.style.fontWeight = node.type === 'note' ? '500' : '700';
+    label.style.opacity = labelAlphaFor(node).toFixed(3);
+    const isPrimaryFocus = focusNode && focusNode.id === node.id;
+    const isFocusChild = focusNode && focusIds.has(node.id) && !isPrimaryFocus;
+    label.style.textShadow = isPrimaryFocus
+      ? '0 0 16px rgba(147, 197, 253, 0.60), 0 1px 0 rgba(2, 6, 23, 0.95), 0 -1px 0 rgba(2, 6, 23, 0.90), 1px 0 0 rgba(2, 6, 23, 0.90), -1px 0 0 rgba(2, 6, 23, 0.90)'
+      : isFocusChild
+        ? '0 0 12px rgba(147, 197, 253, 0.38), 0 1px 0 rgba(2, 6, 23, 0.92), 0 -1px 0 rgba(2, 6, 23, 0.88), 1px 0 0 rgba(2, 6, 23, 0.88), -1px 0 0 rgba(2, 6, 23, 0.88)'
+        : '';
+    label.style.zIndex = String(10 + labelPriority(node));
+    label.style.transform = `translate3d(${node.labelX.toFixed(2)}px, ${node.labelY.toFixed(2)}px, 0) translateX(-50%)`;
+  }
+}
+
+function hitTest(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const sorted = [...nodes].sort((a, b) => (a.screen?.z || 0) - (b.screen?.z || 0));
+  for (const node of sorted) {
+    const p = node.screen;
+    if (!p) continue;
+    const dist = Math.hypot(x - p.x, y - p.y);
+    if (dist <= (node.hitRadius || 10)) return node;
+  }
+  return null;
+}
+
+function setFocus(node, fromPointer = false, source = null) {
+  focusNode = node;
+  focusSource = source || (fromPointer ? 'pointer' : 'pin');
+  if (fromPointer) {
+    hoveredNode = node;
+    isHoveringNode = true;
+  }
+  const ids = new Set([node.id, ...(adjacency.get(node.id) || [])]);
+  const children = childrenById.get(node.id) || [];
+  for (const child of children) ids.add(child.id);
+  const parent = parentById.get(node.id);
+  if (parent) ids.add(parent.id);
+  focusIds = ids;
+  focusChildIds = new Set(children.map(child => child.id));
+  showTooltip(node);
+}
+
+function clearFocus() {
+  pinnedNode = null;
+  focusNode = null;
+  focusSource = null;
+  hoveredNode = null;
+  isHoveringNode = false;
+  focusIds = new Set();
+  focusChildIds = new Set();
+  searchMatches = searchQuery
+    ? new Set(nodes.filter(node => searchable(node).includes(searchQuery)).map(node => node.id))
+    : new Set();
+  hideTooltip();
+  syncSidebarActive(null);
+}
+
+// 完全复位：清空搜索词、候选列表、搜索匹配与焦点/固定状态，
+// 回到所有节点均未选中的初始状态（点击星图空白处时调用）
+function resetAllSelection() {
+  pinnedNode = null;
+  searchInput.value = '';
+  searchQuery = '';
+  searchMatches = new Set();
+  clearSearchResults();
+  clearFocus();
+}
+
+// 点击节点：把当前高亮"钉"在该节点上，鼠标移开也不会丢失，
+// 方便继续点选它的子节点；点击其他节点则切换固定对象。
+function pinNode(node) {
+  pinnedNode = node;
+  setFocus(node, false, 'pin');
+  syncSidebarActive(node.id);
+}
+
+// ======= 浏览量统计（构建期烘焙 + Vercount 只读接口实时刷新）=======
+// 笔记浏览量主要由构建钩子在每次 mkdocs build 时烘焙进图谱 JSON（node.pv），
+// 侧边栏建行时直接渲染，访客零请求；烘焙数据超过 30 分钟才后台批量刷新。
+// 站点总量（site_pv/site_uv）只有一个请求，始终实时拉取，与文章页脚保持一致。
+// 本页被 iframe 嵌入首页，父页面已计一次全站 PV，这里绝不 POST 计数。
+// 接口限流 80 次/分/IP，笔记实时值带 localStorage 缓存（30 分钟）。
+const PAGEVIEW_API = 'https://events.vercount.one/api/v2/log';
+const PAGEVIEW_CACHE_KEY = 'kg_pageview_cache_v1';
+const PAGEVIEW_CACHE_TTL = 30 * 60 * 1000;
+const PAGEVIEW_REFRESH_CONCURRENCY = 8;
+// 构建期烘焙的站点统计（buildGraph 时赋值）
+let graphStats = {};
+// 本地 mkdocs serve 的访问不属于正式站点，不做实时刷新（否则会把烘焙值覆盖成 0）
+const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+function pageviewCacheRead() {
+  try { return JSON.parse(localStorage.getItem(PAGEVIEW_CACHE_KEY)) || {}; }
+  catch (_) { return {}; }
+}
+
+function pageviewCacheWrite(cache) {
+  try { localStorage.setItem(PAGEVIEW_CACHE_KEY, JSON.stringify(cache)); }
+  catch (_) { /* 隐私模式等场景下静默失败 */ }
+}
+
+function formatCount(value) {
+  const n = Number(value) || 0;
+  return n >= 10000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+}
+
+async function fetchCounts(url) {
+  const response = await fetch(`${PAGEVIEW_API}?url=${encodeURIComponent(url)}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.json();
+  if (data && data.status === 'success' && data.data) return data.data;
+  throw new Error('unexpected response');
+}
+
+// 烘焙数据是否已超过 30 分钟（过期才需要后台实时刷新）
+function pageviewStale() {
+  const fetchedAt = Number(graphStats.pv_fetched_at) || 0;
+  return Date.now() - fetchedAt * 1000 > PAGEVIEW_CACHE_TTL;
+}
+
+// 站点总浏览量 / 访客数：先渲染构建期烘焙值避免空白，随后立即拉取实时值覆盖——
+// 只有 1 个请求，且保证与文章页脚（统计脚本 POST 返回值）严格同源同步
+async function loadSiteViewStats() {
+  if (graphStats.site_pv != null) {
+    document.getElementById('site-pv').textContent = formatCount(graphStats.site_pv);
+    document.getElementById('site-uv').textContent = formatCount(graphStats.site_uv);
+  }
+  if (isLocalDev) return;
+  try {
+    const siteRoot = new URL('../', window.location.href).href;
+    const data = await fetchCounts(siteRoot);
+    document.getElementById('site-pv').textContent = formatCount(data.site_pv);
+    document.getElementById('site-uv').textContent = formatCount(data.site_uv);
+  } catch (_) { /* 网络失败时保留烘焙值 */ }
+}
+
+function renderNotePageview(node, pv) {
+  const el = sidebarRowById.get(node.id)?.querySelector('.tree-pv');
+  if (!el) return;
+  el.querySelector('.tree-pv-num').textContent = formatCount(pv);
+  el.hidden = false;
+}
+
+// 侧边栏显示顺序（orderedChildren 遍历序）：后台刷新按此顺序，可见行优先更新
+function sidebarDisplayOrder() {
+  const order = new Map();
+  let index = 0;
+  (function walk(id) {
+    for (const child of orderedChildren(id)) {
+      if (!order.has(child.id)) order.set(child.id, index++);
+      walk(child.id);
+    }
+  })('__root__');
+  return order;
+}
+
+async function loadNotePageviews() {
+  const noteNodes = nodes.filter(node => node.type === 'note' && node.url);
+  const cache = pageviewCacheRead();
+  const now = Date.now();
+  const pending = [];
+  for (const node of noteNodes) {
+    const entry = cache[node.id];
+    if (entry && now - entry.t < PAGEVIEW_CACHE_TTL) {
+      renderNotePageview(node, entry.v); // 实时缓存比烘焙值新，覆盖显示
+    } else if (node.pv == null || pageviewStale()) {
+      pending.push(node); // 无烘焙值，或烘焙数据过期 → 后台刷新
+    }
+  }
+  if (isLocalDev || !pending.length) return;
+
+  const order = sidebarDisplayOrder();
+  pending.sort((a, b) => (order.get(a.id) ?? 1e9) - (order.get(b.id) ?? 1e9));
+  // 8 路并发、无强制间隔：58 条全部刷新约 2~4s，在后台无感进行
+  let cursor = 0;
+  async function worker() {
+    while (cursor < pending.length) {
+      const node = pending[cursor++];
+      try {
+        const url = new URL(`../${node.url}`, window.location.href).href;
+        const data = await fetchCounts(url);
+        cache[node.id] = { v: Number(data.page_pv) || 0, t: Date.now() };
+        renderNotePageview(node, data.page_pv);
+      } catch (_) { /* 单条失败保持现有显示，下次再试 */ }
+    }
+  }
+  await Promise.all(Array.from({ length: PAGEVIEW_REFRESH_CONCURRENCY }, worker));
+  pageviewCacheWrite(cache);
+}
+
+// ======= 笔记目录侧边栏 =======
+// 目录树直接由图谱数据（childrenById / parentById）生成，与星图节点一一对应。
+// 单击目录名 / 笔记名：在星图中固定选中该节点（视角平滑移入、文字标签浮现）；
+// 目录箭头：仅展开/收起；双击笔记：直接打开对应笔记页。
+function buildSidebar() {
+  sidebarTree.replaceChildren();
+  sidebarRowById.clear();
+  const frag = document.createDocumentFragment();
+  for (const child of orderedChildren('__root__')) {
+    frag.appendChild(buildSidebarItem(child, 0));
+  }
+  sidebarTree.appendChild(frag);
+  sidebarCount.textContent = `${nodes.filter(node => node.type === 'note').length} 篇笔记`;
+}
+
+function buildSidebarItem(node, depth) {
+  const children = orderedChildren(node.id);
+  const isDir = children.length > 0;
+  const item = document.createElement('div');
+  item.className = 'tree-item';
+  // 一级目录默认也折叠，只展示顶层目录名；点击标题或箭头展开子目录
+  // （如需恢复旧行为：取消下一行注释即可）
+  // if (isDir && depth === 0) item.classList.add('is-expanded');
+
+  const row = document.createElement('button');
+  row.type = 'button';
+  row.className = `tree-row ${isDir ? 'is-dir' : 'is-note'}`;
+  row.dataset.id = node.id;
+  row.title = node.type === 'note'
+    ? '单击在星图中定位 · 双击打开笔记'
+    : '单击定位并展开/收起';
+
+  if (isDir) {
+    const chevron = document.createElement('span');
+    chevron.className = 'tree-chevron';
+    chevron.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 5 7 7-7 7"/></svg>';
+    // 箭头只负责展开/收起，不触发星图定位
+    chevron.addEventListener('click', event => {
+      event.stopPropagation();
+      item.classList.toggle('is-expanded');
+    });
+    row.appendChild(chevron);
+  } else {
+    const dot = document.createElement('span');
+    dot.className = 'tree-dot';
+    dot.style.background = node.color;
+    dot.style.color = node.color;
+    row.appendChild(dot);
+  }
+
+  const name = document.createElement('span');
+  name.className = 'tree-name';
+  name.textContent = node.name;
+  row.appendChild(name);
+
+  if (isDir) {
+    const count = document.createElement('span');
+    count.className = 'tree-count';
+    count.textContent = node.note_count || '';
+    row.appendChild(count);
+  } else if (node.type === 'note') {
+    // 笔记行尾部：阅读量。构建期烘焙的值（node.pv）直接渲染，访客零等待；
+    // 无烘焙值时先隐藏，等后台实时数据到达后显示
+    const pv = document.createElement('span');
+    pv.className = 'tree-pv';
+    pv.title = '阅读量';
+    pv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="tree-pv-num"></span>';
+    if (node.pv != null) {
+      pv.querySelector('.tree-pv-num').textContent = formatCount(node.pv);
+    } else {
+      pv.hidden = true;
+    }
+    row.appendChild(pv);
+  }
+
+  row.addEventListener('click', () => {
+    if (isDir) item.classList.toggle('is-expanded'); // 整行点击均可展开/收起
+    selectFromSidebar(node);
+  });
+  row.addEventListener('dblclick', () => {
+    if (node.type === 'note') openNode(node);
+  });
+
+  item.appendChild(row);
+  sidebarRowById.set(node.id, row);
+
+  if (isDir) {
+    const box = document.createElement('div');
+    box.className = 'tree-children';
+    for (const child of children) box.appendChild(buildSidebarItem(child, depth + 1));
+    item.appendChild(box);
+  }
+  return item;
+}
+
+function selectFromSidebar(node) {
+  // 侧边栏选中接管焦点：清空搜索态，固定高亮并让视角平滑移向该节点
+  if (searchQuery) {
+    searchInput.value = '';
+    searchQuery = '';
+    searchMatches = new Set();
+  }
+  clearSearchResults();
+  pinNode(node);
+}
+
+// 星图选中状态同步到侧边栏：高亮对应行、展开祖先目录并滚动到可见位置
+function syncSidebarActive(id) {
+  const prev = sidebarTree.querySelector('.tree-row.is-active');
+  if (prev) prev.classList.remove('is-active');
+  if (!id) return;
+  const row = sidebarRowById.get(id);
+  if (!row) return;
+  row.classList.add('is-active');
+  let parent = parentById.get(id);
+  while (parent) {
+    const parentRow = sidebarRowById.get(parent.id);
+    if (parentRow) parentRow.closest('.tree-item')?.classList.add('is-expanded');
+    parent = parentById.get(parent.id);
+  }
+  row.scrollIntoView({ block: 'nearest' });
+}
+
+function setSidebarCollapsed(collapsed) {
+  sidebar.classList.toggle('is-collapsed', collapsed);
+  document.getElementById('sidebar-toggle').classList.toggle('is-active', !collapsed);
+  const header = document.getElementById('sidebar-header');
+  header.setAttribute('aria-expanded', String(!collapsed));
+  const btn = document.getElementById('sidebar-collapse');
+  btn.title = collapsed ? '展开笔记目录' : '收起笔记目录';
+  btn.setAttribute('aria-label', btn.title);
+  // 展开状态显示上箭头（收起），折叠状态显示下箭头（展开）
+  btn.innerHTML = collapsed
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m18 15-6-6-6 6"/></svg>';
+}
+
+function searchable(node) {
+  return `${node.name} ${node.id}`.toLowerCase();
+}
+
+function clearSearchResults() {
+  searchResultNodes = [];
+  activeSearchResultIndex = -1;
+  searchResultsPanel.replaceChildren();
+  searchResultsPanel.hidden = true;
+  searchInput.setAttribute('aria-expanded', 'false');
+  layoutSidebarForSearch();
+}
+
+// 搜索候选列表弹出/收起时，动态调整笔记目录的顶边位置：
+// 候选列表展开 → 侧边栏平滑下移到列表下方，避免被遮挡；收起 → 回到原位
+function layoutSidebarForSearch() {
+  if (!searchResultsPanel.hidden && searchResultNodes.length) {
+    const resultsBottom = searchResultsPanel.getBoundingClientRect().bottom;
+    const top = Math.round(resultsBottom + 10);
+    sidebar.style.top = `${top}px`;
+    // 侧边栏高度改为内容自适应后，顶边下移时需同步收紧 max-height，避免底部超出视口
+    sidebar.style.maxHeight = `calc(100vh - ${top + 74}px)`;
+  } else {
+    sidebar.style.top = '';
+    sidebar.style.maxHeight = '';
+  }
+}
+
+function setActiveSearchResult(index, syncFocus = true) {
+  if (!searchResultNodes.length) return;
+  const nextIndex = clamp(index, 0, searchResultNodes.length - 1);
+  activeSearchResultIndex = nextIndex;
+  const items = searchResultsPanel.querySelectorAll('.search-result-item');
+  items.forEach((item, itemIndex) => {
+    item.classList.toggle('is-active', itemIndex === nextIndex);
+  });
+  if (syncFocus) setFocus(searchResultNodes[nextIndex], false, 'search');
+}
+
+function selectSearchResult(index, openAfterSelect = false) {
+  if (!searchResultNodes.length) return;
+  setActiveSearchResult(index, true);
+  if (openAfterSelect) openNode(searchResultNodes[activeSearchResultIndex]);
+}
+
+function renderSearchResultsPanel(results) {
+  if (!results.length) {
+    clearSearchResults();
+    return;
+  }
+
+  const nameCounts = new Map();
+  for (const node of results) {
+    const key = String(node.name || '').trim().toLowerCase();
+    nameCounts.set(key, (nameCounts.get(key) || 0) + 1);
+  }
+
+  searchResultNodes = results;
+  activeSearchResultIndex = -1;
+  searchResultsPanel.replaceChildren();
+
+  results.slice(0, 18).forEach((node, index) => {
+    const key = String(node.name || '').trim().toLowerCase();
+    const duplicateCount = nameCounts.get(key) || 0;
+    const duplicateLabel = duplicateCount > 1 ? `重名 x${duplicateCount}` : null;
+    const typeLabel = node.format === 'jupyter'
+      ? 'Jupyter'
+      : (TYPE_LABEL[node.type] || node.type || '').toUpperCase();
+
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'search-result-item';
+    item.setAttribute('aria-label', `${node.name}，${node.id}`);
+    item.innerHTML = `
+      <div class="search-result-head">
+        <div class="search-result-name">${escapeHtml(node.name)}</div>
+        ${duplicateLabel ? `<span class="search-result-badge">${duplicateLabel}</span>` : ''}
+      </div>
+      <div class="search-result-meta">/${escapeHtml(node.id)}</div>
+      <div class="search-result-type">${escapeHtml(typeLabel)}</div>
+    `;
+    item.addEventListener('mouseenter', () => setActiveSearchResult(index, true));
+    
+    // 【修改】直接在点击时也进行跳转
+    item.addEventListener('click', () => selectSearchResult(index, true));
+    item.addEventListener('dblclick', () => selectSearchResult(index, true));
+    searchResultsPanel.appendChild(item);
+  });
+
+  searchResultsPanel.hidden = false;
+  searchInput.setAttribute('aria-expanded', 'true');
+  setActiveSearchResult(0, false);
+  // 等候选列表完成布局后测量其实际高度，驱动侧边栏下移
+  requestAnimationFrame(layoutSidebarForSearch);
+}
+
+function showTooltip(node) {
+  const color = node.color || colorForNode(node);
+  const typeLabel = node.format === 'jupyter' ? 'JUPYTER' : (TYPE_LABEL[node.type] || node.type);
+  const isPinned = pinnedNode && pinnedNode.id === node.id;
+  const openHint = node.type === 'note' ? ' · 双击跳转笔记' : '';
+  const hint = isPinned
+    ? `已固定 · 点击子节点继续固定 · 点击空白处取消${openHint}`
+    : `点击固定高亮${openHint}`;
+  tooltip.innerHTML = `
+    <div class="tip-type" style="background:${color}2e;color:${color}">${typeLabel}</div>
+    <div class="tip-title">${escapeHtml(node.name)}</div>
+    <div class="tip-path">/${escapeHtml(node.id)}</div>
+    <div class="tip-hint">${hint}</div>
+  `;
+  tooltip.classList.add('visible');
+  placeTooltipSmart(node);
+}
+
+function hideTooltip() {
+  tooltip.classList.remove('visible');
+}
+
+function protectedRectsFor(node) {
+  const protectedNodes = [
+    node,
+    ...(childrenById.get(node.id) || []),
+    ...(adjacency.get(node.id) ? [...adjacency.get(node.id)].map(id => nodeById.get(id)).filter(Boolean) : []),
+  ];
+  const rects = [];
+  for (const item of protectedNodes) {
+    const p = item.screen;
+    if (!p) continue;
+    const labelWidth = Math.min(220, Math.max(58, item.name.length * 8));
+    const r = item.hitRadius || 10;
+    rects.push({
+      left: p.x - Math.max(r + 8, labelWidth / 2),
+      top: p.y - r - 10,
+      right: p.x + Math.max(r + 8, labelWidth / 2),
+      bottom: p.y + r + 34,
+      weight: item === node ? 5 : parentById.get(item.id) === node ? 4 : 2,
+    });
+  }
+  return rects;
+}
+
+function intersectArea(a, b) {
+  const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+  const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+  return x * y;
+}
+
+function clampRect(rect, margin) {
+  const w = rect.right - rect.left;
+  const h = rect.bottom - rect.top;
+  const left = clamp(rect.left, margin, width - w - margin);
+  const top = clamp(rect.top, margin, height - h - margin);
+  return { left, top, right: left + w, bottom: top + h };
+}
+
+function placeTooltipSmart(node) {
+  if (!tooltip.classList.contains('visible') || !node.screen) return;
+
+  const tipWidth = tooltip.offsetWidth || 220;
+  const tipHeight = tooltip.offsetHeight || 84;
+  const p = node.screen;
+  const gap = Math.max(20, (node.hitRadius || 12) + 14);
+  const margin = 12;
+  const children = childrenById.get(node.id) || [];
+  const neighborScreens = children.map(child => child.screen).filter(Boolean);
+  const avoidVector = neighborScreens.length
+    ? neighborScreens.reduce((acc, point) => ({ x: acc.x + point.x - p.x, y: acc.y + point.y - p.y }), { x: 0, y: 0 })
+    : { x: 0, y: -1 };
+  const avoidLength = Math.hypot(avoidVector.x, avoidVector.y) || 1;
+  const avoid = { x: avoidVector.x / avoidLength, y: avoidVector.y / avoidLength };
+
+  const directions = [
+    { x: 0, y: -1, anchor: 'bottom' },
+    { x: 1, y: -0.35, anchor: 'left' },
+    { x: -1, y: -0.35, anchor: 'right' },
+    { x: 0, y: 1, anchor: 'top' },
+    { x: 1, y: 0.85, anchor: 'left' },
+    { x: -1, y: 0.85, anchor: 'right' },
+    { x: 1, y: -1, anchor: 'left' },
+    { x: -1, y: -1, anchor: 'right' },
+  ];
+  const protectedRects = protectedRectsFor(node);
+  let best = null;
+
+  for (const dir of directions) {
+    const length = Math.hypot(dir.x, dir.y) || 1;
+    const nx = dir.x / length;
+    const ny = dir.y / length;
+    const cx = p.x + nx * gap;
+    const cy = p.y + ny * gap;
+    let rect;
+    if (dir.anchor === 'left') {
+      rect = { left: cx, top: cy - tipHeight / 2, right: cx + tipWidth, bottom: cy + tipHeight / 2 };
+    } else if (dir.anchor === 'right') {
+      rect = { left: cx - tipWidth, top: cy - tipHeight / 2, right: cx, bottom: cy + tipHeight / 2 };
+    } else if (dir.anchor === 'top') {
+      rect = { left: cx - tipWidth / 2, top: cy, right: cx + tipWidth / 2, bottom: cy + tipHeight };
+    } else {
+      rect = { left: cx - tipWidth / 2, top: cy - tipHeight, right: cx + tipWidth / 2, bottom: cy };
+    }
+    rect = clampRect(rect, margin);
+
+    let score = 0;
+    for (const protectedRect of protectedRects) {
+      score += intersectArea(rect, protectedRect) * protectedRect.weight;
+    }
+    const sameDirectionPenalty = Math.max(0, nx * avoid.x + ny * avoid.y) * 1800;
+    const edgePenalty =
+      Math.max(0, margin - rect.left) +
+      Math.max(0, margin - rect.top) +
+      Math.max(0, rect.right - width + margin) +
+      Math.max(0, rect.bottom - height + margin);
+    score += sameDirectionPenalty + edgePenalty * 120;
+
+    if (!best || score < best.score) best = { rect, score };
+  }
+
+  const rect = best?.rect || { left: p.x + gap, top: p.y - tipHeight / 2 };
+  tooltip.style.left = `${Math.round(rect.left)}px`;
+  tooltip.style.top = `${Math.round(rect.top)}px`;
+}
+
+function targetUrlForNode(node) {
+  // \u53ea\u6709\u7b14\u8bb0\u8282\u70b9\u53ef\u8df3\u8f6c\uff1b\u76ee\u5f55\u8282\u70b9\u5728\u661f\u56fe/\u4fa7\u8fb9\u680f\u4e2d\u5b9a\u4f4d\uff08\u9996\u9875\u7ae0\u8282\u76ee\u5f55\u5df2\u8fc1\u79fb\u5230\u4fa7\u8fb9\u680f\uff09
+  if (!node || node.type !== 'note' || !node.url) return null;
+  return new URL(`../${node.url}`, window.location.href);
+}
+
+function openNode(node) {
+  const targetUrl = targetUrlForNode(node);
+  if (!targetUrl) return;
+  try {
+    window.top.location.href = targetUrl.href;
+  } catch (_) {
+    window.location.href = targetUrl.href;
+  }
+}
+
+function resetView() {
+  camera.rotX = DEFAULT_ROT_X;
+  camera.rotY = DEFAULT_ROT_Y;
+  constellationRotation = 0;
+  camera.panX = 0;
+  camera.panY = 14;
+  // 用 92 分位半径取景（相对星图重心），避免个别大分支的边缘星把整体缩放逐小；
+  // 再乘 INITIAL_ZOOM_FACTOR 拉近到"滚轮前滚三次"的初始距离
+  const radii = nodes.map(node => Math.hypot(
+    node.tx - graphCenter.x,
+    node.ty - graphCenter.y,
+    node.tz - graphCenter.z,
+  )).sort((a, b) => a - b);
+  const percentileR = radii.length ? radii[Math.floor(0.92 * (radii.length - 1))] : 520;
+  const maxR = Math.max(520, percentileR);
+  camera.zoom = clamp(Math.min(width, height) / (maxR * 1.8) * INITIAL_ZOOM_FACTOR, 0.56, 2.0);
+}
+
+function relayout() {
+  layoutSeed += 1; // 每次重排生成一个全新的星系
+  seedConstellation();
+  createBackgroundStars();
+  resetView();
+}
+
+function setPaused(nextPaused) {
+  paused = nextPaused;
+  const button = document.getElementById('pause-button');
+  button.title = paused ? '继续动画' : '暂停动画';
+  button.setAttribute('aria-label', button.title);
+  button.innerHTML = paused
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 5v14l11-7z"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 4H6v16h4z"/><path d="M18 4h-4v16h4z"/></svg>';
+}
+
+canvas.addEventListener('pointerdown', event => {
+  if (event.button === 2) event.preventDefault();
+  const panDrag = event.button === 2;
+  const node = panDrag ? null : hitTest(event.clientX, event.clientY);
+  pressedNode = node;
+  dragState = {
+    mode: panDrag ? 'pan' : 'rotate',
+    x: event.clientX,
+    y: event.clientY,
+    rotX: camera.rotX,
+    rotY: camera.rotY,
+    panX: camera.panX,
+    panY: camera.panY,
+    moved: false,
+  };
+  canvas.classList.add('is-dragging');
+  canvas.setPointerCapture?.(event.pointerId);
+});
+
+canvas.addEventListener('pointermove', event => {
+  if (dragState) {
+    const dx = event.clientX - dragState.x;
+    const dy = event.clientY - dragState.y;
+    if (Math.hypot(dx, dy) > 3) dragState.moved = true;
+    if (dragState.mode === 'pan' || event.shiftKey) {
+      camera.panX = dragState.panX + dx;
+      camera.panY = dragState.panY + dy;
+    } else {
+      camera.rotY = dragState.rotY + dx * 0.0052;
+      camera.rotX = clamp(dragState.rotX + dy * 0.0042, -0.45, 1.42);
+    }
+    if (focusNode) placeTooltipSmart(focusNode);
+    return;
+  }
+
+  const node = hitTest(event.clientX, event.clientY);
+  canvas.style.cursor = node ? 'pointer' : 'grab';
+
+  // 固定状态下：高亮锁定在 pinnedNode 上，鼠标移动不再改变焦点，
+  // 仅记录悬停目标，供点击（切换固定对象）与双击（跳转）使用
+  if (pinnedNode) {
+    hoveredNode = node;
+    isHoveringNode = !!node;
+    return;
+  }
+
+  // 搜索选中状态下：焦点锁定在搜索结果上，悬停仅作预览，不接管焦点，
+  // 避免已浮现的文字标签因鼠标滑过而消失
+  if (searchQuery) {
+    hoveredNode = node;
+    isHoveringNode = !!node;
+    return;
+  }
+
+  if (node !== hoveredNode) {
+    if (node) {
+      setFocus(node, true);
+    } else {
+      hoveredNode = null;
+      isHoveringNode = false;
+      if (!searchQuery) clearFocus();
+    }
+  }
+});
+
+function endPointer(event) {
+  canvas.releasePointerCapture?.(event.pointerId);
+  canvas.classList.remove('is-dragging');
+  if (dragState && dragState.mode === 'rotate' && !dragState.moved) {
+    if (pressedNode) {
+      // 单击节点：固定当前高亮（点击其他节点则切换固定对象），不再跳转页面
+      pinNode(pressedNode);
+    } else if (pinnedNode || focusNode || searchQuery) {
+      // 单击星空空白处：完全复位（取消固定、清空搜索与焦点），恢复所有节点未选中状态
+      resetAllSelection();
+    }
+  }
+  dragState = null;
+  pressedNode = null;
+}
+
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('contextmenu', event => event.preventDefault());
+canvas.addEventListener('dblclick', event => {
+  // 双击节点：跳转到对应笔记 / 章节（单击已改为固定高亮）
+  const node = hitTest(event.clientX, event.clientY);
+  if (node) openNode(node);
+});
+canvas.addEventListener('mouseleave', () => {
+  hoveredNode = null;
+  isHoveringNode = false;
+  if (!dragState && !searchQuery && !pinnedNode) clearFocus();
+});
+
+canvas.addEventListener('wheel', event => {
+  event.preventDefault();
+  const delta = Math.exp(-event.deltaY * 0.0011);
+  camera.zoom = clamp(camera.zoom * delta, 0.34, 2.1);
+  if (focusNode) placeTooltipSmart(focusNode);
+}, { passive: false });
+
+searchInput.addEventListener('input', event => {
+  pinnedNode = null; // 搜索接管焦点，取消固定状态
+  searchQuery = event.target.value.trim().toLowerCase();
+  const matchedNodes = searchQuery
+    ? nodes.filter(node => searchable(node).includes(searchQuery))
+    : [];
+  searchMatches = searchQuery ? new Set(matchedNodes.map(node => node.id)) : new Set();
+
+  if (!searchQuery) {
+    clearSearchResults();
+    clearFocus();
+    return;
+  }
+
+  const preferredResults = matchedNodes.filter(node => node.type === 'note');
+  const rankedResults = (preferredResults.length ? preferredResults : matchedNodes)
+    .filter(node => node.id !== '__root__')
+    .sort((a, b) => {
+      const byName = a.name.localeCompare(b.name, 'zh-Hans-CN');
+      if (byName !== 0) return byName;
+      return a.id.localeCompare(b.id, 'zh-Hans-CN');
+    });
+
+  if (rankedResults.length) {
+    setFocus(rankedResults[0], false, 'search');
+    renderSearchResultsPanel(rankedResults);
+  }
+  else {
+    clearSearchResults();
+    focusNode = null;
+    focusSource = null;
+    hoveredNode = null;
+    focusIds = new Set();
+    hideTooltip();
+  }
+});
+
+searchInput.addEventListener('keydown', event => {
+  // 【修改】Dock 到父页面后，输入框仍保留 iframe 的原型链，导致
+  // mkdocs-material 的 ja() 焦点豁免失效，f/s///n/p 等按键会被站点
+  // 全局热键抢走。这里在源头阻止冒泡，确保按键只服务于本搜索框。
+  event.stopPropagation();
+  if (searchResultsPanel.hidden || !searchResultNodes.length) return;
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    setActiveSearchResult(activeSearchResultIndex + 1, true);
+    return;
+  }
+  if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    setActiveSearchResult(activeSearchResultIndex - 1, true);
+    return;
+  }
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    // 【修改】按回车直接触发跳转
+    selectSearchResult(activeSearchResultIndex >= 0 ? activeSearchResultIndex : 0, true);
+    return;
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    clearSearchResults();
+  }
+});
+
+document.addEventListener('pointerdown', event => {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const inSearch = !!target.closest('.search-panel');
+  const inResults = !!target.closest('#search-results');
+  if (!inSearch && !inResults) clearSearchResults();
+});
+
+document.getElementById('fit-button').addEventListener('click', resetView);
+document.getElementById('relayout-button').addEventListener('click', relayout);
+document.getElementById('pause-button').addEventListener('click', () => setPaused(!paused));
+document.getElementById('refresh-button').addEventListener('click', loadGraph);
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+  setSidebarCollapsed(!sidebar.classList.contains('is-collapsed'));
+});
+// 标题栏整行点击均可收起/展开（内部箭头按钮的点击会冒泡到这里）
+document.getElementById('sidebar-header').addEventListener('click', () => {
+  setSidebarCollapsed(!sidebar.classList.contains('is-collapsed'));
+});
+
+window.addEventListener('resize', () => {
+  measure();
+  createBackgroundStars();
+  resetView();
+  layoutSidebarForSearch();
+});
+
+measure();
+setSidebarCollapsed(window.innerWidth < 760); // 小屏默认收起侧边栏
+loadGraph();
+</script>
+</body>
+</html>

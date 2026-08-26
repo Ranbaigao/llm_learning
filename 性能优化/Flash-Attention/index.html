@@ -1,0 +1,4859 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ranbaigao.github.io/llm_learning/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Flash-Attention/">
+      
+      
+        <link rel="prev" href="../Deepspeed/">
+      
+      
+        <link rel="next" href="../MOE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Flash Attention - LLM知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../.assets/stylesheets/pageview.css">
+    
+      <link rel="stylesheet" href="../../.assets/stylesheets/html_modal.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#flashattention-v1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="LLM知识库" class="md-header__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Flash Attention
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="LLM知识库" class="md-nav__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    LLM知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../knowledge_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JEPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JEPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JiT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JiT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/SAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/VAE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VAE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    世界模型
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    世界模型
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/%E5%B0%8F%E9%B9%8FVLA%E4%B8%8E%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小鹏 VLA 与世界模型技术体系总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV/%E5%9F%BA%E7%A1%80/Reparameterization%20Trick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重参数化技巧（Reparameterization Trick）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CV/%E5%9F%BA%E7%A1%80/SD%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD公式推导
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NLP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NLP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM应用开发
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM应用开发
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Harness%2BAgent%E5%BC%95%E5%85%A5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness+Agent引入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Skill%E6%84%8F%E4%B9%89%E6%8E%A2%E8%AE%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill意义探讨
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_3" id="__nav_4_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepseek Harness
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deepseek Harness
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Deepseek%20Harness%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek Harness 技术报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Dsh%20%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dsh 会话记忆机制：the log IS the state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_4" id="__nav_4_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hermes Agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%8D%95%E4%B8%AA%E4%BC%9A%E8%AF%9D%E7%9A%84%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent 单会话记忆管理策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%A4%9AAgent%E9%80%9A%E4%BF%A1%E6%9E%B6%E6%9E%84/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    多 Agent 通信架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%AE%89%E5%85%A8%E3%80%81%E5%B7%A5%E4%BD%9C%E5%8C%BA%E9%9A%94%E7%A6%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全隔离与工作区隔离
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E8%AE%B0%E5%BF%86%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    内存压缩机制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Muon优化器
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/Muon%E4%BC%98%E5%8C%96%E5%99%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/%E5%A5%87%E5%BC%82%E5%80%BC%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%92%8C%E6%AD%A3%E4%BA%A4%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    奇异值、特征值和正交矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    位置编码
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    位置编码
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/RoPe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoPe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    残差连接
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    残差连接
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Attention%20Residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attention Residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Pre-Norm%20vs%20Post-Norm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre Norm vs Post Norm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/%E6%B5%81%E5%BD%A2%E6%AF%94%E8%BE%83/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    流形（Manifold） JiT 中的和 mHC 中的是一个意思吗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    mHC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/mHC%20%E6%AE%8B%E5%B7%AE%E6%B5%81%E5%BD%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC_残差流形
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/%E5%8F%8C%E9%9A%8F%E6%9C%BA%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    双随机矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    注意力机制
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    注意力机制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/DSA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/GatedAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GatedAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/LinearAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LinearAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/MLA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型训练
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_1" id="__nav_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SFT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/LoRA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/SFT%E4%B8%8D%E5%AE%8C%E6%95%B4%E5%AD%A6%E4%B9%A0%E7%8E%B0%E8%B1%A1ILP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT 为什么"学不会"：不完整学习现象（ILP）的系统性研究
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2" id="__nav_4_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    强化学习
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    强化学习
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/ClipPPO%E5%8E%9F%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipPPO原理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/DPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/GSPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GSPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RL知识图谱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%9D%8E%E5%AE%8F%E6%AF%85DRL%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    李宏毅DRL笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2_6" id="__nav_4_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent RL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent RL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/Agent%20RL/%E6%A3%80%E9%AA%8CAgent%E7%9A%84coding%E5%AE%9E%E7%8E%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检验Agent的coding实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM源码解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM源码解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/ChatGPT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChatGPT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/Einsum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Einsum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/MOE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/%E6%A0%B8%E5%BF%83%E8%A6%81%E4%B9%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心要义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    OpenMythos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/ACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/LTI%20Injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LTI Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/OpenMythos%E6%A1%86%E6%9E%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开源llm解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开源llm解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/AR-Diffusion%E4%B8%8E%E6%BD%9C%E7%A9%BA%E9%97%B4%E6%8E%A8%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AR-Diffusion 与潜空间推理路线综述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Claude%20Mythos%205%E6%8E%A8%E6%B5%8B/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Mythos 5 技术报告：官方披露的训练方法与模型架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4 技术报告：面向百万上下文的高效长文本模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/GLM-5.3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GLM 5.3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Kimi%20K3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kimi K3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nemotron-Labs-Diffusion 技术报告：统一 AR、Diffusion 与 Self-Speculation 的三模式语言模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/OpenMythos%20Recurrent%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos Recurrent解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Qwen3.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3.5解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    代码实践
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    代码实践
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/esft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gpt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gqa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GQA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/mhc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/moe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/open_mythos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open mythos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/vit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    性能优化
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    性能优化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Deepspeed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepspeed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash Attention
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#flashattention-v1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FlashAttention V1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FlashAttention V1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        公式符号解释
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📊 Algorithm 1 逐行注释解析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        证明
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="证明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tips-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tips 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tips-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tips 2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="tips 2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        根本原因：Softmax 的数学定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#j" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        如果强行对 \(j\) 进行独立分块，会发生什么？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flashattention-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FlashAttention V2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        校对
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MOE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE负载均衡
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SGLang/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SGLang
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vLLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E5%88%86%E5%B8%83%E5%BC%8F/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    分布式
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推理加速方法总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#flashattention-v1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FlashAttention V1
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FlashAttention V1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        公式符号解释
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📊 Algorithm 1 逐行注释解析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        证明
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="证明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tips-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tips 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tips-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tips 2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="tips 2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#softmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        根本原因：Softmax 的数学定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#j" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        如果强行对 \(j\) 进行独立分块，会发生什么？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flashattention-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FlashAttention V2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        校对
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考文献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<!-- <iframe src="../../.assets/flash_attention2_forward.html" width="100%" height="1200px" style="border:none;"></iframe> -->
+<style>
+.fa2-wrapper {
+    --fa2-bg-color: #f8fafc;
+    --fa2-text-color: #334155;
+    --fa2-title-color: #0f172a;
+    --fa2-panel-bg: #ffffff;
+    --fa2-border-color: #cbd5e1;
+    --fa2-panel-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --fa2-accent-primary: #3b82f6;
+    --fa2-accent-text: #1e40af;
+    --fa2-accent-light: #eff6ff;
+    --fa2-danger: #dc2626;
+    --fa2-warning: #d97706;
+    --fa2-muted: #64748b;
+
+    --fa2-c-q: #93c5fd;
+    --fa2-c-q-text: #1e3a8a;
+    --fa2-c-k: #86efac;
+    --fa2-c-k-text: #14532d;
+    --fa2-c-v: #fde68a;
+    --fa2-c-v-text: #78350f;
+    --fa2-c-o: #bfdbfe;
+    --fa2-c-o-text: #1e3a8a;
+    --fa2-c-s: #fca5a5;
+    --fa2-c-s-text: #7f1d1d;
+
+    --fa2-math-font: "Cambria Math", "Times New Roman", Times, serif;
+
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    color: var(--fa2-text-color);
+}
+
+.fa2-wrapper * {
+    box-sizing: border-box;
+}
+
+.fa2-wrapper {
+    width: 100%;
+    background: linear-gradient(180deg, #ffffff 0%, var(--fa2-bg-color) 100%);
+    border: 1px solid var(--fa2-border-color);
+    border-radius: 12px;
+    padding: 20px 20px 96px; /* 底部预留 96px 给绝对定位的页码栏 */
+    position: relative; /* 保证内部绝对定位的 Dock 不脱离此容器 */
+    min-height: 1130px; /* 增加最小高度，防止切换阶段时底部 Dock 剧烈跳动（内容区高度，含 padding 后总高约 1250px） */
+}
+
+.fa2-container {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.fa2-wrapper h1 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--fa2-title-color);
+    text-align: center;
+    font-size: 1.75rem;
+}
+
+.fa2-subtitle {
+    text-align: center;
+    color: var(--fa2-muted);
+    margin-top: -2px;
+    margin-bottom: 20px;
+    line-height: 1.7;
+}
+
+.fa2-subtitle i {
+    font-family: var(--fa2-math-font);
+    font-style: italic;
+}
+
+.fa2-controls {
+    display: none;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* --- Dock 风格底部导航 - 内部绝对定位（与 ds 版同一逻辑） --- */
+.fa2-dock-container {
+    position: absolute;
+    left: 50%;
+    bottom: 24px;
+    z-index: 100;
+    width: min(420px, calc(100% - 32px));
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.fa2-dock {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--fa2-border-color);
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+    padding: 8px 12px;
+    backdrop-filter: blur(8px);
+    pointer-events: auto; /* 容器层已禁用指针事件，Dock 本体恢复可点击 */
+}
+
+.fa2-dock-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: var(--fa2-accent-text);
+    font-size: 16px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fa2-dock-btn:hover:not(:disabled) {
+    background: #dbeafe;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(30, 64, 175, 0.2);
+}
+
+.fa2-dock-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.fa2-dock-steps {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 0 4px;
+}
+
+.fa2-dock-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transform-origin: center bottom;
+    transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.fa2-dock:hover .fa2-dock-dot {
+    opacity: 0.88;
+}
+
+.fa2-dock-dot:hover {
+    transform: translateY(-2px) scale(1.2);
+    background: #dbeafe;
+    box-shadow: 0 8px 16px rgba(30, 64, 175, 0.25);
+    opacity: 1;
+}
+
+.fa2-dock-dot.fa2-active {
+    background: var(--fa2-accent-primary);
+    color: #ffffff;
+    border-color: #1d4ed8;
+    transform: translateY(-2px) scale(1.18);
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.28);
+    opacity: 1;
+}
+
+.fa2-controls button {
+    background-color: var(--fa2-accent-primary);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.fa2-controls button:hover:not(:disabled) {
+    background-color: #2563eb;
+}
+
+.fa2-controls button:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.fa2-info-panel {
+    background: var(--fa2-panel-bg);
+    border: 1px solid var(--fa2-border-color);
+    border-left: 4px solid var(--fa2-accent-primary);
+    border-radius: 12px;
+    box-shadow: var(--fa2-panel-shadow);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.fa2-info-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--fa2-accent-text);
+}
+
+.fa2-info-desc {
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.fa2-info-desc i {
+    font-family: var(--fa2-math-font);
+    font-style: italic;
+    font-weight: 700;
+}
+
+.fa2-memory-layout {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+    align-items: stretch;
+}
+
+.fa2-hbm-panel,
+.fa2-sram-panel,
+.fa2-deep-dive {
+    background: var(--fa2-panel-bg);
+    border: 1px solid var(--fa2-border-color);
+    border-radius: 12px;
+    box-shadow: var(--fa2-panel-shadow);
+    padding: 16px;
+}
+
+.fa2-hbm-panel {
+    flex: 2;
+}
+
+.fa2-sram-panel {
+    flex: 1.5;
+    background: #fff7f7;
+    border-color: #fecaca;
+}
+
+.fa2-hbm-title,
+.fa2-sram-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 2px dashed var(--fa2-border-color);
+}
+
+.fa2-hbm-title {
+    color: #334155;
+}
+
+.fa2-sram-title {
+    color: #b91c1c;
+    border-bottom-color: #fecaca;
+}
+
+.fa2-matrix-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.fa2-row-label {
+    width: 40px;
+    font-weight: 700;
+    text-align: right;
+    font-size: 16px;
+    font-family: var(--fa2-math-font);
+    font-style: italic;
+}
+
+.fa2-block-container {
+    flex: 1;
+    display: flex;
+    height: 36px;
+    gap: 5px;
+}
+
+.fa2-chunk {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 6px;
+    transition: all 0.35s ease;
+    border: 2px solid transparent;
+    opacity: 1;
+    font-family: var(--fa2-math-font);
+}
+
+.fa2-bg-q {
+    background-color: var(--fa2-c-q);
+    color: var(--fa2-c-q-text);
+    border-color: #60a5fa;
+}
+
+.fa2-bg-k {
+    background-color: var(--fa2-c-k);
+    color: var(--fa2-c-k-text);
+    border-color: #4ade80;
+}
+
+.fa2-bg-v {
+    background-color: var(--fa2-c-v);
+    color: var(--fa2-c-v-text);
+    border-color: #facc15;
+}
+
+.fa2-bg-o {
+    background-color: var(--fa2-c-o);
+    color: var(--fa2-c-o-text);
+    border-color: #60a5fa;
+}
+
+.fa2-bg-s {
+    background-color: var(--fa2-c-s);
+    color: var(--fa2-c-s-text);
+    border-color: #f87171;
+}
+
+.fa2-bg-empty {
+    background-color: #ffffff;
+    border: 2px dashed #94a3b8;
+    color: #94a3b8;
+}
+
+.fa2-dimmed {
+    opacity: 0.25;
+}
+
+.fa2-highlight-border {
+    border-color: var(--fa2-accent-primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.fa2-divider {
+    border: 1px dashed var(--fa2-border-color);
+    margin: 15px 0;
+}
+
+.fa2-footnote {
+    font-size: 12px;
+    color: var(--fa2-muted);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.fa2-sram-slots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.fa2-slot-box {
+    border: 2px dashed #fca5a5;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.fa2-slot-label {
+    font-size: 13px;
+    color: #dc2626;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.fa2-slot-content {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.fa2-alu-box {
+    background: #ffffff;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.08);
+    transition: background-color 0.4s, border-color 0.4s, box-shadow 0.4s;
+}
+
+.fa2-alu-title {
+    color: #b91c1c;
+    font-size: 16px;
+    margin-bottom: 12px;
+    font-weight: 700;
+    border-bottom: 1px dashed #fecaca;
+    padding-bottom: 6px;
+}
+
+.fa2-math-line {
+    margin: 14px 0;
+    color: #475569;
+    opacity: 0.8;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: left center;
+    font-family: var(--fa2-math-font);
+    font-size: 20px;
+}
+
+.fa2-math-line i {
+    font-style: italic;
+}
+
+.fa2-math-line .fa2-func {
+    font-style: normal;
+}
+
+.fa2-math-line.fa2-active {
+    opacity: 1;
+    color: #0f172a;
+    font-weight: 700;
+    transform: scale(1.04) translateX(6px);
+    text-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.fa2-flash-compute {
+    animation: fa2FlashBg 0.6s;
+}
+
+@keyframes fa2FlashBg {
+    0% {
+        background-color: #fef9c3;
+        border-color: #facc15;
+        box-shadow: 0 0 15px rgba(250, 204, 21, 0.35);
+    }
+    100% {
+        background-color: #ffffff;
+        border-color: #fecaca;
+        box-shadow: 0 4px 6px rgba(239, 68, 68, 0.08);
+    }
+}
+
+.fa2-deep-dive {
+    display: none;
+    background: #f8fafc;
+}
+
+.fa2-deep-dive.fa2-active {
+    display: block;
+    animation: fa2FadeIn 0.4s;
+}
+
+@keyframes fa2FadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fa2-diagram-title {
+    color: var(--fa2-accent-text);
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--fa2-border-color);
+    padding-bottom: 10px;
+}
+
+.fa2-deep-dive-text {
+    font-size: 15px;
+    color: #334155;
+    margin-bottom: 8px;
+    line-height: 1.8;
+}
+
+.fa2-deep-dive-text i {
+    font-family: var(--fa2-math-font);
+    font-style: italic;
+    font-weight: 700;
+}
+
+@media (max-width: 960px) {
+    .fa2-memory-layout {
+        flex-direction: column;
+    }
+
+    .fa2-math-line {
+        font-size: 18px;
+    }
+
+    .fa2-dock {
+        gap: 8px;
+        padding: 7px 9px;
+    }
+
+    .fa2-dock-dot {
+        width: 26px;
+        height: 26px;
+    }
+}
+</style>
+
+<div class="fa2-wrapper" id="fa2-wrapper-root">
+    <div class="fa2-container">
+        <h1>FlashAttention Forward Pass 流程演示</h1>
+        <p class="fa2-subtitle">
+            不再读写庞大的 <i>O(N<sup>2</sup>)</i> 注意力矩阵 <i>S</i> 和 <i>P</i>。将输入切分为 Block，<br>
+            通过 <b>Tiling (分块)</b> 和 <b>Algebraic Aggregation (代数聚合)</b>，完全在快速 SRAM 中计算后直接写回 HBM。
+        </p>
+
+        <div class="fa2-info-panel">
+            <div class="fa2-info-title" id="fa2-step-title">阶段 0: 初始状态</div>
+            <div class="fa2-info-desc" id="fa2-step-desc">初始化...</div>
+        </div>
+
+        <div class="fa2-controls">
+            <button id="fa2-btn-prev" onclick="fa2ChangeStep(-1)" disabled style="display: none;">◀ 上一步</button>
+            <button id="fa2-btn-next" onclick="fa2ChangeStep(1)" style="display: none;">下一步 ▶</button>
+        </div>
+
+        <div class="fa2-memory-layout">
+            <div class="fa2-hbm-panel">
+                <div class="fa2-hbm-title">HBM (High Bandwidth Memory - 慢速/大容量)</div>
+
+                <div class="fa2-matrix-row">
+                    <div class="fa2-row-label">Q</div>
+                    <div class="fa2-block-container" id="fa2-hbm-q">
+                        <div class="fa2-chunk fa2-bg-q" id="fa2-q-1"><i>Q<sub>1</sub></i></div>
+                        <div class="fa2-chunk fa2-bg-q" id="fa2-q-2"><i>Q<sub>2</sub></i></div>
+                        <div class="fa2-chunk fa2-bg-q" id="fa2-q-3"><i>Q<sub>3</sub></i></div>
+                        <div class="fa2-chunk fa2-bg-q" id="fa2-q-4"><i>Q<sub>4</sub></i></div>
+                    </div>
+                </div>
+                <div class="fa2-matrix-row">
+                    <div class="fa2-row-label">K</div>
+                    <div class="fa2-block-container" id="fa2-hbm-k">
+                        <div class="fa2-chunk fa2-bg-k" id="fa2-k-1"><i>K<sub>1</sub></i></div>
+                        <div class="fa2-chunk fa2-bg-k" id="fa2-k-2"><i>K<sub>2</sub></i></div>
+                        <div class="fa2-chunk fa2-bg-k" id="fa2-k-3"><i>K<sub>3</sub></i></div>
+                        <div class="fa2-chunk fa2-bg-k" id="fa2-k-4"><i>K<sub>4</sub></i></div>
+                    </div>
+                </div>
+                <div class="fa2-matrix-row">
+                    <div class="fa2-row-label">V</div>
+                    <div class="fa2-block-container" id="fa2-hbm-v">
+                        <div class="fa2-chunk fa2-bg-v" id="fa2-v-1"><i>V<sub>1</sub></i></div>
+                        <div class="fa2-chunk fa2-bg-v" id="fa2-v-2"><i>V<sub>2</sub></i></div>
+                        <div class="fa2-chunk fa2-bg-v" id="fa2-v-3"><i>V<sub>3</sub></i></div>
+                        <div class="fa2-chunk fa2-bg-v" id="fa2-v-4"><i>V<sub>4</sub></i></div>
+                    </div>
+                </div>
+
+                <hr class="fa2-divider">
+                <div class="fa2-footnote">↓ 输出与统计信息 (被初始化为 0 / -∞) ↓</div>
+
+                <div class="fa2-matrix-row">
+                    <div class="fa2-row-label">O</div>
+                    <div class="fa2-block-container" id="fa2-hbm-o">
+                        <div class="fa2-chunk fa2-bg-empty" id="fa2-o-1">0</div>
+                        <div class="fa2-chunk fa2-bg-empty" id="fa2-o-2">0</div>
+                        <div class="fa2-chunk fa2-bg-empty" id="fa2-o-3">0</div>
+                        <div class="fa2-chunk fa2-bg-empty" id="fa2-o-4">0</div>
+                    </div>
+                </div>
+                <div class="fa2-matrix-row">
+                    <div class="fa2-row-label">m, l</div>
+                    <div class="fa2-block-container" id="fa2-hbm-s">
+                        <div class="fa2-chunk fa2-bg-empty" id="fa2-s-1">-∞, 0</div>
+                        <div class="fa2-chunk fa2-bg-empty" id="fa2-s-2">-∞, 0</div>
+                        <div class="fa2-chunk fa2-bg-empty" id="fa2-s-3">-∞, 0</div>
+                        <div class="fa2-chunk fa2-bg-empty" id="fa2-s-4">-∞, 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fa2-sram-panel">
+                <div class="fa2-sram-title">SRAM (On-Chip Cache - 极速/小容量)</div>
+
+                <div class="fa2-sram-slots">
+                    <div class="fa2-slot-box" id="fa2-slot-kv">
+                        <div class="fa2-slot-label">外层循环 (常驻)</div>
+                        <div class="fa2-slot-content" id="fa2-sram-kv">
+                            <div class="fa2-chunk fa2-bg-empty" style="padding: 2px 5px;">Empty</div>
+                        </div>
+                    </div>
+                    <div class="fa2-slot-box" id="fa2-slot-q">
+                        <div class="fa2-slot-label">内层循环 (流转)</div>
+                        <div class="fa2-slot-content" id="fa2-sram-qo">
+                            <div class="fa2-chunk fa2-bg-empty" style="padding: 2px 5px;">Empty</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fa2-alu-box" id="fa2-alu-box">
+                    <div class="fa2-alu-title">ALU (算术逻辑单元) 实时计算</div>
+                    <div class="fa2-math-line" id="fa2-math-1"><i>S<sub>ij</sub></i> = <i>Q<sub>i</sub></i> <i>K<sub>j</sub></i><sup>T</sup></div>
+                    <div class="fa2-math-line" id="fa2-math-2"><span class="fa2-func">rowmax/sum:</span> <i>m̃<sub>ij</sub></i>, <i>l̃<sub>ij</sub></i>, <i>P̃<sub>ij</sub></i></div>
+                    <div class="fa2-math-line" id="fa2-math-3"><i>m</i><sup>new</sup><sub>i</sub> = <span class="fa2-func">max</span>(<i>m<sub>i</sub></i>, <i>m̃<sub>ij</sub></i>)</div>
+                    <div class="fa2-math-line" id="fa2-math-4"><i>O<sub>i</sub></i> ← <span class="fa2-func">diag</span>(<i>l</i><sup>new</sup><sub>i</sub>)<sup>-1</sup> [ <i>O<sub>i</sub></i> + <i>P̃<sub>ij</sub></i> <i>V<sub>j</sub></i> ]</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fa2-deep-dive" id="fa2-deep-dive-math">
+            <h3 class="fa2-diagram-title">阶段总结剖析：代数聚合 (Algebraic Aggregation) 的魔法</h3>
+            <p class="fa2-deep-dive-text">
+                <b>传统注意力痛点：</b> 需要完整的 <i>S = QK<sup>T</sup></i> 来计算 Softmax 的分母，因此必须把 <i>O(N<sup>2</sup>)</i> 的庞大矩阵暂存到慢速 HBM 中，导致 IO 瓶颈。<br>
+                <b>FlashAttention 的解法：</b> Softmax 的分母本质是行的指数和 (rowsum)。我们在 HBM 中只维护 <i>O(N)</i> 级别的统计量：当前的最大值 <i>m<sub>i</sub></i> 和指数和 <i>l<sub>i</sub></i>。<br>
+                当内层计算出一个新的 <i>S<sub>ij</sub></i> 块时：<br>
+                1. 计算当前块的局部最大值 <i>m̃<sub>ij</sub></i> 和局部和 <i>l̃<sub>ij</sub></i>。<br>
+                2. 通过公式 <i>m<sub>i</sub><sup>new</sup> = max(m<sub>i</sub>, m̃<sub>ij</sub>)</i> 获取全局新最大值。<br>
+                3. 使用缩放因子 <i>e<sup>m<sub>i</sub> - m<sub>i</sub><sup>new</sup></sup></i> 修正历史结果 <i>O<sub>i</sub></i> 和历史和 <i>l<sub>i</sub></i>。<br>
+                <b>结果：</b> 算完一块就丢掉一块 <i>S<sub>ij</sub></i>，绝不写回 HBM，完美融合了局部计算与全局 Softmax。
+            </p>
+        </div>
+
+        <div class="fa2-dock-container" id="fa2-dock-container">
+            <div class="fa2-dock">
+                <button class="fa2-dock-btn" id="fa2-dock-prev" onclick="fa2ChangeStep(-1)" aria-label="上一页" disabled>◀</button>
+                <div class="fa2-dock-steps" aria-label="步骤导航">
+                    <button class="fa2-dock-dot fa2-active" id="fa2-dock-dot-0" onclick="fa2GoToStep(0)" aria-label="跳转到第0页">0</button>
+                    <button class="fa2-dock-dot" id="fa2-dock-dot-1" onclick="fa2GoToStep(1)" aria-label="跳转到第1页">1</button>
+                    <button class="fa2-dock-dot" id="fa2-dock-dot-2" onclick="fa2GoToStep(2)" aria-label="跳转到第2页">2</button>
+                    <button class="fa2-dock-dot" id="fa2-dock-dot-3" onclick="fa2GoToStep(3)" aria-label="跳转到第3页">3</button>
+                </div>
+                <button class="fa2-dock-btn" id="fa2-dock-next" onclick="fa2ChangeStep(1)" aria-label="下一页">▶</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    let fa2CurrentStep = 0;
+    let fa2AnimVersion = 0;
+    const fa2Sleep = function (ms) {
+        return new Promise(function (resolve) {
+            setTimeout(resolve, ms);
+        });
+    };
+
+    const fa2Steps = [
+        {
+            title: "阶段 0: 初始状态 (Initialization)",
+            desc: "输入矩阵 <i>Q, K, V</i> 位于慢速的 HBM 中，被划分为多个 <b>Block (如 1~4)</b>。<br>输出矩阵 <i>O</i> 及其统计量 <i>m</i> (局部最大值), <i>l</i> (局部指数和) 被初始化为 0 和 -∞。<br>SRAM (高速缓存) 当前为空。"
+        },
+        {
+            title: "阶段 1: 动态 Tiling 流水线 (核心精髓)",
+            desc: "<b>▶ 动态演示中：</b>算法执行双层循环。<br><b>外层循环 <i>j</i>:</b> 将一块 <i>K<sub>j</sub>, V<sub>j</sub></i> 加载到 SRAM 中并常驻。<br><b>内层循环 <i>i</i>:</b> 依次加载 <i>Q<sub>i</sub>, O<sub>i</sub></i> 进 SRAM 进行计算。算出一个 Block 的结果后，<b>直接写回 HBM</b>。<br>注意：庞大的 <i>N × N</i> 注意力分数矩阵根本没有被实例化保存。"
+        },
+        {
+            title: "阶段 2: 公式与代数聚合剖析 (Algebraic Aggregation)",
+            desc: "为什么我们可以分块计算 Softmax？<br>请看下方的<b>深度图解</b>。算法通过在 HBM 中维护 <i>O<sub>i</sub></i> 的缩放因子 <i>m<sub>i</sub></i>, <i>l<sub>i</sub></i>，当计算新的 <i>Q<sub>i</sub>K<sub>j</sub><sup>T</sup></i> 时，利用指数法则对历史的 <i>O<sub>i</sub></i> 进行数学等价的修正缩放。"
+        },
+        {
+            title: "阶段 3: 计算完成 (Completion)",
+            desc: "经过 <i>T<sub>c</sub> × T<sub>r</sub></i> 次内层块遍历，完整的 <i>O</i> 矩阵计算完毕存在 HBM 中。<br>我们没有进行任何 <i>O(N<sup>2</sup>)</i> 的 HBM 读写，这使得 FlashAttention 获得了数倍的速度提升，且显存占用从 <i>O(N<sup>2</sup>)</i> 降到了 <i>O(N)</i>。"
+        }
+    ];
+
+    function fa2Get(id) {
+        return document.getElementById(id);
+    }
+
+    function fa2ResetUI() {
+        for (let i = 1; i <= 4; i++) {
+            fa2Get("fa2-q-" + i).className = "fa2-chunk fa2-bg-q";
+            fa2Get("fa2-k-" + i).className = "fa2-chunk fa2-bg-k";
+            fa2Get("fa2-v-" + i).className = "fa2-chunk fa2-bg-v";
+
+            const o = fa2Get("fa2-o-" + i);
+            o.className = "fa2-chunk fa2-bg-empty";
+            o.innerHTML = "0";
+
+            const s = fa2Get("fa2-s-" + i);
+            s.className = "fa2-chunk fa2-bg-empty";
+            s.innerHTML = "-∞, 0";
+        }
+
+        fa2Get("fa2-sram-kv").innerHTML = '<div class="fa2-chunk fa2-bg-empty" style="padding: 2px 5px;">Empty</div>';
+        fa2Get("fa2-sram-qo").innerHTML = '<div class="fa2-chunk fa2-bg-empty" style="padding: 2px 5px;">Empty</div>';
+
+        document.querySelectorAll(".fa2-math-line").forEach(function (el) {
+            el.classList.remove("fa2-active");
+        });
+        fa2Get("fa2-alu-box").classList.remove("fa2-flash-compute");
+    }
+
+    function fa2UpdateALUMath(i, j) {
+        fa2Get("fa2-math-1").innerHTML = "<i>S<sub>" + i + j + "</sub></i> = <i>Q<sub>" + i + "</sub></i> <i>K<sub>" + j + "</sub></i><sup>T</sup>";
+        fa2Get("fa2-math-2").innerHTML = "<span class=\"fa2-func\">rowmax/sum:</span> <i>m̃<sub>" + i + j + "</sub></i>, <i>l̃<sub>" + i + j + "</sub></i>, <i>P̃<sub>" + i + j + "</sub></i>";
+        fa2Get("fa2-math-3").innerHTML = "<i>m</i><sup>new</sup><sub>" + i + "</sub> = <span class=\"fa2-func\">max</span>(<i>m<sub>" + i + "</sub></i>, <i>m̃<sub>" + i + j + "</sub></i>)";
+        fa2Get("fa2-math-4").innerHTML = "<i>O<sub>" + i + "</sub></i> ← <span class=\"fa2-func\">diag</span>(<i>l</i><sup>new</sup><sub>" + i + "</sub>)<sup>-1</sup> [ <i>O<sub>" + i + "</sub></i> + <i>P̃<sub>" + i + j + "</sub></i> <i>V<sub>" + j + "</sub></i> ]";
+    }
+
+    async function fa2PlayDynamicForward() {
+        fa2AnimVersion += 1;
+        const myVersion = fa2AnimVersion;
+
+        fa2ResetUI();
+        await fa2Sleep(500);
+
+        for (let j = 1; j <= 2; j++) {
+            if (myVersion !== fa2AnimVersion || fa2CurrentStep !== 1) {
+                return;
+            }
+
+            for (let x = 1; x <= 4; x++) {
+                if (x !== j) {
+                    fa2Get("fa2-k-" + x).classList.add("fa2-dimmed");
+                    fa2Get("fa2-v-" + x).classList.add("fa2-dimmed");
+                } else {
+                    fa2Get("fa2-k-" + x).classList.remove("fa2-dimmed");
+                    fa2Get("fa2-v-" + x).classList.remove("fa2-dimmed");
+                    fa2Get("fa2-k-" + x).classList.add("fa2-highlight-border");
+                    fa2Get("fa2-v-" + x).classList.add("fa2-highlight-border");
+                }
+            }
+
+            fa2Get("fa2-sram-kv").innerHTML =
+                "<div class=\"fa2-chunk fa2-bg-k\"><i>K<sub>" + j + "</sub></i></div>" +
+                "<div class=\"fa2-chunk fa2-bg-v\"><i>V<sub>" + j + "</sub></i></div>";
+
+            await fa2Sleep(800);
+
+            for (let i = 1; i <= 4; i++) {
+                if (myVersion !== fa2AnimVersion || fa2CurrentStep !== 1) {
+                    return;
+                }
+
+                for (let x = 1; x <= 4; x++) {
+                    if (x !== i) {
+                        fa2Get("fa2-q-" + x).classList.add("fa2-dimmed");
+                        fa2Get("fa2-o-" + x).classList.add("fa2-dimmed");
+                        fa2Get("fa2-s-" + x).classList.add("fa2-dimmed");
+                    } else {
+                        fa2Get("fa2-q-" + x).classList.remove("fa2-dimmed");
+                        fa2Get("fa2-o-" + x).classList.remove("fa2-dimmed");
+                        fa2Get("fa2-s-" + x).classList.remove("fa2-dimmed");
+                        fa2Get("fa2-q-" + x).classList.add("fa2-highlight-border");
+                    }
+                }
+
+                fa2Get("fa2-sram-qo").innerHTML =
+                    "<div class=\"fa2-chunk fa2-bg-q\"><i>Q<sub>" + i + "</sub></i></div>" +
+                    "<div class=\"fa2-chunk fa2-bg-o\"><i>O<sub>" + i + "</sub></i></div>" +
+                    "<div class=\"fa2-chunk fa2-bg-s\" style=\"font-size:13px;\"><i>m<sub>" + i + "</sub>, l<sub>" + i + "</sub></i></div>";
+
+                fa2UpdateALUMath(i, j);
+                await fa2Sleep(400);
+                if (myVersion !== fa2AnimVersion || fa2CurrentStep !== 1) {
+                    return;
+                }
+
+                fa2Get("fa2-math-1").classList.add("fa2-active");
+                fa2Get("fa2-math-2").classList.add("fa2-active");
+                fa2Get("fa2-alu-box").classList.add("fa2-flash-compute");
+                await fa2Sleep(600);
+                if (myVersion !== fa2AnimVersion || fa2CurrentStep !== 1) {
+                    return;
+                }
+
+                fa2Get("fa2-math-1").classList.remove("fa2-active");
+                fa2Get("fa2-math-2").classList.remove("fa2-active");
+                fa2Get("fa2-math-3").classList.add("fa2-active");
+                fa2Get("fa2-math-4").classList.add("fa2-active");
+
+                await fa2Sleep(600);
+                if (myVersion !== fa2AnimVersion || fa2CurrentStep !== 1) {
+                    return;
+                }
+
+                fa2Get("fa2-alu-box").classList.remove("fa2-flash-compute");
+                fa2Get("fa2-math-3").classList.remove("fa2-active");
+                fa2Get("fa2-math-4").classList.remove("fa2-active");
+
+                const oEl = fa2Get("fa2-o-" + i);
+                oEl.className = "fa2-chunk fa2-bg-o fa2-highlight-border";
+                oEl.innerHTML = "<i>O<sub>" + i + "</sub></i>";
+
+                const sEl = fa2Get("fa2-s-" + i);
+                sEl.className = "fa2-chunk fa2-bg-s fa2-highlight-border";
+                sEl.innerHTML = "<i>m<sub>" + i + "</sub>, l<sub>" + i + "</sub></i>";
+
+                await fa2Sleep(500);
+
+                for (let x = 1; x <= 4; x++) {
+                    fa2Get("fa2-q-" + x).classList.remove("fa2-highlight-border");
+                }
+                oEl.classList.remove("fa2-highlight-border");
+                sEl.classList.remove("fa2-highlight-border");
+            }
+
+            fa2Get("fa2-k-" + j).classList.remove("fa2-highlight-border");
+            fa2Get("fa2-v-" + j).classList.remove("fa2-highlight-border");
+        }
+
+        if (myVersion === fa2AnimVersion && fa2CurrentStep === 1) {
+            fa2SetCompletedState();
+        }
+    }
+
+    function fa2SetCompletedState() {
+        for (let i = 1; i <= 4; i++) {
+            fa2Get("fa2-q-" + i).className = "fa2-chunk fa2-bg-q";
+            fa2Get("fa2-k-" + i).className = "fa2-chunk fa2-bg-k";
+            fa2Get("fa2-v-" + i).className = "fa2-chunk fa2-bg-v";
+            fa2Get("fa2-o-" + i).className = "fa2-chunk fa2-bg-o";
+            fa2Get("fa2-o-" + i).innerHTML = "<i>O<sub>" + i + "</sub></i>";
+            fa2Get("fa2-s-" + i).className = "fa2-chunk fa2-bg-s";
+            fa2Get("fa2-s-" + i).innerHTML = "<i>m<sub>" + i + "</sub>, l<sub>" + i + "</sub></i>";
+        }
+        fa2Get("fa2-sram-kv").innerHTML = '<div class="fa2-chunk fa2-bg-empty" style="padding: 2px 5px;">Empty</div>';
+        fa2Get("fa2-sram-qo").innerHTML = '<div class="fa2-chunk fa2-bg-empty" style="padding: 2px 5px;">Empty</div>';
+    }
+
+    function fa2ChangeStep(delta) {
+        fa2CurrentStep += delta;
+        if (fa2CurrentStep < 0) {
+            fa2CurrentStep = 0;
+        }
+        if (fa2CurrentStep > fa2Steps.length - 1) {
+            fa2CurrentStep = fa2Steps.length - 1;
+        }
+
+        fa2Get("fa2-btn-prev").disabled = fa2CurrentStep === 0;
+        fa2Get("fa2-btn-next").disabled = fa2CurrentStep === fa2Steps.length - 1;
+
+        fa2Get("fa2-dock-prev").disabled = fa2CurrentStep === 0;
+        fa2Get("fa2-dock-next").disabled = fa2CurrentStep === fa2Steps.length - 1;
+
+        for (let i = 0; i < fa2Steps.length; i++) {
+            const dot = fa2Get("fa2-dock-dot-" + i);
+            if (!dot) {
+                continue;
+            }
+            if (i === fa2CurrentStep) {
+                dot.classList.add("fa2-active");
+            } else {
+                dot.classList.remove("fa2-active");
+            }
+        }
+
+        fa2Get("fa2-step-title").innerHTML = fa2Steps[fa2CurrentStep].title;
+        fa2Get("fa2-step-desc").innerHTML = fa2Steps[fa2CurrentStep].desc;
+
+        fa2UpdateVisuals();
+
+        // 将视角平滑滚动回到容器的顶部（与 ds 版一致）
+        const wrapper = fa2Get("fa2-wrapper-root");
+        if (wrapper) {
+            wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }
+
+    function fa2GoToStep(step) {
+        if (typeof step !== "number") {
+            return;
+        }
+        if (step < 0 || step > fa2Steps.length - 1) {
+            return;
+        }
+        fa2CurrentStep = step;
+        fa2ChangeStep(0);
+    }
+
+    function fa2UpdateVisuals() {
+        fa2Get("fa2-deep-dive-math").classList.remove("fa2-active");
+
+        if (fa2CurrentStep !== 1) {
+            fa2AnimVersion += 1;
+        }
+
+        if (fa2CurrentStep === 0) {
+            fa2ResetUI();
+            fa2UpdateALUMath("i", "j");
+        } else if (fa2CurrentStep === 1) {
+            fa2PlayDynamicForward();
+        } else if (fa2CurrentStep === 2) {
+            fa2SetCompletedState();
+            fa2Get("fa2-deep-dive-math").classList.add("fa2-active");
+        } else if (fa2CurrentStep === 3) {
+            fa2SetCompletedState();
+            for (let i = 1; i <= 4; i++) {
+                fa2Get("fa2-o-" + i).classList.add("fa2-highlight-border");
+            }
+            setTimeout(function () {
+                for (let i = 1; i <= 4; i++) {
+                    fa2Get("fa2-o-" + i).classList.remove("fa2-highlight-border");
+                }
+            }, 1000);
+        }
+    }
+
+    window.fa2ChangeStep = fa2ChangeStep;
+    window.fa2GoToStep = fa2GoToStep;
+
+    fa2ResetUI();
+    fa2UpdateALUMath("i", "j");
+})();
+</script>
+
+<hr />
+<h2 id="flashattention-v1">FlashAttention V1</h2>
+<p><img alt="alt text" src="../../.assets/1781608504588.png" /></p>
+<h3 id="_1">公式符号解释</h3>
+<p><span class="arithmatex">\(N\)</span> 代表输入序列的长度（Sequence Length），是一个整型标量。</p>
+<p><span class="arithmatex">\(d\)</span> 代表每个注意力头的维度（Head Dimension），是一个整型标量。</p>
+<p><span class="arithmatex">\(M\)</span> 代表 GPU 片上高速缓存 SRAM 的大小，是一个整型标量。</p>
+<p><span class="arithmatex">\(\mathbf{Q}\)</span> 代表查询矩阵（Query Matrix），形状为 <span class="arithmatex">\(N \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{K}\)</span> 代表键矩阵（Key Matrix），形状为 <span class="arithmatex">\(N \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{V}\)</span> 代表值矩阵（Value Matrix），形状为 <span class="arithmatex">\(N \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{O}\)</span> 代表注意力机制前向传播的最终输出矩阵（Output Matrix），形状为 <span class="arithmatex">\(N \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{S}\)</span> 代表全局未归一化的注意力得分矩阵（Attention Score Matrix），形状为 <span class="arithmatex">\(N \times N\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{P}\)</span> 代表全局归一化后的注意力权重矩阵（Attention Weight Matrix），形状为 <span class="arithmatex">\(N \times N\)</span>。</p>
+<p><span class="arithmatex">\(B_c\)</span> 代表键矩阵和值矩阵沿列维度进行分块的每块大小（Column Block Size），是一个整型标量。</p>
+<p><span class="arithmatex">\(B_r\)</span> 代表查询矩阵和输出矩阵沿行维度进行分块的每块大小（Row Block Size），是一个整型标量。</p>
+<p><span class="arithmatex">\(T_c\)</span> 代表键矩阵和值矩阵被分割成的总分块数量，是一个整型标量，计算公式为 <span class="arithmatex">\(\lceil \frac{N}{B_c} \rceil\)</span>。</p>
+<p><span class="arithmatex">\(T_r\)</span> 代表查询矩阵和输出矩阵被分割成的总分块数量，是一个整型标量，计算公式为 <span class="arithmatex">\(\lceil \frac{N}{B_r} \rceil\)</span>。</p>
+<p><span class="arithmatex">\(\ell\)</span> 代表 Softmax 行归一化分母累加值的全局统计向量，形状为 <span class="arithmatex">\(N \times 1\)</span>。</p>
+<p><span class="arithmatex">\(m\)</span> 代表 Softmax 每行最大值的全局统计向量，用于数值稳定，形状为 <span class="arithmatex">\(N \times 1\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{Q}_i\)</span> 代表查询矩阵 <span class="arithmatex">\(\mathbf{Q}\)</span> 沿行方向分割出的第 <span class="arithmatex">\(i\)</span> 个分块，形状为 <span class="arithmatex">\(B_r \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{K}_j\)</span> 代表键矩阵 <span class="arithmatex">\(\mathbf{K}\)</span> 沿行方向分割出的第 <span class="arithmatex">\(j\)</span> 个分块，形状为 <span class="arithmatex">\(B_c \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{V}_j\)</span> 代表值矩阵 <span class="arithmatex">\(\mathbf{V}\)</span> 沿行方向分割出的第 <span class="arithmatex">\(j\)</span> 个分块，形状为 <span class="arithmatex">\(B_c \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{O}_i\)</span> 代表输出矩阵 <span class="arithmatex">\(\mathbf{O}\)</span> 沿行方向分割出的第 <span class="arithmatex">\(i\)</span> 个分块，形状为 <span class="arithmatex">\(B_r \times d\)</span>。</p>
+<p><span class="arithmatex">\(\ell_i\)</span> 代表全局行累加分母向量 <span class="arithmatex">\(\ell\)</span> 对应的第 <span class="arithmatex">\(i\)</span> 个分块，形状为 <span class="arithmatex">\(B_r \times 1\)</span>。</p>
+<p><span class="arithmatex">\(m_i\)</span> 代表全局行最大值向量 <span class="arithmatex">\(m\)</span> 对应的第 <span class="arithmatex">\(i\)</span> 个分块，形状为 <span class="arithmatex">\(B_r \times 1\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{S}_{ij}\)</span> 代表局部未归一化的注意力得分矩阵分块，形状为 <span class="arithmatex">\(B_r \times B_c\)</span>。</p>
+<p><span class="arithmatex">\(\tilde{m}_{ij}\)</span> 代表局部得分矩阵分块 <span class="arithmatex">\(\mathbf{S}_{ij}\)</span> 的行最大值向量，形状为 <span class="arithmatex">\(B_r \times 1\)</span>。</p>
+<p><span class="arithmatex">\(\tilde{\mathbf{P}}_{ij}\)</span> 代表未经过最终归一化、仅进行减去行最大值并计算指数后的局部注意力权重矩阵分块，形状为 <span class="arithmatex">\(B_r \times B_c\)</span>。</p>
+<p><span class="arithmatex">\(\tilde{\ell}_{ij}\)</span> 代表局部权重矩阵分块 <span class="arithmatex">\(\tilde{\mathbf{P}}_{ij}\)</span> 的行累加值向量，形状为 <span class="arithmatex">\(B_r \times 1\)</span>。</p>
+<p><span class="arithmatex">\(m_i^{\mathrm{new}}\)</span> 代表融合当前局部最大值后，更新后的行最大值统计分块，形状为 <span class="arithmatex">\(B_r \times 1\)</span>。</p>
+<p><span class="arithmatex">\(\ell_i^{\mathrm{new}}\)</span> 代表融合当前局部累加和并经过指数修正后，更新后的行归一化分母统计分块，形状为 <span class="arithmatex">\(B_r \times 1\)</span>。</p>
+<p><span class="arithmatex">\(\tau\)</span> 代表 Softmax 计算前的缩放因子（Scaling Constant），是一个浮点型标量。</p>
+<p><span class="arithmatex">\(p_{\mathrm{drop}}\)</span> 代表 Dropout 的丢弃概率，是一个浮点型标量。</p>
+<p><span class="arithmatex">\(\mathcal{R}\)</span> 代表用于前向传播生成随机数以及反向传播重构掩码的伪随机数生成器状态（Random State），是一个状态标量。</p>
+<p><span class="arithmatex">\(\mathbf{dO}\)</span> 代表输出矩阵 <span class="arithmatex">\(\mathbf{O}\)</span> 的损失函数梯度矩阵，形状为 <span class="arithmatex">\(N \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{dQ}\)</span> 代表查询矩阵 <span class="arithmatex">\(\mathbf{Q}\)</span> 的损失函数梯度矩阵，形状为 <span class="arithmatex">\(N \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{dK}\)</span> 代表键矩阵 <span class="arithmatex">\(\mathbf{K}\)</span> 的损失函数梯度矩阵，形状为 <span class="arithmatex">\(N \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{dV}\)</span> 代表值矩阵 <span class="arithmatex">\(\mathbf{V}\)</span> 的损失函数梯度矩阵，形状为 <span class="arithmatex">\(N \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{dO}_i\)</span> 代表输出梯度矩阵 <span class="arithmatex">\(\mathbf{dO}\)</span> 沿行方向分割出的第 <span class="arithmatex">\(i\)</span> 个分块，形状为 <span class="arithmatex">\(B_r \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{dQ}_i\)</span> 代表查询梯度矩阵 <span class="arithmatex">\(\mathbf{dQ}\)</span> 沿行方向分割出的第 <span class="arithmatex">\(i\)</span> 个分块，形状为 <span class="arithmatex">\(B_r \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{dK}_j\)</span> 代表键梯度矩阵 <span class="arithmatex">\(\mathbf{dK}\)</span> 沿行方向分割出的第 <span class="arithmatex">\(j\)</span> 个分块，形状为 <span class="arithmatex">\(B_c \times d\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{dV}_j\)</span> 代表值梯度矩阵 <span class="arithmatex">\(\mathbf{dV}\)</span> 沿行方向分割出的第 <span class="arithmatex">\(j\)</span> 个分块，形状为 <span class="arithmatex">\(B_c \times d\)</span>。</p>
+<p><span class="arithmatex">\(D_i\)</span> 代表反向传播中用于计算 Softmax 梯度的行累加点积中间统计量，形状为 <span class="arithmatex">\(B_r \times 1\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{Z}_{ij}\)</span> 代表反向传播中通过状态 <span class="arithmatex">\(\mathcal{R}\)</span> 重新生成的局部 Dropout 掩码矩阵分块，形状为 <span class="arithmatex">\(B_r \times B_c\)</span>。</p>
+<p><span class="arithmatex">\(\mathbf{M}\)</span> 代表块稀疏注意力机制中的块选择掩码矩阵（Block Sparsity Mask），形状为 <span class="arithmatex">\((N/B_r) \times (N/B_c)\)</span>。</p>
+<p><span class="arithmatex">\(s\)</span> 代表块稀疏掩码中非零块的比例（Sparsity Ratio），是一个浮点型标量。</p>
+<p>注意：</p>
+<p>在<strong>证明</strong>里：<strong><span class="arithmatex">\(\tilde{m}\)</span>（m波浪号）并不是指单单“第 <span class="arithmatex">\(j+1\)</span> 列的值”，而是指第 <span class="arithmatex">\(j+1\)</span> 个“列分块”（包含 <span class="arithmatex">\(B_c\)</span> 列）在每一行上的最大值</strong>。
+符号上的混淆（Python 习惯 vs 论文习惯）
+* <strong>在 Python/NumPy 中</strong>：切片 <code>S[:, j:j+1]</code> 确实表示只取第 <span class="arithmatex">\(j\)</span> 列（宽度为 1 的二维矩阵）。
+* <strong>在论文的数学证明中</strong>：这里的 <span class="arithmatex">\(j\)</span> 是<strong>分块（Block）的索引</strong>，而不是单个列的索引。作者在证明中特别进行了解释：</p>
+<blockquote>
+<p>“...the slice of <span class="arithmatex">\(\mathbf{S}\)</span> from column <span class="arithmatex">\(j B_c\)</span> to column <span class="arithmatex">\((j+1) B_c - 1\)</span>”
+  这意味着，这个切片实际上代表了从第 <span class="arithmatex">\(j B_c\)</span> 列到第 <span class="arithmatex">\((j+1) B_c - 1\)</span> 列、<strong>宽度为 <span class="arithmatex">\(B_c\)</span> 的一整块区域</strong>，而不是孤立的一列。</p>
+</blockquote>
+<h3 id="algorithm-1">📊 Algorithm 1 逐行注释解析</h3>
+<p>这份算法的核心精髓在于：<strong>如何不用在 HBM 中保存 <span class="arithmatex">\(O(N^2)\)</span> 的注意力矩阵 <span class="arithmatex">\(S\)</span> 和 <span class="arithmatex">\(P\)</span>，而是直接在 SRAM 中边算边聚合出最终的 <span class="arithmatex">\(O\)</span>。</strong></p>
+<ul>
+<li><strong>Require</strong>: 
+    *   矩阵 <span class="arithmatex">\(\mathbf{Q}, \mathbf{K}, \mathbf{V} \in \mathbb{R}^{N \times d}\)</span> 位于 HBM（主显存）。
+    *   已知片上 SRAM（极速缓存）的容量为 <span class="arithmatex">\(M\)</span>。</li>
+<li><strong>Line 1-2 (初始化)</strong>: 
+    *   计算切块大小 <span class="arithmatex">\(B_c\)</span> 和 <span class="arithmatex">\(B_r\)</span>，确保划分的矩阵块能完美塞进有限的 SRAM 里。
+    *   在 HBM 中初始化输出结果 <span class="arithmatex">\(\mathbf{O}\)</span> 为 0，全局指数和 <span class="arithmatex">\(\ell\)</span> 为 0，全局最大值 <span class="arithmatex">\(m\)</span> 为 <span class="arithmatex">\(-\infty\)</span>。</li>
+<li><strong>Line 3-4 (切分 Blocks)</strong>: 
+    *   将 <span class="arithmatex">\(\mathbf{Q}, \mathbf{O}, \ell, m\)</span> 切分成 <span class="arithmatex">\(T_r\)</span> 个块（按查询序列划分）。
+    *   将 <span class="arithmatex">\(\mathbf{K}, \mathbf{V}\)</span> 切分成 <span class="arithmatex">\(T_c\)</span> 个块（按键值序列划分）。</li>
+<li><strong>Line 5 (外层循环开始)</strong>: 
+    *   <code>for 1 &lt;= j &lt;= Tc do</code>：遍历所有的 <span class="arithmatex">\(\mathbf{K}\)</span> 和 <span class="arithmatex">\(\mathbf{V}\)</span> 块。</li>
+<li><strong>Line 6 (加载 KV)</strong>: 
+    *   把当前的外层块 <span class="arithmatex">\(\mathbf{K}_j, \mathbf{V}_j\)</span> 从 HBM <strong>加载进 SRAM 并常驻</strong>。</li>
+<li><strong>Line 7 (内层循环开始)</strong>: 
+    *   <code>for 1 &lt;= i &lt;= Tr do</code>：遍历所有的 <span class="arithmatex">\(\mathbf{Q}\)</span> 块。</li>
+<li><strong>Line 8 (加载 Q 及状态)</strong>: 
+    *   把当前的 <span class="arithmatex">\(\mathbf{Q}_i\)</span> 以及过去算到一半的输出 <span class="arithmatex">\(\mathbf{O}_i\)</span>、过去的指数和 <span class="arithmatex">\(\ell_i\)</span>、过去的最大值 <span class="arithmatex">\(m_i\)</span> <strong>全部加载进 SRAM</strong>。</li>
+<li><strong>Line 9 (计算局部注意力分数)</strong>: 
+    *   在 SRAM 内算矩阵乘法：<span class="arithmatex">\(\mathbf{S}_{ij} = \mathbf{Q}_i \mathbf{K}_j^T\)</span>。（<em>注意：这只占一小块内存，算完马上处理，不存入 HBM</em>）。</li>
+<li><strong>Line 10 (计算局部 Softmax 统计量)</strong>: 
+    *   找出当前这块 <span class="arithmatex">\(S_{ij}\)</span> 的最大值 <span class="arithmatex">\(\tilde{m}_{ij}\)</span>。
+    *   算出减去最大值后的指数 <span class="arithmatex">\(\tilde{\mathbf{P}}_{ij} = \exp(\mathbf{S}_{ij} - \tilde{m}_{ij})\)</span>。
+    *   算出这块的局部指数和 <span class="arithmatex">\(\tilde{\ell}_{ij}\)</span>。</li>
+<li><strong>Line 11 (代数聚合 - 全局状态更新)</strong>: 
+    *   <strong>核心魔法发生地！</strong> 我们不能直接把局部的当成全局的，所以需要合并历史。
+    *   比较历史最大值 <span class="arithmatex">\(m_i\)</span> 和当前局部最大值 <span class="arithmatex">\(\tilde{m}_{ij}\)</span>，得出<strong>全新的全局最大值</strong> <span class="arithmatex">\(m_i^{new}\)</span>。
+    *   根据新的最大值，将历史指数和与局部指数和按比例修正后相加，得出<strong>全新的全局指数和</strong> <span class="arithmatex">\(\ell_i^{new}\)</span>。</li>
+<li><strong>Line 12 (修正输出并直接写回 HBM)</strong>: 
+    *   根据刚才最新的全局统计量，修正以前算出来的老 <span class="arithmatex">\(\mathbf{O}_i\)</span>（把它乘上 <span class="arithmatex">\(e^{m_i - m_i^{new}}\)</span> 缩放因子），再加上当前新算的 <span class="arithmatex">\(\tilde{\mathbf{P}}_{ij} \mathbf{V}_j\)</span>。
+    *   <strong>算完的最新 <span class="arithmatex">\(\mathbf{O}_i\)</span> 直接覆盖写回 HBM</strong>。</li>
+<li><strong>Line 13 (写回统计量)</strong>: 
+    *   把最新的全局指数和 <span class="arithmatex">\(\ell_i\)</span> 和最大值 <span class="arithmatex">\(m_i\)</span> 也<strong>覆盖写回 HBM</strong>。</li>
+<li><strong>Line 14-16</strong>: 结束内外循环，最终 HBM 里的 <span class="arithmatex">\(\mathbf{O}\)</span> 就是精确无误的 Attention 结果。</li>
+</ul>
+<hr />
+<h2 id="_2">证明</h2>
+<hr />
+<h3 id="tips-1">tips 1</h3>
+<p>算法1里对 <span class="arithmatex">\(i\)</span> 的分块有点类似Megatron的矩阵切分，对 <span class="arithmatex">\(i\)</span> 这个维度进行切分的小块互不干扰，独立计算各个 <span class="arithmatex">\(O_i\)</span> ，最后Concat成一个完整 <span class="arithmatex">\(O\)</span> 就可以了</p>
+<hr />
+<h3 id="tips-2">tips 2</h3>
+<blockquote>
+<p><strong>对比按 <span class="arithmatex">\(i\)</span> 分块和按 <span class="arithmatex">\(j\)</span> 分块的区别，为什么 <span class="arithmatex">\(j\)</span> 就不能独立， <span class="arithmatex">\(i\)</span> 和 <span class="arithmatex">\(j\)</span> 的最根本区别在哪里？</strong></p>
+</blockquote>
+<p><strong>答：</strong></p>
+<p>这是一个非常经典且触及 Softmax 本质的问题。</p>
+<p>简单来说，<strong><span class="arithmatex">\(i\)</span>（Query 维度）和 <span class="arithmatex">\(j\)</span>（Key/Value 维度）最根本的区别在于：Softmax 是”跨 <span class="arithmatex">\(j\)</span> 进行归一化”的。</strong></p>
+<p>这导致了：</p>
+<ul>
+<li><strong><span class="arithmatex">\(i\)</span> 维度是完全解耦（独立）的</strong>。</li>
+<li><strong><span class="arithmatex">\(j\)</span> 维度则是强耦合（非独立）的</strong>。</li>
+</ul>
+<p>以下我们通过数学公式与第一性原理来拆解为什么 <span class="arithmatex">\(j\)</span> 无法像 <span class="arithmatex">\(i\)</span> 那样简单地”各自计算、最后拼接”。</p>
+<hr />
+<h4 id="softmax">根本原因：Softmax 的数学定义</h4>
+<p>我们写出注意力机制中，输出矩阵 <span class="arithmatex">\(\mathbf{O}\)</span> 的第 <span class="arithmatex">\(i\)</span> 行（对应第 <span class="arithmatex">\(i\)</span> 个 Token 的输出 <span class="arithmatex">\(o_i\)</span>）的完整数学公式：</p>
+<div class="arithmatex">\[
+o_i = \sum_{j=1}^{N} P_{ij} v_j = \sum_{j=1}^{N} \left( \frac{e^{q_i k_j^T}}{\sum_{j'=1}^{N} e^{q_i k_{j'}^T}} \right) v_j
+\]</div>
+<p>请仔细观察公式中 <span class="arithmatex">\(i\)</span> 和 <span class="arithmatex">\(j\)</span> 的位置：</p>
+<ul>
+<li><strong>看行维度 <span class="arithmatex">\(i\)</span></strong>：计算 <span class="arithmatex">\(o_i\)</span> 的整个公式里，<strong>只有 <span class="arithmatex">\(q_i\)</span> 参与计算</strong>，完全不涉及其他的 <span class="arithmatex">\(q_{i'}\)</span>（<span class="arithmatex">\(i' \neq i\)</span>）。这意味着 <span class="arithmatex">\(o_1\)</span> 的计算和 <span class="arithmatex">\(o_2\)</span> 的计算在数学上没有任何交集。</li>
+<li><strong>看列维度 <span class="arithmatex">\(j\)</span></strong>：在括号内的 Softmax 分母中，有一个累加和 <span class="arithmatex">\(\sum_{j'=1}^{N} e^{q_i k_{j'}^T}\)</span>。这个累加和<strong>必须遍历所有的 <span class="arithmatex">\(j'\)</span>（从 1 到 <span class="arithmatex">\(N\)</span>）</strong>。</li>
+</ul>
+<blockquote>
+<p><strong>这就是最根本的区别：为了算出任意一个位置的注意力权重，你必须事先知道整条序列上所有 Key（即所有 <span class="arithmatex">\(j\)</span>）的信息。</strong></p>
+</blockquote>
+<hr />
+<h4 id="j">如果强行对 <span class="arithmatex">\(j\)</span> 进行独立分块，会发生什么？</h4>
+<p>假设我们将 <span class="arithmatex">\(j\)</span>（Key/Value 维度）强行切分成两个不重叠的块：</p>
+<ul>
+<li><strong>第一块（前一半 Keys）</strong>：计算出局部输出 <span class="arithmatex">\(o_i^{(1)}\)</span>，局部 Softmax 分母为 <span class="arithmatex">\(D_i^{(1)}\)</span>。</li>
+<li><strong>第二块（后一半 Keys）</strong>：计算出局部输出 <span class="arithmatex">\(o_i^{(2)}\)</span>，局部 Softmax 分母为 <span class="arithmatex">\(D_i^{(2)}\)</span>。</li>
+</ul>
+<p>如果我们像对待 <span class="arithmatex">\(i\)</span> 那样，把它们直接拼起来或者加起来，会得到什么？</p>
+<ul>
+<li>它们的归一化分母 <span class="arithmatex">\(D_i^{(1)}\)</span> 和 <span class="arithmatex">\(D_i^{(2)}\)</span> 是不同的。</li>
+<li>如果直接相加 <span class="arithmatex">\(o_i^{(1)} + o_i^{(2)}\)</span>，这就好比分数相加时<strong>没有通分</strong>（即 <span class="arithmatex">\(\frac{a}{b} + \frac{c}{d}\)</span> 直接算成了 <span class="arithmatex">\(\frac{a+c}{b+d}\)</span> 或 <span class="arithmatex">\(\frac{a}{b} + \frac{c}{d}\)</span> ），数学上是完全错误的。</li>
+</ul>
+<blockquote>
+<p><strong>因此，<span class="arithmatex">\(j\)</span> 维度的各个分块无法独立计算，因为它们共享同一个全局归一化分母。</strong></p>
+</blockquote>
+<hr />
+<h2 id="flashattention-v2">FlashAttention V2</h2>
+<p><img alt="alt text" src="../../.assets/1781608581239.png" /></p>
+<h2 id="_3">校对</h2>
+<p><img alt="alt text" src="../../.assets/1781871297354.png" />
+ flash attention论文<sup>[2]</sup>23页证明有笔误</p>
+<h2 id="_4">参考文献</h2>
+<p>[1] 知乎专栏. 《[Attention优化][2w字]📚原理篇: 从Online-Softmax到FlashAttention V1/V2/V3》. 见于 2026年6月19日. <a href="https://zhuanlan.zhihu.com/p/668888063">https://zhuanlan.zhihu.com/p/668888063</a>.</p>
+<p>[2] Dao, Tri, Daniel Y. Fu, Stefano Ermon, Atri Rudra和Christopher Ré. 《FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness》. arXiv:2205.14135. 预印本, arXiv, 2022年6月23日. <a href="https://doi.org/10.48550/arXiv.2205.14135">https://doi.org/10.48550/arXiv.2205.14135</a>.</p>
+<p>[3] Dao, Tri. 《FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning》. arXiv:2307.08691. 预印本, arXiv, 2023年7月17日. <a href="https://doi.org/10.48550/arXiv.2307.08691">https://doi.org/10.48550/arXiv.2307.08691</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">评论</h2>
+<script src="https://giscus.app/client.js"
+        data-repo="Ranbaigao/llm_learning"
+        data-repo-id="R_kgDOS6jz6w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOS6jz684DEEsg"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../.assets/javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../.assets/javascripts/pageview.js"></script>
+      
+        <script src="../../.assets/javascripts/html_modal.js"></script>
+      
+        <script src="https://cn.vercount.one/js"></script>
+      
+    
+  </body>
+</html>

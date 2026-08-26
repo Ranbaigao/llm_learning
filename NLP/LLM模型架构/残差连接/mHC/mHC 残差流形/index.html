@@ -1,0 +1,5588 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ranbaigao.github.io/llm_learning/NLP/LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/mHC%20%E6%AE%8B%E5%B7%AE%E6%B5%81%E5%BD%A2/">
+      
+      
+        <link rel="prev" href="../../%E6%B5%81%E5%BD%A2%E6%AF%94%E8%BE%83/">
+      
+      
+        <link rel="next" href="../%E5%8F%8C%E9%9A%8F%E6%9C%BA%E7%9F%A9%E9%98%B5/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>mHC_残差流形 - LLM知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../.assets/stylesheets/pageview.css">
+    
+      <link rel="stylesheet" href="../../../../../.assets/stylesheets/html_modal.css">
+    
+    <script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mhc_" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../../.." title="LLM知识库" class="md-header__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              mHC_残差流形
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../../.." title="LLM知识库" class="md-nav__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    LLM知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../knowledge_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JEPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JEPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JiT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JiT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/SAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/VAE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VAE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    世界模型
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    世界模型
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/%E5%B0%8F%E9%B9%8FVLA%E4%B8%8E%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小鹏 VLA 与世界模型技术体系总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/%E5%9F%BA%E7%A1%80/Reparameterization%20Trick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重参数化技巧（Reparameterization Trick）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CV/%E5%9F%BA%E7%A1%80/SD%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD公式推导
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NLP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NLP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM应用开发
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM应用开发
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Harness%2BAgent%E5%BC%95%E5%85%A5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness+Agent引入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Skill%E6%84%8F%E4%B9%89%E6%8E%A2%E8%AE%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill意义探讨
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_3" id="__nav_4_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepseek Harness
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deepseek Harness
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Deepseek%20Harness%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek Harness 技术报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Dsh%20%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dsh 会话记忆机制：the log IS the state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_4" id="__nav_4_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hermes Agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%8D%95%E4%B8%AA%E4%BC%9A%E8%AF%9D%E7%9A%84%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent 单会话记忆管理策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%A4%9AAgent%E9%80%9A%E4%BF%A1%E6%9E%B6%E6%9E%84/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    多 Agent 通信架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%AE%89%E5%85%A8%E3%80%81%E5%B7%A5%E4%BD%9C%E5%8C%BA%E9%9A%94%E7%A6%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全隔离与工作区隔离
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E8%AE%B0%E5%BF%86%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    内存压缩机制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Muon优化器
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Muon%E4%BC%98%E5%8C%96%E5%99%A8/Muon%E4%BC%98%E5%8C%96%E5%99%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Muon%E4%BC%98%E5%8C%96%E5%99%A8/%E5%A5%87%E5%BC%82%E5%80%BC%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%92%8C%E6%AD%A3%E4%BA%A4%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    奇异值、特征值和正交矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    位置编码
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    位置编码
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/RoPe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoPe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    残差连接
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    残差连接
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Attention%20Residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attention Residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Pre-Norm%20vs%20Post-Norm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre Norm vs Post Norm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E6%B5%81%E5%BD%A2%E6%AF%94%E8%BE%83/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    流形（Manifold） JiT 中的和 mHC 中的是一个意思吗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    mHC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC_残差流形
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC_残差流形
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-mhc-transformer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 先看宏观：mHC 到底改了 Transformer 的哪里？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-mhc-1-n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. mHC 作用于谁：残差流从 1 条变成 n 条
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-mhc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. mHC 的四步宏观流程
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. mHC 的四步宏观流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-read-pre-routing-h_pre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Read / Pre-routing：用 \(H_{pre}\) 聚合输入
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-computeattention-ffn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Compute：Attention / FFN 正常计算
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-mix-h_res" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Mix：用 \(H_{res}\) 让残差流互相通信
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-write-post-routing-h_post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Write / Post-routing：用 \(H_{post}\) 分发主干输出
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 为什么要引入这套机制？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-birkhoff-polytope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 与 Birkhoff Polytope 的联系
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 代码形状对照
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 几何可视化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 几何可视化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#birkhoff-polytope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Birkhoff Polytope 交互演示
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3d-birkhoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3D Birkhoff 投影演示
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        完整代码练习
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E5%8F%8C%E9%9A%8F%E6%9C%BA%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    双随机矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    注意力机制
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    注意力机制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/DSA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/GatedAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GatedAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/LinearAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LinearAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/MLA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型训练
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_1" id="__nav_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SFT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/LoRA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/SFT%E4%B8%8D%E5%AE%8C%E6%95%B4%E5%AD%A6%E4%B9%A0%E7%8E%B0%E8%B1%A1ILP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT 为什么"学不会"：不完整学习现象（ILP）的系统性研究
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2" id="__nav_4_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    强化学习
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    强化学习
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/ClipPPO%E5%8E%9F%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipPPO原理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/DPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/GSPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GSPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RL知识图谱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%9D%8E%E5%AE%8F%E6%AF%85DRL%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    李宏毅DRL笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2_6" id="__nav_4_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent RL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent RL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/Agent%20RL/%E6%A3%80%E9%AA%8CAgent%E7%9A%84coding%E5%AE%9E%E7%8E%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检验Agent的coding实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM源码解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM源码解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/ChatGPT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChatGPT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/Einsum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Einsum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/MOE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/%E6%A0%B8%E5%BF%83%E8%A6%81%E4%B9%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心要义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    OpenMythos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/ACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/LTI%20Injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LTI Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/OpenMythos%E6%A1%86%E6%9E%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开源llm解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开源llm解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/AR-Diffusion%E4%B8%8E%E6%BD%9C%E7%A9%BA%E9%97%B4%E6%8E%A8%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AR-Diffusion 与潜空间推理路线综述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Claude%20Mythos%205%E6%8E%A8%E6%B5%8B/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Mythos 5 技术报告：官方披露的训练方法与模型架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4 技术报告：面向百万上下文的高效长文本模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/GLM-5.3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GLM 5.3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Kimi%20K3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kimi K3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nemotron-Labs-Diffusion 技术报告：统一 AR、Diffusion 与 Self-Speculation 的三模式语言模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/OpenMythos%20Recurrent%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos Recurrent解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/Qwen3.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3.5解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    代码实践
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    代码实践
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/esft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gpt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gqa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GQA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/mhc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/moe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/open_mythos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open mythos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/vit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    性能优化
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    性能优化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Deepspeed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepspeed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Flash-Attention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/MOE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE负载均衡
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/SGLang/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SGLang
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/vLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vLLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E5%88%86%E5%B8%83%E5%BC%8F/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    分布式
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推理加速方法总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-mhc-transformer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 先看宏观：mHC 到底改了 Transformer 的哪里？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-mhc-1-n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. mHC 作用于谁：残差流从 1 条变成 n 条
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-mhc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. mHC 的四步宏观流程
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. mHC 的四步宏观流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-read-pre-routing-h_pre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Read / Pre-routing：用 \(H_{pre}\) 聚合输入
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-computeattention-ffn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Compute：Attention / FFN 正常计算
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-mix-h_res" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Mix：用 \(H_{res}\) 让残差流互相通信
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-write-post-routing-h_post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Write / Post-routing：用 \(H_{post}\) 分发主干输出
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 为什么要引入这套机制？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-birkhoff-polytope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 与 Birkhoff Polytope 的联系
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 代码形状对照
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 几何可视化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 几何可视化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#birkhoff-polytope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Birkhoff Polytope 交互演示
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3d-birkhoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3D Birkhoff 投影演示
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        完整代码练习
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mhc_">mHC_残差流形</h1>
+<h2 id="1-mhc-transformer">1. 先看宏观：mHC 到底改了 Transformer 的哪里？</h2>
+<p>标准 Transformer 里，每个 Attention 或 FFN/MLP 子层外面都有一个经典残差连接：</p>
+<div class="arithmatex">\[
+x_{l+1}=x_l+\mathcal{F}(x_l)
+\]</div>
+<p><strong>mHC 可以理解成：用一套可学习、受约束的“多车道残差路由系统”，替换这个简单加号。</strong></p>
+<p>它不改变 Attention 怎么算，也不改变 FFN 怎么算。Attention/FFN 仍然是原来的主干计算 <span class="arithmatex">\(\mathcal{F}\)</span>。mHC 改的是主干层外面的残差流拓扑：原来只有一条残差流，现在扩成 <span class="arithmatex">\(n\)</span> 条并行残差流，并且让这些流之间可以稳定通信。</p>
+<h2 id="2-mhc-1-n">2. mHC 作用于谁：残差流从 1 条变成 n 条</h2>
+<p>传统模型里，残差流是一条维度为 <span class="arithmatex">\(C\)</span> 的“单行道”。每一层做的事情大致是：保留旧状态 <span class="arithmatex">\(x_l\)</span>，再加上 <span class="arithmatex">\(\mathcal{F}(x_l)\)</span> 产生的新信息。</p>
+<p>mHC 把这条单行道扩成 <span class="arithmatex">\(n\)</span> 条并行车道，论文里常见设置是 <span class="arithmatex">\(n=4\)</span>：</p>
+<div class="arithmatex">\[
+x_l \in \mathbb{R}^{B \times T \times n \times C}
+\]</div>
+<p>这里 <span class="arithmatex">\(B\)</span> 是 batch，<span class="arithmatex">\(T\)</span> 是序列长度，<span class="arithmatex">\(C\)</span> 是单条流的 hidden size。直觉上，模型拥有了多条可以持续向后传递的“记忆通道”；但主干计算层依然只接收一条 <span class="arithmatex">\(C\)</span> 维输入，所以 mHC 必须负责在多条流和主干层之间做路由。</p>
+<h2 id="3-mhc">3. mHC 的四步宏观流程</h2>
+<p>下面这个流程图把 mHC 放回 LLM 的整体网络拓扑里看：它包裹在每一个 Attention/FFN 子层外面，负责读、算、混、写。</p>
+<p><a class="html-modal-link" href="../../../../.assets/mhc_topology_flow.html" data-title="mHC 拓扑流程图">🔍查看交互图：mHC 拓扑流程</a></p>
+<h3 id="31-read-pre-routing-h_pre">3.1 Read / Pre-routing：用 <span class="arithmatex">\(H_{pre}\)</span> 聚合输入</h3>
+<p>主干层 <span class="arithmatex">\(\mathcal{F}\)</span> 只吃一条 <span class="arithmatex">\(C\)</span> 维输入，但 mHC 当前有 <span class="arithmatex">\(n\)</span> 条残差流。于是它用 <span class="arithmatex">\(H_{pre}\)</span> 做加权读取，把多条流聚合成一条主干输入：</p>
+<div class="arithmatex">\[
+x_{\text{main}} = H_{pre} \cdot x_l
+\]</div>
+<p>可以把 <span class="arithmatex">\(H_{pre}\)</span> 理解成“读门控”：每一层、每个 token 都可以动态决定从哪几条残差流里多读一点。</p>
+<h3 id="32-computeattention-ffn">3.2 Compute：Attention / FFN 正常计算</h3>
+<p>主干层拿到聚合后的 <span class="arithmatex">\(x_{\text{main}}\)</span>，照常执行 Attention 或 FFN：</p>
+<div class="arithmatex">\[
+y = \mathcal{F}(x_{\text{main}})
+\]</div>
+<p>这一步是 mHC 很重要的工程取舍：它没有把 Attention/FFN 的宽度也扩成 <span class="arithmatex">\(nC\)</span>，因此主要 FLOPs 仍然接近原模型。</p>
+<h3 id="33-mix-h_res">3.3 Mix：用 <span class="arithmatex">\(H_{res}\)</span> 让残差流互相通信</h3>
+<p>在主干层计算的同时，外面的 <span class="arithmatex">\(n\)</span> 条残差流也会通过 <span class="arithmatex">\(H_{res}\)</span> 互相混合：</p>
+<div class="arithmatex">\[
+x_{\text{res}} = H_{res} \cdot x_l
+\]</div>
+<p>这里的 <span class="arithmatex">\(H_{res}\)</span> 是 mHC 的数学核心。它被约束成双随机矩阵：</p>
+<ul>
+<li>元素非负；</li>
+<li>每一行和为 1；</li>
+<li>每一列和为 1。</li>
+</ul>
+<p>也就是说，<span class="arithmatex">\(H_{res}\)</span> 位于 <strong>Birkhoff Polytope</strong> 内。这样做的目的不是为了“好看”，而是为了让流与流之间的信息交换保持非扩张性质：信息可以重新分配，但整体不容易被层层放大到失控。</p>
+<h3 id="34-write-post-routing-h_post">3.4 Write / Post-routing：用 <span class="arithmatex">\(H_{post}\)</span> 分发主干输出</h3>
+<p>主干层输出 <span class="arithmatex">\(y\)</span> 后，mHC 用 <span class="arithmatex">\(H_{post}\)</span> 把这份新信息广播并写回到 <span class="arithmatex">\(n\)</span> 条残差流：</p>
+<div class="arithmatex">\[
+x_{l+1} = H_{res} \cdot x_l + H_{post} \odot \mathcal{F}(H_{pre} \cdot x_l)
+\]</div>
+<p>所以 mHC 的一层不是“旧状态 + 新状态”这么简单，而是：</p>
+<ul>
+<li>从多条残差流读取；</li>
+<li>用原来的 Attention/FFN 计算；</li>
+<li>让残差流之间稳定混合；</li>
+<li>把新信息按比例写回多条残差流。</li>
+</ul>
+<h2 id="4">4. 为什么要引入这套机制？</h2>
+<p>传统扩展模型能力通常有两条路：</p>
+<ul>
+<li><strong>做深</strong>：增加层数；</li>
+<li><strong>做宽</strong>：增大 hidden size <span class="arithmatex">\(C\)</span>。</li>
+</ul>
+<p>但这两条路都会显著增加计算量，尤其是把主干层直接做宽时，矩阵乘法 FLOPs 会快速上升。Hyper-Connections 的思路是：<strong>尽量保持主干计算层不变，只拓宽残差状态本身。</strong></p>
+<p>这带来一个很诱人的收益：模型拥有更多并行残差记忆通道，但 Attention/FFN 的主要计算宽度仍然是 <span class="arithmatex">\(C\)</span>。</p>
+<p>问题是，如果多条残差流随便混合，深层堆叠后很容易破坏残差网络原本依赖的恒等映射性质，导致训练不稳定、梯度爆炸或数值漂移。mHC 的核心贡献就是给这套多车道残差系统加上约束：</p>
+<ul>
+<li><strong>数学交规</strong>：用 Birkhoff Polytope / 双随机矩阵约束 <span class="arithmatex">\(H_{res}\)</span>，保证残差混合更稳定；</li>
+<li><strong>工程优化</strong>：通过算子融合和重计算降低多条残差流带来的显存带宽与显存占用压力；</li>
+<li><strong>软启动</strong>：用很小的 <span class="arithmatex">\(\alpha\)</span> 初始化路由强度，让模型初始行为接近标准 ResNet/Transformer 残差连接。</li>
+</ul>
+<p>一句话总结：</p>
+<blockquote>
+<p>mHC 不是改变模型“怎么思考”，而是改变模型内部“记忆如何并行保存、通信和传递”。</p>
+</blockquote>
+<h2 id="5-birkhoff-polytope">5. 与 Birkhoff Polytope 的联系</h2>
+<p>Birkhoff Polytope 是所有双随机矩阵构成的凸多面体，它的顶点是所有置换矩阵。</p>
+<p>在 mHC 中，把 <span class="arithmatex">\(H_{res}\)</span> 约束到 Birkhoff Polytope 内，有一个非常直接的残差流解释：</p>
+<ul>
+<li>置换矩阵只重排残差流，不改变整体大小；</li>
+<li>双随机矩阵是置换矩阵的凸组合，可以看成“软重排”；</li>
+<li>因此 <span class="arithmatex">\(H_{res}\)</span> 可以让多条残差流互相通信，同时不轻易放大信号。</li>
+</ul>
+<p>Sinkhorn-Knopp 算法就是把一个普通的可学习矩阵反复做行归一化、列归一化，最终拉回到双随机矩阵集合附近：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">H</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">M</span> <span class="o">/</span> <span class="n">tau</span><span class="p">)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_iters</span><span class="p">):</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">H</span> <span class="o">=</span> <span class="n">H</span> <span class="o">/</span> <span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">H</span> <span class="o">=</span> <span class="n">H</span> <span class="o">/</span> <span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+</span></code></pre></div>
+<p>这就是前面流程图里 <span class="arithmatex">\(H_{res}\)</span> 那个“稳定混合矩阵”的来源。</p>
+<h2 id="6">6. 代码形状对照</h2>
+<p>如果把上面的宏观流程翻译成 PyTorch 张量形状，大致是：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># x: [B, T, n, C]</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">H_pre</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">alpha_pre</span> <span class="o">*</span> <span class="n">proj_pre</span><span class="p">(</span><span class="n">x_global</span><span class="p">))</span>      <span class="c1"># [B, T, n, 1]</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">x_main</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">H_pre</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>                      <span class="c1"># [B, T, C]</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">y</span> <span class="o">=</span> <span class="n">layer_func</span><span class="p">(</span><span class="n">x_main</span><span class="p">)</span>                               <span class="c1"># [B, T, C]</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">H_res_raw</span> <span class="o">=</span> <span class="n">proj_res</span><span class="p">(</span><span class="n">x_global</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">H_res</span> <span class="o">=</span> <span class="n">sinkhorn_knopp</span><span class="p">(</span><span class="n">alpha_res</span> <span class="o">*</span> <span class="n">H_res_raw</span><span class="p">)</span>         <span class="c1"># [B, T, n, n]</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">x_res</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">H_res</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>                        <span class="c1"># [B, T, n, C]</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">H_post</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">alpha_post</span> <span class="o">*</span> <span class="n">proj_post</span><span class="p">(</span><span class="n">x_global</span><span class="p">))</span><span class="c1"># [B, T, n, 1]</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="n">x_next</span> <span class="o">=</span> <span class="n">x_res</span> <span class="o">+</span> <span class="n">H_post</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>              <span class="c1"># [B, T, n, C]</span>
+</span></code></pre></div>
+<p>这一段代码对应的就是：</p>
+<div class="arithmatex">\[
+x_{l+1}=H_{res}x_l+H_{post}\odot \mathcal{F}(H_{pre}x_l)
+\]</div>
+<h2 id="7">7. 几何可视化</h2>
+<p>上面的流程图解决的是“mHC 在整台 Transformer 发动机里装在哪里”。下面两个图则继续深入那个齿轮本身：为什么 <span class="arithmatex">\(H_{res}\)</span> 要被约束到 Birkhoff Polytope，以及这个几何对象长什么样。</p>
+<h3 id="birkhoff-polytope">Birkhoff Polytope 交互演示</h3>
+<style>
+.bp-container {
+  --bp-bg: #f8fafc;
+  --bp-panel: #ffffff;
+  --bp-text: #334155;
+  --bp-muted: #64748b;
+  --bp-border: #cbd5e1;
+  --bp-blue: #3b82f6;
+  --bp-blue-strong: #1d4ed8;
+  --bp-ok: #16a34a;
+  --bp-bad: #dc2626;
+  --bp-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  width: 100%;
+  margin: 0 auto;
+  padding: 14px 16px;
+  background: var(--bp-bg);
+  color: var(--bp-text);
+  border-radius: 12px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.bp-container * {
+  box-sizing: border-box;
+}
+
+.bp-pages {
+  max-height: clamp(540px, 76vh, 900px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--bp-border);
+  border-radius: 12px;
+  background: var(--bp-bg);
+  padding: 10px 0;
+}
+
+.bp-page {
+  display: none;
+}
+
+.bp-page.bp-active {
+  display: block;
+  animation: bpFadeIn 0.22s ease;
+}
+
+@keyframes bpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bp-section {
+  max-width: 920px;
+  margin: 0 auto 30px;
+  padding: 0 22px;
+}
+
+.bp-section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--bp-blue-strong);
+  border-left: 4px solid var(--bp-blue);
+  padding-left: 12px;
+  margin: 8px 0 12px;
+}
+
+.bp-note {
+  background: var(--bp-panel);
+  border: 1px solid var(--bp-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--bp-muted);
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  margin-bottom: 12px;
+}
+
+.bp-note b {
+  color: var(--bp-blue-strong);
+}
+
+.bp-card {
+  background: var(--bp-panel);
+  border: 1px solid var(--bp-border);
+  border-radius: 10px;
+  box-shadow: var(--bp-shadow);
+  padding: 12px;
+}
+
+.bp-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.bp-mat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 54px);
+  gap: 6px;
+}
+
+.bp-cell {
+  width: 54px;
+  height: 44px;
+  border-radius: 6px;
+  border: 1px solid var(--bp-border);
+  background: #f1f5f9;
+}
+
+.bp-cell input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  text-align: center;
+  background: transparent;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bp-sum-row,
+.bp-sum-col {
+  font-size: 12px;
+  color: #475569;
+}
+
+.bp-sum-ok {
+  color: var(--bp-ok);
+  font-weight: 700;
+}
+
+.bp-sum-bad {
+  color: var(--bp-bad);
+  font-weight: 700;
+}
+
+.bp-verdict {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bp-verdict.bp-ok {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+.bp-verdict.bp-bad {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.22);
+}
+
+.bp-canvas {
+  width: 100%;
+  border-radius: 10px;
+  background: #f1f5f9;
+  border: 1px solid var(--bp-border);
+  display: block;
+}
+
+.bp-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.bp-slider-row input[type="range"] {
+  flex: 1;
+}
+
+.bp-inline-code {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  background: #f1f5f9;
+  color: #b45309;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.bp-perm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.bp-perm-btn {
+  border: 1px solid var(--bp-border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bp-perm-btn:hover {
+  border-color: var(--bp-blue);
+  background: #eff6ff;
+  color: var(--bp-blue-strong);
+}
+
+.bp-perm-btn.bp-active {
+  border-color: var(--bp-blue);
+  background: #dbeafe;
+  color: var(--bp-blue-strong);
+  font-weight: 700;
+}
+
+.bp-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.bp-btn {
+  border: 1px solid var(--bp-border);
+  border-radius: 6px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bp-btn:hover {
+  border-color: var(--bp-blue);
+  background: #eff6ff;
+  color: var(--bp-blue-strong);
+}
+
+.bp-metric {
+  margin-top: 10px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: #475569;
+}
+
+.bp-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border: 1px solid var(--bp-border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.bp-table th,
+.bp-table td {
+  border-bottom: 1px solid var(--bp-border);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.bp-table th {
+  color: var(--bp-blue-strong);
+  background: #f1f5f9;
+}
+
+.bp-table tr:last-child td {
+  border-bottom: none;
+}
+
+.bp-formula {
+  background: #ffffff;
+  border-left: 4px solid var(--bp-blue);
+  border-radius: 0 8px 8px 0;
+  border: 1px solid var(--bp-border);
+  border-left-width: 4px;
+  padding: 10px 12px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: var(--bp-blue-strong);
+  margin: 10px 0;
+}
+
+.bp-dock-container {
+  margin: 12px auto 0;
+  display: flex;
+  justify-content: center;
+}
+
+.bp-dock {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--bp-border);
+  border-radius: 999px;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+  padding: 8px 12px;
+}
+
+.bp-dock-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.bp-dock-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.bp-dock-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.bp-dock-steps {
+  display: flex;
+  gap: 7px;
+}
+
+.bp-dot {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bp-dot:hover {
+  background: #e2e8f0;
+}
+
+.bp-dot.bp-active {
+  background: var(--bp-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.28);
+}
+
+@media (max-width: 760px) {
+  .bp-container {
+    padding: 12px 10px;
+    font-size: 12px;
+  }
+
+  .bp-pages {
+    max-height: 74vh;
+    padding: 8px 0;
+  }
+
+  .bp-section {
+    padding: 0 10px;
+    margin-bottom: 18px;
+  }
+
+  .bp-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .bp-section-title {
+    font-size: 16px;
+  }
+
+  .bp-dot {
+    width: 25px;
+    height: 25px;
+    font-size: 11px;
+  }
+}
+</style>
+
+<div class="bp-container">
+  <div class="bp-pages" id="bp-pages-viewport">
+    <div class="bp-page bp-active" data-bp-page="0">
+      <div class="bp-section">
+        <div class="bp-section-title">① 什么是双随机矩阵</div>
+        <div class="bp-note">满足三条约束：<b>每行和 = 1</b>、<b>每列和 = 1</b>、<b>所有元素 >= 0</b>。编辑下面 3x3 矩阵，观察约束是否成立。</div>
+        <div class="bp-grid-2">
+          <div class="bp-card">
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <div>
+                <div class="bp-mat-grid" id="bp-matrix-inputs"></div>
+                <div class="bp-sum-col" id="bp-col-sums" style="display:flex; gap:6px; margin-top:7px;"></div>
+              </div>
+              <div class="bp-sum-row" id="bp-row-sums" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+            <div id="bp-verdict" class="bp-verdict"></div>
+          </div>
+          <div class="bp-card">
+            <canvas id="bp-matrix-canvas" class="bp-canvas" height="300"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="1">
+      <div class="bp-section">
+        <div class="bp-section-title">② 2x2 情形：一条线段</div>
+        <div class="bp-note">2x2 双随机矩阵只有 1 个自由度：<span class="bp-inline-code">B(t) = [[t, 1-t], [1-t, t]]</span>，其中 t 属于 [0,1]。</div>
+        <div class="bp-card">
+          <canvas id="bp-slider-canvas" class="bp-canvas" height="280"></canvas>
+          <div class="bp-slider-row">
+            <span>t =</span>
+            <input id="bp-t-slider" type="range" min="0" max="100" value="50">
+            <span id="bp-t-value">0.50</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="2">
+      <div class="bp-section">
+        <div class="bp-section-title">③ 3x3 情形：6 个置换矩阵顶点</div>
+        <div class="bp-note">3x3 的所有置换矩阵一共 6 个，它们是 Birkhoff 多面体的顶点。点击任意顶点，查看对应矩阵和投影位置。</div>
+        <div class="bp-grid-2">
+          <div class="bp-card">
+            <div class="bp-perm-grid" id="bp-perm-grid"></div>
+            <div class="bp-metric" id="bp-perm-label" style="margin-top:8px;">当前顶点：P1</div>
+          </div>
+          <div class="bp-card">
+            <canvas id="bp-poly-canvas" class="bp-canvas" height="320"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="3">
+      <div class="bp-section">
+        <div class="bp-section-title">④ 凸组合：任意双随机矩阵都可分解</div>
+        <div class="bp-note">Birkhoff-von Neumann 定理：任意双随机矩阵可写为置换矩阵的非负加权和，且权重和为 1。</div>
+        <div class="bp-card">
+          <canvas id="bp-convex-canvas" class="bp-canvas" height="300"></canvas>
+          <div class="bp-controls">
+            <button class="bp-btn" data-bp-mix="center">示例 A：中心点</button>
+            <button class="bp-btn" data-bp-mix="edge">示例 B：边上点</button>
+            <button class="bp-btn" data-bp-mix="near">示例 C：近顶点</button>
+          </div>
+          <div class="bp-formula" id="bp-convex-eq"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="4">
+      <div class="bp-section">
+        <div class="bp-section-title">⑤ Sinkhorn：把任意正矩阵拉回双随机集合</div>
+        <div class="bp-note">交替执行行归一化与列归一化。点击按钮观察偏差如何收敛。</div>
+        <div class="bp-grid-2">
+          <div class="bp-card">
+            <canvas id="bp-sink-canvas" class="bp-canvas" height="280"></canvas>
+            <div class="bp-controls">
+              <button class="bp-btn" id="bp-sink-row">行归一化</button>
+              <button class="bp-btn" id="bp-sink-col">列归一化</button>
+              <button class="bp-btn" id="bp-sink-step">迭代 1 次</button>
+              <button class="bp-btn" id="bp-sink-reset">重置</button>
+            </div>
+          </div>
+          <div class="bp-card">
+            <div class="bp-metric" id="bp-sink-stat-1"></div>
+            <div class="bp-metric" id="bp-sink-stat-2"></div>
+            <div class="bp-formula" style="margin-top:12px;">H = exp(M / tau)\nfor k in range(K):\n  H = H / row_sum(H)\n  H = H / col_sum(H)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bp-page" data-bp-page="5">
+      <div class="bp-section">
+        <div class="bp-section-title">⑥ mHC 中的作用：稳定混合残差流</div>
+        <div class="bp-note">在 mHC 中，H_res 被约束为双随机矩阵，可以在不显著放大信号的前提下完成多流通信。</div>
+        <div class="bp-table-wrap">
+          <table class="bp-table">
+            <tr><th>矩阵</th><th>约束</th><th>作用</th></tr>
+            <tr><td>H_res</td><td>双随机</td><td>流与流之间的软重排，保证稳定混合</td></tr>
+            <tr><td>H_pre</td><td>[0,1] 门控</td><td>从多流读入主干计算</td></tr>
+            <tr><td>H_post</td><td>[0,2] 门控</td><td>把主干输出分发回多流</td></tr>
+          </table>
+        </div>
+        <div class="bp-formula">x_{l+1} = H_res x_l + H_post ⊙ F(H_pre x_l)</div>
+        <div class="bp-note">你可以把它理解为：先混流，再把主干计算结果按比例写回，整体比无约束混合更稳。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bp-dock-container" aria-label="Birkhoff 分页导航">
+    <div class="bp-dock">
+      <button class="bp-dock-btn" type="button" data-bp-prev aria-label="上一页">◀</button>
+      <div class="bp-dock-steps">
+        <button class="bp-dot bp-active" type="button" data-bp-page-target="0">1</button>
+        <button class="bp-dot" type="button" data-bp-page-target="1">2</button>
+        <button class="bp-dot" type="button" data-bp-page-target="2">3</button>
+        <button class="bp-dot" type="button" data-bp-page-target="3">4</button>
+        <button class="bp-dot" type="button" data-bp-page-target="4">5</button>
+        <button class="bp-dot" type="button" data-bp-page-target="5">6</button>
+      </div>
+      <button class="bp-dock-btn" type="button" data-bp-next aria-label="下一页">▶</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const clamp = function (v, lo, hi) {
+    return Math.max(lo, Math.min(hi, v));
+  };
+
+  function setCanvasSize(canvas, height) {
+    const parent = canvas.parentElement;
+    const w = Math.max(parent.clientWidth - 4, 280);
+    canvas.width = w;
+    canvas.height = height;
+    return { w: canvas.width, h: canvas.height };
+  }
+
+  function clearBg(ctx, w, h) {
+    ctx.fillStyle = "#f1f5f9";
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  const matrixState = [
+    [0.5, 0.2, 0.3],
+    [0.3, 0.4, 0.3],
+    [0.2, 0.4, 0.4]
+  ];
+
+  const matrixGrid = document.getElementById("bp-matrix-inputs");
+  const rowSumsEl = document.getElementById("bp-row-sums");
+  const colSumsEl = document.getElementById("bp-col-sums");
+  const verdictEl = document.getElementById("bp-verdict");
+  const matrixCanvas = document.getElementById("bp-matrix-canvas");
+  const matrixCtx = matrixCanvas.getContext("2d");
+
+  const inputCells = [];
+  for (let r = 0; r < 3; r++) {
+    inputCells[r] = [];
+    for (let c = 0; c < 3; c++) {
+      const cell = document.createElement("div");
+      cell.className = "bp-cell";
+      const input = document.createElement("input");
+      input.type = "number";
+      input.step = "0.01";
+      input.min = "0";
+      input.max = "1";
+      input.value = matrixState[r][c].toFixed(2);
+      input.addEventListener("input", function () {
+        const v = parseFloat(input.value);
+        matrixState[r][c] = isNaN(v) ? 0 : v;
+        renderMatrixSection();
+      });
+      cell.appendChild(input);
+      matrixGrid.appendChild(cell);
+      inputCells[r][c] = input;
+    }
+  }
+
+  function matrixRowSums() {
+    return matrixState.map(function (row) {
+      return row[0] + row[1] + row[2];
+    });
+  }
+
+  function matrixColSums() {
+    return [0, 1, 2].map(function (c) {
+      return matrixState[0][c] + matrixState[1][c] + matrixState[2][c];
+    });
+  }
+
+  function renderMatrixCanvas() {
+    const dim = setCanvasSize(matrixCanvas, 300);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(matrixCtx, w, h);
+
+    const cw = 68;
+    const ch = 54;
+    const gap = 8;
+    const offX = (w - (3 * cw + 2 * gap)) / 2;
+    const offY = 30;
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const v = matrixState[r][c];
+        const alpha = clamp(v, 0, 1) * 0.6 + 0.08;
+        const x = offX + c * (cw + gap);
+        const y = offY + r * (ch + gap);
+        matrixCtx.fillStyle = "rgba(59,130,246," + alpha + ")";
+        matrixCtx.beginPath();
+        matrixCtx.roundRect(x, y, cw, ch, 6);
+        matrixCtx.fill();
+
+        matrixCtx.fillStyle = "#0f172a";
+        matrixCtx.font = "bold 13px monospace";
+        matrixCtx.textAlign = "center";
+        matrixCtx.textBaseline = "middle";
+        matrixCtx.fillText(v.toFixed(2), x + cw / 2, y + ch / 2);
+      }
+    }
+
+    const rs = matrixRowSums();
+    const cs = matrixColSums();
+    matrixCtx.font = "bold 12px monospace";
+    matrixCtx.textAlign = "left";
+    for (let i = 0; i < 3; i++) {
+      matrixCtx.fillStyle = Math.abs(rs[i] - 1) < 0.01 ? "#16a34a" : "#dc2626";
+      matrixCtx.fillText("行" + (i + 1) + "=" + rs[i].toFixed(2), offX + 3 * (cw + gap) + 8, offY + i * (ch + gap) + 28);
+    }
+
+    matrixCtx.textAlign = "center";
+    for (let j = 0; j < 3; j++) {
+      matrixCtx.fillStyle = Math.abs(cs[j] - 1) < 0.01 ? "#16a34a" : "#dc2626";
+      matrixCtx.fillText(cs[j].toFixed(2), offX + j * (cw + gap) + cw / 2, offY + 3 * (ch + gap) + 16);
+    }
+  }
+
+  function renderMatrixSection() {
+    const rs = matrixRowSums();
+    const cs = matrixColSums();
+
+    rowSumsEl.innerHTML = "";
+    for (let i = 0; i < 3; i++) {
+      const ok = Math.abs(rs[i] - 1) < 0.01;
+      const row = document.createElement("div");
+      row.innerHTML = "行" + (i + 1) + " <span class='" + (ok ? "bp-sum-ok" : "bp-sum-bad") + "'>" + rs[i].toFixed(3) + "</span>";
+      rowSumsEl.appendChild(row);
+    }
+
+    colSumsEl.innerHTML = "";
+    for (let j = 0; j < 3; j++) {
+      const ok = Math.abs(cs[j] - 1) < 0.01;
+      const col = document.createElement("div");
+      col.innerHTML = "<span class='" + (ok ? "bp-sum-ok" : "bp-sum-bad") + "'>" + cs[j].toFixed(2) + "</span>";
+      colSumsEl.appendChild(col);
+    }
+
+    const allNonNeg = matrixState.every(function (row) {
+      return row.every(function (v) {
+        return v >= 0;
+      });
+    });
+    const allRowOk = rs.every(function (s) { return Math.abs(s - 1) < 0.01; });
+    const allColOk = cs.every(function (s) { return Math.abs(s - 1) < 0.01; });
+
+    if (allNonNeg && allRowOk && allColOk) {
+      verdictEl.className = "bp-verdict bp-ok";
+      verdictEl.textContent = "这是一个双随机矩阵，位于 Birkhoff Polytope 内";
+    } else {
+      verdictEl.className = "bp-verdict bp-bad";
+      verdictEl.textContent = "当前不满足双随机约束";
+    }
+
+    renderMatrixCanvas();
+  }
+
+  const slider = document.getElementById("bp-t-slider");
+  const sliderVal = document.getElementById("bp-t-value");
+  const sliderCanvas = document.getElementById("bp-slider-canvas");
+  const sliderCtx = sliderCanvas.getContext("2d");
+
+  function renderSliderSection() {
+    const t = parseInt(slider.value, 10) / 100;
+    sliderVal.textContent = t.toFixed(2);
+
+    const dim = setCanvasSize(sliderCanvas, 280);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(sliderCtx, w, h);
+
+    const x0 = 80;
+    const x1 = w - 80;
+    const y = h / 2;
+
+    sliderCtx.strokeStyle = "#cbd5e1";
+    sliderCtx.lineWidth = 4;
+    sliderCtx.beginPath();
+    sliderCtx.moveTo(x0, y);
+    sliderCtx.lineTo(x1, y);
+    sliderCtx.stroke();
+
+    sliderCtx.strokeStyle = "#3b82f6";
+    sliderCtx.beginPath();
+    sliderCtx.moveTo(x0, y);
+    sliderCtx.lineTo(x0 + (x1 - x0) * t, y);
+    sliderCtx.stroke();
+
+    const cx = x0 + (x1 - x0) * t;
+    sliderCtx.fillStyle = "#ffffff";
+    sliderCtx.strokeStyle = "#1d4ed8";
+    sliderCtx.lineWidth = 2;
+    sliderCtx.beginPath();
+    sliderCtx.arc(cx, y, 10, 0, Math.PI * 2);
+    sliderCtx.fill();
+    sliderCtx.stroke();
+
+    sliderCtx.fillStyle = "#475569";
+    sliderCtx.font = "12px monospace";
+    sliderCtx.textAlign = "center";
+    sliderCtx.fillText("t=0", x0, y - 18);
+    sliderCtx.fillText("t=1", x1, y - 18);
+
+    const B = [
+      [t, 1 - t],
+      [1 - t, t]
+    ];
+    const cw = 70;
+    const ch = 52;
+    const gx = (w - (2 * cw + 8)) / 2;
+    const gy = y + 28;
+
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 2; c++) {
+        const v = B[r][c];
+        sliderCtx.fillStyle = "rgba(59,130,246," + (0.15 + v * 0.6) + ")";
+        sliderCtx.beginPath();
+        sliderCtx.roundRect(gx + c * (cw + 8), gy + r * (ch + 8), cw, ch, 6);
+        sliderCtx.fill();
+        sliderCtx.fillStyle = "#0f172a";
+        sliderCtx.font = "bold 13px monospace";
+        sliderCtx.fillText(v.toFixed(2), gx + c * (cw + 8) + cw / 2, gy + r * (ch + 8) + ch / 2);
+      }
+    }
+  }
+
+  slider.addEventListener("input", renderSliderSection);
+
+  const permData = [
+    [1, 2, 3],
+    [1, 3, 2],
+    [2, 1, 3],
+    [2, 3, 1],
+    [3, 1, 2],
+    [3, 2, 1]
+  ];
+  let activePerm = 0;
+  const permGrid = document.getElementById("bp-perm-grid");
+  const permLabel = document.getElementById("bp-perm-label");
+  const polyCanvas = document.getElementById("bp-poly-canvas");
+  const polyCtx = polyCanvas.getContext("2d");
+
+  function renderPermButtons() {
+    permGrid.innerHTML = "";
+    permData.forEach(function (p, idx) {
+      const b = document.createElement("button");
+      b.className = "bp-perm-btn" + (idx === activePerm ? " bp-active" : "");
+      b.textContent = "P" + (idx + 1) + " [" + p.join(",") + "]";
+      b.addEventListener("click", function () {
+        activePerm = idx;
+        renderPermButtons();
+        renderPolyCanvas();
+      });
+      permGrid.appendChild(b);
+    });
+  }
+
+  function renderPolyCanvas() {
+    const dim = setCanvasSize(polyCanvas, 320);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(polyCtx, w, h);
+
+    const cx = w / 2;
+    const cy = h / 2;
+    const R = Math.min(w, h) * 0.32;
+
+    const pts = [];
+    for (let i = 0; i < 6; i++) {
+      const ang = -Math.PI / 2 + i * (Math.PI / 3);
+      pts.push([cx + R * Math.cos(ang), cy + R * Math.sin(ang)]);
+    }
+
+    polyCtx.strokeStyle = "#94a3b8";
+    polyCtx.lineWidth = 2;
+    polyCtx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const p = pts[i];
+      if (i === 0) polyCtx.moveTo(p[0], p[1]);
+      else polyCtx.lineTo(p[0], p[1]);
+    }
+    polyCtx.closePath();
+    polyCtx.stroke();
+
+    pts.forEach(function (p, i) {
+      polyCtx.fillStyle = i === activePerm ? "#1d4ed8" : "#64748b";
+      polyCtx.beginPath();
+      polyCtx.arc(p[0], p[1], i === activePerm ? 7 : 5, 0, Math.PI * 2);
+      polyCtx.fill();
+      polyCtx.fillStyle = "#334155";
+      polyCtx.font = "12px sans-serif";
+      polyCtx.textAlign = "center";
+      polyCtx.fillText("P" + (i + 1), p[0], p[1] - 12);
+    });
+
+    permLabel.textContent = "当前顶点：P" + (activePerm + 1) + " = [" + permData[activePerm].join(",") + "]";
+  }
+
+  const convexCanvas = document.getElementById("bp-convex-canvas");
+  const convexCtx = convexCanvas.getContext("2d");
+  const convexEq = document.getElementById("bp-convex-eq");
+  let convexWeights = [1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6];
+
+  function drawConvex() {
+    const dim = setCanvasSize(convexCanvas, 300);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(convexCtx, w, h);
+
+    const cx = w / 2;
+    const cy = h / 2;
+    const R = Math.min(w, h) * 0.33;
+
+    const pts = [];
+    for (let i = 0; i < 6; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 3;
+      pts.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]);
+    }
+
+    convexCtx.strokeStyle = "#94a3b8";
+    convexCtx.lineWidth = 2;
+    convexCtx.beginPath();
+    pts.forEach(function (p, i) {
+      if (i === 0) convexCtx.moveTo(p[0], p[1]);
+      else convexCtx.lineTo(p[0], p[1]);
+    });
+    convexCtx.closePath();
+    convexCtx.stroke();
+
+    let mx = 0;
+    let my = 0;
+    for (let i = 0; i < 6; i++) {
+      mx += convexWeights[i] * pts[i][0];
+      my += convexWeights[i] * pts[i][1];
+      convexCtx.fillStyle = "#64748b";
+      convexCtx.beginPath();
+      convexCtx.arc(pts[i][0], pts[i][1], 4, 0, Math.PI * 2);
+      convexCtx.fill();
+    }
+
+    convexCtx.fillStyle = "#1d4ed8";
+    convexCtx.beginPath();
+    convexCtx.arc(mx, my, 8, 0, Math.PI * 2);
+    convexCtx.fill();
+
+    convexCtx.fillStyle = "#334155";
+    convexCtx.font = "12px sans-serif";
+    convexCtx.textAlign = "center";
+    convexCtx.fillText("双随机矩阵点", mx, my - 12);
+
+    const terms = convexWeights
+      .map(function (w, i) {
+        return w.toFixed(2) + "*P" + (i + 1);
+      })
+      .join(" + ");
+    convexEq.textContent = "M = " + terms;
+  }
+
+  document.querySelectorAll("[data-bp-mix]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const type = btn.getAttribute("data-bp-mix");
+      if (type === "center") {
+        convexWeights = [0.17, 0.16, 0.17, 0.16, 0.17, 0.17];
+      } else if (type === "edge") {
+        convexWeights = [0.5, 0.5, 0, 0, 0, 0];
+      } else {
+        convexWeights = [0.72, 0.1, 0.08, 0.05, 0.03, 0.02];
+      }
+      drawConvex();
+    });
+  });
+
+  let sinkM;
+  const sinkCanvas = document.getElementById("bp-sink-canvas");
+  const sinkCtx = sinkCanvas.getContext("2d");
+  const sinkStat1 = document.getElementById("bp-sink-stat-1");
+  const sinkStat2 = document.getElementById("bp-sink-stat-2");
+
+  function resetSink() {
+    sinkM = [
+      [Math.random() + 0.2, Math.random() + 0.2, Math.random() + 0.2],
+      [Math.random() + 0.2, Math.random() + 0.2, Math.random() + 0.2],
+      [Math.random() + 0.2, Math.random() + 0.2, Math.random() + 0.2]
+    ];
+    renderSink();
+  }
+
+  function rowNorm(M) {
+    M.forEach(function (row) {
+      const s = row[0] + row[1] + row[2] + 1e-8;
+      row[0] /= s;
+      row[1] /= s;
+      row[2] /= s;
+    });
+  }
+
+  function colNorm(M) {
+    for (let c = 0; c < 3; c++) {
+      const s = M[0][c] + M[1][c] + M[2][c] + 1e-8;
+      M[0][c] /= s;
+      M[1][c] /= s;
+      M[2][c] /= s;
+    }
+  }
+
+  function maxDev(M) {
+    const rs = M.map(function (r) { return r[0] + r[1] + r[2]; });
+    const cs = [0, 1, 2].map(function (c) { return M[0][c] + M[1][c] + M[2][c]; });
+    const rd = Math.max.apply(null, rs.map(function (v) { return Math.abs(v - 1); }));
+    const cd = Math.max.apply(null, cs.map(function (v) { return Math.abs(v - 1); }));
+    return { rd: rd, cd: cd };
+  }
+
+  function renderSink() {
+    const dim = setCanvasSize(sinkCanvas, 280);
+    const w = dim.w;
+    const h = dim.h;
+    clearBg(sinkCtx, w, h);
+
+    const cw = 72;
+    const ch = 52;
+    const gap = 8;
+    const offX = (w - (3 * cw + 2 * gap)) / 2;
+    const offY = 30;
+
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const v = sinkM[r][c];
+        sinkCtx.fillStyle = "rgba(59,130,246," + (0.1 + clamp(v, 0, 1) * 0.6) + ")";
+        sinkCtx.beginPath();
+        sinkCtx.roundRect(offX + c * (cw + gap), offY + r * (ch + gap), cw, ch, 6);
+        sinkCtx.fill();
+        sinkCtx.fillStyle = "#0f172a";
+        sinkCtx.font = "bold 12px monospace";
+        sinkCtx.textAlign = "center";
+        sinkCtx.textBaseline = "middle";
+        sinkCtx.fillText(v.toFixed(3), offX + c * (cw + gap) + cw / 2, offY + r * (ch + gap) + ch / 2);
+      }
+    }
+
+    const dev = maxDev(sinkM);
+    const ok = dev.rd < 0.01 && dev.cd < 0.01;
+    sinkStat1.textContent = "行偏差最大值: " + dev.rd.toFixed(5) + " | 列偏差最大值: " + dev.cd.toFixed(5);
+    sinkStat2.innerHTML = ok
+      ? "<span style='color:#16a34a;font-weight:700;'>已接近双随机矩阵</span>"
+      : "<span style='color:#dc2626;font-weight:700;'>尚未收敛，继续迭代</span>";
+  }
+
+  document.getElementById("bp-sink-row").addEventListener("click", function () {
+    rowNorm(sinkM);
+    renderSink();
+  });
+
+  document.getElementById("bp-sink-col").addEventListener("click", function () {
+    colNorm(sinkM);
+    renderSink();
+  });
+
+  document.getElementById("bp-sink-step").addEventListener("click", function () {
+    rowNorm(sinkM);
+    colNorm(sinkM);
+    renderSink();
+  });
+
+  document.getElementById("bp-sink-reset").addEventListener("click", function () {
+    resetSink();
+  });
+
+  function initAll() {
+    renderMatrixSection();
+    renderSliderSection();
+    renderPermButtons();
+    renderPolyCanvas();
+    drawConvex();
+    resetSink();
+  }
+
+  const root = document.querySelector(".bp-container");
+  const viewport = document.getElementById("bp-pages-viewport");
+  const pages = Array.from(root.querySelectorAll(".bp-page"));
+  const dots = Array.from(root.querySelectorAll("[data-bp-page-target]"));
+  const prev = root.querySelector("[data-bp-prev]");
+  const next = root.querySelector("[data-bp-next]");
+  let current = 0;
+
+  function goToPage(index) {
+    current = Math.max(0, Math.min(index, pages.length - 1));
+    pages.forEach(function (p, i) {
+      p.classList.toggle("bp-active", i === current);
+    });
+    dots.forEach(function (d, i) {
+      d.classList.toggle("bp-active", i === current);
+    });
+    if (prev) prev.disabled = current === 0;
+    if (next) next.disabled = current === pages.length - 1;
+    if (viewport) viewport.scrollTop = 0;
+    requestAnimationFrame(function () {
+      window.dispatchEvent(new Event("resize"));
+    });
+  }
+
+  dots.forEach(function (dot) {
+    dot.addEventListener("click", function () {
+      goToPage(Number(dot.getAttribute("data-bp-page-target")));
+    });
+  });
+  if (prev) prev.addEventListener("click", function () { goToPage(current - 1); });
+  if (next) next.addEventListener("click", function () { goToPage(current + 1); });
+
+  window.addEventListener("resize", function () {
+    renderMatrixCanvas();
+    renderSliderSection();
+    renderPolyCanvas();
+    drawConvex();
+    renderSink();
+  });
+
+  initAll();
+  goToPage(0);
+})();
+</script>
+
+<!-- <iframe
+  class="auto-height-frame"
+  title="Birkhoff polytope interactive demo"
+  src="../../../../.assets/birkhoff_polytope.html"
+  width="100%"
+  scrolling="no"
+  style="border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;"
+></iframe> -->
+
+<h3 id="3d-birkhoff">3D Birkhoff 投影演示</h3>
+<style>
+  .bk-wrapper {
+    --bk-bg-color: #f8fafc;
+    --bk-panel-bg: #ffffff;
+    --bk-text-color: #334155;
+    --bk-title-color: #0f172a;
+    --bk-muted: #64748b;
+    --bk-border-color: #cbd5e1;
+    --bk-accent-primary: #3b82f6;
+    --bk-accent-text: #1e40af;
+    --bk-accent-light: #eff6ff;
+    --bk-warning: #d97706;
+    --bk-panel-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    width: 100%;
+    margin: 0 auto;
+    padding: 18px;
+    border-radius: 12px;
+    background: var(--bk-bg-color);
+    color: var(--bk-text-color);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, system-ui, sans-serif;
+    line-height: 1.6;
+    box-sizing: border-box;
+  }
+
+  .bk-wrapper * {
+    box-sizing: border-box;
+  }
+
+  .bk-wrapper .bk-header {
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .bk-wrapper .bk-header-title {
+    margin: 0 0 6px;
+    color: var(--bk-title-color);
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .bk-wrapper .bk-header-desc {
+    max-width: 860px;
+    margin: 0 auto;
+    color: var(--bk-muted);
+    font-size: 13px;
+  }
+
+  .bk-wrapper .bk-shell {
+    display: grid;
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    gap: 16px;
+    height: clamp(620px, 76vh, 760px);
+  }
+
+  .bk-wrapper .bk-panel,
+  .bk-wrapper .bk-canvas-panel {
+    min-width: 0;
+    min-height: 0;
+    background: var(--bk-panel-bg);
+    border: 1px solid var(--bk-border-color);
+    border-radius: 12px;
+    box-shadow: var(--bk-panel-shadow);
+  }
+
+  .bk-wrapper .bk-panel {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 18px 20px;
+    border-left: 5px solid var(--bk-accent-primary);
+  }
+
+  .bk-wrapper .bk-panel-title {
+    margin: 0 0 8px;
+    color: var(--bk-accent-text);
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .bk-wrapper .bk-intro {
+    margin: 0 0 18px;
+    color: #475569;
+    font-size: 13px;
+  }
+
+  .bk-wrapper .bk-highlight {
+    display: inline-block;
+    padding: 0 5px;
+    border: 1px solid #bfdbfe;
+    border-radius: 5px;
+    background: var(--bk-accent-light);
+    color: var(--bk-accent-text);
+    font-weight: 700;
+  }
+
+  .bk-wrapper .bk-matrix-box {
+    margin-bottom: 18px;
+    padding: 14px;
+    border: 1px solid var(--bk-border-color);
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: var(--bk-panel-shadow);
+  }
+
+  .bk-wrapper .bk-section-title,
+  .bk-wrapper .bk-sliders-title {
+    margin: 0 0 10px;
+    color: var(--bk-accent-text);
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .bk-wrapper .bk-mat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .bk-wrapper .bk-mat-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    border: 1px solid var(--bk-border-color);
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--bk-text-color);
+    font-size: 1rem;
+    font-weight: 800;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .bk-wrapper .bk-sliders {
+    display: grid;
+    gap: 12px;
+  }
+
+  .bk-wrapper .bk-slider-row {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr) 42px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .bk-wrapper .bk-slider-label {
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .bk-wrapper .bk-slider-input {
+    width: 100%;
+    min-width: 0;
+    accent-color: var(--bk-accent-primary);
+    cursor: pointer;
+  }
+
+  .bk-wrapper .bk-slider-val {
+    color: var(--bk-muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .bk-wrapper .bk-canvas-panel {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+  }
+
+  .bk-wrapper .bk-canvas-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    overflow: hidden;
+  }
+
+  .bk-wrapper .bk-canvas-container canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .bk-wrapper .bk-label-3d {
+    position: absolute;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    padding: 4px 8px;
+    border: 1px solid var(--bk-border-color);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: var(--bk-text-color);
+    font-size: 12px;
+    font-weight: 800;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 0.1s ease;
+  }
+
+  .bk-wrapper .bk-label-center {
+    padding: 6px 12px;
+    border-color: transparent;
+    border-radius: 999px;
+    background: var(--bk-accent-primary);
+    box-shadow: 0 8px 18px rgba(59, 130, 246, 0.28);
+    color: #ffffff;
+    font-size: 13px;
+  }
+
+  .bk-wrapper .bk-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    z-index: 3;
+    max-width: calc(100% - 32px);
+    transform: translateX(-50%);
+    padding: 8px 14px;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--bk-panel-shadow);
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .bk-wrapper .bk-error {
+    position: absolute;
+    inset: 16px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    border: 1px dashed #93c5fd;
+    border-radius: 10px;
+    background: var(--bk-accent-light);
+    color: var(--bk-accent-text);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .bk-wrapper {
+      padding: 14px;
+    }
+
+    .bk-wrapper .bk-shell {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+
+    .bk-wrapper .bk-canvas-panel {
+      height: 460px;
+    }
+
+    .bk-wrapper .bk-canvas-container {
+      min-height: 460px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .bk-wrapper .bk-header-title {
+      font-size: 1.45rem;
+    }
+
+    .bk-wrapper .bk-panel {
+      padding: 16px;
+    }
+
+    .bk-wrapper .bk-slider-row {
+      grid-template-columns: 42px minmax(0, 1fr) 38px;
+      gap: 8px;
+    }
+
+    .bk-wrapper .bk-hint {
+      width: calc(100% - 28px);
+      white-space: normal;
+    }
+  }
+</style>
+
+<div class="bk-wrapper">
+  <div class="bk-header">
+    <h1 class="bk-header-title">3D 视角看懂 Birkhoff 多面体</h1>
+    <div class="bk-header-desc">
+      把 3x3 双随机矩阵看作 6 个置换矩阵的凸组合：顶点是纯置换矩阵，中间蓝点是当前混合结果。
+    </div>
+  </div>
+
+  <div class="bk-shell">
+    <aside class="bk-panel">
+      <h2 class="bk-panel-title">多面体就像一个调酒器</h2>
+      <p class="bk-intro">
+        <span class="bk-highlight">置换矩阵</span> 是 6 个顶点，类似 6 种纯基底；
+        <span class="bk-highlight">双随机矩阵</span> 是它们按比例混合后的结果。
+        拖动权重后，右侧蓝点会移动，下面矩阵也会同步更新。
+      </p>
+
+      <div class="bk-matrix-box">
+        <div class="bk-section-title">当前混合矩阵</div>
+        <div class="bk-mat-grid" data-bk-mat-grid></div>
+      </div>
+
+      <div class="bk-sliders-title">6 个置换矩阵的混合权重</div>
+      <div class="bk-sliders" data-bk-sliders></div>
+    </aside>
+
+    <section class="bk-canvas-panel">
+      <div class="bk-canvas-container" data-bk-canvas-container>
+        <div class="bk-hint">拖动滑块调整比例，按住画布旋转 3D 视角</div>
+
+        <div class="bk-label-3d" data-bk-label="p1">P1</div>
+        <div class="bk-label-3d" data-bk-label="p2">P2</div>
+        <div class="bk-label-3d" data-bk-label="p3">P3</div>
+        <div class="bk-label-3d" data-bk-label="p4">P4</div>
+        <div class="bk-label-3d" data-bk-label="p5">P5</div>
+        <div class="bk-label-3d" data-bk-label="p6">P6</div>
+        <div class="bk-label-3d bk-label-center" data-bk-label="center">混合矩阵</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+(() => {
+  const roots = document.querySelectorAll('.bk-wrapper:not([data-bk-initialized])');
+  roots.forEach(initBirkhoffDemo);
+
+  function initBirkhoffDemo(root) {
+    root.dataset.bkInitialized = 'true';
+
+    const container = root.querySelector('[data-bk-canvas-container]');
+    if (!window.THREE || !THREE.OrbitControls) {
+      showError(container, '3D 渲染库加载失败，请检查网络或 CDN 访问。');
+      return;
+    }
+
+    const radius = 9;
+    const vertices = [
+      { name: 'P1', col: '#ef4444', pos: new THREE.Vector3(0, radius, 0), mat: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] },
+      { name: 'P2', col: '#16a34a', pos: new THREE.Vector3(radius, 0, 0), mat: [[0, 1, 0], [1, 0, 0], [0, 0, 1]] },
+      { name: 'P3', col: '#3b82f6', pos: new THREE.Vector3(0, 0, radius), mat: [[0, 0, 1], [0, 1, 0], [1, 0, 0]] },
+      { name: 'P4', col: '#d97706', pos: new THREE.Vector3(-radius, 0, 0), mat: [[1, 0, 0], [0, 0, 1], [0, 1, 0]] },
+      { name: 'P5', col: '#0d9488', pos: new THREE.Vector3(0, 0, -radius), mat: [[0, 1, 0], [0, 0, 1], [1, 0, 0]] },
+      { name: 'P6', col: '#db2777', pos: new THREE.Vector3(0, -radius, 0), mat: [[0, 0, 1], [1, 0, 0], [0, 1, 0]] }
+    ];
+
+    let rawWeights = [50, 0, 0, 0, 0, 50];
+    let normalizedWeights = [0.5, 0, 0, 0, 0, 0.5];
+    let centerSphere = null;
+    const lines = [];
+
+    const matGrid = root.querySelector('[data-bk-mat-grid]');
+    const cells = [];
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'bk-mat-cell';
+      matGrid.appendChild(cell);
+      cells.push(cell);
+    }
+
+    const slidersContainer = root.querySelector('[data-bk-sliders]');
+    vertices.forEach((vertex, index) => {
+      const row = document.createElement('div');
+      row.className = 'bk-slider-row';
+      row.innerHTML = `
+        <div class="bk-slider-label" style="color:${vertex.col}">${vertex.name}</div>
+        <input type="range" class="bk-slider-input" min="0" max="100" value="${rawWeights[index]}">
+        <div class="bk-slider-val">${rawWeights[index]}%</div>
+      `;
+      slidersContainer.appendChild(row);
+
+      const input = row.querySelector('.bk-slider-input');
+      const value = row.querySelector('.bk-slider-val');
+      input.style.accentColor = vertex.col;
+      input.addEventListener('input', () => {
+        rawWeights[index] = parseInt(input.value, 10);
+        updateMath();
+      });
+      vertex.valueEl = value;
+    });
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.set(15, 12, 24);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.65);
+    dirLight.position.set(14, 24, 18);
+    scene.add(dirLight);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0xf8fafc, 1);
+    renderer.domElement.setAttribute('aria-label', 'Birkhoff 多面体三维视图');
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+
+    const geometry = new THREE.OctahedronGeometry(radius, 0);
+    const wireframe = new THREE.LineSegments(
+      new THREE.WireframeGeometry(geometry),
+      new THREE.LineBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.28 })
+    );
+    scene.add(wireframe);
+
+    const glassMesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({
+        color: 0xbfdbfe,
+        transparent: true,
+        opacity: 0.16,
+        side: THREE.DoubleSide
+      })
+    );
+    scene.add(glassMesh);
+
+    vertices.forEach(vertex => {
+      const sphereGeo = new THREE.SphereGeometry(0.6, 20, 20);
+      const sphereMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(vertex.col),
+        roughness: 0.32,
+        metalness: 0.08
+      });
+      const mesh = new THREE.Mesh(sphereGeo, sphereMat);
+      mesh.position.copy(vertex.pos);
+      scene.add(mesh);
+    });
+
+    centerSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.95, 32, 32),
+      new THREE.MeshStandardMaterial({
+        color: 0x3b82f6,
+        roughness: 0.16,
+        metalness: 0.22
+      })
+    );
+    scene.add(centerSphere);
+
+    vertices.forEach(vertex => {
+      const lineGeo = new THREE.BufferGeometry();
+      lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+      const lineMat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(vertex.col),
+        transparent: true,
+        opacity: 0.5
+      });
+      const line = new THREE.Line(lineGeo, lineMat);
+      scene.add(line);
+      lines.push(line);
+    });
+
+    resizeRenderer();
+    updateMath();
+    animate();
+
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(resizeRenderer);
+      observer.observe(container);
+    } else {
+      window.addEventListener('resize', resizeRenderer);
+    }
+
+    function updateMath() {
+      const sum = rawWeights.reduce((total, weight) => total + weight, 0);
+      normalizedWeights = sum === 0
+        ? Array(vertices.length).fill(1 / vertices.length)
+        : rawWeights.map(weight => weight / sum);
+
+      normalizedWeights.forEach((weight, index) => {
+        vertices[index].valueEl.textContent = `${(weight * 100).toFixed(0)}%`;
+      });
+
+      const finalMat = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+      vertices.forEach((vertex, index) => {
+        const weight = normalizedWeights[index];
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            finalMat[row][col] += weight * vertex.mat[row][col];
+          }
+        }
+      });
+
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const value = finalMat[row][col];
+          const cell = cells[row * 3 + col];
+          cell.textContent = value.toFixed(2);
+          cell.style.background = `rgba(59, 130, 246, ${value * 0.5 + 0.08})`;
+          cell.style.color = value > 0.7 ? '#0f172a' : '#334155';
+        }
+      }
+
+      const mixPos = new THREE.Vector3();
+      vertices.forEach((vertex, index) => {
+        mixPos.addScaledVector(vertex.pos, normalizedWeights[index]);
+      });
+      centerSphere.position.copy(mixPos);
+
+      lines.forEach((line, index) => {
+        const positions = line.geometry.attributes.position.array;
+        positions[0] = mixPos.x;
+        positions[1] = mixPos.y;
+        positions[2] = mixPos.z;
+        positions[3] = vertices[index].pos.x;
+        positions[4] = vertices[index].pos.y;
+        positions[5] = vertices[index].pos.z;
+        line.geometry.attributes.position.needsUpdate = true;
+        line.material.opacity = normalizedWeights[index] > 0.01
+          ? normalizedWeights[index] * 0.75 + 0.18
+          : 0;
+      });
+    }
+
+    function resizeRenderer() {
+      const width = Math.max(container.clientWidth, 320);
+      const height = Math.max(container.clientHeight, 360);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+      updateLabels();
+    }
+
+    function updateLabels() {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      vertices.forEach((vertex, index) => {
+        const label = root.querySelector(`[data-bk-label="p${index + 1}"]`);
+        const pos = vertex.pos.clone().project(camera);
+        placeLabel(label, pos, width, height, -18);
+      });
+
+      const centerLabel = root.querySelector('[data-bk-label="center"]');
+      const centerPos = centerSphere.position.clone().project(camera);
+      placeLabel(centerLabel, centerPos, width, height, -28);
+    }
+
+    function placeLabel(label, projectedPos, width, height, yOffset) {
+      if (projectedPos.z > 1) {
+        label.style.opacity = 0;
+        return;
+      }
+
+      label.style.opacity = 1;
+      label.style.left = `${(projectedPos.x * 0.5 + 0.5) * width}px`;
+      label.style.top = `${(-(projectedPos.y * 0.5) + 0.5) * height + yOffset}px`;
+    }
+
+    function showError(target, message) {
+      const error = document.createElement('div');
+      error.className = 'bk-error';
+      error.textContent = message;
+      target.appendChild(error);
+    }
+  }
+})();
+</script>
+
+<h2 id="_1">完整代码练习</h2>
+<p><a href="../../../code_practice/mhc.ipynb">text</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">评论</h2>
+<script src="https://giscus.app/client.js"
+        data-repo="Ranbaigao/llm_learning"
+        data-repo-id="R_kgDOS6jz6w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOS6jz684DEEsg"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": [], "search": "../../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../../../.assets/javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../../../../.assets/javascripts/pageview.js"></script>
+      
+        <script src="../../../../../.assets/javascripts/html_modal.js"></script>
+      
+        <script src="https://cn.vercount.one/js"></script>
+      
+    
+  </body>
+</html>

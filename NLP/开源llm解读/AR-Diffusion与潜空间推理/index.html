@@ -1,0 +1,5030 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ranbaigao.github.io/llm_learning/NLP/%E5%BC%80%E6%BA%90llm%E8%A7%A3%E8%AF%BB/AR-Diffusion%E4%B8%8E%E6%BD%9C%E7%A9%BA%E9%97%B4%E6%8E%A8%E7%90%86/">
+      
+      
+        <link rel="prev" href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/OpenMythos%E6%A1%86%E6%9E%B6/">
+      
+      
+        <link rel="next" href="../Claude%20Mythos%205%E6%8E%A8%E6%B5%8B/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q2.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>AR-Diffusion 与潜空间推理路线综述 - LLM知识库</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../.assets/stylesheets/pageview.css">
+    
+      <link rel="stylesheet" href="../../../.assets/stylesheets/html_modal.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ar-diffusion" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="LLM知识库" class="md-header__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLM知识库
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AR-Diffusion 与潜空间推理路线综述
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="LLM知识库" class="md-nav__button md-logo" aria-label="LLM知识库" data-md-component="logo">
+      
+  <img src="../../../.assets/Gemini_Generated_Image_qj4q72qj4q72qj4q.png" alt="logo">
+
+    </a>
+    LLM知识库
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Ranbaigao/llm_learning" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Ranbaigao/llm_learning
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../knowledge_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CV模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CV模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JEPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JEPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/JiT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JiT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/SAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/CV%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/VAE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VAE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    世界模型
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    世界模型
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/%E5%B0%8F%E9%B9%8FVLA%E4%B8%8E%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小鹏 VLA 与世界模型技术体系总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/%E5%9F%BA%E7%A1%80/Reparameterization%20Trick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    重参数化技巧（Reparameterization Trick）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CV/%E5%9F%BA%E7%A1%80/SD%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SD公式推导
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NLP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    NLP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM应用开发
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM应用开发
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Harness%2BAgent%E5%BC%95%E5%85%A5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness+Agent引入
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Skill%E6%84%8F%E4%B9%89%E6%8E%A2%E8%AE%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill意义探讨
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_3" id="__nav_4_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepseek Harness
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deepseek Harness
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Deepseek%20Harness%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek Harness 技术报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Deepseek%20Harness/Dsh%20%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dsh 会话记忆机制：the log IS the state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1_4" id="__nav_4_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Hermes Agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%8D%95%E4%B8%AA%E4%BC%9A%E8%AF%9D%E7%9A%84%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hermes Agent 单会话记忆管理策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%A4%9AAgent%E9%80%9A%E4%BF%A1%E6%9E%B6%E6%9E%84/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    多 Agent 通信架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E5%AE%89%E5%85%A8%E3%80%81%E5%B7%A5%E4%BD%9C%E5%8C%BA%E9%9A%94%E7%A6%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全隔离与工作区隔离
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/Hermes%20Agent/Hermes%20Agent%E8%AE%B0%E5%BF%86%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    内存压缩机制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型架构
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型架构
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_1" id="__nav_4_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Muon优化器
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/Muon%E4%BC%98%E5%8C%96%E5%99%A8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Muon优化器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/Muon%E4%BC%98%E5%8C%96%E5%99%A8/%E5%A5%87%E5%BC%82%E5%80%BC%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%92%8C%E6%AD%A3%E4%BA%A4%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    奇异值、特征值和正交矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    位置编码
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    位置编码
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/RoPe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RoPe
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    残差连接
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    残差连接
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Attention%20Residuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attention Residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/Pre-Norm%20vs%20Post-Norm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre Norm vs Post Norm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/%E6%B5%81%E5%BD%A2%E6%AF%94%E8%BE%83/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    流形（Manifold） JiT 中的和 mHC 中的是一个意思吗
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    mHC
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/mHC%20%E6%AE%8B%E5%B7%AE%E6%B5%81%E5%BD%A2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC_残差流形
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5/mHC/%E5%8F%8C%E9%9A%8F%E6%9C%BA%E7%9F%A9%E9%98%B5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    双随机矩阵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    注意力机制
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    注意力机制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/DSA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/GatedAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GatedAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/LinearAttention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LinearAttention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/MLA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM模型训练
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM模型训练
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_1" id="__nav_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SFT
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/LoRA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LoRA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/SFT/SFT%E4%B8%8D%E5%AE%8C%E6%95%B4%E5%AD%A6%E4%B9%A0%E7%8E%B0%E8%B1%A1ILP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SFT 为什么"学不会"：不完整学习现象（ILP）的系统性研究
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2" id="__nav_4_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    强化学习
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    强化学习
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/ClipPPO%E5%8E%9F%E7%90%86/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClipPPO原理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/DPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/GSPO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GSPO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RL知识图谱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%9D%8E%E5%AE%8F%E6%AF%85DRL%E7%AC%94%E8%AE%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    李宏毅DRL笔记
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3_2_6" id="__nav_4_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent RL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent RL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/Agent%20RL/%E6%A3%80%E9%AA%8CAgent%E7%9A%84coding%E5%AE%9E%E7%8E%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检验Agent的coding实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM源码解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LLM源码解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/ChatGPT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChatGPT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/Einsum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Einsum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/MOE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/%E6%A0%B8%E5%BF%83%E8%A6%81%E4%B9%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心要义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    OpenMythos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/ACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ACT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/LTI%20Injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LTI Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/OpenMythos/OpenMythos%E6%A1%86%E6%9E%B6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开源llm解读
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开源llm解读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AR-Diffusion 与潜空间推理路线综述
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AR-Diffusion 与潜空间推理路线综述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 总览：这几篇论文在回答什么问题
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 四条技术路线
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 四条技术路线">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-cot-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 普通 CoT：把思考写成更多 token
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-diffcot-cot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 DiffCoT：让显式 CoT 变成可修正轨迹
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-looplm-ouro-hidden-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 LoopLM / Ouro：把思考放进 hidden states
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-nemotron-labs-diffusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Nemotron-Labs-Diffusion：一个模型统一三种生成模式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-tidar-forward-diffusion-draft-ar-talk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 TiDAR：在一个 forward 中 diffusion draft 与 AR talk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 横向对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 实验评估效果对比
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 实验评估效果对比">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 质量-效率坐标图
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-diffcot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 DiffCoT：数学推理准确率对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-looplm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 LoopLM：参数效率与循环深度对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-nemotron-labs-diffusion-sol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Nemotron-Labs-Diffusion：三模式与 SOL 上限
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-tidartokenssec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 TiDAR：tokens/sec 与质量前沿
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 综合对比矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 一个统一视角：思考、草稿、修正、表达
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-diffusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 为什么 diffusion 在这些论文里反复出现
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 工程落地判断
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 关键限制与开放问题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 关键限制与开放问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-diffcot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 DiffCoT 的限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-looplm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 LoopLM 的限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-nemotron-labs-diffusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Nemotron-Labs-Diffusion 的限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-tidar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 TiDAR 的限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 我的思考
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 后续阅读建议
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 一句话总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Claude%20Mythos%205%E6%8E%A8%E6%B5%8B/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Mythos 5 技术报告：官方披露的训练方法与模型架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DeepSeek-V4%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeepSeek-V4 技术报告：面向百万上下文的高效长文本模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GLM-5.3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GLM 5.3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Kimi%20K3%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kimi K3解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Nemotron-Labs-Diffusion%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nemotron-Labs-Diffusion 技术报告：统一 AR、Diffusion 与 Self-Speculation 的三模式语言模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OpenMythos%20Recurrent%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMythos Recurrent解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Qwen3.5%E8%A7%A3%E8%AF%BB/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen3.5解读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    代码实践
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    代码实践
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/esft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ESFT
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gpt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/gqa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GQA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/mhc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mHC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/moe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/open_mythos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open mythos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5/vit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    性能优化
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    性能优化
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Deepspeed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deepspeed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/Flash-Attention/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash Attention
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/MOE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MOE负载均衡
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/SGLang/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SGLang
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/vLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vLLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E5%88%86%E5%B8%83%E5%BC%8F/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    分布式
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    推理加速方法总结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 总览：这几篇论文在回答什么问题
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 四条技术路线
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 四条技术路线">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-cot-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 普通 CoT：把思考写成更多 token
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-diffcot-cot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 DiffCoT：让显式 CoT 变成可修正轨迹
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-looplm-ouro-hidden-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 LoopLM / Ouro：把思考放进 hidden states
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-nemotron-labs-diffusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Nemotron-Labs-Diffusion：一个模型统一三种生成模式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-tidar-forward-diffusion-draft-ar-talk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 TiDAR：在一个 forward 中 diffusion draft 与 AR talk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 横向对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 实验评估效果对比
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 实验评估效果对比">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 质量-效率坐标图
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-diffcot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 DiffCoT：数学推理准确率对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-looplm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 LoopLM：参数效率与循环深度对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-nemotron-labs-diffusion-sol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Nemotron-Labs-Diffusion：三模式与 SOL 上限
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-tidartokenssec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 TiDAR：tokens/sec 与质量前沿
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 综合对比矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 一个统一视角：思考、草稿、修正、表达
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-diffusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 为什么 diffusion 在这些论文里反复出现
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 工程落地判断
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 关键限制与开放问题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 关键限制与开放问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-diffcot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 DiffCoT 的限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-looplm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 LoopLM 的限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-nemotron-labs-diffusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Nemotron-Labs-Diffusion 的限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-tidar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 TiDAR 的限制
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 我的思考
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 后续阅读建议
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 一句话总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ar-diffusion">AR-Diffusion 与潜空间推理路线综述</h1>
+<blockquote>
+<p>主题：从显式 CoT 到 DiffCoT、LoopLM、Nemotron-Labs-Diffusion 与 TiDAR<br />
+关注问题：LLM 如何在保持生成质量的同时，获得更强推理能力、更高推理吞吐和更低错误累积。<br />
+阅读结论：这些论文共同指向一个趋势：未来高效推理模型不会只依赖单纯的自回归生成，而会把“思考”“草稿”“修正”“表达”拆成不同机制，再通过同一个模型或同一套训练目标统一起来。</p>
+</blockquote>
+<h2 id="1">1. 总览：这几篇论文在回答什么问题</h2>
+<p>传统 decoder-only AR LLM 的基本范式是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>prefix -&gt; next token -&gt; append -&gt; next token -&gt; append -&gt; ...
+</span></code></pre></div>
+<p>它的优势是质量高、训练稳定、KV cache 友好，但问题也很明显：</p>
+<ul>
+<li>推理过程严格串行，一次 forward 通常只产出一个 token；</li>
+<li>复杂问题需要长 CoT，导致 token 成本和上下文占用上升；</li>
+<li>早期 reasoning step 一旦出错，后续步骤容易沿着错误前缀继续滚动；</li>
+<li>低 batch size 解码时常处于 memory-bound，GPU 计算密度没有被充分利用。</li>
+</ul>
+<p>这几篇论文分别从不同角度突破这个范式：</p>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>主要路线</th>
+<th>核心问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DiffCoT</td>
+<td>显式 CoT 的 diffusion-style 修正</td>
+<td>如何缓解 CoT 的 exposure bias 和错误累积</td>
+</tr>
+<tr>
+<td>Scaling Latent Reasoning via Looped LMs</td>
+<td>潜空间循环推理</td>
+<td>如何在固定参数量下增加内部计算深度和知识操作能力</td>
+</tr>
+<tr>
+<td>Nemotron-Labs-Diffusion</td>
+<td>AR、diffusion、self-speculation 三模式统一</td>
+<td>如何让一个模型同时支持高质量生成和并行解码</td>
+</tr>
+<tr>
+<td>TiDAR</td>
+<td>diffusion draft + AR talk 的单 forward 混合架构</td>
+<td>如何利用 free token slots 提升实际 tokens/sec</td>
+</tr>
+</tbody>
+</table>
+<p>它们背后的共同趋势是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>单一 AR 解码
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  -&gt; 显式 CoT 增加输出侧思考
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  -&gt; DiffCoT 允许显式推理步骤被修正
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  -&gt; LoopLM 把思考内化到 hidden states
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  -&gt; NLD / TiDAR 用 diffusion 并行 draft, 用 AR 保证最终表达质量
+</span></code></pre></div>
+<h2 id="2">2. 四条技术路线</h2>
+<h3 id="21-cot-token">2.1 普通 CoT：把思考写成更多 token</h3>
+<p>普通 Chain-of-Thought 的做法是让模型先生成自然语言中间推理，再输出答案。</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Question -&gt; step 1 -&gt; step 2 -&gt; step 3 -&gt; answer
+</span></code></pre></div>
+<p>它的优点是工程简单、人类可读、兼容所有 AR 模型；缺点是推理 token 成本高，并且每一步都强依赖前面已经生成的内容。早期步骤如果出现语义偏移或计算错误，后面步骤通常无法主动回头修正。</p>
+<p>因此，普通 CoT 的本质是：<strong>用更长输出换取更多 test-time compute</strong>。</p>
+<h3 id="22-diffcot-cot">2.2 DiffCoT：让显式 CoT 变成可修正轨迹</h3>
+<p>DiffCoT 没有放弃显式 CoT，而是把 CoT reasoning steps 看成一个可以被 iterative denoising 的轨迹。</p>
+<p>它的关键设计包括：</p>
+<ul>
+<li>step-level forward noising：用 MCTS 或 reward-ranked candidates 为每个 reasoning step 构造从高质量到低质量的“噪声阶梯”；</li>
+<li>sliding-window denoising：模型在生成新步骤时，也能修正窗口内已经生成的历史步骤；</li>
+<li>causal diffusion noise：早期步骤噪声更弱、后期步骤噪声更强，用来保留推理链的因果结构；</li>
+<li>DPO-style preference optimization：把低噪声轨迹作为 winning sequence，把高噪声轨迹作为 losing sequence。</li>
+</ul>
+<p>普通 CoT 是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>写一步 -&gt; 固定一步 -&gt; 继续写下一步
+</span></code></pre></div>
+<p>DiffCoT 是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>写一步 -&gt; 在滑动窗口内修正旧步骤 -&gt; 继续写下一步
+</span></code></pre></div>
+<p>DiffCoT 的价值在于，它直接针对 CoT 的错误累积问题。它仍保留自然语言推理过程，因此可读性强，也容易基于现有 AR 模型微调。但它的数据构造和训练更复杂，而且仍然保留长 CoT 的 token 成本。</p>
+<h3 id="23-looplm-ouro-hidden-states">2.3 LoopLM / Ouro：把思考放进 hidden states</h3>
+<p>LoopLM 的路线更激进：不再主要依赖输出更多 CoT token，而是在模型内部重复应用共享参数块，让 hidden states 经历多轮迭代更新。</p>
+<p>形式上，普通 Transformer 是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Block1 -&gt; Block2 -&gt; ... -&gt; BlockL
+</span></code></pre></div>
+<p>LoopLM 是：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Shared Block Stack -&gt; loop 1 -&gt; loop 2 -&gt; loop 3 -&gt; loop 4
+</span></code></pre></div>
+<p>这相当于在固定参数量下增加有效计算深度。论文中的 Ouro 1.4B 和 2.6B 通过 7.7T tokens 预训练，在不少任务上接近或超过更大 dense Transformer，体现出明显参数效率优势。</p>
+<p>更重要的是，论文通过 controlled experiments 说明：LoopLM 的收益不是来自“存储了更多知识”。在 synthetic biography 任务中，looped 和 non-looped 模型的知识容量都接近每参数 2 bits。LoopLM 更强的地方在于 <strong>knowledge manipulation</strong>：组合、检索和多跳使用已有知识。</p>
+<p>LoopLM 的本质是：<strong>用更多内部循环换取更强 latent reasoning，而不是用更多输出 token 换取显式思考</strong>。</p>
+<h3 id="24-nemotron-labs-diffusion">2.4 Nemotron-Labs-Diffusion：一个模型统一三种生成模式</h3>
+<p>Nemotron-Labs-Diffusion 提出 tri-mode LM，让同一个模型支持：</p>
+<ul>
+<li>AR decoding：标准左到右生成；</li>
+<li>diffusion decoding：block 内并行去噪；</li>
+<li>self-speculation：diffusion draft，AR verify。</li>
+</ul>
+<p>训练目标是联合 AR loss 和 diffusion loss：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>L = L_AR + alpha * L_diff
+</span></code></pre></div>
+<p>作者强调 AR 和 diffusion 不是竞争关系，而是互补关系：</p>
+<ul>
+<li>AR 提供左到右语言先验和高质量 next-token modeling；</li>
+<li>diffusion 迫使模型学习未来 token 规划和块内并行预测；</li>
+<li>self-speculation 把 diffusion 的并行 draft 能力转化成实际推理加速。</li>
+</ul>
+<p>这篇论文的关键思想是：<strong>diffusion 不必替代 AR，它可以成为 AR 模型内部的高质量并行 draft 能力</strong>。</p>
+<h3 id="25-tidar-forward-diffusion-draft-ar-talk">2.5 TiDAR：在一个 forward 中 diffusion draft 与 AR talk</h3>
+<p>TiDAR 和 Nemotron-Labs-Diffusion 的 self-speculation 思想很接近，但 TiDAR 更强调 serving 和系统效率。</p>
+<p>TiDAR 的核心观察是：低 batch 解码时，AR 模型通常 memory-bound，forward latency 主要花在加载权重和 KV cache 上。此时在同一次 forward 中多放几个 token slot，延迟可能几乎不变。论文称这些位置为 free token slots。</p>
+<p>TiDAR 利用这些 free token slots 做两件事：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>验证上一轮 diffusion draft
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>+
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>预生成下一轮 diffusion draft
+</span></code></pre></div>
+<p>它在同一个模型、同一次 forward 中完成：</p>
+<ul>
+<li>diffusion-style parallel drafting；</li>
+<li>AR-style rejection sampling / verification；</li>
+<li>exact KV cache 支持；</li>
+<li>pre-draft 下一轮所有可能接受长度对应的候选。</li>
+</ul>
+<p>因此 TiDAR 的标题可以理解为：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Think in Diffusion: 用 diffusion 并行起草 token
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>Talk in Autoregression: 用 AR 决定最终输出 token
+</span></code></pre></div>
+<p>它不是主要提升 reasoning benchmark 的 CoT 方法，而是面向低延迟场景的生成加速架构。</p>
+<h2 id="3">3. 横向对比</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>普通 CoT</th>
+<th>DiffCoT</th>
+<th>LoopLM</th>
+<th>Nemotron-Labs-Diffusion</th>
+<th>TiDAR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>推理载体</td>
+<td>显式文本</td>
+<td>显式文本步骤</td>
+<td>hidden states</td>
+<td>token draft / decode modes</td>
+<td>token draft / verify pipeline</td>
+</tr>
+<tr>
+<td>是否改架构</td>
+<td>否</td>
+<td>通常不改 backbone</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>是否保留 CoT 可读性</td>
+<td>是</td>
+<td>是</td>
+<td>否或弱</td>
+<td>不以 CoT 为核心</td>
+<td>不以 CoT 为核心</td>
+</tr>
+<tr>
+<td>主要目标</td>
+<td>提升复杂推理</td>
+<td>修正 CoT 错误累积</td>
+<td>参数效率和 latent reasoning</td>
+<td>三模式统一与推理加速</td>
+<td>实际低延迟吞吐</td>
+</tr>
+<tr>
+<td>计算扩展方式</td>
+<td>输出更多 token</td>
+<td>步骤级 denoising refinement</td>
+<td>重复共享层</td>
+<td>diffusion draft + AR / diffusion decode</td>
+<td>单 forward draft + verify</td>
+</tr>
+<tr>
+<td>质量保障</td>
+<td>AR 生成本身</td>
+<td>diffusion-style 轨迹修正</td>
+<td>latent refinement</td>
+<td>AR mode / AR verification</td>
+<td>AR rejection sampling</td>
+</tr>
+<tr>
+<td>主要优势</td>
+<td>简单、可解释</td>
+<td>抗错误累积</td>
+<td>参数效率高</td>
+<td>灵活服务多场景</td>
+<td>tokens/sec 提升明显</td>
+</tr>
+<tr>
+<td>主要短板</td>
+<td>长、慢、容易滚错</td>
+<td>数据和训练复杂</td>
+<td>训练部署生态不成熟</td>
+<td>sampler 和基础设施仍有空间</td>
+<td>mask、cache、kernel 复杂</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4">4. 实验评估效果对比</h2>
+<p>这几篇论文的实验不能直接混成一个总排行榜，因为它们优化的目标不同：DiffCoT 主要看数学推理准确率和纠错鲁棒性，LoopLM 主要看参数效率和 latent reasoning scaling，Nemotron-Labs-Diffusion 与 TiDAR 主要看质量-吞吐权衡。因此更合理的比较方式是把指标分成四类：</p>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>主要评估对象</th>
+<th>典型 benchmark</th>
+<th>核心指标</th>
+<th>实验结论一句话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DiffCoT</td>
+<td>显式 CoT 推理修正</td>
+<td>GSM8K、SVAMP、MATH-L1 到 L5</td>
+<td>Accuracy、correction success rate</td>
+<td>相比 CoT / Step-DPO / Full-Step-DPO，在困难数学题上提升更明显</td>
+</tr>
+<tr>
+<td>LoopLM / Ouro</td>
+<td>潜空间循环推理与参数效率</td>
+<td>MMLU-Pro、BBH、GSM8K、MATH500、AIME、OlympiadBench、GPQA</td>
+<td>Accuracy、pass@k、参数效率</td>
+<td>1.4B 接近 4B，2.6B 在多项 reasoning benchmark 上追平或超过 8B dense 模型</td>
+</tr>
+<tr>
+<td>Nemotron-Labs-Diffusion</td>
+<td>三模式统一与 self-speculation</td>
+<td>HumanEval、MBPP、GSM8K、Math500、AIME、MMLU、SPEED-Bench</td>
+<td>Accuracy、TPF、throughput、SOL</td>
+<td>8B 模型在相近质量下实现更高 tokens per forward 和 SPEED-Bench 吞吐</td>
+</tr>
+<tr>
+<td>TiDAR</td>
+<td>serving-oriented hybrid decoding</td>
+<td>HumanEval、MBPP、GSM8K、Minerva Math、MMLU、ARC、HellaSwag</td>
+<td>T/NFE、tokens/sec、accuracy</td>
+<td>1.5B / 8B 分别达到 4.71x / 5.91x tokens/sec 提升，同时保持接近 AR 的质量</td>
+</tr>
+</tbody>
+</table>
+<h3 id="41-">4.1 质量-效率坐标图</h3>
+<p>可以把四条路线放到一个二维图里理解。横轴是推理吞吐或并行度，纵轴是任务质量或推理准确率。</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>任务质量 / 推理准确率
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>^
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>|                         LoopLM
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>|                         参数更少，但 reasoning 能力接近更大模型
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>|
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>|             DiffCoT                      Nemotron-Labs-Diffusion / TiDAR
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>|             CoT 更稳                     质量接近 AR，同时显著提升吞吐
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>|
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>|  普通 CoT
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>|  可解释但慢
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>|
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>|        纯 diffusion / naive parallel decoding
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>|        并行强，但容易掉质量
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>+----------------------------------------------------------------&gt; 吞吐 / 并行度
+</span></code></pre></div>
+<p>这个图的含义是：</p>
+<ul>
+<li>DiffCoT 主要把点往上推：质量更稳，但没有根本降低输出 token 成本；</li>
+<li>LoopLM 主要把点往左上推：同样或更少参数下获得更强 reasoning；</li>
+<li>Nemotron-Labs-Diffusion 和 TiDAR 主要把点往右上推：尽量不牺牲质量，同时提高并行解码效率；</li>
+<li>纯 diffusion 并行解码如果没有 AR 兜底，容易向右下角滑，即更快但质量下降。</li>
+</ul>
+<h3 id="42-diffcot">4.2 DiffCoT：数学推理准确率对比</h3>
+<p>DiffCoT 的核心实验是比较它和 CoT、TSFT、CPO、ToT、Step-DPO、Full-Step-DPO 在数学推理上的准确率。最直观的现象是：越难的题，DiffCoT 相比普通 CoT 的收益越明显。</p>
+<table>
+<thead>
+<tr>
+<th>Backbone</th>
+<th style="text-align: right;">Benchmark</th>
+<th style="text-align: right;">CoT</th>
+<th style="text-align: right;">Full-Step-DPO</th>
+<th style="text-align: right;">DiffCoT</th>
+<th style="text-align: right;">DiffCoT 相比 CoT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen3-4B</td>
+<td style="text-align: right;">GSM8K</td>
+<td style="text-align: right;">84.7</td>
+<td style="text-align: right;">87.2</td>
+<td style="text-align: right;">88.5</td>
+<td style="text-align: right;">+3.8</td>
+</tr>
+<tr>
+<td>Qwen3-4B</td>
+<td style="text-align: right;">SVAMP</td>
+<td style="text-align: right;">86.8</td>
+<td style="text-align: right;">89.7</td>
+<td style="text-align: right;">90.2</td>
+<td style="text-align: right;">+3.4</td>
+</tr>
+<tr>
+<td>Qwen3-4B</td>
+<td style="text-align: right;">MATH-L5</td>
+<td style="text-align: right;">3.9</td>
+<td style="text-align: right;">5.1</td>
+<td style="text-align: right;">13.2</td>
+<td style="text-align: right;">+9.3</td>
+</tr>
+<tr>
+<td>Qwen3-8B</td>
+<td style="text-align: right;">GSM8K</td>
+<td style="text-align: right;">87.3</td>
+<td style="text-align: right;">88.7</td>
+<td style="text-align: right;">91.5</td>
+<td style="text-align: right;">+4.2</td>
+</tr>
+<tr>
+<td>Qwen3-8B</td>
+<td style="text-align: right;">MATH-L4</td>
+<td style="text-align: right;">14.0</td>
+<td style="text-align: right;">18.8</td>
+<td style="text-align: right;">26.6</td>
+<td style="text-align: right;">+12.6</td>
+</tr>
+<tr>
+<td>Qwen3-8B</td>
+<td style="text-align: right;">MATH-L5</td>
+<td style="text-align: right;">4.9</td>
+<td style="text-align: right;">7.1</td>
+<td style="text-align: right;">14.9</td>
+<td style="text-align: right;">+10.0</td>
+</tr>
+</tbody>
+</table>
+<p>用条形图看 MATH-L5 会更明显：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Qwen3-4B / MATH-L5
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>CoT       3.9  | ██
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>FStep     5.1  | ███
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>DiffCoT  13.2  | █████████
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>Qwen3-8B / MATH-L5
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>CoT       4.9  | ███
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>FStep     7.1  | █████
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>DiffCoT  14.9  | ██████████
+</span></code></pre></div>
+<p>DiffCoT 的消融实验也说明，收益不是简单来自“多训练一点”，而是来自 sliding-window denoising 和 causal noise 的组合。</p>
+<table>
+<thead>
+<tr>
+<th>Backbone</th>
+<th>设置</th>
+<th style="text-align: right;">GSM8K</th>
+<th style="text-align: right;">SVAMP</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Llama3-8B</td>
+<td>Full DiffCoT</td>
+<td style="text-align: right;">64.4</td>
+<td style="text-align: right;">76.9</td>
+<td>完整方法</td>
+</tr>
+<tr>
+<td>Llama3-8B</td>
+<td>window / stride = 1</td>
+<td style="text-align: right;">62.9</td>
+<td style="text-align: right;">75.8</td>
+<td>退化成更接近 AR，纠错能力变弱</td>
+</tr>
+<tr>
+<td>Llama3-8B</td>
+<td>window / stride = K</td>
+<td style="text-align: right;">55.4</td>
+<td style="text-align: right;">68.5</td>
+<td>过度 diffusion，因果结构被破坏</td>
+</tr>
+<tr>
+<td>Llama3-8B</td>
+<td>去掉 causal noise</td>
+<td style="text-align: right;">62.6</td>
+<td style="text-align: right;">75.5</td>
+<td>噪声不再尊重推理步骤顺序</td>
+</tr>
+<tr>
+<td>Qwen3-4B</td>
+<td>Full DiffCoT</td>
+<td style="text-align: right;">88.5</td>
+<td style="text-align: right;">90.2</td>
+<td>完整方法</td>
+</tr>
+<tr>
+<td>Qwen3-4B</td>
+<td>window / stride = K</td>
+<td style="text-align: right;">80.0</td>
+<td style="text-align: right;">82.5</td>
+<td>纯 diffusion 式窗口显著掉点</td>
+</tr>
+</tbody>
+</table>
+<p>结论是：DiffCoT 的有效区间在 AR 和 full diffusion 中间。完全 AR 会缺少历史步骤修正，完全 diffusion 又会伤害 CoT 的因果顺序。</p>
+<h3 id="43-looplm">4.3 LoopLM：参数效率与循环深度对比</h3>
+<p>LoopLM 的实验最适合看“同等或更小参数量下，reasoning benchmark 是否变强”。论文中的 Ouro-1.4B-R4 可以接近或超过 Qwen3-4B；Ouro-2.6B-R4 在多个 reasoning-intensive benchmark 上超过 Qwen3-8B。</p>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>Benchmark</th>
+<th style="text-align: right;">Dense baseline</th>
+<th style="text-align: right;">Ouro LoopLM</th>
+<th>直观结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ouro-1.4B-R4 vs Qwen3-4B</td>
+<td>BBH</td>
+<td style="text-align: right;">70.95</td>
+<td style="text-align: right;">71.02</td>
+<td>1.4B 接近 4B</td>
+</tr>
+<tr>
+<td>Ouro-1.4B-R4 vs Qwen3-4B</td>
+<td>GSM8K</td>
+<td style="text-align: right;">72.86</td>
+<td style="text-align: right;">78.92</td>
+<td>小模型反超</td>
+</tr>
+<tr>
+<td>Ouro-1.4B-R4 vs Qwen3-4B</td>
+<td>MATH500</td>
+<td style="text-align: right;">59.60</td>
+<td style="text-align: right;">82.40</td>
+<td>数学推理收益很大</td>
+</tr>
+<tr>
+<td>Ouro-2.6B-R4 vs Qwen3-8B</td>
+<td>MMLU-Pro</td>
+<td style="text-align: right;">53.72</td>
+<td style="text-align: right;">55.73</td>
+<td>2.6B 超过 8B</td>
+</tr>
+<tr>
+<td>Ouro-2.6B-R4 vs Qwen3-8B</td>
+<td>BBH</td>
+<td style="text-align: right;">77.65</td>
+<td style="text-align: right;">80.46</td>
+<td>多步推理更强</td>
+</tr>
+<tr>
+<td>Ouro-2.6B-R4 vs Qwen3-8B</td>
+<td>MATH500</td>
+<td style="text-align: right;">62.30</td>
+<td style="text-align: right;">90.85</td>
+<td>hard math 差距最大</td>
+</tr>
+</tbody>
+</table>
+<p>把 MATH500 单独画出来：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>MATH500 accuracy
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>Qwen3-4B        59.60 | ████████████
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>Ouro-1.4B-R4    82.40 | ████████████████
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>Qwen3-8B        62.30 | ████████████
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>Ouro-2.6B-R4    90.85 | ██████████████████
+</span></code></pre></div>
+<p>但 LoopLM 的循环深度不是越多越好。Ouro-Thinking 在训练时使用 T=4，实验显示性能通常在 T=3 到 T=5 附近达到峰值，继续增加 recurrent steps 反而可能退化。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>Benchmark</th>
+<th style="text-align: right;">T=1</th>
+<th style="text-align: right;">T=2</th>
+<th style="text-align: right;">T=3</th>
+<th style="text-align: right;">T=4</th>
+<th style="text-align: right;">T=5</th>
+<th style="text-align: right;">T=8</th>
+<th>观察</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ouro-1.4B-Thinking</td>
+<td>AIME 2024</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">37.33</td>
+<td style="text-align: right;">62.33</td>
+<td style="text-align: right;">65.00</td>
+<td style="text-align: right;">60.67</td>
+<td style="text-align: right;">38.67</td>
+<td>T=4 左右最好</td>
+</tr>
+<tr>
+<td>Ouro-1.4B-Thinking</td>
+<td>SuperGPQA</td>
+<td style="text-align: right;">2.03</td>
+<td style="text-align: right;">33.07</td>
+<td style="text-align: right;">44.50</td>
+<td style="text-align: right;">47.37</td>
+<td style="text-align: right;">48.73</td>
+<td style="text-align: right;">42.88</td>
+<td>T=4/5 附近最好</td>
+</tr>
+<tr>
+<td>Ouro-2.6B-Thinking</td>
+<td>AIME 2024</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">52.00</td>
+<td style="text-align: right;">70.33</td>
+<td style="text-align: right;">64.70</td>
+<td style="text-align: right;">57.00</td>
+<td style="text-align: right;">39.00</td>
+<td>T=3 最好</td>
+</tr>
+<tr>
+<td>Ouro-2.6B-Thinking</td>
+<td>OlympiadBench</td>
+<td style="text-align: right;">18.96</td>
+<td style="text-align: right;">68.59</td>
+<td style="text-align: right;">75.56</td>
+<td style="text-align: right;">76.44</td>
+<td style="text-align: right;">71.85</td>
+<td style="text-align: right;">39.26</td>
+<td>T=4 最好</td>
+</tr>
+</tbody>
+</table>
+<p>这个结果说明：latent reasoning 的关键不是盲目“多想几轮”，而是让模型学会在合适深度停止。</p>
+<h3 id="44-nemotron-labs-diffusion-sol">4.4 Nemotron-Labs-Diffusion：三模式与 SOL 上限</h3>
+<p>Nemotron-Labs-Diffusion 的实验重点有两个：第一，联合 AR-diffusion training 是否稳定；第二，diffusion/self-speculation 是否真的能带来吞吐优势。</p>
+<p>训练技术消融显示，完整训练流程把 diffusion-mode 平均准确率从 54.23 提升到 70.28，其中 two-stage training 和 AR loss 是最关键的两步。</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>NLD diffusion-mode training ablation, Avg accuracy
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>Block-wise attention                 54.23 | ███████████
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>+ Global loss avg                    56.35 | ███████████
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>+ DP-rank varying masking ratios     57.06 | ███████████
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>+ Two-stage training                 62.80 | █████████████
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>+ AR loss                            70.28 | ███████████████
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>训练设置</th>
+<th style="text-align: right;">Avg accuracy</th>
+<th>增量解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Block-wise attention</td>
+<td style="text-align: right;">54.23</td>
+<td>基础 diffusion LM 能跑起来</td>
+</tr>
+<tr>
+<td>+ Global loss avg</td>
+<td style="text-align: right;">56.35</td>
+<td>降低 variable masking 带来的梯度方差</td>
+</tr>
+<tr>
+<td>+ DP-rank varying masking ratios</td>
+<td style="text-align: right;">57.06</td>
+<td>更丰富的噪声比例</td>
+</tr>
+<tr>
+<td>+ Two-stage training</td>
+<td style="text-align: right;">62.80</td>
+<td>先强化 AR priors，再转 joint training</td>
+</tr>
+<tr>
+<td>+ AR loss</td>
+<td style="text-align: right;">70.28</td>
+<td>AR 目标显著增强 diffusion decoding 质量</td>
+</tr>
+</tbody>
+</table>
+<p>在速度侧，论文给出两个很有代表性的数字：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th style="text-align: right;">结果</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NLD-8B vs Qwen3-8B tokens per forward</td>
+<td style="text-align: right;">6x</td>
+<td>相近质量下，每次 forward 可产出更多 token</td>
+</tr>
+<tr>
+<td>NLD-8B on SPEED-Bench with SGLang / GB200</td>
+<td style="text-align: right;">4x throughput</td>
+<td>真实 serving benchmark 上的吞吐提升</td>
+</tr>
+<tr>
+<td>Diffusion SOL 相比 self-speculation</td>
+<td style="text-align: right;">+76.5% TPF</td>
+<td>理想 sampler 下 diffusion 还有未释放的并行潜力</td>
+</tr>
+</tbody>
+</table>
+<p>SOL 分析还能看出 block size 的速度-质量取舍：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Block size</th>
+<th style="text-align: right;">SOL TPF / acceptance</th>
+<th style="text-align: right;">Benchmark Acc</th>
+<th>直观解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2.89x</td>
+<td style="text-align: right;">64.04</td>
+<td>更保守，质量较稳</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">4.17x</td>
+<td style="text-align: right;">65.43</td>
+<td>质量最高的折中点</td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">5.68x</td>
+<td style="text-align: right;">63.18</td>
+<td>吞吐继续提升，质量开始回落</td>
+</tr>
+<tr>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">7.60x</td>
+<td style="text-align: right;">61.81</td>
+<td>并行潜力最大，但准确率压力更大</td>
+</tr>
+</tbody>
+</table>
+<p>这说明 NLD 的核心不是单纯追求最大 TPF，而是在不同服务场景下切换 AR、diffusion、self-speculation 三种模式。</p>
+<h3 id="45-tidartokenssec">4.5 TiDAR：tokens/sec 与质量前沿</h3>
+<p>TiDAR 的实验更系统工程导向：它关心的是一个 forward 能产出多少 token，以及这些 token 能不能通过 AR sampling 保住质量。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th style="text-align: right;">生成质量 Avg</th>
+<th style="text-align: right;">平均 T/NFE</th>
+<th style="text-align: right;">tokens/sec 相对 AR</th>
+<th>质量解读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen2.5-1.5B AR</td>
+<td style="text-align: right;">41.64</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00x</td>
+<td>AR baseline</td>
+</tr>
+<tr>
+<td>TiDAR-1.5B</td>
+<td style="text-align: right;">44.03</td>
+<td style="text-align: right;">7.45</td>
+<td style="text-align: right;">4.71x</td>
+<td>质量不低于同源 AR，吞吐明显提升</td>
+</tr>
+<tr>
+<td>Qwen3-8B AR</td>
+<td style="text-align: right;">68.09</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00x</td>
+<td>8B AR baseline</td>
+</tr>
+<tr>
+<td>TiDAR-8B Trust Diff</td>
+<td style="text-align: right;">65.31</td>
+<td style="text-align: right;">8.25</td>
+<td style="text-align: right;">5.91x</td>
+<td>质量略降，但吞吐收益很大</td>
+</tr>
+</tbody>
+</table>
+<p>吞吐提升可以这样看：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Relative tokens/sec, AR = 1.00x
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>Qwen2.5-1.5B AR       1.00x | █
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>TiDAR-1.5B            4.71x | █████
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>Qwen3-8B AR           1.00x | █
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>TiDAR-8B              5.91x | ██████
+</span></code></pre></div>
+<p>TiDAR 还有一个重要观察：在 likelihood 任务上，TiDAR-8B 由于保留 AR likelihood 计算方式，平均分达到 75.40，略高于 Qwen3-8B 的 74.25。这说明它不是只在生成任务上“跑得快”，也保留了和 AR 评估兼容的 likelihood 能力。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th style="text-align: right;">Knowledge / Commonsense Avg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen3-8B AR</td>
+<td style="text-align: right;">74.25</td>
+</tr>
+<tr>
+<td>Dream-7B</td>
+<td style="text-align: right;">71.86</td>
+</tr>
+<tr>
+<td>LLaDA-8B</td>
+<td style="text-align: right;">68.06</td>
+</tr>
+<tr>
+<td>TiDAR-8B</td>
+<td style="text-align: right;">75.40</td>
+</tr>
+</tbody>
+</table>
+<p>TiDAR 的一句话实验结论是：<strong>在 batch size = 1 的 latency-critical 场景，free token slots 可以被 diffusion draft 高效利用，再由 AR sampling 保住质量。</strong></p>
+<h3 id="46">4.6 综合对比矩阵</h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>准确率提升</th>
+<th>吞吐提升</th>
+<th>参数效率</th>
+<th>错误修正</th>
+<th>可解释性</th>
+<th>最适合的评估视角</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通 CoT</td>
+<td>中</td>
+<td>低</td>
+<td>低</td>
+<td>低</td>
+<td>高</td>
+<td>baseline reasoning</td>
+</tr>
+<tr>
+<td>DiffCoT</td>
+<td>高</td>
+<td>低到中</td>
+<td>中</td>
+<td>高</td>
+<td>高</td>
+<td>数学推理准确率与纠错鲁棒性</td>
+</tr>
+<tr>
+<td>LoopLM</td>
+<td>高</td>
+<td>中</td>
+<td>高</td>
+<td>中</td>
+<td>低</td>
+<td>参数效率、latent reasoning scaling</td>
+</tr>
+<tr>
+<td>Nemotron-Labs-Diffusion</td>
+<td>中到高</td>
+<td>高</td>
+<td>中</td>
+<td>中</td>
+<td>低</td>
+<td>质量-吞吐 trade-off、三模式服务</td>
+</tr>
+<tr>
+<td>TiDAR</td>
+<td>中</td>
+<td>很高</td>
+<td>中</td>
+<td>中</td>
+<td>低</td>
+<td>batch size = 1 的低延迟 tokens/sec</td>
+</tr>
+</tbody>
+</table>
+<p>如果只看“实验效果像什么”，可以这样概括：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>DiffCoT: 让 CoT 少滚错，尤其 hard math 更明显。
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>LoopLM: 让小模型通过内部循环获得大模型级 reasoning。
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>Nemotron-Labs-Diffusion: 一个模型三种开法，按场景切换质量和吞吐。
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>TiDAR: 把 GPU 空着的 token slot 填起来，用 AR 兜底输出质量。
+</span></code></pre></div>
+<h2 id="5">5. 一个统一视角：思考、草稿、修正、表达</h2>
+<p>这几篇论文可以放进一个更统一的抽象：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>思考 Thinking
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>草稿 Drafting
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>修正 Revision
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>表达 Talking
+</span></code></pre></div>
+<p>不同方法只是把这些环节放在不同空间中：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Thinking</th>
+<th>Drafting</th>
+<th>Revision</th>
+<th>Talking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通 CoT</td>
+<td>文本 CoT</td>
+<td>文本步骤</td>
+<td>几乎没有</td>
+<td>AR 输出</td>
+</tr>
+<tr>
+<td>DiffCoT</td>
+<td>文本 CoT</td>
+<td>reasoning steps</td>
+<td>sliding-window denoising</td>
+<td>AR token generation</td>
+</tr>
+<tr>
+<td>LoopLM</td>
+<td>latent states</td>
+<td>中间 hidden predictors</td>
+<td>recurrent refinement</td>
+<td>LM head 输出</td>
+</tr>
+<tr>
+<td>Nemotron-Labs-Diffusion</td>
+<td>diffusion / AR joint representation</td>
+<td>diffusion draft</td>
+<td>AR verify 或 sampler</td>
+<td>AR / diffusion / self-spec</td>
+</tr>
+<tr>
+<td>TiDAR</td>
+<td>diffusion token slots</td>
+<td>one-step diffusion pre-draft</td>
+<td>AR rejection sampling</td>
+<td>AR sampled output</td>
+</tr>
+</tbody>
+</table>
+<p>这个视角下，AR 不一定等于“思考”，它更像最终表达和质量约束；diffusion 不一定等于“最终生成”，它更像并行草稿、全局修正或未来规划机制。</p>
+<h2 id="6-diffusion">6. 为什么 diffusion 在这些论文里反复出现</h2>
+<p>Diffusion 的吸引力不只在于“并行生成多个 token”。更深层的原因有三个。</p>
+<p>第一，diffusion 天然支持从不完整或有噪声的状态中恢复，这和 reasoning 中的错误修正很匹配。DiffCoT 就是把 noisy reasoning chain 逐步修正成更 clean 的 CoT trajectory。</p>
+<p>第二，diffusion 可以并行产生多个候选位置，适合作为 high-capacity drafter。Nemotron-Labs-Diffusion 和 TiDAR 都把 diffusion 放在 draft 侧，再用 AR 做 verification 或 sampling。</p>
+<p>第三，diffusion 的非严格左到右结构有助于 future planning。Nemotron-Labs-Diffusion 的联合训练结果说明，AR 和 diffusion objective 可以互补，diffusion loss 可能增强模型对未来 token 的预测和规划能力。</p>
+<p>所以这里的 diffusion 更像一种“并行思考和修正机制”，不是简单的 AR 替代品。</p>
+<h2 id="7">7. 工程落地判断</h2>
+<p>从短期到长期，可以这样看这些路线的落地难度：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>普通 CoT / preference optimization
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>  -&gt; DiffCoT
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>  -&gt; Nemotron-Labs-Diffusion self-speculation
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>  -&gt; TiDAR serving-oriented hybrid architecture
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>  -&gt; LoopLM-style pretraining architecture shift
+</span></code></pre></div>
+<p>短期最容易应用的是 DiffCoT 这类方法，因为它主要围绕现有 AR 模型做 step-level 数据构造和偏好优化。</p>
+<p>中期最有部署吸引力的是 Nemotron-Labs-Diffusion 和 TiDAR，因为它们直接针对低 batch、低延迟、tokens/sec 这类实际 serving 目标。</p>
+<p>长期最值得关注的是 LoopLM，因为它把 reasoning 作为预训练架构能力内化，而不是依赖后训练或输出侧技巧。但它需要新的训练稳定性经验、动态深度推理基础设施和更成熟的可解释分析工具。</p>
+<h2 id="8">8. 关键限制与开放问题</h2>
+<h3 id="81-diffcot">8.1 DiffCoT 的限制</h3>
+<ul>
+<li>数据构造依赖 MCTS、reward model 或 rollout success rate；</li>
+<li>训练是 off-policy，行为策略和优化策略不一致可能带来分布偏移；</li>
+<li>revising historical steps 会打破普通 prefix-conditioned generation 的局部 Markov 性；</li>
+<li>仍然需要输出显式 CoT，token 成本和上下文占用没有根本消失。</li>
+</ul>
+<h3 id="82-looplm">8.2 LoopLM 的限制</h3>
+<ul>
+<li>recurrent computation 训练更不稳定，容易出现 loss spike 和梯度震荡；</li>
+<li>动态 early-exit 对 vLLM / SGLang 这类现有推理系统不够友好；</li>
+<li>RLVR 在论文中没有带来明显收益，动态深度 rollout 仍是难点；</li>
+<li>hidden-state reasoning 不像 CoT 那样自然可读。</li>
+</ul>
+<h3 id="83-nemotron-labs-diffusion">8.3 Nemotron-Labs-Diffusion 的限制</h3>
+<ul>
+<li>diffusion mode 的实际 sampler 距离 SOL 上限仍有明显差距；</li>
+<li>self-speculation 只能接受 prefix，不能充分利用 diffusion 的非连续 token commit 潜力；</li>
+<li>quadratic self-speculation 虽然 TPF 高，但当前 kernel 和 attention mask 支持仍影响真实效率；</li>
+<li>多模式 serving 需要框架层面更好支持。</li>
+</ul>
+<h3 id="84-tidar">8.4 TiDAR 的限制</h3>
+<ul>
+<li>训练时 clean section 和 mask section 使序列长度近似翻倍，长上下文训练成本更高；</li>
+<li>特殊 attention mask、KV eviction、pre-draft 选择都要求专门推理实现；</li>
+<li>论文重点测试 batch size = 1，较高并发下收益曲线需要结合硬件重新评估；</li>
+<li>要充分利用 free token slots，后续仍依赖 custom kernels 和调度优化。</li>
+</ul>
+<h2 id="9">9. 我的思考</h2>
+<p>这几篇论文共同说明，LLM 推理正在从“输出更多 token”转向“设计更好的内部计算和草稿机制”。</p>
+<p>普通 CoT 把思考暴露在文本里，简单有效，但代价是长、慢、容易错误累积。DiffCoT 说明即使保留显式 CoT，也应该让推理轨迹具备可修正性。LoopLM 则进一步说明，很多推理不一定要写出来，可以在 hidden states 中通过 recurrent refinement 完成。</p>
+<p>Nemotron-Labs-Diffusion 和 TiDAR 则把问题推向系统层面：模型不仅要会想，还要会高效服务。它们都在弱化“diffusion 作为最终生成器”的定位，而是把 diffusion 作为并行 draft / planning 模块，让 AR 负责最终质量。</p>
+<p>我觉得未来一个很自然的方向是把这些思想合起来：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>latent recurrent reasoning
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>  + diffusion-style draft / revision
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>  + AR-style final answer / verification
+</span></code></pre></div>
+<p>也就是说，模型内部可以通过 LoopLM 式循环做深层思考；需要生成时，用 diffusion 并行产生多个候选；最终输出由 AR 保证语言质量和因果一致性。这样一来，CoT 可以从“推理本体”变成“可选解释层”：只有在用户需要审计、教学或调试时才输出完整推理，否则模型可以主要在 latent space 和 draft space 中完成思考。</p>
+<h2 id="10">10. 后续阅读建议</h2>
+<p>如果继续围绕这个主题读论文，建议按下面顺序整理：</p>
+<ol>
+<li>先读 CoT / Step-DPO / Full-Step-DPO，理解传统显式推理链优化；</li>
+<li>再读 DiffCoT，理解显式 CoT 如何从 forward-only 变成 revisable trajectory；</li>
+<li>再读 LoopLM / latent reasoning，理解推理如何从文本空间迁移到 hidden states；</li>
+<li>再读 Nemotron-Labs-Diffusion，理解 AR 和 diffusion 如何联合训练并支持 self-speculation；</li>
+<li>最后读 TiDAR，理解这些模型能力如何转化为真实 serving throughput。</li>
+</ol>
+<h2 id="11">11. 一句话总结</h2>
+<p>这几篇论文共同揭示了一条清晰路线：<strong>AR 仍然是高质量表达的核心，但推理、草稿和修正正在被迁移到 diffusion、latent recurrence 和 hybrid attention 结构中；未来的高效 LLM 很可能是“内部多轮思考、并行起草、AR 表达”的组合体。</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">评论</h2>
+<script src="https://giscus.app/client.js"
+        data-repo="Ranbaigao/llm_learning"
+        data-repo-id="R_kgDOS6jz6w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOS6jz684DEEsg"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../.assets/javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../../.assets/javascripts/pageview.js"></script>
+      
+        <script src="../../../.assets/javascripts/html_modal.js"></script>
+      
+        <script src="https://cn.vercount.one/js"></script>
+      
+    
+  </body>
+</html>
