@@ -20,6 +20,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # 完整历史：知识图谱钩子用 git log 获取每篇笔记的最近提交时间（最新更新面板）
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5

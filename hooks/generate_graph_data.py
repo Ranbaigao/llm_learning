@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -314,6 +315,43 @@ def remove_index_navigation() -> bool:
     return False
 
 
+def _git_last_commit_times() -> dict[str, int]:
+    """一次 git log 调用，获取 notebooks/ 下每个文件最近一次提交的时间戳（秒）。
+
+    用于星图「最新更新」面板。注意 CI 部署时 actions/checkout 必须配置
+    fetch-depth: 0（完整历史），否则所有文件只会得到最后一次提交的时间。
+    """
+    try:
+        result = subprocess.run(
+            ["git", "log", "--format=@%ct", "--name-only", "--", "notebooks"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            cwd=PROJECT_ROOT,
+            timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return {}
+    if result.returncode != 0:
+        return {}
+
+    times: dict[str, int] = {}
+    current = 0
+    for line in result.stdout.splitlines():
+        if line.startswith("@"):
+            try:
+                current = int(line[1:])
+            except ValueError:
+                current = 0
+        elif line and current:
+            rel = line.strip()
+            if rel.startswith("notebooks/"):
+                # git log 按时间倒序输出，首次出现即为最近一次提交
+                times.setdefault(rel[len("notebooks/"):], current)
+    return times
+
+
 def scan_notebooks() -> dict[str, Any]:
     """
     递归扫描 NOTEBOOKS_DIR,生成 {nodes, links} 格式的图数据。
@@ -322,6 +360,8 @@ def scan_notebooks() -> dict[str, Any]:
     links: list[dict[str, Any]] = []
     note_files: list[Path] = []
     source_paths: list[Path] = []
+    # 每篇笔记的最近 git 提交时间（秒），取不到时回退文件 mtime
+    commit_times = _git_last_commit_times()
 
     # 1) 添加一个虚拟的 "Root" 节点,作为所有顶层分类的汇聚点
     nodes.append(
@@ -386,6 +426,10 @@ def scan_notebooks() -> dict[str, Any]:
                 note_files.append(entry)
                 source_paths.append(entry)
                 file_format = "jupyter" if entry.suffix.lower() == ".ipynb" else "markdown"
+                try:
+                    file_mtime = int(entry.stat().st_mtime)
+                except OSError:
+                    file_mtime = 0
                 nodes.append(
                     {
                         "id": file_id,
@@ -396,6 +440,7 @@ def scan_notebooks() -> dict[str, Any]:
                         "url": _to_url(rel_path, is_file=True),
                         "size": _node_size(entry, depth, is_file=True),
                         "note_count": 1,
+                        "mtime": commit_times.get(rel_path, file_mtime),
                     }
                 )
                 links.append(
