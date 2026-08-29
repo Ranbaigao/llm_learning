@@ -373,13 +373,19 @@ def _git_last_commit_times() -> dict[str, int]:
             if status.startswith("R") and len(parts) == 3:
                 old_cf = parts[1].casefold()
                 new_cf = parts[2].casefold()
-                alias[old_cf] = new_cf
+                # 纯大小写改名（如 skill→Skill）在 casefold 语义下是同一个键，
+                # 写入 alias 会把已有改名链覆盖成自映射、断掉历史追溯
+                if old_cf != new_cf:
+                    alias[old_cf] = new_cf
                 # 相似度 >=90% 视为「只搬了目录、内容没实质变化」（R100 纯改名，
                 # R099/R098 通常只是顺手修链接/frontmatter），沿用改名前的时间；
                 # <90% 才是移动同时大改内容，算一次内容更新
                 similarity = int(status[1:]) if status[1:].isdigit() else 100
-                if similarity < 90 and new_cf.startswith("notebooks/"):
-                    times.setdefault(new_cf[len("notebooks/"):], current)
+                if similarity < 90:
+                    # 解析到最新路径再记：改名+微调之后可能又发生纯改名
+                    resolved = _current_path(new_cf)
+                    if resolved.startswith("notebooks/"):
+                        times.setdefault(resolved[len("notebooks/"):], current)
             elif status[:1] in ("A", "M", "T") and len(parts) == 2:
                 path_cf = parts[1].casefold()
                 if path_cf.startswith("notebooks/"):

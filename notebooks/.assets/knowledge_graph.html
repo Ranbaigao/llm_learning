@@ -2295,10 +2295,11 @@ function resetAllSelection() {
 
 // 点击节点：把当前高亮"钉"在该节点上，鼠标移开也不会丢失，
 // 方便继续点选它的子节点；点击其他节点则切换固定对象。
-function pinNode(node) {
+// syncSidebar=false 时不同步笔记目录（信息栏定位用，见 buildWidgetRow）
+function pinNode(node, { syncSidebar = true } = {}) {
   pinnedNode = node;
   setFocus(node, false, 'pin');
-  syncSidebarActive(node.id);
+  if (syncSidebar) syncSidebarActive(node.id);
 }
 
 // ======= 浏览量统计（构建期烘焙 + Vercount 只读接口实时刷新）=======
@@ -2514,15 +2515,16 @@ function buildSidebarItem(node, depth) {
   return item;
 }
 
-function selectFromSidebar(node) {
-  // 侧边栏选中接管焦点：清空搜索态，固定高亮并让视角平滑移向该节点
+function selectFromSidebar(node, { syncSidebar = true } = {}) {
+  // 侧边栏选中接管焦点：清空搜索态并固定高亮该节点；
+  // syncSidebar=false 时只在星图定位，不联动笔记目录（信息栏行点击用）
   if (searchQuery) {
     searchInput.value = '';
     searchQuery = '';
     searchMatches = new Set();
   }
   clearSearchResults();
-  pinNode(node);
+  pinNode(node, { syncSidebar });
 }
 
 // 星图选中状态同步到侧边栏：高亮对应行、展开祖先目录并滚动到可见位置
@@ -2572,7 +2574,8 @@ function formatRelativeTime(ts) {
   return `${Math.floor(days / 365)} 年前`;
 }
 
-// 信息栏与笔记目录行为一致：单击在星图中固定定位，双击打开笔记
+// 信息栏（最新更新/浏览热度）行：单击只在星图中固定定位，
+// 不联动笔记目录（不展开、不高亮、不滚动）；双击打开笔记
 function buildWidgetRow(node, metaText, metaIcon, metaTitle) {
   const row = document.createElement('button');
   row.type = 'button';
@@ -2597,7 +2600,7 @@ function buildWidgetRow(node, metaText, metaIcon, metaTitle) {
   meta.querySelector('span').textContent = metaText;
   row.appendChild(meta);
 
-  row.addEventListener('click', () => selectFromSidebar(node));
+  row.addEventListener('click', () => selectFromSidebar(node, { syncSidebar: false }));
   row.addEventListener('dblclick', () => openNode(node));
   return row;
 }
