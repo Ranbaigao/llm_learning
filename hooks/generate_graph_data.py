@@ -326,10 +326,11 @@ def _git_last_commit_times() -> dict[str, int]:
     匹配不到任何中文路径。本地文件 mtime 恰好近似编辑时间所以不易察觉，
     但 CI 里 checkout 后所有文件 mtime 相同，排序会彻底失效。
 
-    --name-status -M 开启重命名检测：纯移动目录（R100，内容未变）不算更新，
-    通过 alias 链把改名前的旧路径历史归到当前文件上；改名同时改了内容
-    （R0xx，相似度 <100%）仍算一次内容更新。不加路径过滤，以便跨目录
-    （如从 notebooks/ 外移入）的改名链也能追踪。
+    --name-status -M 开启重命名检测：移动目录时内容基本没动（相似度 >=90%，
+    如 R100 纯改名、R099/R098 只顺手修了几行链接）不算更新，通过 alias 链
+    把改名前的旧路径历史归到当前文件上；移动同时大改内容（相似度 <90%）
+    才算一次内容更新。不加路径过滤，以便跨目录（如从 notebooks/ 外移入）
+    的改名链也能追踪。
     """
     try:
         result = subprocess.run(
@@ -373,8 +374,11 @@ def _git_last_commit_times() -> dict[str, int]:
                 old_cf = parts[1].casefold()
                 new_cf = parts[2].casefold()
                 alias[old_cf] = new_cf
-                if status != "R100" and new_cf.startswith("notebooks/"):
-                    # 改名同时改了内容（相似度 <100%），算一次内容更新
+                # 相似度 >=90% 视为「只搬了目录、内容没实质变化」（R100 纯改名，
+                # R099/R098 通常只是顺手修链接/frontmatter），沿用改名前的时间；
+                # <90% 才是移动同时大改内容，算一次内容更新
+                similarity = int(status[1:]) if status[1:].isdigit() else 100
+                if similarity < 90 and new_cf.startswith("notebooks/"):
                     times.setdefault(new_cf[len("notebooks/"):], current)
             elif status[:1] in ("A", "M", "T") and len(parts) == 2:
                 path_cf = parts[1].casefold()
