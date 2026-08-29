@@ -320,10 +320,15 @@ def _git_last_commit_times() -> dict[str, int]:
 
     用于星图「最新更新」面板。注意 CI 部署时 actions/checkout 必须配置
     fetch-depth: 0（完整历史），否则所有文件只会得到最后一次提交的时间。
+
+    必须显式 core.quotepath=false：git 默认把含非 ASCII 字符的路径输出为
+    带引号的八进制转义串（"notebooks/CV/CV\\346.../JEPA.md"），会导致解析
+    匹配不到任何中文路径。本地文件 mtime 恰好近似编辑时间所以不易察觉，
+    但 CI 里 checkout 后所有文件 mtime 相同，排序会彻底失效。
     """
     try:
         result = subprocess.run(
-            ["git", "log", "--format=@%ct", "--name-only", "--", "notebooks"],
+            ["git", "-c", "core.quotepath=false", "log", "--format=@%ct", "--name-only", "--", "notebooks"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -331,9 +336,12 @@ def _git_last_commit_times() -> dict[str, int]:
             cwd=PROJECT_ROOT,
             timeout=60,
         )
-    except (OSError, subprocess.SubprocessError):
+    except (OSError, subprocess.SubprocessError) as exc:
+        # 不打断构建，但必须在 CI 日志里留下痕迹
+        print(f"[knowledge-graph] 警告: git log 调用失败({exc})，最新更新将回退为文件修改时间")
         return {}
     if result.returncode != 0:
+        print(f"[knowledge-graph] 警告: git log 退出码 {result.returncode}，最新更新将回退为文件修改时间")
         return {}
 
     times: dict[str, int] = {}
@@ -348,7 +356,12 @@ def _git_last_commit_times() -> dict[str, int]:
             rel = line.strip()
             if rel.startswith("notebooks/"):
                 # git log 按时间倒序输出，首次出现即为最近一次提交
-                times.setdefault(rel[len("notebooks/"):], current)
+                # casefold：Windows 文件系统大小写不敏感，磁盘目录名与 git 索引
+                # 里的大小写可能不一致（如 开源LLM解读 vs 开源llm解读）
+                times.setdefault(rel[len("notebooks/"):].casefold(), current)
+    if not times:
+        # 典型原因：浅克隆（fetch-depth 未设 0）或路径被 quotepath 转义
+        print("[knowledge-graph] 警告: 未从 git 历史解析到任何提交时间，最新更新将回退为文件修改时间")
     return times
 
 
@@ -440,7 +453,7 @@ def scan_notebooks() -> dict[str, Any]:
                         "url": _to_url(rel_path, is_file=True),
                         "size": _node_size(entry, depth, is_file=True),
                         "note_count": 1,
-                        "mtime": commit_times.get(rel_path, file_mtime),
+                        "mtime": commit_times.get(rel_path.casefold(), file_mtime),
                     }
                 )
                 links.append(
