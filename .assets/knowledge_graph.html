@@ -546,6 +546,59 @@
 
   .tree-item.is-expanded > .tree-children { display: block; }
 
+  /* 笔记目录下方的信息栏（最新更新 / 浏览热度）：外观与折叠动画完全复用侧边栏风格，
+     top 由 JS 动态计算（跟随侧边栏实际底边），过渡时长与侧边栏收起动画保持一致 */
+  .side-widget {
+    left: 18px;
+    /* 初始 top 仅是数据加载完成前的兜底，buildSideWidgets 后会由 layoutSideWidgets 修正 */
+    top: 260px;
+    width: min(310px, calc(100vw - 112px));
+    max-height: 260px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    clip-path: inset(0 0 0 0 round 12px);
+    transition:
+      clip-path 320ms cubic-bezier(0.4, 0, 0.2, 1),
+      top 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .side-widget.is-collapsed {
+    /* 同侧边栏：只保留 44px 标题栏，其余卷起隐藏 */
+    clip-path: inset(0 0 calc(100% - 44px) 0 round 12px);
+    pointer-events: none;
+  }
+
+  .side-widget.is-collapsed .widget-header {
+    pointer-events: auto;
+  }
+
+  .widget-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  }
+
+  .widget-list::-webkit-scrollbar { width: 6px; }
+  .widget-list::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.28); border-radius: 999px; }
+
+  /* 行尾元信息（相对时间 / 阅读量）：复用 tree-pv 的小图标 + 数字风格 */
+  .widget-meta {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .widget-meta svg { width: 11px; height: 11px; stroke-width: 2; opacity: 0.75; }
+
   /* 搜索面板 - 调整到左上方位置互换 */
   .search-panel {
     top: 18px;
@@ -775,6 +828,9 @@
 
     .legend-panel { display: none; }
 
+    /* 移动端屏幕有限：最新更新 / 浏览热度两个信息栏不显示 */
+    .side-widget { display: none; }
+
     /* 工具栏：右侧竖排居中，避开左上搜索/目录与底部统计卡片 */
     .toolbar {
       left: auto;
@@ -873,6 +929,28 @@
     <div class="sidebar-tree" id="sidebar-tree" role="tree"></div>
   </aside>
 
+  <aside class="panel side-widget" id="latest-panel" aria-label="最新更新的笔记">
+    <div class="sidebar-header widget-header" role="button" aria-expanded="true" title="收起/展开最新更新">
+      <span class="sidebar-title">最新更新</span>
+      <span class="sidebar-count" id="latest-count"></span>
+      <button class="sidebar-collapse" type="button" title="收起最新更新" aria-label="收起最新更新">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m18 15-6-6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-tree widget-list" id="latest-list"></div>
+  </aside>
+
+  <aside class="panel side-widget" id="hot-panel" aria-label="浏览热度最高的笔记">
+    <div class="sidebar-header widget-header" role="button" aria-expanded="true" title="收起/展开浏览热度">
+      <span class="sidebar-title">浏览热度</span>
+      <span class="sidebar-count" id="hot-count"></span>
+      <button class="sidebar-collapse" type="button" title="收起浏览热度" aria-label="收起浏览热度">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m18 15-6-6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-tree widget-list" id="hot-list"></div>
+  </aside>
+
   <div id="tooltip" role="status" aria-live="polite"></div>
   <div id="loading"><span class="spinner"></span><span>加载知识星图</span></div>
   <div id="error" hidden></div>
@@ -921,6 +999,13 @@ const sidebar = document.getElementById('sidebar');
 const sidebarTree = document.getElementById('sidebar-tree');
 const sidebarCount = document.getElementById('sidebar-count');
 const sidebarRowById = new Map();
+// 笔记目录下方的两个信息栏（最新更新 / 浏览热度）
+const latestPanel = document.getElementById('latest-panel');
+const latestList = document.getElementById('latest-list');
+const latestCount = document.getElementById('latest-count');
+const hotPanel = document.getElementById('hot-panel');
+const hotList = document.getElementById('hot-list');
+const hotCount = document.getElementById('hot-count');
 
 // 星图签名：每次加载从名句库随机抽一句，以行楷泛光呈现于星图下方
 const SIGNATURE_QUOTES = [
@@ -1394,6 +1479,7 @@ function buildGraph(data) {
 
   createGraphLabels();
   buildSidebar();
+  buildSideWidgets();
   graphStats = data.stats || {};
   loadSiteViewStats();
   loadNotePageviews();
@@ -2365,6 +2451,7 @@ function buildSidebarItem(node, depth) {
     chevron.addEventListener('click', event => {
       event.stopPropagation();
       item.classList.toggle('is-expanded');
+      layoutSideWidgets(); // 目录展开/收起改变侧边栏高度，信息栏跟随
     });
     row.appendChild(chevron);
   } else {
@@ -2401,7 +2488,10 @@ function buildSidebarItem(node, depth) {
   }
 
   row.addEventListener('click', () => {
-    if (isDir) item.classList.toggle('is-expanded'); // 整行点击均可展开/收起
+    if (isDir) {
+      item.classList.toggle('is-expanded'); // 整行点击均可展开/收起
+      layoutSideWidgets();
+    }
     selectFromSidebar(node);
   });
   row.addEventListener('dblclick', () => {
@@ -2460,6 +2550,103 @@ function setSidebarCollapsed(collapsed) {
   btn.innerHTML = collapsed
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m18 15-6-6-6 6"/></svg>';
+  layoutSideWidgets();
+}
+
+// ======= 信息栏（最新更新 / 浏览热度）=======
+// 与笔记目录同一套视觉与折叠动画；数据来自图谱 JSON：
+// mtime 由构建钩子按 git 最近提交时间烘焙，pv 为构建期烘焙的浏览量。
+const WIDGET_CLOCK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
+const WIDGET_EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+function formatRelativeTime(ts) {
+  const days = Math.floor((Date.now() / 1000 - ts) / 86400);
+  if (days <= 0) return '今天';
+  if (days === 1) return '昨天';
+  if (days < 30) return `${days} 天前`;
+  if (days < 365) return `${Math.floor(days / 30)} 个月前`;
+  return `${Math.floor(days / 365)} 年前`;
+}
+
+// 信息栏与笔记目录行为一致：单击在星图中固定定位，双击打开笔记
+function buildWidgetRow(node, metaText, metaIcon, metaTitle) {
+  const row = document.createElement('button');
+  row.type = 'button';
+  row.className = 'tree-row is-note';
+  row.title = '单击在星图中定位 · 双击打开笔记';
+
+  const dot = document.createElement('span');
+  dot.className = 'tree-dot';
+  dot.style.background = node.color;
+  dot.style.color = node.color;
+  row.appendChild(dot);
+
+  const name = document.createElement('span');
+  name.className = 'tree-name';
+  name.textContent = node.name;
+  row.appendChild(name);
+
+  const meta = document.createElement('span');
+  meta.className = 'widget-meta';
+  meta.title = metaTitle;
+  meta.innerHTML = `${metaIcon}<span></span>`;
+  meta.querySelector('span').textContent = metaText;
+  row.appendChild(meta);
+
+  row.addEventListener('click', () => selectFromSidebar(node));
+  row.addEventListener('dblclick', () => openNode(node));
+  return row;
+}
+
+function buildSideWidgets() {
+  const notes = nodes.filter(node => node.type === 'note');
+  const latest = notes
+    .filter(node => node.mtime)
+    .sort((a, b) => b.mtime - a.mtime)
+    .slice(0, 5);
+  const hot = notes
+    .filter(node => node.pv != null)
+    .sort((a, b) => b.pv - a.pv)
+    .slice(0, 5);
+
+  latestList.replaceChildren(
+    ...latest.map(node => buildWidgetRow(node, formatRelativeTime(node.mtime), WIDGET_CLOCK_ICON, '最近更新时间')));
+  hotList.replaceChildren(
+    ...hot.map(node => buildWidgetRow(node, `${formatCount(node.pv)} 次`, WIDGET_EYE_ICON, '阅读量')));
+
+  latestCount.textContent = latest.length ? `TOP ${latest.length}` : '暂无数据';
+  hotCount.textContent = hot.length ? `TOP ${hot.length}` : '暂无数据';
+  layoutSideWidgets();
+}
+
+function setWidgetCollapsed(panel, collapsed) {
+  panel.classList.toggle('is-collapsed', collapsed);
+  const header = panel.querySelector('.widget-header');
+  header.setAttribute('aria-expanded', String(!collapsed));
+  const btn = header.querySelector('.sidebar-collapse');
+  const label = panel.id === 'latest-panel' ? '最新更新' : '浏览热度';
+  btn.title = (collapsed ? '展开' : '收起') + label;
+  btn.setAttribute('aria-label', btn.title);
+  // 同侧边栏：展开状态显示上箭头（收起），折叠状态显示下箭头（展开）
+  btn.innerHTML = collapsed
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m18 15-6-6-6 6"/></svg>';
+  layoutSideWidgets();
+}
+
+// 信息栏跟随笔记目录的实际底边依次堆叠：任一面板收起时按 44px 标题栏高度计算；
+// 搜索候选弹出导致侧边栏下移时也会连锁下移（由 layoutSidebarForSearch 触发）
+function layoutSideWidgets() {
+  if (window.innerWidth <= 760) return; // 移动端信息栏隐藏，无需计算
+  const gap = 10;
+  const sbRect = sidebar.getBoundingClientRect();
+  const sbVisibleHeight = sidebar.classList.contains('is-collapsed') ? 44 : sbRect.height;
+  let top = Math.round(sbRect.top + sbVisibleHeight + gap);
+  for (const panel of [latestPanel, hotPanel]) {
+    panel.style.top = `${top}px`;
+    const height = panel.classList.contains('is-collapsed') ? 44 : panel.getBoundingClientRect().height;
+    top += Math.round(height + gap);
+  }
 }
 
 function searchable(node) {
@@ -2488,6 +2675,8 @@ function layoutSidebarForSearch() {
     sidebar.style.top = '';
     sidebar.style.maxHeight = '';
   }
+  // 侧边栏位置变化后，下方信息栏连锁跟随
+  layoutSideWidgets();
 }
 
 function setActiveSearchResult(index, syncFocus = true) {
@@ -2922,11 +3111,22 @@ document.getElementById('sidebar-header').addEventListener('click', () => {
   setSidebarCollapsed(!sidebar.classList.contains('is-collapsed'));
 });
 
+// 信息栏标题栏同样整行点击收起/展开
+for (const panel of [latestPanel, hotPanel]) {
+  panel.querySelector('.widget-header').addEventListener('click', () => {
+    setWidgetCollapsed(panel, !panel.classList.contains('is-collapsed'));
+  });
+}
+
+// 侧边栏收起/展开的过渡结束后，按其最终高度重新对齐下方信息栏
+sidebar.addEventListener('transitionend', layoutSideWidgets);
+
 window.addEventListener('resize', () => {
   measure();
   createBackgroundStars();
   resetView();
   layoutSidebarForSearch();
+  layoutSideWidgets();
 });
 
 measure();
