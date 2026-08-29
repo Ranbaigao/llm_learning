@@ -2606,7 +2606,9 @@ function buildSideWidgets() {
   const notes = nodes.filter(node => node.type === 'note');
   const latest = notes
     .filter(node => node.mtime)
-    .sort((a, b) => b.mtime - a.mtime)
+    // mtime 相同（如 CI 里 git 时间缺失、全部回退到 checkout 时间）时按名字排序，
+    // 保证不同环境下展示顺序至少稳定一致
+    .sort((a, b) => b.mtime - a.mtime || a.name.localeCompare(b.name, 'zh'))
     .slice(0, 5);
   const hot = notes
     .filter(node => node.pv != null)
