@@ -316,7 +316,7 @@ def remove_index_navigation() -> bool:
 
 
 def _git_last_commit_times() -> dict[str, int]:
-    """一次 git log 调用，获取 notebooks/ 下每个文件最近一次提交的时间戳（秒）。
+    """一次 git log 调用，获取 notebooks/ 下每个文件最近一次【内容修改】的提交时间戳（秒）。
 
     用于星图「最新更新」面板。注意 CI 部署时 actions/checkout 必须配置
     fetch-depth: 0（完整历史），否则所有文件只会得到最后一次提交的时间。
@@ -325,10 +325,15 @@ def _git_last_commit_times() -> dict[str, int]:
     带引号的八进制转义串（"notebooks/CV/CV\\346.../JEPA.md"），会导致解析
     匹配不到任何中文路径。本地文件 mtime 恰好近似编辑时间所以不易察觉，
     但 CI 里 checkout 后所有文件 mtime 相同，排序会彻底失效。
+
+    --name-status -M 开启重命名检测：纯移动目录（R100，内容未变）不算更新，
+    通过 alias 链把改名前的旧路径历史归到当前文件上；改名同时改了内容
+    （R0xx，相似度 <100%）仍算一次内容更新。不加路径过滤，以便跨目录
+    （如从 notebooks/ 外移入）的改名链也能追踪。
     """
     try:
         result = subprocess.run(
-            ["git", "-c", "core.quotepath=false", "log", "--format=@%ct", "--name-only", "--", "notebooks"],
+            ["git", "-c", "core.quotepath=false", "log", "--format=@%ct", "--name-status", "-M"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -344,7 +349,16 @@ def _git_last_commit_times() -> dict[str, int]:
         print(f"[knowledge-graph] 警告: git log 退出码 {result.returncode}，最新更新将回退为文件修改时间")
         return {}
 
+    def _current_path(path_cf: str) -> str:
+        """沿改名链解析到最新路径（git log 倒序遍历，alias 只指向更晚的名字）。"""
+        seen = set()
+        while path_cf in alias and path_cf not in seen:
+            seen.add(path_cf)
+            path_cf = alias[path_cf]
+        return path_cf
+
     times: dict[str, int] = {}
+    alias: dict[str, str] = {}  # 改名前路径 -> 改名后路径（仓库相对路径，casefold）
     current = 0
     for line in result.stdout.splitlines():
         if line.startswith("@"):
@@ -353,12 +367,24 @@ def _git_last_commit_times() -> dict[str, int]:
             except ValueError:
                 current = 0
         elif line and current:
-            rel = line.strip()
-            if rel.startswith("notebooks/"):
-                # git log 按时间倒序输出，首次出现即为最近一次提交
-                # casefold：Windows 文件系统大小写不敏感，磁盘目录名与 git 索引
-                # 里的大小写可能不一致（如 开源LLM解读 vs 开源llm解读）
-                times.setdefault(rel[len("notebooks/"):].casefold(), current)
+            parts = line.split("\t")
+            status = parts[0]
+            if status.startswith("R") and len(parts) == 3:
+                old_cf = parts[1].casefold()
+                new_cf = parts[2].casefold()
+                alias[old_cf] = new_cf
+                if status != "R100" and new_cf.startswith("notebooks/"):
+                    # 改名同时改了内容（相似度 <100%），算一次内容更新
+                    times.setdefault(new_cf[len("notebooks/"):], current)
+            elif status[:1] in ("A", "M", "T") and len(parts) == 2:
+                path_cf = parts[1].casefold()
+                if path_cf.startswith("notebooks/"):
+                    # git log 按时间倒序输出，首次出现即为最近一次内容修改
+                    # casefold：Windows 文件系统大小写不敏感，磁盘目录名与 git 索引
+                    # 里的大小写可能不一致（如 开源LLM解读 vs 开源llm解读）
+                    resolved = _current_path(path_cf)
+                    if resolved.startswith("notebooks/"):
+                        times.setdefault(resolved[len("notebooks/"):], current)
     if not times:
         # 典型原因：浅克隆（fetch-depth 未设 0）或路径被 quotepath 转义
         print("[knowledge-graph] 警告: 未从 git 历史解析到任何提交时间，最新更新将回退为文件修改时间")
