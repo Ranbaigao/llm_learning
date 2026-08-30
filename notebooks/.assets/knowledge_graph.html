@@ -1186,6 +1186,17 @@ function haloSpriteFor(color) {
   return sprite;
 }
 
+// 根节点纹章（drawNodes 中悬浮绘制在根星正上方，带全息光束连接）：自带透明底，此处仅预加载
+const rootBadgeImg = new Image();
+let rootBadgeReady = false;
+rootBadgeImg.onload = () => { rootBadgeReady = true; };
+rootBadgeImg.src = 'root_badge.png';
+
+// 一级目录纹章（CV/NLP，同样悬浮 + 光束，尺寸比根纹章小一档）：节点 id → 图片
+const categoryBadgeImgs = { CV: new Image(), NLP: new Image() };
+categoryBadgeImgs.CV.src = 'cv_badge.png';
+categoryBadgeImgs.NLP.src = 'nlp_badge.png';
+
 // 银河带：斜贯画面的浅淡亮带 = 弥散辉光 + 大量细密暗星 + 暗尘埃裂隙
 function renderMilkyWayCanvas() {
   milkyWayCanvas = document.createElement('canvas');
@@ -1672,14 +1683,29 @@ function applyRepulsion() {
   const MIN_NOTE_NOTE = 75;
   const MIN_NOTE_SUB  = 90;
   const MIN_SUB_SUB   = 100;
+  // 银心净空区半径：略低于旋臂内缘（~211），保证星系中心周围没有游离恒星
+  const MIN_CENTER_DIST = 190;
 
   for (let iter = 0; iter < ITERATIONS; iter++) {
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const a = nodes[i];
         const b = nodes[j];
-        // 跳过根节点、跨星座节点、以及 category 自身间的排斥（由 baseRadius 控制）
-        if (a.type === 'root' || b.type === 'root') continue;
+        // 银心净空区：根节点是"星系中心"，任何恒星都不得悬停在它旁边
+        // （沿径向只推非根节点，根节点固定原点不动）
+        if (a.type === 'root' || b.type === 'root') {
+          const star = a.type === 'root' ? b : a;
+          if (star.type === 'root') continue; // 防御：理论上不会有两个 root
+          const dxr = star.tx, dyr = star.ty, dzr = star.tz;
+          const dr = Math.sqrt(dxr * dxr + dyr * dyr + dzr * dzr);
+          if (dr < MIN_CENTER_DIST) {
+            if (dr < 1e-3) { star.tx = MIN_CENTER_DIST; continue; }
+            const k = MIN_CENTER_DIST / dr;
+            star.tx *= k; star.ty *= k; star.tz *= k;
+          }
+          continue;
+        }
+        // 跳过跨星座节点、以及 category 自身间的排斥（由 baseRadius 控制）
         if (a.type === 'category' && b.type === 'category') continue;
         if (a.branchId !== b.branchId) continue;
 
@@ -2037,6 +2063,37 @@ function drawNodes() {
     const highlighted = active || hoverPreview;
 
     ctx.save();
+
+    // 纹章：悬浮在根星/一级目录星（CV、NLP）正上方的全息徽记（自带透明底 + 冷白调色）。
+    // 一道从星核射向纹章底部的渐变光束把二者连成连体结构，
+    // 随节点缩放/深度衰减/聚焦变暗，与星辰同呼吸
+
+    let badgeImg = null;
+    if (node.type === 'root' && rootBadgeReady) badgeImg = rootBadgeImg;
+    else {
+      const img = categoryBadgeImgs[node.id];
+      if (img && img.complete && img.naturalWidth) badgeImg = img;
+    }
+    if (badgeImg) {
+      const bw = r * 4.3;
+      const bh = bw * (badgeImg.naturalHeight / badgeImg.naturalWidth);
+      const bx = p.x - bw / 2;
+      const by = p.y - r - 10 - bh; // 底缘贴在刻度弧（r+6.5）上方
+      // 全息投影光束：星核处最亮，向纹章方向渐隐
+      const beamTop = by + bh -  3;
+      const beam = ctx.createLinearGradient(p.x, p.y, p.x, beamTop);
+      beam.addColorStop(0, rgba('#dbeafe', 0.85));
+      beam.addColorStop(1, rgba('#dbeafe', 0.22));
+      ctx.globalAlpha = clamp(alpha, 0, 1);
+      ctx.strokeStyle = beam;
+      ctx.lineWidth = Math.max(1.2, r * 0.09);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x, beamTop);
+      ctx.stroke();
+      ctx.globalAlpha = clamp(alpha * 0.95, 0, 1);
+      ctx.drawImage(badgeImg, bx, by, bw, bh);
+    }
 
     // ===== 科技感节点标记：亮核为主，线条装饰只给重要节点 =====
     // 笔记 = 纯粹亮点（无环无光晕，避免密集圆圈）；子目录 = 亮核 + 贴身微光；
