@@ -4,10 +4,25 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Knowledge Graph · 我的 LLM 笔记</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Long+Cang&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap" rel="stylesheet" />
 <style>
+  /* 字体本地自托管（不依赖外部字体 API）：
+     - Share Tech：一级目录题名（官方 latin 切片，~15KB）
+     - Long Cang：顶部名言行楷（按名言字符集子集化，~118KB；
+       若修改 SIGNATURE_QUOTES 引入新字，需重新子集化：见 .cache/subset_fonts.py） */
+  @font-face {
+    font-family: 'Share Tech';
+    src: url('fonts/share-tech-latin.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Long Cang';
+    src: url('fonts/long-cang-quote.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
   :root {
     --bg-color: #030712;
     --text-color: #cbd5e1;
@@ -1192,10 +1207,8 @@ let rootBadgeReady = false;
 rootBadgeImg.onload = () => { rootBadgeReady = true; };
 rootBadgeImg.src = 'root_badge.png';
 
-// 一级目录纹章（CV/NLP，同样悬浮 + 光束，尺寸比根纹章小一档）：节点 id → 图片
-const categoryBadgeImgs = { CV: new Image(), NLP: new Image() };
-categoryBadgeImgs.CV.src = 'cv_badge.png';
-categoryBadgeImgs.NLP.src = 'nlp_badge.png';
+// 一级目录题名（drawNodes 中悬浮绘制在目录星正上方）：Share Tech 科技风无衬线英文 + 辉光脉动
+const EMBLEM_TEXT = { CV: 'CV', NLP: 'NLP', '性能优化': 'PERF', '代码实践': 'CODE' };
 
 // 银河带：斜贯画面的浅淡亮带 = 弥散辉光 + 大量细密暗星 + 暗尘埃裂隙
 function renderMilkyWayCanvas() {
@@ -2064,23 +2077,17 @@ function drawNodes() {
 
     ctx.save();
 
-    // 纹章：悬浮在根星/一级目录星（CV、NLP）正上方的全息徽记（自带透明底 + 冷白调色）。
-    // 一道从星核射向纹章底部的渐变光束把二者连成连体结构，
+    // 根星纹章 / 一级目录题名：根星正上方悬浮全息徽记（自带透明底 + 冷白调色）；
+    // CV/NLP 等一级目录正上方悬浮英文题名（Share Tech 科技无衬线风 + 科技蓝辉光脉动）。
+    // 一道从星核射向徽记/题字底部的渐变光束把二者连成连体结构，
     // 随节点缩放/深度衰减/聚焦变暗，与星辰同呼吸
-
-    let badgeImg = null;
-    if (node.type === 'root' && rootBadgeReady) badgeImg = rootBadgeImg;
-    else {
-      const img = categoryBadgeImgs[node.id];
-      if (img && img.complete && img.naturalWidth) badgeImg = img;
-    }
-    if (badgeImg) {
+    if (node.type === 'root' && rootBadgeReady) {
       const bw = r * 4.3;
-      const bh = bw * (badgeImg.naturalHeight / badgeImg.naturalWidth);
+      const bh = bw * (rootBadgeImg.naturalHeight / rootBadgeImg.naturalWidth);
       const bx = p.x - bw / 2;
       const by = p.y - r - 10 - bh; // 底缘贴在刻度弧（r+6.5）上方
       // 全息投影光束：星核处最亮，向纹章方向渐隐
-      const beamTop = by + bh -  3;
+      const beamTop = by + bh - 3;
       const beam = ctx.createLinearGradient(p.x, p.y, p.x, beamTop);
       beam.addColorStop(0, rgba('#dbeafe', 0.85));
       beam.addColorStop(1, rgba('#dbeafe', 0.22));
@@ -2092,7 +2099,39 @@ function drawNodes() {
       ctx.lineTo(p.x, beamTop);
       ctx.stroke();
       ctx.globalAlpha = clamp(alpha * 0.95, 0, 1);
-      ctx.drawImage(badgeImg, bx, by, bw, bh);
+      ctx.drawImage(rootBadgeImg, bx, by, bw, bh);
+    } else if (EMBLEM_TEXT[node.id]) {
+      const fontSize = Math.max(10, r * 1.9);
+      const baseline = p.y - r - 12; // 字面底缘贴在刻度弧（r+6.5）上方
+      // 全息投影光束：星核处最亮，向题字方向渐隐
+      const beam = ctx.createLinearGradient(p.x, p.y, p.x, baseline + 2);
+      beam.addColorStop(0, rgba('#dbeafe', 0.85));
+      beam.addColorStop(1, rgba('#dbeafe', 0.22));
+      ctx.globalAlpha = clamp(alpha, 0, 1);
+      ctx.strokeStyle = beam;
+      ctx.lineWidth = Math.max(1.2, r * 0.09);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x, baseline + 2);
+      ctx.stroke();
+      // 双层辉光：外层宽幅低亮铺底，内层窄边高亮勾形，脉动模拟全息呼吸
+      ctx.font = `${fontSize}px "Share Tech", "Segoe UI", sans-serif`;
+      try { ctx.letterSpacing = `${(fontSize * 0.08).toFixed(1)}px`; } catch (e) {}
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      const pulse = 0.75 + 0.25 * Math.sin(time * 2.1 + node.index * 1.7);
+      ctx.globalAlpha = clamp(alpha * 0.5, 0, 1);
+      ctx.fillStyle = '#dbeafe';
+      ctx.shadowColor = rgba('#38bdf8', 0.55 * pulse);
+      ctx.shadowBlur = fontSize * 1.1 * pulse;
+      ctx.fillText(EMBLEM_TEXT[node.id], p.x, baseline);
+      ctx.globalAlpha = clamp(alpha * 0.95, 0, 1);
+      ctx.fillStyle = '#eaf2ff';
+      ctx.shadowColor = rgba('#bae6fd', 0.9 * pulse);
+      ctx.shadowBlur = fontSize * 0.35 * pulse;
+      ctx.fillText(EMBLEM_TEXT[node.id], p.x, baseline);
+      ctx.shadowBlur = 0;
+      try { ctx.letterSpacing = '0px'; } catch (e) {}
     }
 
     // ===== 科技感节点标记：亮核为主，线条装饰只给重要节点 =====
@@ -2212,16 +2251,23 @@ function labelZoomBoost() {
 // 文字标签的显示时机：
 // - 锁定选中（点击固定 pin / 搜索选中 search）：焦点与关联节点（子/父/引用）的名字全部浮现；
 // - 悬停（pointer，未固定）：只显示悬停节点与它的直接子节点、直接父节点的名字；
+// - 拉近视角：zoom 超过约 2.2 后所有节点名字随缩放渐入，远处节点更淡（深度雾）；
 // - 默认状态：星图完全无文字标识。
 function labelsLocked() {
   return !!focusNode && (!!pinnedNode || focusSource === 'search');
+}
+
+// 拉近视角时的基础透明度：超过旧取景上限后渐入，再乘深度雾让远处名字更淡
+function zoomLabelAlpha(node) {
+  const z = node.screen ? node.screen.z : 0;
+  return clamp((camera.zoom - 2.2) / 0.9, 0, 0.9) * depthFade(z);
 }
 
 function labelAlphaFor(node) {
   if (labelsLocked()) {
     if (node.id === focusNode.id) return 1;
     if (focusIds.has(node.id)) return 0.92;
-    return 0;
+    return zoomLabelAlpha(node);
   }
   // 悬停状态：显示悬停节点本身、直接子节点与直接父节点的名字
   if (focusNode && focusSource === 'pointer') {
@@ -2229,7 +2275,7 @@ function labelAlphaFor(node) {
     if (focusChildIds.has(node.id)) return 0.9;
     if (node === parentById.get(focusNode.id)) return 0.9;
   }
-  return 0;
+  return zoomLabelAlpha(node);
 }
 
 function labelFontSizeFor(node) {
@@ -3106,7 +3152,7 @@ canvas.addEventListener('mouseleave', () => {
 canvas.addEventListener('wheel', event => {
   event.preventDefault();
   const delta = Math.exp(-event.deltaY * 0.0011);
-  camera.zoom = clamp(camera.zoom * delta, 0.34, 2.1);
+  camera.zoom = clamp(camera.zoom * delta, 0.34, 6);
   if (focusNode) placeTooltipSmart(focusNode);
 }, { passive: false });
 
