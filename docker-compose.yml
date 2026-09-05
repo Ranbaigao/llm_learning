@@ -1,4 +1,4 @@
-# 生产编排：nginx(80) → frontend(Nuxt SSR :3000) + backend(FastAPI :8000) + mysql(8.4)
+# 生产编排：nginx(80/443) → frontend(Nuxt SSR :3000) + backend(FastAPI :8000) + mysql(8.4)
 #
 # 数据库凭证单源真理在 .env（MYSQL_* / DB_HOST / DB_PORT）：
 #   - mysql 服务用它们初始化容器（建库、建应用账号）
@@ -50,8 +50,12 @@ services:
     image: nginx:1.27-alpine
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # HTTPS 备用：证书目录挂载（宿主机 certbot 签发）。默认 HTTP 配置不引用它，
+      # 备案完成切 nginx-https.conf 时无需再改 compose；未签证书前此目录为空也无影响
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - frontend
       - backend
