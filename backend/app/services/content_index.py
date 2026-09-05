@@ -119,7 +119,9 @@ def git_last_commit_times() -> dict[str, int]:
 
     try:
         result = subprocess.run(
-            ["git", "-c", "core.quotepath=false", "log", "--format=@%ct", "--name-status", "-M"],
+            # safe.directory=*：容器内挂载的 .git 属主与进程用户不一致时
+            # git 会以 dubious ownership 拒绝读取，命令行显式放行（只读调用无风险）
+            ["git", "-c", "safe.directory=*", "-c", "core.quotepath=false", "log", "--format=@%ct", "--name-status", "-M"],
             capture_output=True,
             text=True,
             encoding="utf-8",

@@ -24,6 +24,9 @@ services:
       DATABASE_URL: mysql+pymysql://${MYSQL_USER:?请在 .env 设置 MYSQL_USER}:${MYSQL_PASSWORD:?请在 .env 设置 MYSQL_PASSWORD}@${DB_HOST:-mysql}:${DB_PORT:-3306}/${MYSQL_DATABASE:-llm_kb}?charset=utf8mb4
     volumes:
       - ./content:/app/content:ro
+      # git 历史（只读）：「最新更新」按最近内容提交时间排序；缺它则回退文件 mtime，
+      # 而 git clone 会把所有文件 mtime 刷成同一天（生产部署必挂）
+      - ./.git:/app/.git:ro
     # 仅当 DB_HOST=host.docker.internal（连宿主机 MySQL）时需要；Linux 下解析宿主机
     extra_hosts:
       - "host.docker.internal:host-gateway"
