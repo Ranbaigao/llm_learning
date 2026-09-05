@@ -1,0 +1,27 @@
+{
+    "name" : "星尘知识库",
+    "appid" : "",
+    "description" : "个人知识库微信小程序端",
+    "versionName" : "1.0.0",
+    "versionCode" : "100",
+    "transformPx" : false,
+    /* 快应用特有相关 */
+    "quickapp" : {},
+    /* 小程序特有相关 */
+    "mp-weixin" : {
+        /* 占位 AppID：请在 https://mp.weixin.qq.com 注册个人小程序后替换为自己的 AppID，
+           仅本地体验可在微信开发者工具中选择「测试号」 */
+        "appid" : "YOUR_APPID",
+        "setting" : {
+            "urlCheck" : false,
+            "es6" : true,
+            "minified" : true
+        },
+        "usingComponents" : true,
+        "lazyCodeLoading" : "requiredComponents"
+    },
+    "uniStatistics": {
+        "enable": false
+    },
+    "vueVersion" : "3"
+}

@@ -1,0 +1,13 @@
+# Nuxt
+.nuxt
+.output
+.data
+dist
+
+# Node
+node_modules
+*.log
+
+# 系统
+.DS_Store
+Thumbs.db

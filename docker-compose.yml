@@ -1,0 +1,89 @@
+# 生产编排：nginx(80) → frontend(Nuxt SSR :3000) + backend(FastAPI :8000) + mysql(8.4)
+#
+# 数据库凭证单源真理在 .env（MYSQL_* / DB_HOST / DB_PORT）：
+#   - mysql 服务用它们初始化容器（建库、建应用账号）
+#   - backend 的 DATABASE_URL 由 compose 用同一组值自动拼装
+# 两边永远一致，不存在"改了一处忘了另一处"的漂移问题。
+services:
+  backend:
+    # 显式镜像名：便于 docker save/load 离线分发（不依赖项目目录名）
+    image: llm-learning-backend:latest
+    build:
+      context: ./backend
+      args:
+        # pip 源（默认官方源；国内无代理环境可在 .env 设清华源覆盖）
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+    env_file:
+      # 实际部署务必先 cp .env.example .env 并修改密钥
+      - path: .env
+        required: false
+    environment:
+      # 镜像内不含内容目录，此处与下方只读挂载对应
+      CONTENT_DIR: /app/content
+      # 由 .env 的 MYSQL_*/DB_* 拼出，请勿在 .env 里单独设置 DATABASE_URL
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:?请在 .env 设置 MYSQL_USER}:${MYSQL_PASSWORD:?请在 .env 设置 MYSQL_PASSWORD}@${DB_HOST:-mysql}:${DB_PORT:-3306}/${MYSQL_DATABASE:-llm_kb}?charset=utf8mb4
+    volumes:
+      - ./content:/app/content:ro
+    # 仅当 DB_HOST=host.docker.internal（连宿主机 MySQL）时需要；Linux 下解析宿主机
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      # 仅保证启动顺序；MySQL 首次初始化需数秒，就绪等待由后端 lifespan 的重试逻辑完成
+      - mysql
+    restart: unless-stopped
+
+  frontend:
+    image: llm-learning-frontend:latest
+    build:
+      context: ./frontend
+      args:
+        # npm 源（默认 npmmirror；海外构建可在 .env 设 NPM_REGISTRY=https://registry.npmjs.org）
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmmirror.com}
+    environment:
+      # SSR 服务端直连后端容器（对应 nuxt.config.ts 的 runtimeConfig.apiServer）
+      NUXT_API_SERVER: http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  # 内置 MySQL 8.4 LTS（随项目一起打包，数据持久化在 mysql_data 卷）
+  # 凭证全部来自 .env；仅在首次启动（空数据卷）时建库建号。
+  # 用外部数据库时关闭本服务：docker compose up -d --scale mysql=0
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?请在 .env 设置 MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-llm_kb}
+      MYSQL_USER: ${MYSQL_USER:-kb}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?请在 .env 设置 MYSQL_PASSWORD}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      # $$ 转义：让容器内 shell 展开容器自己的环境变量，而不是 compose 解析期替换
+      test: ["CMD-SHELL", 'mysqladmin ping -h 127.0.0.1 -p"$${MYSQL_ROOT_PASSWORD}" --silent']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # 可选：Redis 缓存。启用：docker compose --profile redis up -d，
+  # 同时在 .env 设置 REDIS_URL=redis://redis:6379/0
+  redis:
+    image: redis:7
+    profiles: ["redis"]
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

@@ -5,10 +5,23 @@ site/
 skills/
 ai_docs/
 .codex/
-# 知识图谱数据 (由 hooks/generate_graph_data.py 在每次构建前自动生成)
-notebooks/.assets/data/
+# 星图数据改由后端 /api/graph 动态生成（MySQL PV + git 时间戳），不再落盘 JSON
+content/.assets/data/
 feedbacks/
 .agents/
 .claude/
 thinking/
 AGENT.md
+
+# ---- 全栈重构（Nuxt + FastAPI）----
+node_modules/
+.nuxt/
+.output/
+.data/
+.env
+backend/.cache/
+backend/venv/
+
+# Docker 镜像离线导出包（712MB+，勿提交）
+llm_kb_images.tar.gz
+update_*.tar.gz

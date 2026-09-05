@@ -1,0 +1,15 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+pymysql>=1.1
+# pymysql 走 caching_sha2_password（MySQL 8 默认认证）完整握手需要 cryptography
+cryptography>=42
+pydantic>=2.0
+pydantic-settings>=2.0
+markdown-it-py>=3.0
+mdit-py-plugins>=0.4
+python-frontmatter>=1.1
+httpx>=0.27
+nbconvert>=7.0
+nbformat>=5.9
+pygments>=2.15
