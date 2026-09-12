@@ -362,6 +362,10 @@ export class StarMapEngine {
   private viewCenter = { x: 0, y: 0, z: 0 };
   // 星图重心：布局完成后由全部节点位置平均得到，作为默认旋转中心
   private graphCenter = { x: 0, y: 0, z: 0 };
+  // 取景安全区：画布四边被 DOM 面板遮挡的内缩量（容器相对像素），
+  // 由宿主组件实测下发（移动端顶部目录/底部统计卡片/右侧工具栏会显著压缩可视区）；
+  // 全 0 时行为与旧版完全一致
+  private viewInsets = { top: 0, right: 0, bottom: 0, left: 0 };
   private layoutSeed = 0;
   private camera = {
     rotX: DEFAULT_ROT_X,
@@ -478,12 +482,23 @@ export class StarMapEngine {
     this.labelLayer.replaceChildren();
   }
 
+  /** 下发取景安全区（容器相对像素）；resetView 会把星图对准安全区中心 */
+  setViewInsets(insets: { top: number; right: number; bottom: number; left: number }): void {
+    this.viewInsets = insets;
+  }
+
   resetView(): void {
     this.camera.rotX = DEFAULT_ROT_X;
     this.camera.rotY = DEFAULT_ROT_Y;
     this.constellationRotation = 0;
-    this.camera.panX = 0;
-    this.camera.panY = 14;
+    // 取景目标区 = 画布减去四边面板内缩；星图中心对准该区域中心而非画布中心
+    // （移动端底部统计卡片会遮住画布下缘约 1/4，不对准安全区中心会显得"视角偏下"）
+    const freeW = Math.max(160, this.width - this.viewInsets.left - this.viewInsets.right);
+    const freeH = Math.max(160, this.height - this.viewInsets.top - this.viewInsets.bottom);
+    const freeCx = this.viewInsets.left + (this.width - this.viewInsets.left - this.viewInsets.right) / 2;
+    const freeCy = this.viewInsets.top + (this.height - this.viewInsets.top - this.viewInsets.bottom) / 2;
+    this.camera.panX = freeCx - this.width / 2;
+    this.camera.panY = freeCy - this.height / 2 + 14; // 14：旧版默认取景的基线下移量
     // 用 92 分位半径取景（相对星图重心），避免个别大分支的边缘星把整体缩放逐小；
     // 再乘 INITIAL_ZOOM_FACTOR 拉近到"滚轮前滚三次"的初始距离
     const radii = this.nodes.map(node => Math.hypot(
@@ -493,7 +508,7 @@ export class StarMapEngine {
     )).sort((a, b) => a - b);
     const percentileR = radii.length ? radii[Math.floor(0.92 * (radii.length - 1))] : 520;
     const maxR = Math.max(520, percentileR);
-    this.camera.zoom = clamp(Math.min(this.width, this.height) / (maxR * 1.8) * INITIAL_ZOOM_FACTOR, 0.56, 2.0);
+    this.camera.zoom = clamp(Math.min(freeW, freeH) / (maxR * 1.8) * INITIAL_ZOOM_FACTOR, 0.56, 2.0);
   }
 
   relayout(): void {
@@ -566,14 +581,17 @@ export class StarMapEngine {
   // ======= 布局 =======
 
   private measure(): void {
+    // 先清掉历史上可能写入的内联尺寸再测量：内联 px 尺寸会盖过 CSS 的 100%，
+    // 窗口缩小后 canvas 会被自己上次的内联尺寸撑住，永远量不到新尺寸
+    // （宽高由 .scene 的 width/height:100% + inset:0 跟随容器，无需写内联）
+    this.canvas.style.width = '';
+    this.canvas.style.height = '';
     const rect = this.canvas.getBoundingClientRect();
     this.width = Math.max(320, rect.width);
     this.height = Math.max(420, rect.height);
     this.dpr = Math.min(2, window.devicePixelRatio || 1);
     this.canvas.width = Math.floor(this.width * this.dpr);
     this.canvas.height = Math.floor(this.height * this.dpr);
-    this.canvas.style.width = `${this.width}px`;
-    this.canvas.style.height = `${this.height}px`;
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
   }
 

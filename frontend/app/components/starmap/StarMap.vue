@@ -98,6 +98,7 @@ async function loadGraph() {
     latest.value = latestNotes(data)
     hot.value = hotNotes(data)
     await nextTick()
+    await layoutSideWidgets() // 先量好取景安全区，引擎首次 resetView 即对准安全区中心
     engine?.setData(data)
     await nextTick()
     layoutSideWidgets()
@@ -219,6 +220,32 @@ function widgetNaturalHeight(panel: HTMLElement): number {
   return Math.min(260, Math.round(list?.scrollHeight || 0) + 46) // 46 = 44px 标题栏 + 上下边框
 }
 
+// 实测移动端被面板遮挡的画布四边，下发引擎作为取景安全区
+// （移动端顶部目录栏、底部统计卡片、右侧工具栏会吃掉约 1/3 视野，不对齐安全区中心
+//  就会像截图里那样星图整体偏下、右缘被工具栏裁掉）；桌面端保持零内缩
+function updateViewInsets() {
+  const root = rootEl.value
+  if (!root || !engine) return
+  if (window.innerWidth > 760) {
+    engine.setViewInsets({ top: 0, right: 0, bottom: 0, left: 0 })
+    return
+  }
+  const rootRect = root.getBoundingClientRect()
+  const sidebar = root.querySelector<HTMLElement>('.sidebar')
+  const headerPanel = root.querySelector<HTMLElement>('.header-panel')
+  const toolbar = root.querySelector<HTMLElement>('.toolbar')
+  const gap = 12
+  // 移动端侧边栏本质是临时覆盖的菜单：无论展开/收起，取景安全区始终按其
+  // 收起占用（顶边 + 44px 标题栏）计算——展开目录不应把星图视角挤走，
+  // 收起后也不用重新取景（clip-path 收起时 rect 底边仍是全高，不能直接量）
+  const top = sidebar
+    ? Math.max(0, sidebar.getBoundingClientRect().top - rootRect.top + 44 + gap)
+    : 0
+  const bottom = headerPanel ? Math.max(0, rootRect.bottom - headerPanel.getBoundingClientRect().top + gap) : 0
+  const right = toolbar ? Math.max(0, rootRect.right - toolbar.getBoundingClientRect().left + gap) : 0
+  engine.setViewInsets({ top, right, bottom, left: 0 })
+}
+
 // 左侧列整体布局：笔记目录 → 最新更新 → 浏览热度 依次堆叠，
 // 下边界是底部工具栏（移动端为底部统计卡片）。信息栏按内容取自然高度，
 // 侧边栏让位：max-height 收紧到剩余空间，目录展开过多时树形列表内部滚动，
@@ -242,23 +269,35 @@ async function layoutSideWidgets() {
 
   const sbRect = sidebar.getBoundingClientRect()
   const sbTop = sbRect.top - rootRect.top
-  // 桌面端为两个信息栏预留空间（收起按 44px 标题栏计）
-  const reserved = isMobile ? 0 : [latestPanel, hotPanel]
+  // 为两个信息栏预留空间（收起按 44px 标题栏计）
+  const reserved = [latestPanel, hotPanel]
     .reduce((sum, panel) => sum + widgetNaturalHeight(panel) + gap, 0)
   const sidebarMax = Math.max(140, bottomLimit - sbTop - reserved)
-  sidebarMaxHeight.value = `${Math.round(sidebarMax)}px`
+  // 收起时把真实盒高也压到 44px（与信息栏一致）：让面板自身的下边框成为可视底边。
+  // 否则盒高仍是全高、可视底边只剩 clip-path 裁切线和标题栏 0.12 的淡分割线，
+  // 边框下半部分看起来发黑融进背景
+  sidebarMaxHeight.value = sidebarCollapsed.value ? '44px' : `${Math.round(sidebarMax)}px`
 
-  if (isMobile) return // 移动端信息栏隐藏，只需收紧侧边栏
-
-  const sbVisibleHeight = sidebarCollapsed.value ? 44 : Math.min(sbRect.height, sidebarMax)
+  // 可视高度用树内容的 scrollHeight 计算（不随收起/展开的 CSS 过渡变化），
+  // 信息栏在动画第一帧就朝最终位置移动，与目录栏动画同步；
+  // 若用 getBoundingClientRect（过渡中的瞬时盒高），信息栏只能等
+  // transitionend 后才被推到最终位置——旧版"先展开完再推下面"的拖沓感来源
+  const sbTreeHeight = Math.round(
+    sidebar.querySelector('.sidebar-tree')?.scrollHeight ?? 0,
+  )
+  const sbVisibleHeight = sidebarCollapsed.value
+    ? 44
+    : Math.min(sbTreeHeight + 46, sidebarMax) // 46 = 44px 标题栏 + 上下边框（同信息栏口径）
   let top = Math.round(sbTop + sbVisibleHeight + gap)
   for (const panel of [
     { el: latestPanel, key: 'latest' },
     { el: hotPanel, key: 'hot' },
   ] as const) {
     const natural = widgetNaturalHeight(panel.el)
-    // 窗口过矮时信息栏让位：压缩 max-height，列表内部滚动
-    const visible = Math.max(64, Math.min(natural, bottomLimit - top))
+    // 窗口过矮时信息栏让位：压缩 max-height，列表内部滚动。
+    // 64px 下限只用于展开态防挤压，绝不超过自然高度——
+    // 否则收起态（44px 标题栏）会被垫到 64px，面板之间凭空多出 20px 空隙
+    const visible = Math.min(natural, Math.max(64, bottomLimit - top))
     if (panel.key === 'latest') {
       latestTop.value = `${top}px`
       latestMaxHeight.value = `${Math.round(visible)}px`
@@ -268,6 +307,9 @@ async function layoutSideWidgets() {
     }
     top += visible + gap
   }
+
+  // 面板位置/高度落定后重测取景安全区（引擎下次 resetView 时生效，不惊扰当前视角）
+  updateViewInsets()
 }
 
 // 搜索候选列表弹出/收起时，动态调整笔记目录的顶边位置：
@@ -290,19 +332,35 @@ async function layoutSidebarForSearch() {
 // ======= 工具栏动作 =======
 
 function toggleSidebar() {
-  sidebarCollapsed.value = !sidebarCollapsed.value
-  layoutSideWidgets()
+  sidebarCollapsed.value = !sidebarCollapsed.value // 重排由 watch 统一触发
 }
+
+// 目录栏的收起/展开有两条通路：工具栏按钮（toggleSidebar）和标题栏点击
+// （v-model:collapsed）。统一用 watch 在状态翻转的第一帧重排信息栏，
+// 让信息栏与目录栏的收起/展开动画同步开始，而不是等 transitionend 才补跳
+watch(sidebarCollapsed, () => { layoutSideWidgets() })
 
 function togglePause() {
   paused.value = !paused.value
   engine?.setPaused(paused.value)
 }
 
-function onWindowResize() {
-  engine?.resize()
+// 记录上次所处端型：仅在跨越移动端断点时重置折叠态，同端内的手动展开/收起不受打扰
+let wasMobileLayout = false
+
+async function onWindowResize() {
+  const mobile = window.innerWidth <= 760
+  if (mobile !== wasMobileLayout) {
+    wasMobileLayout = mobile
+    // 从宽屏缩到移动端：三栏（目录+信息栏）默认收起，避免把星图完全挡住；
+    // 回到桌面端：恢复展开（桌面默认态）。信息栏的折叠由 StarMapPanels 自己监听处理
+    sidebarCollapsed.value = mobile
+    await nextTick()
+  }
+  // 先重测面板布局与取景安全区，引擎 resize 内的 resetView 才能用上最新安全区
   layoutSidebarForSearch()
-  layoutSideWidgets()
+  await layoutSideWidgets()
+  engine?.resize()
 }
 
 // ======= 生命周期 =======
@@ -320,6 +378,7 @@ onMounted(() => {
     },
   })
   sidebarCollapsed.value = window.innerWidth < 760 // 小屏默认收起侧边栏
+  wasMobileLayout = window.innerWidth <= 760
   loadGraph()
   loadSiteStats()
   window.addEventListener('resize', onWindowResize)

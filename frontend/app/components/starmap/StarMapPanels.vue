@@ -46,6 +46,40 @@ function toggleHot() {
   hotCollapsed.value = !hotCollapsed.value
   emit('layoutChange')
 }
+
+// 移动端屏幕有限：两个信息栏默认收起成标题栏（点击标题展开），桌面端默认展开。
+// 必须在 onMounted 里判断：SSR 阶段没有 window，且初始渲染保持一致避免水合不匹配
+function isMobileWidth() {
+  return window.innerWidth <= 760
+}
+
+// 记录上次所处端型：仅在跨越移动端断点时重置折叠态，同端内的手动展开/收起不受打扰
+let wasMobile = false
+
+// 跨越移动端断点时重置折叠态（如桌面窗口拖窄来预览移动端：进移动端收起、
+// 回桌面端展开）。折叠后父组件随之重排左列
+function onBreakpointResize() {
+  const mobile = isMobileWidth()
+  if (mobile === wasMobile) return
+  wasMobile = mobile
+  latestCollapsed.value = mobile
+  hotCollapsed.value = mobile
+  emit('layoutChange')
+}
+
+onMounted(() => {
+  wasMobile = isMobileWidth()
+  if (wasMobile) {
+    latestCollapsed.value = true
+    hotCollapsed.value = true
+    emit('layoutChange')
+  }
+  window.addEventListener('resize', onBreakpointResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', onBreakpointResize)
+})
 </script>
 
 <template>
@@ -487,8 +521,11 @@ function toggleHot() {
 
   .legend-panel { display: none; }
 
-  /* 移动端屏幕有限：最新更新 / 浏览热度两个信息栏不显示 */
-  .side-widget { display: none; }
+  /* 信息栏（最新更新/浏览热度）：与侧边栏同宽左对齐；默认收起由脚本置位，点击标题展开 */
+  .side-widget {
+    left: 10px;
+    width: min(240px, calc(100vw - 66px));
+  }
 
   /* 工具栏：右侧竖排居中，避开左上搜索/目录与底部统计卡片 */
   .toolbar {
