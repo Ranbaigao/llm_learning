@@ -32,6 +32,12 @@ export default defineNuxtConfig({
           content: '个人 LLM 学习知识库：模型架构、推理优化、工程实践与博客随笔',
         },
       ],
+      // 浏览器标签页图标：根节点纹章（白色线稿压深空底色，public/ 下静态文件）
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/png', sizes: '256x256', href: '/icon-256.png' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+      ],
       script: [
         {
           key: 'mathjax-loader',
