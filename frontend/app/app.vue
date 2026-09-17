@@ -3,12 +3,13 @@ const appConfig = useAppConfig()
 const route = useRoute()
 // 首页为全屏星图：主区去宽度限制与内边距，且不显示页脚
 const isHome = computed(() => route.path === '/')
+const isNotes = computed(() => route.path === '/notes' || route.path.startsWith('/notes/'))
 </script>
 
 <template>
   <div class="site-shell">
     <SiteHeader />
-    <main class="site-main" :class="{ 'site-main--home': isHome }">
+    <main class="site-main" :class="{ 'site-main--home': isHome, 'site-main--notes': isNotes }">
       <NuxtPage />
     </main>
     <footer v-if="!isHome" class="site-footer">

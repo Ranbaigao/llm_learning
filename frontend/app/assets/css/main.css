@@ -71,6 +71,9 @@ h1, h2, h3, h4, h5, h6 {
   border-top: 1px solid rgba(56, 189, 248, 0.08);
 }
 
+/* 笔记页为左侧知识库目录、正文、右侧文章大纲预留空间。 */
+.site-main--notes { max-width: 1520px; }
+
 /* 通用卡片 */
 .card {
   background: var(--bg-card);
@@ -106,6 +109,9 @@ h1, h2, h3, h4, h5, h6 {
 .article-content {
   font-size: 16px;
   word-break: break-word;
+}
+.article-content :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: calc(var(--header-height) + 20px);
 }
 .article-content h1 {
   font-size: 1.7em;

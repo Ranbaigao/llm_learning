@@ -2,6 +2,7 @@
 const route = useRoute()
 const { apiFetch, encodeSlug } = useApi()
 const { ensure } = useVisitor()
+const articleView = ref<{ contentRef: HTMLElement | null } | null>(null)
 
 // 多级 slug：路由参数已解码，拼回后端使用的 posix 路径
 const slug = computed(() => {
@@ -71,7 +72,7 @@ function onLikeUpdate(count: number) {
     <ArticleTreeNav :current-slug="slug" />
 
     <div v-if="article" class="article-col">
-      <ArticleView :article="article" />
+      <ArticleView ref="articleView" :article="article" />
       <div class="article-actions">
         <LikeButton
           :article-id="article.id"
@@ -88,6 +89,12 @@ function onLikeUpdate(count: number) {
         <p>从左侧目录选择一篇笔记开始阅读，或使用顶部搜索框检索内容。</p>
       </div>
     </div>
+
+    <ArticleOutline
+      v-if="article"
+      :content="articleView?.contentRef || null"
+      :html="article.html"
+    />
   </div>
 </template>
 

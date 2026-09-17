@@ -4,6 +4,7 @@ const props = defineProps<{
 }>()
 
 const contentRef = ref<HTMLElement | null>(null)
+defineExpose({ contentRef })
 const router = useRouter()
 
 // ---- 文章头信息 ----
