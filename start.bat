@@ -33,37 +33,42 @@ if not exist ".cache\venv\Scripts\python.exe" (
 )
 echo [OK] 后端依赖就绪（.cache\venv）
 
-REM ---- 3. 前端依赖（缺则自动安装）----
-if not exist "frontend\node_modules" (
-  echo [初始化] 安装前端依赖（首次较慢，请耐心等待）...
+REM ---- 3. 检查 Nuxt 包和命令入口，避免把安装中断留下的空目录当成依赖就绪 ----
+set FRONTEND_DEPS_MISSING=0
+if not exist "frontend\node_modules\.bin\nuxt.cmd" set FRONTEND_DEPS_MISSING=1
+if not exist "frontend\node_modules\nuxt\package.json" set FRONTEND_DEPS_MISSING=1
+if !FRONTEND_DEPS_MISSING! equ 1 (
+  echo [初始化] 前端依赖缺失或不完整，按 package-lock.json 重新安装...
   pushd frontend
-  call npm install --registry=https://registry.npmmirror.com
-  if errorlevel 1 call npm install
-  if errorlevel 1 ( echo [错误] 前端依赖安装失败，可手动执行: cd frontend ^&^& npx npm@12.0.2 install & popd & pause & exit /b 1 )
+  call npm ci --registry=https://registry.npmmirror.com
+  if errorlevel 1 call npm ci
+  if errorlevel 1 ( echo [错误] 前端依赖安装失败，请查看上方报错；若文件被占用，先关闭本项目的前端进程再重试 & popd & pause & exit /b 1 )
   popd
 )
 echo [OK] 前端依赖就绪
 
-REM ---- 4. 启动服务（各自独立窗口，关窗即停止；cmd /c 进程结束后窗口自动关闭）----
+REM ---- 4. 启动服务（各自独立窗口；前端失败后保留窗口，便于查看报错）----
 echo.
 echo [启动] 后端 FastAPI  -^>  http://127.0.0.1:8000 （代码/笔记变更自动重载）
 start "星尘-后端:8000" cmd /c "set PYTHONUTF8=1&& .cache\venv\Scripts\python.exe -m uvicorn --app-dir backend app.main:app --host 127.0.0.1 --port 8000 --reload --reload-dir backend/app --reload-dir content"
 
 echo [启动] 前端 Nuxt     -^>  http://localhost:3000
-start "星尘-前端:3000" cmd /c "cd /d %~dp0frontend && npm run dev -- --port 3000"
+start "星尘-前端:3000" /D "%~dp0frontend" cmd /k "npm run dev -- --port 3000"
 
-REM ---- 5. 等前端就绪后打开浏览器（前端编译需要时间，最多等约 60 秒）----
+REM ---- 5. 等前端就绪后打开浏览器（每次请求限时 2 秒，最多等约 120 秒）----
 echo.
 echo 等待前端就绪...
 set /a RETRY=0
 :wait_frontend
 %SystemRoot%\System32\timeout.exe /t 2 /nobreak >nul
-curl -s http://localhost:3000/ >nul 2>&1
+curl --noproxy "*" --connect-timeout 1 --max-time 2 --fail --silent http://localhost:3000/ >nul 2>&1
 if not errorlevel 1 goto frontend_ready
 set /a RETRY+=1
 if !RETRY! lss 30 goto wait_frontend
-echo [提醒] 前端暂未就绪，请稍后手动访问 http://localhost:3000/
-goto done
+echo [错误] 前端启动超时，请查看「星尘-前端:3000」窗口中的报错。
+echo        可在 frontend 目录执行 npm run dev -- --port 3000 复现问题。
+pause
+exit /b 1
 
 :frontend_ready
 echo [完成] 服务已启动，正在打开浏览器...

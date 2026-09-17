@@ -54,7 +54,7 @@ thinking/    方案对比与决策记录
 
 ## 本地开发
 
-前置：Python 3.11、Node 22、MySQL 5.7+（venv 与前端依赖脚本会自动初始化）。
+前置：Python 3.11、Node.js 22.19+（22.x）或 24.11+（24.x）、MySQL 5.7+（venv 与前端依赖脚本会自动初始化）。
 
 ### 一键启动（推荐）
 
@@ -70,6 +70,11 @@ bash start.sh
 
 脚本自动完成：端口与 MySQL 连通性检查（默认本地 root/root 连接成功时会顺带自动建库 `llm_kb`）→ 缺失依赖初始化（`.cache/venv` / `frontend/node_modules`）→ 启动后端（8000）与前端（3000）→ 前端就绪后打开浏览器。后端带 `--reload`，改后端代码或 `content/` 笔记都会自动重载并重建内容索引。
 
+Windows 启动器会检查 Nuxt 包和 `nuxt.cmd` 是否存在，依赖安装中断后可自动重新安装。
+若卡在「等待前端就绪」，查看保留的「星尘-前端:3000」窗口：`'nuxt' is not recognized`
+通常表示前端依赖不完整。先关闭本项目的前端进程，再在 `frontend` 目录执行
+`npm ci --registry=https://registry.npmmirror.com`；若出现 `EPERM` / 文件占用，先释放报错文件再重试。
+
 ### 手动分步启动
 
 ```sql
@@ -83,7 +88,7 @@ export PYTHONUTF8=1
 .cache/venv/Scripts/python.exe -m uvicorn --app-dir backend app.main:app --host 127.0.0.1 --port 8000
 
 # 3. 启动前端（另开终端）
-cd frontend && npm install   # 若崩溃改用 npx npm@12.0.2 install
+cd frontend && npm ci       # 按 package-lock.json 安装；执行前关闭已有前端进程
 npm run dev -- --port 3000
 ```
 

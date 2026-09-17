@@ -574,6 +574,17 @@ onBeforeUnmount(() => {
 
 .starmap .starmap-tooltip.visible { opacity: 1; }
 
+/* 移动端降级 tooltip 层：让 .panel (z-index 4，含侧栏) 盖住 tooltip，
+   解决点击侧栏节点 → 节点详情浮窗遮挡侧栏导致难以继续浏览的问题。
+   tooltip 仍 pointer-events: none，点击穿透不受影响；
+   仅牺牲 tooltip 下边缘被侧栏底边裁切 ~44px 的视觉完整性。
+   选 3 与 .labels 同级（标签和 tooltip 互不遮挡），都低于 .panel 的 4 */
+@media (max-width: 760px) {
+  .starmap .starmap-tooltip {
+    z-index: 3;
+  }
+}
+
 .starmap .tip-type {
   display: inline-flex;
   align-items: center;
